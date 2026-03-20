@@ -127,11 +127,11 @@ export default class ServidorListComponent implements OnInit {
 
   loadData() {
     this.isLoading.set(true);
-    this.servidorService.listar(this.currentPage(), this.pageSize()).subscribe({
+    this.servidorService.findAll(this.currentPage(), this.pageSize()).subscribe({
       next: (page) => {
         this.servidores.set(page.content);
         this.totalElements.set(page.totalElements);
-        console.log(page.content);
+        // console.log(page.content);
       },
       error: () => this.showMessage('Erro ao carregar servidores'),
       complete: () => this.isLoading.set(false),
