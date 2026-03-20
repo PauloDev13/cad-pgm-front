@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltip } from '@angular/material/tooltip';
+import { ServidorFormComponent } from '../form/servidor-form.component';
 
 @Component({
   selector: 'app-servidor-list',
@@ -20,7 +21,8 @@ import { MatTooltip } from '@angular/material/tooltip';
         <p class="text-sm text-gray-500">Gerencie os servidores do sistema</p>
       </div>
       <button mat-flat-button color="primary" (click)="openForm()">
-        <mat-icon>add</mat-icon> Novo Servidor
+        <mat-icon>add</mat-icon>
+        Novo Servidor
       </button>
     </div>
 
@@ -107,19 +109,17 @@ import { MatTooltip } from '@angular/material/tooltip';
   ],
 })
 export default class ServidorListComponent implements OnInit {
-  // Injeções
-  private readonly servidorService = inject(ServidorService);
-  private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
-
   //Signals para Estado
   servidores = signal<ServidorResponseDTO[]>([]);
   totalElements = signal<number>(0);
   pageSize = signal<number>(10);
   currentPage = signal<number>(0);
   isLoading = signal<boolean>(false);
-
   displayedColumns: string[] = ['matricula', 'nome', 'email', 'cargo', 'setor', 'vinculo', 'acoes'];
+  // Injeções
+  private readonly servidorService = inject(ServidorService);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
 
   ngOnInit(): void {
     this.loadData();
@@ -139,7 +139,29 @@ export default class ServidorListComponent implements OnInit {
   }
 
   openForm(servidor?: ServidorResponseDTO) {
-    console.log(servidor);
+    const dialogRef = this.dialog.open(ServidorFormComponent, {
+      width: '900px',
+      data: servidor,
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loadData(); // Recarrega se houve alteração
+      }
+    });
+  }
+
+  delete(id: number) {
+    if (confirm('Tem certeza que deseja remover este servidor?')) {
+      this.servidorService.delete(id).subscribe({
+        next: () => {
+          this.showMessage('Servidor removido com sucesso!');
+          this.loadData();
+        },
+        error: () => this.showMessage('Erro ao remover servidor'),
+      });
+    }
   }
 
   deleteServidor(id: number) {
