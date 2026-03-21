@@ -1,13 +1,11 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import ServidorListComponent from './features/servidores/list/servidor-list.component';
 
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet],
-  template: `
-    <router-outlet />
-  `,
+  standalone: true,
+  template: ` <router-outlet /> `,
   styles: [],
 })
 export class App {

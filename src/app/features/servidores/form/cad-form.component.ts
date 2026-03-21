@@ -8,6 +8,7 @@ import {
   form,
   FormField,
   maxLength,
+  minLength,
   pattern,
   required,
   submit,
@@ -48,11 +49,19 @@ type FormModel = Required<Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | '
           </h3>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Nome Completo</mat-label>
-              <input matInput [formField]="servidorForm.nome" placeholder="Ex: João da Silva" />
-            </mat-form-field>
-
+            <div class="flex flex-col">
+              <!--Campo nome-->
+              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                <mat-label>Nome Completo</mat-label>
+                <input matInput [formField]="servidorForm.nome" placeholder="Ex: João da Silva" />
+              </mat-form-field>
+              @if (servidorForm.nome().invalid() && servidorForm.nome().touched()) {
+                @for (error of servidorForm.nome().errors(); track error) {
+                  <mat-error class="pl-3">{{ error.message }}</mat-error>
+                }
+              }
+            </div>
+            <!--Campo filiação-->
             <mat-form-field appearance="outline" class="w-full">
               <mat-label>Filiação (Nome da Mãe/Pai)</mat-label>
               <input matInput [formField]="servidorForm.filiacao" />
@@ -60,27 +69,54 @@ type FormModel = Required<Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | '
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mt-1">
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Matrícula</mat-label>
-              <input matInput [formField]="servidorForm.matricula" />
-            </mat-form-field>
+            <div class="flex flex-col">
+              <!--Campo matrícula-->
+              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                <mat-label>Matrícula</mat-label>
+                <input matInput [formField]="servidorForm.matricula" />
+              </mat-form-field>
+              @if (servidorForm.matricula().invalid() && servidorForm.matricula().touched()) {
+                @for (error of servidorForm.matricula().errors(); track error) {
+                  <mat-error class="pl-3">{{ error.message }}</mat-error>
+                }
+              }
+            </div>
 
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>CPF</mat-label>
-              <input matInput [formField]="servidorForm.cpf" placeholder="Somente números" />
-            </mat-form-field>
+            <div class="flex flex-col">
+              <!--Campo CPF-->
+              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                <mat-label>CPF</mat-label>
+                <input matInput [formField]="servidorForm.cpf" placeholder="Somente números" />
+              </mat-form-field>
+              @if (servidorForm.cpf().invalid() && servidorForm.cpf().touched()) {
+                @for (error of servidorForm.cpf().errors(); track error) {
+                  <mat-error class="pl-3">{{ error.message }}</mat-error>
+                }
+              }
+            </div>
 
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Data de Nascimento</mat-label>
-              <input
-                matInput
-                [matDatepicker]="pickerNascimento"
-                [formField]="servidorForm.dataNascimento"
-              />
-              <mat-datepicker-toggle matIconSuffix [for]="pickerNascimento"></mat-datepicker-toggle>
-              <mat-datepicker #pickerNascimento></mat-datepicker>
-            </mat-form-field>
+            <div class="flex flex-col">
+              <!--Campo Data Nascimento-->
+              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                <mat-label>Data de Nascimento</mat-label>
+                <input
+                  matInput
+                  [matDatepicker]="pickerNascimento"
+                  [formField]="servidorForm.dataNascimento"
+                />
+                <mat-datepicker-toggle matIconSuffix [for]="pickerNascimento" />
+                <mat-datepicker #pickerNascimento></mat-datepicker>
+              </mat-form-field>
+              @if (
+                servidorForm.dataNascimento().invalid() && servidorForm.dataNascimento().touched()
+              ) {
+                @for (error of servidorForm.dataNascimento().errors(); track error) {
+                  <mat-error class="pl-3">{{ error.message }}</mat-error>
+                }
+              }
+            </div>
 
+            <!--Campo genero-->
             <mat-form-field appearance="outline" class="w-full">
               <mat-label>Gênero</mat-label>
               <input matInput [formField]="servidorForm.genero" placeholder="Ex: Feminino" />
@@ -88,16 +124,26 @@ type FormModel = Required<Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | '
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-1">
+            <!--Campo telefone-->
             <mat-form-field appearance="outline" class="w-full">
               <mat-label>Telefone</mat-label>
               <input matInput [formField]="servidorForm.telefone" />
             </mat-form-field>
 
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>E-mail Pessoal</mat-label>
-              <input matInput [formField]="servidorForm.emailPessoal" type="email" />
-            </mat-form-field>
+            <div class="flex flex-col">
+              <!--Campo email pessoal-->
+              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                <mat-label>E-mail Pessoal</mat-label>
+                <input matInput [formField]="servidorForm.emailPessoal" type="email" />
+              </mat-form-field>
+              @if (servidorForm.emailPessoal().invalid() && servidorForm.emailPessoal().touched()) {
+                @for (error of servidorForm.emailPessoal().errors(); track error) {
+                  <mat-error class="pl-3">{{ error.message }}</mat-error>
+                }
+              }
+            </div>
 
+            <!--Campo email institucional-->
             <mat-form-field appearance="outline" class="w-full">
               <mat-label>E-mail Institucional</mat-label>
               <input matInput [formField]="servidorForm.emailInstitucional" type="email" />
@@ -105,6 +151,7 @@ type FormModel = Required<Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | '
           </div>
 
           <div class="grid grid-cols-1 gap-3 mt-1">
+            <!--Campo endereço-->
             <mat-form-field appearance="outline" class="w-full">
               <mat-label>Endereço Completo</mat-label>
               <input
@@ -121,45 +168,50 @@ type FormModel = Required<Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | '
           </h3>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!--Campo cargo-->
             <mat-form-field appearance="outline" class="w-full">
               <mat-label>Cargo ID</mat-label>
               <input matInput [formField]="servidorForm.cargoId" type="number" />
               @if (servidorForm.cargoId().invalid() && servidorForm.cargoId().touched()) {
-                <mat-error>O cargo é obrigatório</mat-error>
+                <mat-error>{{ servidorForm.cargoId().errors()[0].message }}</mat-error>
               }
             </mat-form-field>
 
+            <!--Campo setor-->
             <mat-form-field appearance="outline" class="w-full">
               <mat-label>Setor ID</mat-label>
               <input matInput [formField]="servidorForm.setorId" type="number" />
               @if (servidorForm.setorId().invalid() && servidorForm.setorId().touched()) {
-                <mat-error>O setor é obrigatório</mat-error>
+                <mat-error>{{ servidorForm.setorId().errors()[0].message }}</mat-error>
               }
             </mat-form-field>
 
+            <!--Campo lotação-->
             <mat-form-field appearance="outline" class="w-full">
               <mat-label>Lotação ID</mat-label>
               <input matInput [formField]="servidorForm.lotacaoId" type="number" />
               @if (servidorForm.lotacaoId().invalid() && servidorForm.lotacaoId().touched()) {
-                <mat-error>A lotação é obrigatória</mat-error>
+                <mat-error>{{ servidorForm.lotacaoId().errors()[0].message }}</mat-error>
               }
             </mat-form-field>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-1">
             <mat-form-field appearance="outline" class="w-full">
+              <!--Campo status-->
               <mat-label>Status ID</mat-label>
               <input matInput [formField]="servidorForm.statusId" type="number" />
               @if (servidorForm.statusId().invalid() && servidorForm.statusId().touched()) {
-                <mat-error>O status é obrigatório</mat-error>
+                <mat-error>{{ servidorForm.statusId().errors()[0].message }}</mat-error>
               }
             </mat-form-field>
 
+            <!--Campo vínculo-->
             <mat-form-field appearance="outline" class="w-full">
               <mat-label>Vínculo ID</mat-label>
               <input matInput [formField]="servidorForm.vinculoId" type="number" />
               @if (servidorForm.vinculoId().invalid() && servidorForm.vinculoId().touched()) {
-                <mat-error>O vínculo é obrigatório</mat-error>
+                <mat-error>{{ servidorForm.vinculoId().errors()[0].message }}</mat-error>
               }
             </mat-form-field>
           </div>
@@ -204,6 +256,7 @@ export class CadFormComponent implements OnInit {
   });
   servidorForm = form(this.servidorModel, (path) => {
     required(path.nome, { message: 'O nome é obrigatório' });
+    minLength(path.nome, 5, { message: 'O Nome deve ter no mínimo 5 caracteres' });
     maxLength(path.nome, 150, {
       message: 'O nome deve ter no máximo 150 caracteres',
     });
@@ -216,6 +269,8 @@ export class CadFormComponent implements OnInit {
     required(path.cpf, { message: 'O CPF é obrigatório' });
     pattern(path.cpf, /^\d{11}$/, { message: 'O CPF deve ter 11 digitos' });
 
+    required(path.dataNascimento, { message: 'A Data de Nascimento é obrigatório' });
+
     maxLength(path.telefone, 20, {
       message: 'O telefone deve ter no máximo 20 digitos',
     });
@@ -223,11 +278,11 @@ export class CadFormComponent implements OnInit {
     required(path.emailPessoal, { message: 'O Email é obrigatório' });
     email(path.emailPessoal, { message: 'Formato de email inválido' });
     maxLength(path.emailPessoal, 100, {
-      message: 'O nome deve ter no máximo 100 caracteres',
+      message: 'O Email deve ter no máximo 100 caracteres',
     });
 
     maxLength(path.emailInstitucional, 100, {
-      message: 'O nome deve ter no máximo 100 caracteres',
+      message: 'O Email deve ter no máximo 100 caracteres',
     });
     email(path.emailInstitucional, { message: 'Formato de email inválido' });
 
@@ -248,11 +303,18 @@ export class CadFormComponent implements OnInit {
       this.servidorModel.update((m) => ({
         ...m,
         ...this.data,
-        cargoId: this.data!.cargo?.id as number,
-        setorId: this.data!.setor?.id as number,
-        lotacaoId: this.data!.lotacao?.id as number,
-        statusId: this.data!.status?.id as number,
-        vinculoId: this.data!.vinculo?.id as number,
+        // ---> CONVERSÃO DA DATA <---
+        // Se existir a data no DTO, criamos o objeto Date. O 'T00:00:00' evita
+        // bugs de fuso horário que poderiam fazer o dia voltar 1 número.
+        // Usamos 'as any' temporariamente para o TypeScript não reclamar do tipo inicial 'string'.
+        dataNascimento: this.data?.dataNascimento
+          ? (new Date(this.data.dataNascimento + 'T00:00:00') as any)
+          : '',
+        cargoId: this.data?.cargo?.id as number,
+        setorId: this.data?.setor?.id as number,
+        lotacaoId: this.data?.lotacao?.id as number,
+        statusId: this.data?.status?.id as number,
+        vinculoId: this.data?.vinculo?.id as number,
       }));
     }
   }
