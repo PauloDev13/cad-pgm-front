@@ -6,7 +6,7 @@ export interface ServidorRequestDTO {
   dataNascimento?: string; // YYYY-MM-DD
   genero?: string;
   telefone?: string;
-  emailPessoal?: string;
+  emailPessoal: string;
   emailInstitucional?: string;
   endereco?: string;
   filiacao?: string;

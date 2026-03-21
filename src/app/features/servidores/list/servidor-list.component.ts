@@ -9,7 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltip } from '@angular/material/tooltip';
-import { ServidorFormComponent } from '../form/servidor-form.component';
+import { CadFormComponent } from '../form/cad-form.component';
 
 @Component({
   selector: 'app-servidor-list',
@@ -139,8 +139,10 @@ export default class ServidorListComponent implements OnInit {
   }
 
   openForm(servidor?: ServidorResponseDTO) {
-    const dialogRef = this.dialog.open(ServidorFormComponent, {
-      width: '900px',
+    const dialogRef = this.dialog.open(CadFormComponent, {
+      width: '1000px',
+      maxWidth: '95vw',
+      maxHeight: '90vw',
       data: servidor,
       disableClose: true,
     });
