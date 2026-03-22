@@ -52,13 +52,14 @@ import { MatInputModule } from '@angular/material/input';
 
         <div class="flex flex-col md:flex-row gap-2 flex-1 w-full md:justify-end">
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-32">
-            <mat-label>Filtrar por CPF ou Matrícula</mat-label>
+            <mat-label>Filtrar por Nome ou CPF ou Matrícula</mat-label>
             <mat-select
               [value]="searchType()"
               (selectionChange)="searchType.set($event.value); searchTerm.set('')"
             >
+              <mat-option value="NOME">NOME</mat-option>
               <mat-option value="CPF">CPF</mat-option>
-              <mat-option value="MATRICULA">Matrícula</mat-option>
+              <mat-option value="MATRICULA">MATRÍCULA</mat-option>
             </mat-select>
           </mat-form-field>
 
@@ -73,7 +74,13 @@ import { MatInputModule } from '@angular/material/input';
               [value]="searchTerm()"
               (input)="onSearchInput($event)"
               (keyup.enter)="realizarPesquisa()"
-              placeholder="{{ searchType() === 'CPF' ? 'Apenas números' : 'Ex: 2024001' }}"
+              placeholder="{{
+                searchType() === 'CPF'
+                  ? 'Apenas dígitos numéricos'
+                  : searchType() === 'NOME'
+                    ? 'Ex: João Morais'
+                    : 'Ex: T0001 ou 01031'
+              }}"
             />
 
             <button
@@ -189,7 +196,7 @@ export default class ServidorListComponent implements OnInit {
 
   // Estado do formulário de busca no HTML
   selectedStatusId = signal<number | null>(null);
-  searchType = signal<'CPF' | 'MATRICULA'>('CPF');
+  searchType = signal<'CPF' | 'MATRICULA' | 'NOME'>('NOME');
   searchTerm = signal<string>('');
 
   // Injeções
@@ -222,9 +229,10 @@ export default class ServidorListComponent implements OnInit {
       // Mapeia o termo de pesquisa para o parâmetro correto
       const cpf = tipo === 'CPF' && termo ? termo : undefined;
       const matricula = tipo === 'MATRICULA' && termo ? termo : undefined;
+      const nome = tipo === 'NOME' && termo ? termo : undefined;
 
       // Chama o NOVO ENDPOINT no Service (searchFilter)
-      this.servidorService.searchFilter(page, size, statusId, cpf, matricula).subscribe({
+      this.servidorService.searchFilter(page, size, statusId, cpf, matricula, nome).subscribe({
         next: (pageData) => this.setPageData(pageData),
         error: () => this.showMessage('Erro ao filtrar servidores'),
         complete: () => this.isLoading.set(false),

@@ -27,6 +27,7 @@ export class ServidorService {
     statusId?: number | null,
     cpf?: string,
     matricula?: string,
+    nome?: string,
   ): Observable<PageResponse<ServidorResponseDTO[]>> {
     let params = new HttpParams().set('page', page).set('size', size);
 
@@ -40,6 +41,10 @@ export class ServidorService {
 
     if (matricula && matricula.trim() !== '') {
       params = params.set('matricula', matricula.trim());
+    }
+
+    if (nome && nome.trim() !== '') {
+      params = params.set('nome', nome.trim());
     }
 
     return this.http.get<PageResponse<ServidorResponseDTO[]>>(`${this.apiUrl}/searchFilter`, {
