@@ -1,8 +1,12 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ServidorService } from '../../../core/services/servidor.service';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ServidorRequestDTO, ServidorResponseDTO } from '../../../core/models/servidor.model';
+import {
+  BaseEntityDTO,
+  ServidorRequestDTO,
+  ServidorResponseDTO,
+} from '../../../core/models/servidor.model';
 import {
   email,
   form,
@@ -21,6 +25,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { DominioService } from '../../../core/services/dominio.service';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 type FormModel = Required<Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | 'procuraIds'>>;
 
@@ -35,6 +41,7 @@ type FormModel = Required<Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | '
     MatButtonModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatAutocompleteModule,
   ],
   standalone: true,
   template: `
@@ -117,9 +124,16 @@ type FormModel = Required<Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | '
             </div>
 
             <!--Campo genero-->
-            <mat-form-field appearance="outline" class="w-full">
+            <mat-form-field appearance="outline" class="w-full" floatLabel="always">
               <mat-label>Gênero</mat-label>
-              <input matInput [formField]="servidorForm.genero" placeholder="Ex: Feminino" />
+              <mat-select
+                [formField]="servidorForm.genero"
+                placeholder="Clique e seleciona o Gênero"
+              >
+                @for (gen of generos; track gen) {
+                  <mat-option [value]="gen">{{ gen }}</mat-option>
+                }
+              </mat-select>
             </mat-form-field>
           </div>
 
@@ -169,18 +183,55 @@ type FormModel = Required<Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | '
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!--Campo cargo-->
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Cargo ID</mat-label>
-              <input matInput [formField]="servidorForm.cargoId" type="number" />
-              @if (servidorForm.cargoId().invalid() && servidorForm.cargoId().touched()) {
-                <mat-error>{{ servidorForm.cargoId().errors()[0].message }}</mat-error>
+            <div class="flex flex-col w-full">
+              <mat-form-field
+                appearance="outline"
+                subscriptSizing="dynamic"
+                floatLabel="always"
+                class="w-full"
+              >
+                <mat-label>Cargo</mat-label>
+
+                <input
+                  type="text"
+                  matInput
+                  placeholder="Digite para buscar..."
+                  [matAutocomplete]="autoCargo"
+                  [value]="nameSelectedCargo()"
+                  (input)="onCargoInput($event)"
+                  (blur)="onCargoBlur()"
+                />
+
+                <mat-autocomplete
+                  #autoCargo="matAutocomplete"
+                  (optionSelected)="onCargoSelected($event.option.value)"
+                >
+                  @for (cargo of filteredCargos(); track cargo.id) {
+                    <mat-option [value]="cargo.id">{{ cargo.nome }}</mat-option>
+                  }
+                </mat-autocomplete>
+              </mat-form-field>
+
+              @if (servidorModel().cargoId === null && searchTerm() !== '') {
+                <mat-error class="pl-3">Selecione um cargo válido na lista</mat-error>
+              } @else if (servidorForm.cargoId().invalid() && cargoTouched()) {
+                <mat-error class="pl-3">
+                  {{ servidorForm.cargoId().errors()[0].message }}
+                </mat-error>
               }
-            </mat-form-field>
+            </div>
 
             <!--Campo setor-->
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Setor ID</mat-label>
-              <input matInput [formField]="servidorForm.setorId" type="number" />
+            <mat-form-field appearance="outline" class="w-full" floatLabel="always">
+              <mat-label>Setor</mat-label>
+              <mat-select
+                [formField]="servidorForm.setorId"
+                placeholder="Clique e seleciona o Setor"
+              >
+                @for (setor of setores(); track setor.id) {
+                  <mat-option [value]="setor.id">{{ setor.nome }}</mat-option>
+                }
+              </mat-select>
               @if (servidorForm.setorId().invalid() && servidorForm.setorId().touched()) {
                 <mat-error>{{ servidorForm.setorId().errors()[0].message }}</mat-error>
               }
@@ -197,19 +248,33 @@ type FormModel = Required<Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | '
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-1">
-            <mat-form-field appearance="outline" class="w-full">
+            <mat-form-field appearance="outline" class="w-full" floatLabel="always">
               <!--Campo status-->
-              <mat-label>Status ID</mat-label>
-              <input matInput [formField]="servidorForm.statusId" type="number" />
+              <mat-label>Status</mat-label>
+              <mat-select
+                [formField]="servidorForm.statusId"
+                placeholder="Clique e seleciona o Status"
+              >
+                @for (status of statusList(); track status.id) {
+                  <mat-option [value]="status.id">{{ status.descricao }}</mat-option>
+                }
+              </mat-select>
               @if (servidorForm.statusId().invalid() && servidorForm.statusId().touched()) {
                 <mat-error>{{ servidorForm.statusId().errors()[0].message }}</mat-error>
               }
             </mat-form-field>
 
             <!--Campo vínculo-->
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Vínculo ID</mat-label>
-              <input matInput [formField]="servidorForm.vinculoId" type="number" />
+            <mat-form-field appearance="outline" class="w-full" floatLabel="always">
+              <mat-label>Vínculo</mat-label>
+              <mat-select
+                [formField]="servidorForm.vinculoId"
+                placeholder="Clique e seleciona o Vínculo"
+              >
+                @for (vinculo of vinculos(); track vinculo.id) {
+                  <mat-option [value]="vinculo.id">{{ vinculo.nome }}</mat-option>
+                }
+              </mat-select>
               @if (servidorForm.vinculoId().invalid() && servidorForm.vinculoId().touched()) {
                 <mat-error>{{ servidorForm.vinculoId().errors()[0].message }}</mat-error>
               }
@@ -236,7 +301,30 @@ export class CadFormComponent implements OnInit {
   isEdit: boolean = false;
   readonly data = inject<ServidorResponseDTO>(MAT_DIALOG_DATA, { optional: true });
 
-  private servidorModel = signal<FormModel>({
+  readonly generos = ['Masculino', 'Feminino', 'Outros'];
+
+  // Signals para armazenar os dados que virão da API
+  cargos = signal<BaseEntityDTO[]>([]);
+
+  //Armazena o texto que o usuário está digitando no input
+  searchTerm = signal('');
+
+  cargoTouched = signal(false);
+
+  // Cria a lista filtrada automaticamente (reage à digitação e à chegada dos dados da API)
+  filteredCargos = computed(() => {
+    const term = this.searchTerm().toLowerCase();
+    if (!term) return this.cargos();
+    return this.cargos().filter((c) => c.nome?.toLowerCase().includes(term));
+  });
+
+  //Define o que aparece escrito no campo.
+  // signals
+  setores = signal<BaseEntityDTO[]>([]);
+  lotacoes = signal<BaseEntityDTO[]>([]);
+  statusList = signal<BaseEntityDTO[]>([]);
+  vinculos = signal<BaseEntityDTO[]>([]);
+  servidorModel = signal<FormModel>({
     nome: '',
     matricula: '',
     cpf: '',
@@ -251,9 +339,21 @@ export class CadFormComponent implements OnInit {
     cargoId: null as unknown as number,
     setorId: null as unknown as number,
     lotacaoId: null as unknown as number,
-    statusId: null as unknown as number,
+    statusId: 1,
     vinculoId: null as unknown as number,
   });
+  // Se houver um ID salvo, mostra o nome do Cargo. Se não, mostra o que o usuário está digitando.
+  nameSelectedCargo = computed(() => {
+    const currentId = this.servidorModel().cargoId;
+
+    if (currentId) {
+      const cargo = this.cargos().find((c) => c.id === currentId);
+      return cargo ? cargo.nome : '';
+    }
+    return this.searchTerm();
+  });
+
+  // validações dos campos do formulário
   servidorForm = form(this.servidorModel, (path) => {
     required(path.nome, { message: 'O nome é obrigatório' });
     minLength(path.nome, 5, { message: 'O Nome deve ter no mínimo 5 caracteres' });
@@ -293,11 +393,43 @@ export class CadFormComponent implements OnInit {
     required(path.vinculoId, { message: 'O vinculo é obrigatório' });
   });
   private readonly servidorService = inject(ServidorService);
+  private readonly dominioService = inject(DominioService);
   private readonly dialogRef = inject(MatDialogRef<CadFormComponent>);
   private readonly snackBar = inject(MatSnackBar);
 
+  // Novo método para o evento de saída do campo
+  onCargoBlur() {
+    this.cargoTouched.set(true);
+  }
+
+  // Método chamado a cada letra que o usuário digita
+  onCargoInput(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchTerm.set(value);
+
+    // Se ele voltar a digitar, limpamos o ID para forçar a escolha na lista
+    if (this.servidorModel().cargoId) {
+      this.servidorModel.update((m) => ({
+        ...m,
+        cargoId: null as unknown as number,
+      }));
+    }
+  }
+
+  // Método chamado quando ele clica em uma opção da lista flutuante
+  onCargoSelected(id: number) {
+    this.servidorModel.update((m) => ({
+      ...m,
+      cargoId: id,
+    }));
+    this.searchTerm.set('');
+    this.cargoTouched.set(true);
+  }
+
   ngOnInit() {
     this.isEdit = !!this.data;
+
+    this.loadDomains();
 
     if (this.isEdit && this.data) {
       this.servidorModel.update((m) => ({
@@ -371,5 +503,12 @@ export class CadFormComponent implements OnInit {
         });
       }
     });
+  }
+
+  loadDomains() {
+    this.dominioService.getCargos().subscribe((res) => this.cargos.set(res));
+    this.dominioService.getSetores().subscribe((res) => this.setores.set(res));
+    this.dominioService.getStatus().subscribe((res) => this.statusList.set(res));
+    this.dominioService.getVinculos().subscribe((res) => this.vinculos.set(res));
   }
 }

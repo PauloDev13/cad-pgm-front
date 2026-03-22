@@ -1,3 +1,14 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+
+/* Reduz a altura padrão (48px) dos itens do mat-select e mat-autocomplete para sistemas Desktop */
+.mat-mdc-option {
+  min-height: 36px !important;
+}
+
+/* Centraliza o texto verticalmente no novo espaço menor */
+.mat-mdc-option .mdc-list-item__primary-text {
+  font-size: 14px; /* Um tamanho de fonte ideal para telas densas */
+  line-height: normal;
+}

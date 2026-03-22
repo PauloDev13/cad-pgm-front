@@ -21,9 +21,30 @@ export class ServidorService {
     return this.http.get<ServidorResponseDTO>(`${this.apiUrl}/${id}`);
   }
 
-  findByCpfOrRegistration(search: string): Observable<ServidorResponseDTO[]> {
-    const params = new HttpParams().set('search', search);
-    return this.http.get<ServidorResponseDTO[]>(`${this.apiUrl}/search`, { params });
+  searchFilter(
+    page: number,
+    size: number,
+    statusId?: number | null,
+    cpf?: string,
+    matricula?: string,
+  ): Observable<PageResponse<ServidorResponseDTO[]>> {
+    let params = new HttpParams().set('page', page).set('size', size);
+
+    if (statusId !== null && statusId !== undefined) {
+      params = params.set('statusId', statusId.toString());
+    }
+
+    if (cpf && cpf.trim() !== '') {
+      params = params.set('cpf', cpf.trim());
+    }
+
+    if (matricula && matricula.trim() !== '') {
+      params = params.set('matricula', matricula.trim());
+    }
+
+    return this.http.get<PageResponse<ServidorResponseDTO[]>>(`${this.apiUrl}/searchFilter`, {
+      params,
+    });
   }
 
   create(data: ServidorRequestDTO): Observable<ServidorResponseDTO> {
@@ -37,5 +58,4 @@ export class ServidorService {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
-
 }
