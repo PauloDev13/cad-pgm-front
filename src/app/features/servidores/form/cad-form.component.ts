@@ -195,7 +195,7 @@ type FormModel = Required<Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | '
                 <input
                   type="text"
                   matInput
-                  placeholder="Digite para buscar..."
+                  placeholder="Digite para pesquisar o Cargo..."
                   [matAutocomplete]="autoCargo"
                   [value]="nameSelectedCargo()"
                   (input)="onCargoInput($event)"
@@ -207,7 +207,7 @@ type FormModel = Required<Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | '
                   (optionSelected)="onCargoSelected($event.option.value)"
                 >
                   @for (cargo of filteredCargos(); track cargo.id) {
-                    <mat-option [value]="cargo.id">{{ cargo.nome }}</mat-option>
+                    <mat-option [value]="cargo.id">{{ cargo.nome }} </mat-option>
                   }
                 </mat-autocomplete>
               </mat-form-field>
@@ -239,7 +239,7 @@ type FormModel = Required<Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | '
 
             <!--Campo lotação-->
             <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Lotação ID</mat-label>
+              <mat-label>Lotação</mat-label>
               <input matInput [formField]="servidorForm.lotacaoId" type="number" />
               @if (servidorForm.lotacaoId().invalid() && servidorForm.lotacaoId().touched()) {
                 <mat-error>{{ servidorForm.lotacaoId().errors()[0].message }}</mat-error>

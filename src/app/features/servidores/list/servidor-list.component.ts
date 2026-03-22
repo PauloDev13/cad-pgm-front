@@ -25,17 +25,21 @@ import { MatInputModule } from '@angular/material/input';
           <h1 class="text-2xl font-bold text-gray-800">Gestão de Servidores</h1>
           <p class="text-sm text-gray-500">Gerencie os servidores do sistema</p>
         </div>
-        <button mat-flat-button color="primary" (click)="openForm()">
+        <button
+          mat-flat-button
+          class="!bg-blue-500 transition-transform duration-200 hover:!scale-105 "
+          (click)="openForm()"
+        >
           <mat-icon>add</mat-icon>
-          Novo Servidor
+          Novo
         </button>
       </div>
 
       <div
         class="flex flex-col md:flex-row justify-between items-end gap-4 mb-6
-        bg-white p-4 rounded-lg shadow-sm border border-gray-100"
+        bg-gray-100 p-4 rounded-lg shadow-sm shadow-gray-500 border border-gray-100"
       >
-        <div class="w-full md:w-64">
+        <div class="w-full md:w-64 bg-white">
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-label>Filtrar por Status</mat-label>
             <mat-select
@@ -50,7 +54,7 @@ import { MatInputModule } from '@angular/material/input';
           </mat-form-field>
         </div>
 
-        <div class="flex flex-col md:flex-row gap-2 flex-1 w-full md:justify-end">
+        <div class="flex flex-col md:flex-row gap-2 flex-1 w-full md:justify-end bg-white">
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-32">
             <mat-label>Filtrar por Nome ou CPF ou Matrícula</mat-label>
             <mat-select
@@ -96,60 +100,133 @@ import { MatInputModule } from '@angular/material/input';
         </div>
       </div>
 
-      <div class="bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="bg-black rounded-lg drop-shadow-md overflow-hidden">
         <table mat-table [dataSource]="servidores()" class="w-full">
           <ng-container matColumnDef="matricula">
-            <th mat-header-cell *matHeaderCellDef class="font-semibold text-gray-700">Matrícula</th>
-            <td mat-cell *matCellDef="let s">{{ s.matricula }}</td>
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!font-semibold text-gray-800 !text-sm !px-3 !w-[1%] whitespace-nowrap"
+            >
+              Matrícula
+            </th>
+            <td mat-cell *matCellDef="let s" class="!text-sm !px-3 whitespace-nowrap text-gray-600">
+              {{ s.matricula }}
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="nome">
-            <th mat-header-cell *matHeaderCellDef class="font-semibold text-gray-700">Nome</th>
-            <td mat-cell *matCellDef="let s" class="font-medium">{{ s.nome }}</td>
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!font-semibold text-gray-800 !text-sm !px-3"
+            >
+              Nome
+            </th>
+            <td mat-cell *matCellDef="let s" class="!font-medium !text-sm !px-3 text-gray-600">
+              {{ s.nome }}
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="email">
-            <th mat-header-cell *matHeaderCellDef class="font-semibold text-gray-700">Email</th>
-            <td mat-cell *matCellDef="let s">{{ s.emailPessoal }}</td>
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!font-semibold !text-gray-800 !text-sm !px-3"
+            >
+              Email
+            </th>
+            <td mat-cell *matCellDef="let s" class="!text-sm !px-3 text-gray-600">
+              {{ s.emailPessoal }}
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="cargo">
-            <th mat-header-cell *matHeaderCellDef class="font-semibold text-gray-700">Cargo</th>
-            <td mat-cell *matCellDef="let s">{{ s.cargo?.nome || '-' }}</td>
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="font-semibold text-gray-800 !text-sm !px-3"
+            >
+              Cargo
+            </th>
+            <td mat-cell *matCellDef="let s" class="!text-sm !px-3 text-gray-600">
+              {{ s.cargo?.nome || '-' }}
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="setor">
-            <th mat-header-cell *matHeaderCellDef class="font-semibold text-gray-700">Setor</th>
-            <td mat-cell *matCellDef="let s">{{ s.setor?.nome || '-' }}</td>
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!font-semibold text-gray-800 !text-sm !px-3"
+            >
+              Setor
+            </th>
+            <td mat-cell *matCellDef="let s" class="!text-sm !px-3 text-gray-600">
+              {{ s.setor?.nome || '-' }}
+            </td>
           </ng-container>
 
-          <ng-container matColumnDef="vinculo">
-            <th mat-header-cell *matHeaderCellDef class="font-semibold text-gray-700">Vínculo</th>
-            <td mat-cell *matCellDef="let s">{{ s.vinculo?.nome || '-' }}</td>
-          </ng-container>
+          <!--          <ng-container matColumnDef="vinculo">-->
+          <!--            <th mat-header-cell *matHeaderCellDef class="font-semibold text-gray-700">Vínculo</th>-->
+          <!--            <td mat-cell *matCellDef="let s">{{ s.vinculo?.nome || '-' }}</td>-->
+          <!--          </ng-container>-->
 
           <ng-container matColumnDef="acoes">
-            <th mat-header-cell *matHeaderCellDef class="text-right">Ações</th>
-            <td mat-cell *matCellDef="let s" class="text-right">
-              <button mat-icon-button color="primary" (click)="openForm(s)" matTooltip="Editar">
-                <mat-icon>edit</mat-icon>
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!text-center !text-sm !px-3 !w-[1%] whitespace-nowrap"
+            >
+              Ações
+            </th>
+            <td mat-cell *matCellDef="let s" class="!text-sm !px-3 text-gray-600 whitespace-nowrap">
+              <button
+                mat-icon-button
+                (click)="openForm(s)"
+                matTooltip="Editar"
+                class="group !w-8 !h-8 !leading-none"
+              >
+                <mat-icon
+                  class="!text-blue-600 transition-transform duration-200 group-hover:!scale-125 !text-[20px]"
+                >
+                  edit
+                </mat-icon>
               </button>
 
-              <button mat-icon-button color="warn" (click)="delete(s.id)" matTooltip="Excluir">
-                <mat-icon>delete</mat-icon>
+              <button
+                mat-icon-button
+                (click)="delete(s.id)"
+                matTooltip="Excluir"
+                class="group !w-8 !h-8 !leading-none"
+              >
+                <mat-icon
+                  class="!text-red-600 transition-transform duration-200 group-hover:!scale-125 !text-[20px]"
+                >
+                  delete
+                </mat-icon>
               </button>
             </td>
           </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr
+            mat-header-row
+            *matHeaderRowDef="displayedColumns"
+            class="!min-h-[40px] !h-[40px] !bg-gray-100 border-b-2 border-gray-300"
+          ></tr>
           <tr
             mat-row
             *matRowDef="let row; columns: displayedColumns"
-            class="hover:bg-gray-50 transition-colors"
+            class="!min-h-[40px] !h-[40px]
+            odd:!bg-white even:!bg-gray-50
+            hover:!bg-blue-50 transition-colors cursor-pointer border-gray-100"
           ></tr>
 
           <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell p-4 text-center text-gray-500" [colSpan]="displayedColumns.length">
+            <td
+              class="mat-cell p-4 text-center text-red-800 text-xl"
+              [colSpan]="displayedColumns.length"
+            >
               {{ isLoading() ? 'Carregando servidores...' : 'Nenhum servidor encontrado.' }}
             </td>
           </tr>
@@ -187,7 +264,8 @@ export default class ServidorListComponent implements OnInit {
   pageSize = signal<number>(10);
   currentPage = signal<number>(0);
   isLoading = signal<boolean>(false);
-  displayedColumns: string[] = ['matricula', 'nome', 'email', 'cargo', 'setor', 'vinculo', 'acoes'];
+  displayedColumns: string[] = ['matricula', 'nome', 'email', 'setor', 'cargo', 'acoes'];
+  // displayedColumns: string[] = ['matricula', 'nome', 'email', 'cargo', 'setor', 'vinculo', 'acoes'];
 
   // NOVOS SIGNALS PARA ESTADO DOS FILTROS
 
