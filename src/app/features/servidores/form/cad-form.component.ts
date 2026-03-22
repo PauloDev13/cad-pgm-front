@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ServidorService } from '../../../core/services/servidor.service';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -27,6 +27,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { DominioService } from '../../../core/services/dominio.service';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { AutocompleteComponent } from '../../../shared/components/autocomplete.component/autocomplete.component';
 
 type FormModel = Required<Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | 'procuraIds'>>;
 
@@ -42,6 +43,7 @@ type FormModel = Required<Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | '
     MatDatepickerModule,
     MatNativeDateModule,
     MatAutocompleteModule,
+    AutocompleteComponent,
   ],
   standalone: true,
   template: `
@@ -183,42 +185,57 @@ type FormModel = Required<Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | '
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!--Campo cargo-->
-            <div class="flex flex-col w-full">
-              <mat-form-field
-                appearance="outline"
-                subscriptSizing="dynamic"
-                floatLabel="always"
-                class="w-full"
-              >
-                <mat-label>Cargo</mat-label>
+            <div class="flex flex-col w-full mt-1">
+              <!--              <div class="flex flex-col w-full mt-1">-->
+              <app-list-autocomplete
+                [data]="cargos()"
+                label="Cargo"
+                placeholder="Digite para pesquisar o Cargo..."
+                [selectedId]="servidorModel().cargoId"
+                (selectedIdChange)="onCargoChange($event)"
+                [hasExternalError]="servidorForm.cargoId().invalid()"
+                [errorMessage]="
+                  servidorForm.cargoId().invalid()
+                    ? servidorForm.cargoId().errors()[0]?.message
+                    : ''
+                "
+              />
+              <!--              </div>-->
+              <!--              <mat-form-field-->
+              <!--                appearance="outline"-->
+              <!--                subscriptSizing="dynamic"-->
+              <!--                floatLabel="always"-->
+              <!--                class="w-full"-->
+              <!--              >-->
+              <!--                <mat-label>Cargo</mat-label>-->
 
-                <input
-                  type="text"
-                  matInput
-                  placeholder="Digite para pesquisar o Cargo..."
-                  [matAutocomplete]="autoCargo"
-                  [value]="nameSelectedCargo()"
-                  (input)="onCargoInput($event)"
-                  (blur)="onCargoBlur()"
-                />
+              <!--                <input-->
+              <!--                  type="text"-->
+              <!--                  matInput-->
+              <!--                  placeholder="Digite para pesquisar o Cargo..."-->
+              <!--                  [matAutocomplete]="autoCargo"-->
+              <!--                  [value]="nameSelectedCargo()"-->
+              <!--                  (input)="onCargoInput($event)"-->
+              <!--                  (blur)="onCargoBlur()"-->
+              <!--                />-->
 
-                <mat-autocomplete
-                  #autoCargo="matAutocomplete"
-                  (optionSelected)="onCargoSelected($event.option.value)"
-                >
-                  @for (cargo of filteredCargos(); track cargo.id) {
-                    <mat-option [value]="cargo.id">{{ cargo.nome }} </mat-option>
-                  }
-                </mat-autocomplete>
-              </mat-form-field>
+              <!--                <mat-autocomplete-->
+              <!--                  #autoCargo="matAutocomplete"-->
+              <!--                  (optionSelected)="onCargoSelected($event.option.value)"-->
+              <!--                >-->
+              <!--                  @for (cargo of filteredCargos(); track cargo.id) {-->
+              <!--                    <mat-option [value]="cargo.id">{{ cargo.nome }}</mat-option>-->
+              <!--                  }-->
+              <!--                </mat-autocomplete>-->
+              <!--              </mat-form-field>-->
 
-              @if (servidorModel().cargoId === null && searchTerm() !== '') {
-                <mat-error class="pl-3">Selecione um cargo válido na lista</mat-error>
-              } @else if (servidorForm.cargoId().invalid() && cargoTouched()) {
-                <mat-error class="pl-3">
-                  {{ servidorForm.cargoId().errors()[0].message }}
-                </mat-error>
-              }
+              <!--              @if (servidorModel().cargoId === null && searchTerm() !== '') {-->
+              <!--                <mat-error class="pl-3">Selecione um cargo válido na lista</mat-error>-->
+              <!--              } @else if (servidorForm.cargoId().invalid() && cargoTouched()) {-->
+              <!--                <mat-error class="pl-3">-->
+              <!--                  {{ servidorForm.cargoId().errors()[0].message }}-->
+              <!--                </mat-error>-->
+              <!--              }-->
             </div>
 
             <!--Campo setor-->
@@ -306,19 +323,6 @@ export class CadFormComponent implements OnInit {
   // Signals para armazenar os dados que virão da API
   cargos = signal<BaseEntityDTO[]>([]);
 
-  //Armazena o texto que o usuário está digitando no input
-  searchTerm = signal('');
-
-  cargoTouched = signal(false);
-
-  // Cria a lista filtrada automaticamente (reage à digitação e à chegada dos dados da API)
-  filteredCargos = computed(() => {
-    const term = this.searchTerm().toLowerCase();
-    if (!term) return this.cargos();
-    return this.cargos().filter((c) => c.nome?.toLowerCase().includes(term));
-  });
-
-  //Define o que aparece escrito no campo.
   // signals
   setores = signal<BaseEntityDTO[]>([]);
   lotacoes = signal<BaseEntityDTO[]>([]);
@@ -341,16 +345,6 @@ export class CadFormComponent implements OnInit {
     lotacaoId: null as unknown as number,
     statusId: 1,
     vinculoId: null as unknown as number,
-  });
-  // Se houver um ID salvo, mostra o nome do Cargo. Se não, mostra o que o usuário está digitando.
-  nameSelectedCargo = computed(() => {
-    const currentId = this.servidorModel().cargoId;
-
-    if (currentId) {
-      const cargo = this.cargos().find((c) => c.id === currentId);
-      return cargo ? cargo.nome : '';
-    }
-    return this.searchTerm();
   });
 
   // validações dos campos do formulário
@@ -397,33 +391,12 @@ export class CadFormComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<CadFormComponent>);
   private readonly snackBar = inject(MatSnackBar);
 
-  // Novo método para o evento de saída do campo
-  onCargoBlur() {
-    this.cargoTouched.set(true);
-  }
-
-  // Método chamado a cada letra que o usuário digita
-  onCargoInput(event: Event) {
-    const value = (event.target as HTMLInputElement).value;
-    this.searchTerm.set(value);
-
-    // Se ele voltar a digitar, limpamos o ID para forçar a escolha na lista
-    if (this.servidorModel().cargoId) {
-      this.servidorModel.update((m) => ({
-        ...m,
-        cargoId: null as unknown as number,
-      }));
-    }
-  }
-
-  // Método chamado quando ele clica em uma opção da lista flutuante
-  onCargoSelected(id: number) {
+  // controla as mudanças no campo autocomplete Cargo
+  onCargoChange(id: number | null) {
     this.servidorModel.update((m) => ({
       ...m,
-      cargoId: id,
+      cargoId: id as number,
     }));
-    this.searchTerm.set('');
-    this.cargoTouched.set(true);
   }
 
   ngOnInit() {
