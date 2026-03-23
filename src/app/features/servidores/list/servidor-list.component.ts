@@ -14,6 +14,7 @@ import { DominioService } from '../../../core/services/dominio.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
+import { PageResponse } from '../../../core/models/pagination.model';
 
 @Component({
   selector: 'app-servidor-list',
@@ -235,7 +236,8 @@ import { MatInputModule } from '@angular/material/input';
         <mat-paginator
           [length]="totalElements()"
           [pageSize]="pageSize()"
-          [pageSizeOptions]="[5, 10, 25, 100]"
+          [pageIndex]="currentPage()"
+          [pageSizeOptions]="[3, 10, 25, 100]"
           (page)="onPageChange($event)"
           aria-label="Selecione a página"
         >
@@ -388,9 +390,10 @@ export default class ServidorListComponent implements OnInit {
   }
 
   // Helper para centralizar a atualização dos signals da tabela
-  private setPageData(page: any) {
-    this.servidores.set(page.content);
-    this.totalElements.set(page.totalElements);
+  private setPageData(response: PageResponse<any>) {
+    this.servidores.set(response.content);
+    this.totalElements.set(response.page.totalElements);
+    this.currentPage.set(response.page.number);
   }
 
   // Busca a lista de Status e cumpre o requisito de UX de iniciar com "Ativos"

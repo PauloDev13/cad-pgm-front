@@ -28,8 +28,11 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { DominioService } from '../../../core/services/dominio.service';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { AutocompleteComponent } from '../../../shared/components/autocomplete.component/autocomplete.component';
+import { CustomSelectComponent } from '../../../shared/components/custom-select.component/custom-select.component';
 
-type FormModel = Required<Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | 'procuraIds'>>;
+export type FormModel = Required<
+  Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | 'procuraIds'>
+>;
 
 @Component({
   selector: 'app-cad-form.component',
@@ -44,6 +47,7 @@ type FormModel = Required<Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | '
     MatNativeDateModule,
     MatAutocompleteModule,
     AutocompleteComponent,
+    CustomSelectComponent,
   ],
   standalone: true,
   template: `
@@ -265,21 +269,22 @@ type FormModel = Required<Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | '
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-1">
-            <mat-form-field appearance="outline" class="w-full" floatLabel="always">
-              <!--Campo status-->
-              <mat-label>Status</mat-label>
-              <mat-select
-                [formField]="servidorForm.statusId"
-                placeholder="Clique e seleciona o Status"
-              >
-                @for (status of statusList(); track status.id) {
-                  <mat-option [value]="status.id">{{ status.descricao }}</mat-option>
-                }
-              </mat-select>
-              @if (servidorForm.statusId().invalid() && servidorForm.statusId().touched()) {
-                <mat-error>{{ servidorForm.statusId().errors()[0].message }}</mat-error>
-              }
-            </mat-form-field>
+            <app-custom-select [servidorForm]="servidorForm" [statusList]="statusList()" />
+            <!--            <mat-form-field appearance="outline" class="w-full" floatLabel="always">-->
+            <!--              &lt;!&ndash;Campo status&ndash;&gt;-->
+            <!--              <mat-label>Status</mat-label>-->
+            <!--              <mat-select-->
+            <!--                [formField]="servidorForm.statusId"-->
+            <!--                placeholder="Clique e seleciona o Status"-->
+            <!--              >-->
+            <!--                @for (status of statusList(); track status.id) {-->
+            <!--                  <mat-option [value]="status.id">{{ status.descricao }}</mat-option>-->
+            <!--                }-->
+            <!--              </mat-select>-->
+            <!--              @if (servidorForm.statusId().invalid() && servidorForm.statusId().touched()) {-->
+            <!--                <mat-error>{{ servidorForm.statusId().errors()[0].message }}</mat-error>-->
+            <!--              }-->
+            <!--            </mat-form-field>-->
 
             <!--Campo vínculo-->
             <mat-form-field appearance="outline" class="w-full" floatLabel="always">
