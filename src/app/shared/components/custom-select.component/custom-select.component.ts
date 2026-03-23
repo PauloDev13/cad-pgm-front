@@ -1,31 +1,85 @@
-import { Component, input } from '@angular/core';
-import { MatError, MatFormField } from '@angular/material/input';
-import { FormField } from '@angular/forms/signals';
-import { MatOption, MatSelect } from '@angular/material/select';
-import { BaseEntityDTO } from '../../../core/models/servidor.model';
+import { Component, computed, input, model, signal } from '@angular/core';
+import { MatFormField, MatOption, MatSelect } from '@angular/material/select';
+import { ErrorStateMatcher } from '@angular/material/core';
 import { MatLabel } from '@angular/material/form-field';
 
 @Component({
   selector: 'app-custom-select',
-  imports: [MatError, MatFormField, FormField, MatSelect, MatOption, MatLabel],
+  imports: [MatSelect, MatFormField, MatOption, MatLabel],
   template: `
-    <mat-form-field appearance="outline" class="w-full" floatLabel="always">
-      <!--Campo status-->
-      <mat-label>Status</mat-label>
-      <mat-select [formField]="servidorForm().statusId" placeholder="Clique e seleciona o Status">
-        @for (status of statusList(); track status.id) {
-          <mat-option [value]="status.id">{{ status.descricao }}</mat-option>
-        }
-      </mat-select>
-      @if (servidorForm().statusId.invalid() && servidorForm().statusId().touched()) {
-        <mat-error>{{ servidorForm().statusId().errors()[0].message }}</mat-error>
+    <div class="flex flex-col w-full">
+      <mat-form-field appearance="outline" floatLabel="always" class="w-full">
+        <mat-label>{{ label() }}</mat-label>
+
+        <mat-select
+          [placeholder]="placeholder()"
+          [value]="selectedValue()"
+          (selectionChange)="onSelectionChange($event.value)"
+          (openedChange)="onOpenedChange($event)"
+          [errorStateMatcher]="errorMatcher"
+        >
+          @for (item of data(); track item[valueKey()]) {
+            <mat-option [value]="item[valueKey()]">
+              {{ item[displayKey()] }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      @if (showError()) {
+        <span class="text-[#f44336] text-[12px] px-3 pt-1 font-normal tracking-wide">
+          {{ showError() }}
+        </span>
       }
-    </mat-form-field>
+    </div>
   `,
   styles: ``,
 })
 export class CustomSelectComponent {
-  // Recebe a lista pronta do pai
-  statusList = input.required<BaseEntityDTO[]>();
-  servidorForm = input.required<any>();
+  // 1. Inputs de Dados e Configuração Visual
+  data = input.required<any[]>();
+  label = input<string>('Selecione');
+  placeholder = input<string>('Clique para selecionar');
+
+  // 2. Chaves dinâmicas (Padrão: mostra 'nome', emite 'id')
+  displayKey = input<string>('nome');
+  valueKey = input<string>('id');
+
+  // 3. O Model para enviar o ID selecionado de volta ao pai
+  selectedValue = model<number | null>(null);
+
+  // 4. Tratamento de Erros vindo do Pai
+  hasExternalError = input<boolean>(false);
+  errorMessage = input<string | undefined>('');
+  externalTouched = input<boolean>(false);
+
+  // Estado interno de toque
+  touched = signal(false);
+
+  // Computa se deve exibir erro
+  showError = computed(() => {
+    const isTouched = this.touched() || this.externalTouched();
+    if (isTouched && this.hasExternalError()) {
+      return this.errorMessage();
+    }
+    return null;
+  });
+
+  // O "Fofoqueiro" que pinta a borda de vermelho
+  errorMatcher: ErrorStateMatcher = {
+    isErrorState: () => this.showError() !== null,
+  };
+
+  // Eventos para atualizar o Model e o estado de Toque
+  onSelectionChange(value: number) {
+    this.selectedValue.set(value);
+    this.touched.set(true);
+  }
+
+  // Detecta quando o usuário abre e fecha o select sem escolher nada
+  onOpenedChange(isOpen: boolean) {
+    if (!isOpen) {
+      this.touched.set(true);
+    }
+  }
 }

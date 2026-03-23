@@ -269,7 +269,21 @@ export type FormModel = Required<
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-1">
-            <app-custom-select [servidorForm]="servidorForm" [statusList]="statusList()" />
+            <app-custom-select
+              [data]="statusList()"
+              label="Status"
+              displayKey="descricao"
+              placeholder="Clique e seleciona o Status"
+              [selectedValue]="servidorModel().statusId"
+              (selectedValueChange)="onStatusChange($event)"
+              [hasExternalError]="servidorForm.statusId().invalid()"
+              [errorMessage]="
+                servidorForm.statusId().invalid()
+                  ? servidorForm.statusId().errors()[0]?.message
+                  : ''
+              "
+              [externalTouched]="servidorForm.statusId().touched()"
+            />
             <!--            <mat-form-field appearance="outline" class="w-full" floatLabel="always">-->
             <!--              &lt;!&ndash;Campo status&ndash;&gt;-->
             <!--              <mat-label>Status</mat-label>-->
@@ -401,6 +415,20 @@ export class CadFormComponent implements OnInit {
     this.servidorModel.update((m) => ({
       ...m,
       cargoId: id as number,
+    }));
+  }
+
+  onSetorChange(id: number | null) {
+    this.servidorModel.update((m) => ({
+      ...m,
+      setorId: id as number,
+    }));
+  }
+
+  onStatusChange(id: number | null) {
+    this.servidorModel.update((m) => ({
+      ...m,
+      statusId: id as number,
     }));
   }
 
