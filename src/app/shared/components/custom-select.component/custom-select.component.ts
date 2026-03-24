@@ -34,6 +34,7 @@ import { MatLabel } from '@angular/material/form-field';
     </div>
   `,
   styles: ``,
+  standalone: true,
 })
 export class CustomSelectComponent {
   // 1. Inputs de Dados e Configuração Visual

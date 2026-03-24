@@ -18,17 +18,16 @@ import {
   submit,
 } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
 import { HttpErrorResponse } from '@angular/common/http';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { DominioService } from '../../../core/services/dominio.service';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { AutocompleteComponent } from '../../../shared/components/autocomplete.component/autocomplete.component';
 import { CustomSelectComponent } from '../../../shared/components/custom-select.component/custom-select.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 export type FormModel = Required<
   Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | 'procuraIds'>
@@ -41,7 +40,6 @@ export type FormModel = Required<
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
     MatButtonModule,
     MatDatepickerModule,
     MatNativeDateModule,
@@ -189,8 +187,7 @@ export type FormModel = Required<
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!--Campo cargo-->
-            <div class="flex flex-col w-full mt-1">
-              <!--              <div class="flex flex-col w-full mt-1">-->
+            <div class="flex flex-col w-full">
               <app-list-autocomplete
                 [data]="cargos()"
                 label="Cargo"
@@ -203,43 +200,8 @@ export type FormModel = Required<
                     ? servidorForm.cargoId().errors()[0]?.message
                     : ''
                 "
+                [externalTouched]="servidorForm.cargoId().touched()"
               />
-              <!--              </div>-->
-              <!--              <mat-form-field-->
-              <!--                appearance="outline"-->
-              <!--                subscriptSizing="dynamic"-->
-              <!--                floatLabel="always"-->
-              <!--                class="w-full"-->
-              <!--              >-->
-              <!--                <mat-label>Cargo</mat-label>-->
-
-              <!--                <input-->
-              <!--                  type="text"-->
-              <!--                  matInput-->
-              <!--                  placeholder="Digite para pesquisar o Cargo..."-->
-              <!--                  [matAutocomplete]="autoCargo"-->
-              <!--                  [value]="nameSelectedCargo()"-->
-              <!--                  (input)="onCargoInput($event)"-->
-              <!--                  (blur)="onCargoBlur()"-->
-              <!--                />-->
-
-              <!--                <mat-autocomplete-->
-              <!--                  #autoCargo="matAutocomplete"-->
-              <!--                  (optionSelected)="onCargoSelected($event.option.value)"-->
-              <!--                >-->
-              <!--                  @for (cargo of filteredCargos(); track cargo.id) {-->
-              <!--                    <mat-option [value]="cargo.id">{{ cargo.nome }}</mat-option>-->
-              <!--                  }-->
-              <!--                </mat-autocomplete>-->
-              <!--              </mat-form-field>-->
-
-              <!--              @if (servidorModel().cargoId === null && searchTerm() !== '') {-->
-              <!--                <mat-error class="pl-3">Selecione um cargo válido na lista</mat-error>-->
-              <!--              } @else if (servidorForm.cargoId().invalid() && cargoTouched()) {-->
-              <!--                <mat-error class="pl-3">-->
-              <!--                  {{ servidorForm.cargoId().errors()[0].message }}-->
-              <!--                </mat-error>-->
-              <!--              }-->
             </div>
 
             <!--Campo setor-->
@@ -282,23 +244,8 @@ export type FormModel = Required<
                   ? servidorForm.statusId().errors()[0]?.message
                   : ''
               "
-              [externalTouched]="servidorForm.statusId().touched()"
+              [externalTouched]="servidorForm.cargoId().touched()"
             />
-            <!--            <mat-form-field appearance="outline" class="w-full" floatLabel="always">-->
-            <!--              &lt;!&ndash;Campo status&ndash;&gt;-->
-            <!--              <mat-label>Status</mat-label>-->
-            <!--              <mat-select-->
-            <!--                [formField]="servidorForm.statusId"-->
-            <!--                placeholder="Clique e seleciona o Status"-->
-            <!--              >-->
-            <!--                @for (status of statusList(); track status.id) {-->
-            <!--                  <mat-option [value]="status.id">{{ status.descricao }}</mat-option>-->
-            <!--                }-->
-            <!--              </mat-select>-->
-            <!--              @if (servidorForm.statusId().invalid() && servidorForm.statusId().touched()) {-->
-            <!--                <mat-error>{{ servidorForm.statusId().errors()[0].message }}</mat-error>-->
-            <!--              }-->
-            <!--            </mat-form-field>-->
 
             <!--Campo vínculo-->
             <mat-form-field appearance="outline" class="w-full" floatLabel="always">

@@ -3,6 +3,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatAutocomplete, MatAutocompleteTrigger, MatOption } from '@angular/material/autocomplete';
+import { ErrorStateMatcher } from '@angular/material/core';
 
 @Component({
   selector: 'app-list-autocomplete',
@@ -34,6 +35,7 @@ import { MatAutocomplete, MatAutocompleteTrigger, MatOption } from '@angular/mat
         [value]="displayValue()"
         (input)="onInput($event)"
         (blur)="onBlur()"
+        [errorStateMatcher]="errorMatcher"
       />
 
       <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onSelected($event.option.value)">
@@ -46,10 +48,9 @@ import { MatAutocomplete, MatAutocompleteTrigger, MatOption } from '@angular/mat
     </mat-form-field>
 
     @if (showError()) {
-      <mat-error class="!text-[12px]">{{ showError() }}</mat-error>
+      <mat-error class="!text-[12px] pl-3">{{ showError() }}</mat-error>
     }
   `,
-  styles: ``,
 })
 export class AutocompleteComponent {
   // Recebe a lista pronta do pai (ex: cargos())
@@ -61,18 +62,23 @@ export class AutocompleteComponent {
   valueKey = input<string>('id'); // Qual campo emitir?
   // Two-way binding para o ID selecionado (Substitui o formControl)
   selectedId = model<number | null>(null);
-  // Recebe o status de erro do form validation do pai
+
+  // Tratamento de Erros vindo do Pai
   hasExternalError = input<boolean>(false);
   errorMessage = input<string | undefined>('');
-  // Sinais internos (O que antes sujava o seu CadFormComponent)
-  searchTerm = signal('');
+  externalTouched = input<boolean>(false);
+
+  // Estado interno de toque
   touched = signal(false);
+
+  searchTerm = signal('');
   // Filtra a lista baseada no termo digitado
   filteredData = computed(() => {
     const term = this.searchTerm().toLowerCase();
     if (!term) return this.data();
     return this.data().filter((item) => item[this.displayKey()]?.toLowerCase().includes(term));
   });
+
   // Decide se mostra o nome do item selecionado ou o texto digitado
   displayValue = computed(() => {
     const id = this.selectedId();
@@ -84,16 +90,23 @@ export class AutocompleteComponent {
   });
   // Lógica de Erro Inteligente (Encapsulada)
   showError = computed(() => {
+    const isTouched = this.touched() || this.externalTouched();
+
     // Erro 1: Digitou algo, mas não clicou em nada da lista
     if (this.selectedId() === null && this.searchTerm() !== '') {
       return 'Selecione um item válido na lista';
     }
     // Erro 2: Erro do form validator (ex: required) após o campo ser tocado
-    if (this.touched() && this.hasExternalError()) {
+    if (isTouched && this.hasExternalError()) {
       return this.errorMessage();
     }
     return null;
   });
+
+  // O "Fofoqueiro" que pinta a borda de vermelho
+  errorMatcher: ErrorStateMatcher = {
+    isErrorState: () => this.showError() !== null,
+  };
 
   // Eventos do Input
   onInput(event: Event) {
@@ -110,6 +123,7 @@ export class AutocompleteComponent {
     this.touched.set(true);
   }
 
+  // Eventos para atualizar o Model e o estado de Toque
   onSelected(value: number) {
     this.selectedId.set(value);
     this.searchTerm.set('');
