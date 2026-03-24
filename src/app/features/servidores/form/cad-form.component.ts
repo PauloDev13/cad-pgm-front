@@ -28,6 +28,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatSelect } from '@angular/material/select';
 
 export type FormModel = Required<
   Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | 'procuraIds'>
@@ -46,6 +47,7 @@ export type FormModel = Required<
     MatAutocompleteModule,
     AutocompleteComponent,
     CustomSelectComponent,
+    MatSelect,
   ],
   standalone: true,
   template: `
@@ -285,6 +287,17 @@ export class CadFormComponent implements OnInit {
   readonly data = inject<ServidorResponseDTO>(MAT_DIALOG_DATA, { optional: true });
 
   readonly generos = ['Masculino', 'Feminino', 'Outros'];
+
+  readonly sexo = [
+    {
+      id: 1,
+      nome: 'Masculino',
+    },
+    {
+      id: 2,
+      nome: 'Feminino',
+    },
+  ];
 
   // Signals para armazenar os dados que virão da API
   cargos = signal<BaseEntityDTO[]>([]);
