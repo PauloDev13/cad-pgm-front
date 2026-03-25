@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ServidorService } from '../../../core/services/servidor.service';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -21,14 +21,12 @@ import { firstValueFrom } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DominioService } from '../../../core/services/dominio.service';
 import { AutocompleteComponent } from '../../../shared/components/autocomplete.component/autocomplete.component';
-import { CustomSelectComponent } from '../../../shared/components/custom-select.component/custom-select.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatSelect } from '@angular/material/select';
 import { TestSelect } from '../../../shared/components/test-select/test-select';
 
 export type FormModel = Required<
@@ -47,8 +45,6 @@ export type FormModel = Required<
     MatNativeDateModule,
     MatAutocompleteModule,
     AutocompleteComponent,
-    CustomSelectComponent,
-    MatSelect,
     TestSelect,
   ],
   standalone: true,
@@ -132,17 +128,12 @@ export type FormModel = Required<
             </div>
 
             <!--Campo genero-->
-            <mat-form-field appearance="outline" class="w-full" floatLabel="always">
-              <mat-label>Gênero</mat-label>
-              <mat-select
-                [formField]="servidorForm.genero"
-                placeholder="Clique e seleciona o Gênero"
-              >
-                @for (gen of generos; track gen) {
-                  <mat-option [value]="gen">{{ gen }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <app-test-select
+              label="Gênero"
+              placeholder="Clique e selecione o Gênero"
+              [field]="servidorForm.genero()"
+              [options]="generos()"
+            />
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-1">
@@ -209,70 +200,37 @@ export type FormModel = Required<
             </div>
 
             <!--Campo setor-->
-            <mat-form-field appearance="outline" class="w-full" floatLabel="always">
-              <mat-label>Setor</mat-label>
-              <mat-select
-                [formField]="servidorForm.setorId"
-                placeholder="Clique e seleciona o Setor"
-              >
-                @for (setor of setores(); track setor.id) {
-                  <mat-option [value]="setor.id">{{ setor.nome }}</mat-option>
-                }
-              </mat-select>
-              @if (servidorForm.setorId().invalid() && servidorForm.setorId().touched()) {
-                <mat-error>{{ servidorForm.setorId().errors()[0].message }}</mat-error>
-              }
-            </mat-form-field>
+            <app-test-select
+              label="Setor"
+              placeholder="Clique e selecione o Setor"
+              [field]="servidorForm.setorId()"
+              [options]="setores()"
+            />
 
             <!--Campo lotação-->
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Lotação</mat-label>
-              <input matInput [formField]="servidorForm.lotacaoId" type="number" />
-              @if (servidorForm.lotacaoId().invalid() && servidorForm.lotacaoId().touched()) {
-                <mat-error>{{ servidorForm.lotacaoId().errors()[0].message }}</mat-error>
-              }
-            </mat-form-field>
+            <app-test-select
+              label="Lotação"
+              placeholder="Clique e selecione a Lotação "
+              [field]="servidorForm.lotacaoId()"
+              [options]="lotacaoList()"
+            />
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-1">
-            <app-custom-select
-              [data]="statusList()"
+            <app-test-select
               label="Status"
-              displayKey="descricao"
-              placeholder="Clique e seleciona o Status"
-              [selectedValue]="servidorModel().statusId"
-              (selectedValueChange)="onStatusChange($event)"
-              [hasExternalError]="servidorForm.statusId().invalid()"
-              [errorMessage]="
-                servidorForm.statusId().invalid()
-                  ? servidorForm.statusId().errors()[0]?.message
-                  : ''
-              "
-              [externalTouched]="servidorForm.cargoId().touched()"
+              placeholder="Clique e selecione o Status"
+              [field]="servidorForm.statusId()"
+              [options]="statusList()"
             />
 
             <!--Campo vínculo-->
             <app-test-select
               label="Vínculo"
-              placeholder="Selecione"
+              placeholder="Clique e selecione o Vínculo"
               [field]="servidorForm.vinculoId()"
               [options]="vinculos()"
             />
-
-            <!--            <mat-form-field appearance="outline" class="w-full" floatLabel="always">-->
-            <!--              <mat-label>Vínculo</mat-label>-->
-            <!--              <mat-select-->
-            <!--                [formField]="servidorForm.vinculoId"-->
-            <!--                placeholder="Clique e seleciona o Vínculo"-->
-            <!--              >-->
-            <!--                @for (vinculo of vinculos(); track vinculo.id) {-->
-            <!--                  <mat-option [value]="vinculo.id">{{ vinculo.nome }}</mat-option>-->
-            <!--                }-->
-            <!--              </mat-select>-->
-            <!--              @if (servidorForm.vinculoId().invalid() && servidorForm.vinculoId().touched()) {-->
-            <!--                <mat-error>{{ servidorForm.vinculoId().errors()[0].message }}</mat-error>-->
-            <!--              }-->
-            <!--            </mat-form-field>-->
           </div>
         </div>
       </form>
@@ -294,17 +252,17 @@ export type FormModel = Required<
 export class CadFormComponent implements OnInit {
   isEdit: boolean = false;
   readonly data = inject<ServidorResponseDTO>(MAT_DIALOG_DATA, { optional: true });
-
-  readonly generos = ['Masculino', 'Feminino', 'Outros'];
-
   // Signals para armazenar os dados que virão da API
   cargos = signal<BaseEntityDTO[]>([]);
-
-  // signals
   setores = signal<BaseEntityDTO[]>([]);
-  lotacoes = signal<BaseEntityDTO[]>([]);
-  statusList = signal<BaseEntityDTO[]>([]);
   vinculos = signal<BaseEntityDTO[]>([]);
+  statusList = signal<BaseEntityDTO[]>([]);
+
+  // Signals para armazenar dados estáticos vindos do domínio service
+  generos = signal<BaseEntityDTO[]>([]);
+  lotacaoList = signal<BaseEntityDTO[]>([]);
+
+  // Modelo para validação
   servidorModel = signal<FormModel>({
     nome: '',
     matricula: '',
@@ -319,7 +277,7 @@ export class CadFormComponent implements OnInit {
     // Garantindo tipos compatíveis com numbers que iniciam vazios
     cargoId: null as unknown as number,
     setorId: null as unknown as number,
-    lotacaoId: null as unknown as number,
+    lotacaoId: 1,
     statusId: 1,
     vinculoId: null as unknown as number,
   });
@@ -363,12 +321,8 @@ export class CadFormComponent implements OnInit {
     required(path.statusId, { message: 'O Status é obrigatório' });
     required(path.vinculoId, { message: 'O vinculo é obrigatório' });
   });
-  vinculoOptions = computed(() =>
-    this.vinculos().map((v) => ({
-      value: v.id,
-      label: v.nome,
-    })),
-  );
+
+  protected readonly form = form;
   private readonly servidorService = inject(ServidorService);
   private readonly dominioService = inject(DominioService);
   private readonly dialogRef = inject(MatDialogRef<CadFormComponent>);
@@ -379,20 +333,6 @@ export class CadFormComponent implements OnInit {
     this.servidorModel.update((m) => ({
       ...m,
       cargoId: id as number,
-    }));
-  }
-
-  onSetorChange(id: number | null) {
-    this.servidorModel.update((m) => ({
-      ...m,
-      setorId: id as number,
-    }));
-  }
-
-  onStatusChange(id: number | null) {
-    this.servidorModel.update((m) => ({
-      ...m,
-      statusId: id as number,
     }));
   }
 
@@ -475,10 +415,15 @@ export class CadFormComponent implements OnInit {
     });
   }
 
+  // Busca os dados na API e seta os signals
   loadDomains() {
     this.dominioService.getCargos().subscribe((res) => this.cargos.set(res));
     this.dominioService.getSetores().subscribe((res) => this.setores.set(res));
     this.dominioService.getStatus().subscribe((res) => this.statusList.set(res));
     this.dominioService.getVinculos().subscribe((res) => this.vinculos.set(res));
+
+    // Busca dados estáticos e simula uma requisição a API
+    this.dominioService.getLotacaoList().subscribe((res) => this.lotacaoList.set(res));
+    this.dominioService.getGeneros().subscribe((res) => this.generos.set(res));
   }
 }

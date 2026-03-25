@@ -3,6 +3,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { FormField } from '@angular/forms/signals';
+import { BaseEntityDTO } from '../../../core/models/servidor.model';
 
 @Component({
   selector: 'app-test-select',
@@ -15,7 +16,7 @@ import { FormField } from '@angular/forms/signals';
       <mat-select [formField]="field" [placeholder]="placeholder()">
         @for (option of options(); track option.id) {
           <mat-option [value]="option.id">
-            {{ option.nome }}
+            {{ option.nome || option.descricao }}
           </mat-option>
         }
       </mat-select>
@@ -31,10 +32,7 @@ import { FormField } from '@angular/forms/signals';
 })
 export class TestSelect {
   label = input.required<string>();
-  placeholder = input<string>('Selecione');
-
+  placeholder = input<string>('');
   field = input.required<any>(); // Signal FormField
-
-  // options = input.required<SelectOption[]>();
-  options = input.required<any[]>();
+  options = input.required<BaseEntityDTO[]>();
 }
