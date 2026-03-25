@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ServidorService } from '../../../core/services/servidor.service';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -29,6 +29,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatSelect } from '@angular/material/select';
+import { TestSelect } from '../../../shared/components/test-select/test-select';
 
 export type FormModel = Required<
   Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | 'procuraIds'>
@@ -48,6 +49,7 @@ export type FormModel = Required<
     AutocompleteComponent,
     CustomSelectComponent,
     MatSelect,
+    TestSelect,
   ],
   standalone: true,
   template: `
@@ -250,20 +252,27 @@ export type FormModel = Required<
             />
 
             <!--Campo vínculo-->
-            <mat-form-field appearance="outline" class="w-full" floatLabel="always">
-              <mat-label>Vínculo</mat-label>
-              <mat-select
-                [formField]="servidorForm.vinculoId"
-                placeholder="Clique e seleciona o Vínculo"
-              >
-                @for (vinculo of vinculos(); track vinculo.id) {
-                  <mat-option [value]="vinculo.id">{{ vinculo.nome }}</mat-option>
-                }
-              </mat-select>
-              @if (servidorForm.vinculoId().invalid() && servidorForm.vinculoId().touched()) {
-                <mat-error>{{ servidorForm.vinculoId().errors()[0].message }}</mat-error>
-              }
-            </mat-form-field>
+            <app-test-select
+              label="Vínculo"
+              placeholder="Selecione"
+              [field]="servidorForm.vinculoId()"
+              [options]="vinculos()"
+            />
+
+            <!--            <mat-form-field appearance="outline" class="w-full" floatLabel="always">-->
+            <!--              <mat-label>Vínculo</mat-label>-->
+            <!--              <mat-select-->
+            <!--                [formField]="servidorForm.vinculoId"-->
+            <!--                placeholder="Clique e seleciona o Vínculo"-->
+            <!--              >-->
+            <!--                @for (vinculo of vinculos(); track vinculo.id) {-->
+            <!--                  <mat-option [value]="vinculo.id">{{ vinculo.nome }}</mat-option>-->
+            <!--                }-->
+            <!--              </mat-select>-->
+            <!--              @if (servidorForm.vinculoId().invalid() && servidorForm.vinculoId().touched()) {-->
+            <!--                <mat-error>{{ servidorForm.vinculoId().errors()[0].message }}</mat-error>-->
+            <!--              }-->
+            <!--            </mat-form-field>-->
           </div>
         </div>
       </form>
@@ -287,17 +296,6 @@ export class CadFormComponent implements OnInit {
   readonly data = inject<ServidorResponseDTO>(MAT_DIALOG_DATA, { optional: true });
 
   readonly generos = ['Masculino', 'Feminino', 'Outros'];
-
-  readonly sexo = [
-    {
-      id: 1,
-      nome: 'Masculino',
-    },
-    {
-      id: 2,
-      nome: 'Feminino',
-    },
-  ];
 
   // Signals para armazenar os dados que virão da API
   cargos = signal<BaseEntityDTO[]>([]);
@@ -365,6 +363,12 @@ export class CadFormComponent implements OnInit {
     required(path.statusId, { message: 'O Status é obrigatório' });
     required(path.vinculoId, { message: 'O vinculo é obrigatório' });
   });
+  vinculoOptions = computed(() =>
+    this.vinculos().map((v) => ({
+      value: v.id,
+      label: v.nome,
+    })),
+  );
   private readonly servidorService = inject(ServidorService);
   private readonly dominioService = inject(DominioService);
   private readonly dialogRef = inject(MatDialogRef<CadFormComponent>);
