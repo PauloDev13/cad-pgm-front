@@ -28,6 +28,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { TestSelect } from '../../../shared/components/test-select/test-select';
+import { ToastService } from '../../../core/services/toast.service';
 
 export type FormModel = Required<
   Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | 'procuraIds'>
@@ -325,6 +326,7 @@ export class CadFormComponent implements OnInit {
   protected readonly form = form;
   private readonly servidorService = inject(ServidorService);
   private readonly dominioService = inject(DominioService);
+  private readonly toastService = inject(ToastService);
   private readonly dialogRef = inject(MatDialogRef<CadFormComponent>);
   private readonly snackBar = inject(MatSnackBar);
 
@@ -375,14 +377,19 @@ export class CadFormComponent implements OnInit {
           await firstValueFrom(this.servidorService.create(requestData));
         }
 
-        this.snackBar.open(
+        this.toastService.success(
           `Servidor ${this.isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`,
-          'Fechar',
-          {
-            duration: 3000,
-            panelClass: ['snackbar-success'],
-          },
         );
+
+        // this.snackBar.open(
+        //   `Servidor ${this.isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`,
+        //   'Fechar',
+        //   {
+        //     duration: 3000,
+        //     panelClass: ['snackbar-success'],
+        //   },
+        // );
+
         this.dialogRef.close(true);
       } catch (error: any) {
         // Mensagem padrão caso seja erro de rede (backend fora do ar) ou algo não mapeado
@@ -405,12 +412,13 @@ export class CadFormComponent implements OnInit {
               error.error.errors[0].defaultMessage || 'Erro de validação nos dados enviados.';
           }
         }
-        this.snackBar.open(messageDefaultErro, 'Fechar', {
-          duration: 3000,
-          horizontalPosition: 'center',
-          verticalPosition: 'bottom',
-          panelClass: ['danger'],
-        });
+        this.toastService.error(messageDefaultErro);
+        // this.snackBar.open(messageDefaultErro, 'Fechar', {
+        //   duration: 3000,
+        //   horizontalPosition: 'center',
+        //   verticalPosition: 'bottom',
+        //   panelClass: ['danger'],
+        // });
       }
     });
   }

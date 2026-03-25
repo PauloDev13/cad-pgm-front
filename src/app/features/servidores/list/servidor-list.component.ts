@@ -16,6 +16,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { PageResponse } from '../../../core/models/pagination.model';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog.component/confirm-dialog.component';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-servidor-list',
@@ -281,6 +282,7 @@ export default class ServidorListComponent implements OnInit {
   // Injeções
   private readonly servidorService = inject(ServidorService);
   private readonly dominioService = inject(DominioService);
+  private readonly toastService = inject(ToastService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
@@ -313,14 +315,14 @@ export default class ServidorListComponent implements OnInit {
       // Chama o NOVO ENDPOINT no Service (searchFilter)
       this.servidorService.searchFilter(page, size, statusId, cpf, matricula, nome).subscribe({
         next: (pageData) => this.setPageData(pageData),
-        error: () => this.showMessage('Erro ao filtrar servidores'),
+        error: () => this.toastService.error('Erro ao filtrar dados'),
         complete: () => this.isLoading.set(false),
       });
     } else {
       // Chama o ENDPOINT ORIGINAL (findAll) - Listagem limpa
       this.servidorService.findAll(page, size).subscribe({
         next: (pageData) => this.setPageData(pageData),
-        error: () => this.showMessage('Erro ao carregar servidores'),
+        error: () => this.toastService.error('Erro ao carregar dados'),
         complete: () => this.isLoading.set(false),
       });
     }
@@ -356,10 +358,10 @@ export default class ServidorListComponent implements OnInit {
       if (result) {
         this.servidorService.delete(id).subscribe({
           next: () => {
-            this.showMessage('Registro removido com sucesso!');
+            this.toastService.success('Registro removido com sucesso!');
             this.loadData();
           },
-          error: () => this.showMessage('Erro ao remover servidor'),
+          error: () => this.toastService.error('Erro ao remover registro!'),
         });
       }
     });
@@ -422,11 +424,11 @@ export default class ServidorListComponent implements OnInit {
         // Após configurar o status padrão, chamamos a listagem inicial
         this.loadData();
       },
-      error: () => this.showMessage('Erro ao carregar lista de status'),
+      error: () => this.toastService.error('Erro ao carregar lista de status'),
     });
   }
 
-  private showMessage(msg: string) {
-    this.snackBar.open(msg, 'Fechar', { duration: 3000, horizontalPosition: 'right' });
-  }
+  // private showMessage(msg: string) {
+  //   this.snackBar.open(msg, 'Fechar', { duration: 3000, horizontalPosition: 'right' });
+  // }
 }
