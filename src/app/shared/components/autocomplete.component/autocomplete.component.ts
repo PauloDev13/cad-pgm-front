@@ -1,4 +1,4 @@
-import { Component, computed, input, model, signal } from '@angular/core';
+import { Component, computed, effect, input, model, signal, viewChild } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
@@ -70,15 +70,16 @@ export class AutocompleteComponent {
 
   // Estado interno de toque
   touched = signal(false);
-
   searchTerm = signal('');
+
+  // Capturamos a referência do input "preguiçoso" do Material
+  matInputRef = viewChild(MatInput);
   // Filtra a lista baseada no termo digitado
   filteredData = computed(() => {
     const term = this.searchTerm().toLowerCase();
     if (!term) return this.data();
     return this.data().filter((item) => item[this.displayKey()]?.toLowerCase().includes(term));
   });
-
   // Decide se mostra o nome do item selecionado ou o texto digitado
   displayValue = computed(() => {
     const id = this.selectedId();
@@ -102,11 +103,17 @@ export class AutocompleteComponent {
     }
     return null;
   });
-
   // O "Fofoqueiro" que pinta a borda de vermelho
   errorMatcher: ErrorStateMatcher = {
     isErrorState: () => this.showError() !== null,
   };
+
+  constructor() {
+    effect(() => {
+      this.showError();
+      this.matInputRef()?.updateErrorState();
+    });
+  }
 
   // Eventos do Input
   onInput(event: Event) {
