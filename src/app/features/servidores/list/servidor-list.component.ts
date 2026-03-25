@@ -15,6 +15,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { PageResponse } from '../../../core/models/pagination.model';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog.component/confirm-dialog.component';
 
 @Component({
   selector: 'app-servidor-list',
@@ -28,7 +29,11 @@ import { PageResponse } from '../../../core/models/pagination.model';
         </div>
         <button
           mat-flat-button
-          class="!bg-blue-500 transition-transform duration-200 hover:!scale-105 "
+          class="!bg-blue-500
+          !transition-transform
+          duration-300
+          !ease-in-out
+          hover:!scale-105"
           (click)="openForm()"
         >
           <mat-icon>add</mat-icon>
@@ -57,7 +62,7 @@ import { PageResponse } from '../../../core/models/pagination.model';
 
         <div class="flex flex-col md:flex-row gap-2 flex-1 w-full md:justify-end bg-white">
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-32">
-            <mat-label>Filtrar por Nome ou CPF ou Matrícula</mat-label>
+            <mat-label>Filtrar por Nome/CPF/Matrícula</mat-label>
             <mat-select
               [value]="searchType()"
               (selectionChange)="searchType.set($event.value); searchTerm.set('')"
@@ -167,12 +172,6 @@ import { PageResponse } from '../../../core/models/pagination.model';
               {{ s.setor?.nome || '-' }}
             </td>
           </ng-container>
-
-          <!--          <ng-container matColumnDef="vinculo">-->
-          <!--            <th mat-header-cell *matHeaderCellDef class="font-semibold text-gray-700">Vínculo</th>-->
-          <!--            <td mat-cell *matCellDef="let s">{{ s.vinculo?.nome || '-' }}</td>-->
-          <!--          </ng-container>-->
-
           <ng-container matColumnDef="acoes">
             <th
               mat-header-cell
@@ -290,7 +289,7 @@ export default class ServidorListComponent implements OnInit {
     this.carregarFiltrosIniciais();
   }
 
-  // Método centralizador: Decide qual endpoint chamar com base nos filtros
+  // centralizador: Decide qual endpoint chamar com base nos filtros
   loadData() {
     this.isLoading.set(true);
 
@@ -344,15 +343,26 @@ export default class ServidorListComponent implements OnInit {
   }
 
   delete(id: number) {
-    if (confirm('Tem certeza que deseja remover este servidor?')) {
-      this.servidorService.delete(id).subscribe({
-        next: () => {
-          this.showMessage('Servidor removido com sucesso!');
-          this.loadData();
-        },
-        error: () => this.showMessage('Erro ao remover servidor'),
-      });
-    }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '480px',
+      disableClose: true,
+      data: {
+        title: 'Remover registro',
+        message: 'Esta ação não poderá ser desfeita. Tem certeza que quer prosseguir?',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.servidorService.delete(id).subscribe({
+          next: () => {
+            this.showMessage('Registro removido com sucesso!');
+            this.loadData();
+          },
+          error: () => this.showMessage('Erro ao remover servidor'),
+        });
+      }
+    });
   }
 
   onPageChange(event: PageEvent) {
@@ -383,7 +393,7 @@ export default class ServidorListComponent implements OnInit {
     this.searchTerm.set(value);
   }
 
-  // Método chamado quando o usuário clica na lupa ou aperta Enter
+  // é chamado quando o usuário clica na lupa ou aperta Enter
   realizarPesquisa() {
     this.currentPage.set(0); // Reseta a página ao buscar
     this.loadData();
