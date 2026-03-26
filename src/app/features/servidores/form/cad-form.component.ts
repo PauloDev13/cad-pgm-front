@@ -262,6 +262,7 @@ export type FormModel = Required<ServidorRequestDTO>;
         mat-stroked-button
         type="button"
         class="mr-auto !border-blue-600 !text-blue-600"
+        [disabled]="servidorForm().invalid()"
         (click)="openPermissions()"
       >
         <mat-icon>security</mat-icon>
@@ -327,39 +328,47 @@ export class CadFormComponent implements OnInit {
 
   // validações dos campos do formulário
   servidorForm = form(this.servidorModel, (path) => {
+    // validações para o campo Nome
     required(path.nome, { message: 'O nome é obrigatório' });
     minLength(path.nome, 5, { message: 'O Nome deve ter no mínimo 5 caracteres' });
     maxLength(path.nome, 150, {
       message: 'O nome deve ter no máximo 150 caracteres',
     });
 
+    // validações para o campo Matrícula
     required(path.matricula, { message: 'A matrícula é obrigatório' });
     maxLength(path.matricula, 20, {
       message: 'A matrícula deve ter no máximo 20 caracteres',
     });
 
+    // validações para o campo CPF
     required(path.cpf, { message: 'O CPF é obrigatório' });
     pattern(path.cpf, /^\d{11}$/, { message: 'O CPF deve ter 11 digitos' });
 
-    required(path.dataNascimento, { message: 'A Data é obrigatório' });
+    // validações para o campo Data de Nascimento
+    required(path.dataNascimento, { message: 'A data é obrigatório' });
     validate(path.dataNascimento, ({ value }) => CustomValidators.minimunAge(value(), 16));
-    validate(path.dataNascimento, ({ value }) => CustomValidators.dataValida(value()));
+    // validate(path.dataNascimento, ({ value }) => CustomValidators.dataValida(value()));
 
+    // validações para o campo Telefone
     maxLength(path.telefone, 20, {
       message: 'O telefone deve ter no máximo 20 digitos',
     });
 
+    // validações para o campo Email Pessoal
     required(path.emailPessoal, { message: 'O Email é obrigatório' });
     email(path.emailPessoal, { message: 'Formato de email inválido' });
     maxLength(path.emailPessoal, 100, {
       message: 'O Email deve ter no máximo 100 caracteres',
     });
 
+    // validações para o campo Email Institucional
     maxLength(path.emailInstitucional, 100, {
       message: 'O Email deve ter no máximo 100 caracteres',
     });
     email(path.emailInstitucional, { message: 'Formato de email inválido' });
 
+    // validações para os campos de relacionamentos
     required(path.cargoId, { message: 'O Cargo é obrigatório' });
     required(path.setorId, { message: 'O Setor é obrigatório' });
     required(path.lotacaoId, { message: 'A Lotação é obrigatório' });
