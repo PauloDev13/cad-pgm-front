@@ -346,7 +346,7 @@ export default class ServidorListComponent implements OnInit {
 
   delete(id: number) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '480px',
+      width: '500px',
       disableClose: true,
       data: {
         title: 'Remover registro',
@@ -373,7 +373,7 @@ export default class ServidorListComponent implements OnInit {
     this.loadData();
   }
 
-  // Método chamado pelo HTML quando o usuário troca o Status
+  // É o chamado pelo HTML quando o usuário troca o Status
   onStatusChange(id: number | null) {
     this.selectedStatusId.set(id);
     // Limpa o input de texto (CPF/Matrícula)
@@ -382,7 +382,7 @@ export default class ServidorListComponent implements OnInit {
     this.loadData(); //Dispara a busca limpa no backend
   }
 
-  // Método chamado pelo HTML quando o usuário digita no campo de busca
+  // É chamado pelo HTML quando o usuário digita no campo de busca
   onSearchInput(event: Event) {
     let value = (event.target as HTMLInputElement).value;
 

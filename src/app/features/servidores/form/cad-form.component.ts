@@ -258,7 +258,14 @@ export type FormModel = Required<ServidorRequestDTO>;
         Gerenciar Permissões
       </button>
 
-      <button mat-button mat-dialog-close>Cancelar</button>
+      <button
+        mat-stroked-button
+        type="button"
+        mat-dialog-close
+        class="!border-blue-600 !text-blue-600"
+      >
+        Cancelar
+      </button>
       <button
         mat-flat-button
         color="primary"
@@ -324,7 +331,7 @@ export class CadFormComponent implements OnInit {
     required(path.cpf, { message: 'O CPF é obrigatório' });
     pattern(path.cpf, /^\d{11}$/, { message: 'O CPF deve ter 11 digitos' });
 
-    required(path.dataNascimento, { message: 'A Data de Nascimento é obrigatório' });
+    required(path.dataNascimento, { message: 'A Data é obrigatório' });
 
     maxLength(path.telefone, 20, {
       message: 'O telefone deve ter no máximo 20 digitos',

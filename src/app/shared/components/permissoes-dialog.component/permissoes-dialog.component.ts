@@ -52,8 +52,20 @@ export interface PermissoesDialogData {
     </mat-dialog-content>
 
     <mat-dialog-actions align="end" class="!pr-6 !pb-6">
-      <button mat-button (click)="cancelar()" class="text-gray-600">Cancelar</button>
-      <button mat-flat-button class="!bg-blue-600 text-white ml-2" (click)="confirmar()">
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="cancelar()"
+        class="!border-blue-600 !text-blue-600"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        mat-flat-button
+        class="!bg-blue-500 text-white ml-2"
+        (click)="confirmar()"
+      >
         Confirmar Seleção
       </button>
     </mat-dialog-actions>

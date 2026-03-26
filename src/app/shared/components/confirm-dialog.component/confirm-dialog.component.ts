@@ -12,15 +12,18 @@ export interface ConfirmDialogData {
   imports: [MatDialogModule, MatButtonModule],
   standalone: true,
   template: `
-    <h2 mat-dialog-title class="!text-xl !font-bold text-gray-800">{{ data.title }}</h2>
+    <h2 mat-dialog-title class="!text-2xl !font-bold text-gray-800 border-b">
+      {{ data.title }}
+    </h2>
 
     <mat-dialog-content>
-      <p class="text-gray-600 mt-2 text-base">{{ data.message }}</p>
+      <p class="text-gray-600 text-base pt-2">{{ data.message }}</p>
     </mat-dialog-content>
 
     <mat-dialog-actions align="end" class="!pb-4 !pr-4">
       <button
         mat-stroked-button
+        type="button"
         (click)="onNoClick()"
         class="hover:!text-white
         hover:!bg-blue-500
@@ -33,6 +36,7 @@ export interface ConfirmDialogData {
 
       <button
         mat-stroked-button
+        type="button"
         (click)="onYesClick()"
         class="hover:!bg-red-600
         hover:!text-white
