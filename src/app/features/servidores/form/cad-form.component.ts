@@ -20,6 +20,7 @@ import {
   pattern,
   required,
   submit,
+  validate,
 } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -38,6 +39,8 @@ import {
   PermissoesDialogData,
 } from '../../../shared/components/permissoes-dialog.component/permissoes-dialog.component';
 import { MatIconModule } from '@angular/material/icon';
+import { CustomValidators } from '../../../shared/utils/custom-validators';
+import { NgxMaskDirective } from 'ngx-mask';
 
 // export type FormModel = Required<
 //   Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | 'procuraIds'>
@@ -58,6 +61,7 @@ export type FormModel = Required<ServidorRequestDTO>;
     MatAutocompleteModule,
     AutocompleteComponent,
     TestSelectComponent,
+    NgxMaskDirective,
   ],
   standalone: true,
   template: `
@@ -109,7 +113,12 @@ export type FormModel = Required<ServidorRequestDTO>;
               <!--Campo CPF-->
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                 <mat-label>CPF</mat-label>
-                <input matInput [formField]="servidorForm.cpf" placeholder="Somente números" />
+                <input
+                  matInput
+                  [formField]="servidorForm.cpf"
+                  placeholder="Somente números"
+                  mask="000.000.000-00"
+                />
               </mat-form-field>
               @if (servidorForm.cpf().invalid() && servidorForm.cpf().touched()) {
                 @for (error of servidorForm.cpf().errors(); track error) {
@@ -126,6 +135,7 @@ export type FormModel = Required<ServidorRequestDTO>;
                   matInput
                   [matDatepicker]="pickerNascimento"
                   [formField]="servidorForm.dataNascimento"
+                  placeholder="Data'DD/MM/AAAA'"
                 />
                 <mat-datepicker-toggle matIconSuffix [for]="pickerNascimento" />
                 <mat-datepicker #pickerNascimento></mat-datepicker>
@@ -332,6 +342,8 @@ export class CadFormComponent implements OnInit {
     pattern(path.cpf, /^\d{11}$/, { message: 'O CPF deve ter 11 digitos' });
 
     required(path.dataNascimento, { message: 'A Data é obrigatório' });
+    validate(path.dataNascimento, ({ value }) => CustomValidators.minimunAge(value(), 16));
+    validate(path.dataNascimento, ({ value }) => CustomValidators.dataValida(value()));
 
     maxLength(path.telefone, 20, {
       message: 'O telefone deve ter no máximo 20 digitos',
