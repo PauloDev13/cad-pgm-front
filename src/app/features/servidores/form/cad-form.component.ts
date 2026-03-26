@@ -27,7 +27,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { TestSelect } from '../../../shared/components/test-select/test-select';
+import { TestSelectComponent } from '../../../shared/components/test-select/test-select.component';
 import { ToastService } from '../../../core/services/toast.service';
 
 export type FormModel = Required<
@@ -46,7 +46,7 @@ export type FormModel = Required<
     MatNativeDateModule,
     MatAutocompleteModule,
     AutocompleteComponent,
-    TestSelect,
+    TestSelectComponent,
   ],
   standalone: true,
   template: `

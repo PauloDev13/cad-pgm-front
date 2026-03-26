@@ -30,7 +30,7 @@ import { BaseEntityDTO } from '../../../core/models/servidor.model';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TestSelect {
+export class TestSelectComponent {
   label = input.required<string>();
   placeholder = input<string>('');
   field = input.required<any>(); // Signal FormField
