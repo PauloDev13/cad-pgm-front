@@ -1,7 +1,11 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ServidorService } from '../../../core/services/servidor.service';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import {
   BaseEntityDTO,
   ServidorRequestDTO,
@@ -29,15 +33,22 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { TestSelectComponent } from '../../../shared/components/test-select/test-select.component';
 import { ToastService } from '../../../core/services/toast.service';
+import {
+  PermissoesDialogComponent,
+  PermissoesDialogData,
+} from '../../../shared/components/permissoes-dialog.component/permissoes-dialog.component';
+import { MatIconModule } from '@angular/material/icon';
 
-export type FormModel = Required<
-  Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | 'procuraIds'>
->;
+// export type FormModel = Required<
+//   Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | 'procuraIds'>
+// >;
+export type FormModel = Required<ServidorRequestDTO>;
 
 @Component({
   selector: 'app-cad-form.component',
   imports: [
     FormField,
+    MatIconModule,
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
@@ -237,6 +248,16 @@ export type FormModel = Required<
       </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end" class="!pb-6 !pr-6">
+      <button
+        mat-stroked-button
+        type="button"
+        class="mr-auto !border-blue-600 !text-blue-600"
+        (click)="openPermissions()"
+      >
+        <mat-icon>security</mat-icon>
+        Gerenciar Permissões
+      </button>
+
       <button mat-button mat-dialog-close>Cancelar</button>
       <button
         mat-flat-button
@@ -281,6 +302,10 @@ export class CadFormComponent implements OnInit {
     lotacaoId: 1,
     statusId: 1,
     vinculoId: null as unknown as number,
+
+    procuradorIds: [],
+    aliasIds: [],
+    sistemaIds: [],
   });
 
   // validações dos campos do formulário
@@ -328,7 +353,8 @@ export class CadFormComponent implements OnInit {
   private readonly dominioService = inject(DominioService);
   private readonly toastService = inject(ToastService);
   private readonly dialogRef = inject(MatDialogRef<CadFormComponent>);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
+  // private readonly snackBar = inject(MatSnackBar);
 
   // controla as mudanças no campo autocomplete Cargo
   onCargoChange(id: number | null) {
@@ -359,10 +385,18 @@ export class CadFormComponent implements OnInit {
         lotacaoId: this.data?.lotacao?.id as number,
         statusId: this.data?.status?.id as number,
         vinculoId: this.data?.vinculo?.id as number,
+
+        // NOVO: RELACIONAMENTOS MÚLTIPLOS (N para N) <---
+        // O backend manda um array de objetos [{id: 1, nome: 'X'}].
+        // O map() extrai só os IDs para o DTO de envio: [1]. Se for nulo, devolve [] vazio.
+        sistemaIds: this.data?.sistemas?.map((s) => s.id) || [],
+        procuraIds: this.data?.procuradores?.map((p) => p.id) || [],
+        aliasIds: this.data?.aliases?.map((a) => a.id) || [],
       }));
     }
   }
 
+  // Salva ou Atualiza um registro com todos os dados de um funcionário
   async salvar() {
     // e checa o valid() automaticamente antes de engatilhar o callback.
     await submit(this.servidorForm, async () => {
@@ -419,6 +453,29 @@ export class CadFormComponent implements OnInit {
         //   verticalPosition: 'bottom',
         //   panelClass: ['danger'],
         // });
+      }
+    });
+  }
+
+  openPermissions() {
+    const dialogRef = this.dialog.open(PermissoesDialogComponent, {
+      width: '500px',
+      disableClose: true,
+      data: {
+        sistemaIds: this.servidorModel().sistemaIds || [],
+        procuradoresIds: this.servidorModel().procuradorIds || [],
+        aliasIds: this.servidorModel().aliasIds || [],
+      },
+    });
+    dialogRef.afterClosed().subscribe((result: PermissoesDialogData | undefined) => {
+      if (result) {
+        // Se o usuário confirmou, nós mesclamos os arrays no modelo principal
+        this.servidorModel.update((model) => ({
+          ...model,
+          sistemaIds: result.sistemaIds,
+          procuraIds: result.procuradorIds,
+          aliasIds: result.aliasIds,
+        }));
       }
     });
   }

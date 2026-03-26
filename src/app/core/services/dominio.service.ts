@@ -38,6 +38,18 @@ export class DominioService {
     return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/vinculos`);
   }
 
+  getSistemas(): Observable<BaseEntityDTO[]> {
+    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/sistemas`);
+  }
+
+  getProcuradores(): Observable<BaseEntityDTO[]> {
+    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/procuradores`);
+  }
+
+  getAliases(): Observable<BaseEntityDTO[]> {
+    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/alias`);
+  }
+
   getLotacaoList(): Observable<BaseEntityDTO[]> {
     return of(this.lotacaoList).pipe(delay(300));
   }
