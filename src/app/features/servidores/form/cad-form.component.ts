@@ -390,7 +390,7 @@ export class CadFormComponent implements OnInit {
         // O backend manda um array de objetos [{id: 1, nome: 'X'}].
         // O map() extrai só os IDs para o DTO de envio: [1]. Se for nulo, devolve [] vazio.
         sistemaIds: this.data?.sistemas?.map((s) => s.id) || [],
-        procuraIds: this.data?.procuradores?.map((p) => p.id) || [],
+        procuradorIds: this.data?.procuradores?.map((p) => p.id) || [],
         aliasIds: this.data?.aliases?.map((a) => a.id) || [],
       }));
     }
@@ -463,7 +463,7 @@ export class CadFormComponent implements OnInit {
       disableClose: true,
       data: {
         sistemaIds: this.servidorModel().sistemaIds || [],
-        procuradoresIds: this.servidorModel().procuradorIds || [],
+        procuradorIds: this.servidorModel().procuradorIds || [],
         aliasIds: this.servidorModel().aliasIds || [],
       },
     });
@@ -473,7 +473,7 @@ export class CadFormComponent implements OnInit {
         this.servidorModel.update((model) => ({
           ...model,
           sistemaIds: result.sistemaIds,
-          procuraIds: result.procuradorIds,
+          procuradorIds: result.procuradorIds,
           aliasIds: result.aliasIds,
         }));
       }

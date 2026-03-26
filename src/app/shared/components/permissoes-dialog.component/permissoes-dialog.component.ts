@@ -8,9 +8,9 @@ import { BaseEntityDTO } from '../../../core/models/servidor.model';
 
 // Interface para os dados que entram e saem do Dialog
 export interface PermissoesDialogData {
-  sistemaIds: number[];
   aliasIds: number[];
   procuradorIds: number[];
+  sistemaIds: number[];
 }
 
 @Component({
@@ -32,14 +32,14 @@ export interface PermissoesDialogData {
         </mat-select>
       </mat-form-field>
 
-      <!--      <mat-form-field appearance="outline" class="w-full">-->
-      <!--        <mat-label>Procuradores Vinculados</mat-label>-->
-      <!--        <mat-select multiple [(value)]="selectedProcuradores">-->
-      <!--          @for (proc of listas.procuradores(); track proc.id) {-->
-      <!--            <mat-option [value]="proc.id">{{ proc.nome }}</mat-option>-->
-      <!--          }-->
-      <!--        </mat-select>-->
-      <!--      </mat-form-field>-->
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Procuradores Vinculados</mat-label>
+        <mat-select multiple [(value)]="selectedProcuradores">
+          @for (proc of listas.procuradores(); track proc.id) {
+            <mat-option [value]="proc.id">{{ proc.nome }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
 
       <mat-form-field appearance="outline" class="w-full">
         <mat-label>Aliases de E-mail</mat-label>
