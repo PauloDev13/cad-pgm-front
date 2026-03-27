@@ -1,108 +1,49 @@
-import { Component, signal } from '@angular/core';
-import { RouterModule, RouterOutlet } from '@angular/router';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatListModule } from '@angular/material/list';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatExpansionModule } from '@angular/material/expansion';
+import { HeaderComponent } from './header.component';
+import { SidebarComponent } from './sidebar.component';
+import { FooterComponent } from './footer.component';
 
 @Component({
   selector: 'app-main-layout',
-  imports: [
-    RouterOutlet,
-    RouterModule,
-    MatSidenavModule,
-    MatListModule,
-    MatIconModule,
-    MatButtonModule,
-    MatExpansionModule,
-  ],
+  imports: [RouterModule, MatSidenavModule, HeaderComponent, SidebarComponent, FooterComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   template: `
-    <mat-sidenav-container class="layout-container" [class.menu-collapsed]="collapsed()">
-      <mat-sidenav mode="side" opened>
-        <div class="menu-header">
-          <button mat-icon-button (click)="toggleMenu()">
-            <mat-icon>menu</mat-icon>
-          </button>
-          @if (!collapsed()) {
-            <span class="logo-text">Meu Sistema</span>
-          }
-        </div>
+    <div class="h-screen flex flex-col overflow-hidden bg-gray-50 text-gray-800">
+      <app-header (toggleSidebar)="toggle()"></app-header>
 
-        <mat-nav-list>
-          <a mat-list-item routerLink="/inicio" routerLinkActive="active-link">
-            <mat-icon matListItemIcon>home</mat-icon>
-            @if (!collapsed()) {
-              <span matListItemTitle>Início</span>
-            }
-          </a>
+      <mat-sidenav-container class="flex-1 bg-transparent">
+        <mat-sidenav
+          opened
+          mode="side"
+          class="border-r border-gray-200 bg-white transition-all duration-300 ease-in-out overflow-x-hidden"
+          [style.width.px]="isSidebarOpen() ? 256 : 80"
+        >
+          <app-sidebar [isOpen]="isSidebarOpen()"></app-sidebar>
+        </mat-sidenav>
 
-          <mat-expansion-panel class="menu-panel" [disabled]="collapsed()">
-            <mat-expansion-panel-header>
-              <mat-panel-title>
-                <mat-icon>manage_accounts</mat-icon>
-                @if (!collapsed()) {
-                  <span>Gerenciamento</span>
-                }
-              </mat-panel-title>
-            </mat-expansion-panel-header>
-            <mat-nav-list class="submenu">
-              <a mat-list-item routerLink="/servidores" routerLinkActive="active-link">
-                Cadastrar Servidor
-              </a>
-            </mat-nav-list>
-          </mat-expansion-panel>
+        <mat-sidenav-content
+          class="flex flex-col h-full overflow-y-auto transition-all duration-300 ease-in-out"
+          [style.margin-left.px]="isSidebarOpen() ? 200 : 0"
+        >
+          <main class="flex-1 p-6 md:p-8">
+            <router-outlet></router-outlet>
+          </main>
 
-          <mat-expansion-panel class="menu-panel" [disabled]="collapsed()">
-            <mat-expansion-panel-header>
-              <mat-panel-title>
-                <mat-icon>post_add</mat-icon>
-                @if (!collapsed()) {
-                  <span>Cadastro</span>
-                }
-              </mat-panel-title>
-            </mat-expansion-panel-header>
-            <mat-nav-list class="submenu">
-              <a mat-list-item routerLink="/cadastro/cargo">Cargo</a>
-              <a mat-list-item routerLink="/cadastro/setor">Setor</a>
-              <a mat-list-item routerLink="/cadastro/vinculo">Vínculo</a>
-              <a mat-list-item routerLink="/cadastro/status">Status</a>
-            </mat-nav-list>
-          </mat-expansion-panel>
-
-          <mat-expansion-panel class="menu-panel" [disabled]="collapsed()">
-            <mat-expansion-panel-header>
-              <mat-panel-title>
-                <mat-icon>admin_panel_settings</mat-icon>
-                @if (!collapsed()) {
-                  <span>Permissões</span>
-                }
-              </mat-panel-title>
-            </mat-expansion-panel-header>
-            <mat-nav-list class="submenu">
-              <a mat-list-item routerLink="/permissoes/procurador">Cadastro de Procurador</a>
-              <a mat-list-item routerLink="/permissoes/sistemas">Cadastro de Sistemas</a>
-              <a mat-list-item routerLink="/permissoes/alias">Cadastro de Alias</a>
-            </mat-nav-list>
-          </mat-expansion-panel>
-        </mat-nav-list>
-      </mat-sidenav>
-
-      <mat-sidenav-content>
-        <div class="content-wrapper">
-          <router-outlet></router-outlet>
-        </div>
-      </mat-sidenav-content>
-    </mat-sidenav-container>
+          <app-footer></app-footer>
+        </mat-sidenav-content>
+      </mat-sidenav-container>
+    </div>
   `,
   styles: ``,
 })
 export class MainLayoutComponent {
-  // Signal que controla se o menu está aberto ou apenas ícones
-  collapsed = signal<boolean>(false);
+  // Recebe o estado de aberto/fechado do MainLayout
+  protected isSidebarOpen = signal(true);
 
-  toggleMenu() {
-    this.collapsed.update((val) => !val);
+  toggle() {
+    this.isSidebarOpen.update((v) => !v);
   }
 }
