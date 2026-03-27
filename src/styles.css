@@ -13,6 +13,22 @@
   line-height: normal;
 }
 
+.mat-expansion-panel-body {
+  padding: 0 !important;
+}
+
+.mat-expansion-panel-header {
+  padding: 0 16px !important;
+}
+
+.mat-expansion-panel-header-title {
+  margin-right: 0 !important;
+}
+
+.mat-mdc-list-item-unscoped-content {
+  justify-content: flex-start !important;
+}
+
 /*.layout-container {*/
 /*  height: 100vh;*/
 /*}*/

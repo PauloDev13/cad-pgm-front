@@ -167,48 +167,28 @@ import { MatExpansionModule } from '@angular/material/expansion';
   `,
   styles: [
     `
-      ::ng-deep .mat-expansion-panel-body {
+      :host-context(.sidebar-closed) .mat-expansion-indicator::after {
+        display: none !important;
+      }
+
+      :host-context(.sidebar-closed) .mat-expansion-panel-header {
         padding: 0 !important;
+        justify-content: center;
       }
 
-      ::ng-deep .mat-expansion-panel-header {
-        padding: 0 16px !important;
-      }
-
-      /* Garante que o ícone e a setinha não se separem bizarramente quando o texto sumir */
-      ::ng-deep .mat-expansion-panel-header-title {
-        margin-right: 0 !important;
-      }
-
-      /* Quando a sidebar encolhe (Mini Variant) */
-      .sidebar-closed ::ng-deep .mat-expansion-indicator::after {
-        display: none !important; /* Esconde a setinha */
-      }
-
-      .sidebar-closed ::ng-deep .mat-expansion-panel-header {
-        padding: 0 !important;
-        justify-content: center; /* Centraliza o ícone principal */
-      }
-
-      .sidebar-closed ::ng-deep .mat-expansion-panel-header-title {
+      :host-context(.sidebar-closed) .mat-expansion-panel-header-title {
         margin-right: 0;
         justify-content: center;
       }
 
-      .sidebar-closed mat-icon {
-        margin-right: 0 !important; /* Remove margem extra para centralizar perfeito */
+      :host-context(.sidebar-closed) mat-icon {
+        margin-right: 0 !important;
       }
 
-      /* Garante que os botões simples (ex: Início) fiquem colados à esquerda */
-      ::ng-deep .mat-mdc-list-item-unscoped-content {
-        justify-content: flex-start !important;
-      }
-
-      /* ✨ O DETALHE PIXEL PERFECT: Ajuste da setinha quando fechado ✨ */
-      .menu-fechado ::ng-deep .mat-expansion-indicator {
-        margin-right: 12px !important; /* Afasta a setinha da borda direita */
-        margin-left: -12px !important; /* Puxa a setinha para mais perto do ícone */
-        transform: scale(0.9); /* Opcional: deixa a setinha levemente mais delicada */
+      :host-context(.menu-fechado) .mat-expansion-indicator {
+        margin-right: 12px !important;
+        margin-left: -12px !important;
+        transform: scale(0.9);
       }
     `,
   ],
