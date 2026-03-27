@@ -1,18 +1,34 @@
 import { Routes } from '@angular/router';
+import { MainLayoutComponent } from './shared/layout/main-layout.component';
 
 export const routes: Routes = [
   {
+    // A Rota Principal agora carrega o Menu Lateral
     path: '',
-    redirectTo: 'servidores',
-    pathMatch: 'full',
+    component: MainLayoutComponent,
+    // Tudo que estiver aqui dentro vai aparecer no <router-outlet> do Menu
+    children: [
+      {
+        // Se acessar localhost:4200 vazio, joga para servidores
+        path: '',
+        redirectTo: 'servidores',
+        pathMatch: 'full',
+      },
+      {
+        // A sua tela já existente, intacta!
+        path: 'servidores',
+        title: 'Gestão de Servidores',
+        loadComponent: () => import('./features/servidores/list/servidor-list.component'),
+      },
+    ],
   },
-  {
-    path: 'servidores',
-    title: 'Gestão de Servidores',
-    loadComponent: () => import('./features/servidores/list/servidor-list.component')
-  },
+  // PLACEHOLDERS FUTUROS:
+  // Quando você for criar as outras telas, basta ir adicionando aqui:
+  // { path: 'inicio', loadComponent: ... },
+  // { path: 'cadastro/cargo', loadComponent: ... },
+
   {
     path: '**',
     redirectTo: 'servidores',
-  }
+  },
 ];
