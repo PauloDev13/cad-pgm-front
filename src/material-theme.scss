@@ -14,7 +14,7 @@ html {
       primary: mat.$azure-palette,
       tertiary: mat.$blue-palette,
     ),
-    // Mantemos aqui para gerar as variáveis internas --mat-sys-typescale...
+    // Mantemos aqui para gerar as variáveis internas --mat-sys-type scale...
     typography: (
       plain-family: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
       brand-family: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
@@ -121,6 +121,7 @@ mat-icon.small {
    4. COMPONENT SCOPED STYLES
    ========================================================================== */
 
+//noinspection ALL
 mat-form-field {
   @include mat.theme((
     density: -4,
