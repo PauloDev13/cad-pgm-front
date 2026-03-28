@@ -1,199 +1,272 @@
-import { Component, input } from '@angular/core';
+import { Component, input, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
-import { MatExpansionModule } from '@angular/material/expansion';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [RouterModule, MatListModule, MatIconModule, MatExpansionModule],
   standalone: true,
+  imports: [RouterModule, MatIconModule],
   template: `
-    <div [class.sidebar-closed]="!isOpen()">
-      <mat-nav-list class="pt-2" [class.menu-fechado]="!isOpen()">
-        <a
-          mat-list-item
-          routerLink="/inicio"
-          routerLinkActive="bg-blue-50 text-blue-700 border-r-4 border-blue-700"
+    <nav class="flex flex-col py-2 text-gray-700 select-none">
+      <a
+        routerLink="/inicio"
+        routerLinkActive="bg-blue-50 text-blue-600 border-r-4 border-blue-600"
+        class="flex items-center h-12 cursor-pointer hover:text-blue-700
+               hover:bg-blue-50 transition-colors group"
+        [class.px-4]="isOpen()"
+        [class.justify-start]="isOpen()"
+        [class.px-0]="!isOpen()"
+        [class.justify-center]="!isOpen()"
+      >
+        <mat-icon class="text-gray-600 group-hover:text-blue-600 transition-colors">home</mat-icon>
+        @if (isOpen()) {
+          <span class="ml-4 font-medium">Início</span>
+        }
+      </a>
+
+      <div class="flex flex-col">
+        <button
+          (click)="toggleSubmenu('gerenciamento')"
+          class="flex items-center h-12 w-full cursor-pointer transition-colors group relative"
+          [class.px-4]="isOpen()"
+          [class.justify-between]="isOpen()"
+          [class.px-0]="!isOpen()"
+          [class.justify-center]="!isOpen()"
         >
-          <mat-icon matListItemIcon class="text-gray-600">home</mat-icon>
-          @if (isOpen()) {
-            <span matListItemTitle>Início</span>
-          }
-        </a>
+          <div
+            class="flex items-center group-hover:text-blue-700"
+            [class.w-full]="!isOpen()"
+            [class.justify-center]="!isOpen()"
+          >
+            <mat-icon class="text-gray-700 group-hover:text-blue-700 transition-colors"
+              >manage_accounts
+            </mat-icon>
+            @if (isOpen()) {
+              <span class="ml-4 font-medium group-hover:font-semibold">Gerenciamento</span>
+            }
+          </div>
 
-        <mat-accordion displayMode="flat">
-          <mat-expansion-panel class="mat-elevation-z0 bg-transparent">
-            <mat-expansion-panel-header>
-              <mat-panel-title class="flex items-center gap-4 font-medium">
-                <mat-icon [class.pr-10]="!isOpen()" class="text-gray-600"
-                  >manage_accounts
-                </mat-icon>
-                @if (isOpen()) {
-                  <span>Gerenciamento</span>
-                }
-              </mat-panel-title>
-            </mat-expansion-panel-header>
-            <mat-nav-list class="pt-0">
-              <a
-                mat-list-item
-                routerLink="/servidores"
-                routerLinkActive="bg-blue-50 text-blue-700"
-                [class.!pl-6]="isOpen()"
-                [class.!pl-4]="!isOpen()"
-              >
-                <mat-icon matListItemIcon class="text-gray-500 scale-90">people</mat-icon>
-                @if (isOpen()) {
-                  <span matListItemTitle>Servidores</span>
-                }
-              </a>
-            </mat-nav-list>
-          </mat-expansion-panel>
+          <mat-icon
+            class="text-gray-400 transition-transform duration-300 group-hover:!text-blue-700"
+            [class.rotate-180]="openMenus()['gerenciamento']"
+            [class.absolute]="!isOpen()"
+            [class.right-2]="!isOpen()"
+            [class.scale-75]="!isOpen()"
+          >
+            expand_more
+          </mat-icon>
+        </button>
 
-          <mat-expansion-panel class="mat-elevation-z0 bg-transparent">
-            <mat-expansion-panel-header>
-              <mat-panel-title class="flex items-center gap-4 font-medium">
-                <mat-icon [class.pr-10]="!isOpen()" class="text-gray-600">post_add</mat-icon>
-                @if (isOpen()) {
-                  <span>Cadastros</span>
-                }
-              </mat-panel-title>
-            </mat-expansion-panel-header>
-            <mat-nav-list class="pt-0">
-              <a
-                mat-list-item
-                routerLink="/cadastro/cargo"
-                routerLinkActive="bg-blue-50 text-blue-700"
-                [class.!pl-6]="isOpen()"
-                [class.!pl-2]="!isOpen()"
-              >
-                <mat-icon matListItemIcon class="text-gray-500 scale-90">work</mat-icon>
-                @if (isOpen()) {
-                  <span matListItemTitle>Cargo</span>
-                }
-              </a>
-              <a
-                mat-list-item
-                routerLink="/cadastro/setor"
-                routerLinkActive="bg-blue-50 text-blue-700"
-                [class.!pl-6]="isOpen()"
-                [class.!pl-2]="!isOpen()"
-              >
-                <mat-icon matListItemIcon class="text-gray-500 scale-90">domain</mat-icon>
-                @if (isOpen()) {
-                  <span matListItemTitle>Setor</span>
-                }
-              </a>
-              <a
-                mat-list-item
-                routerLink="/cadastro/vinculo"
-                routerLinkActive="bg-blue-50 text-blue-700"
-                [class.!pl-6]="isOpen()"
-                [class.!pl-2]="!isOpen()"
-              >
-                <mat-icon matListItemIcon class="text-gray-500 scale-90">link</mat-icon>
-                @if (isOpen()) {
-                  <span matListItemTitle>Vínculo</span>
-                }
-              </a>
-              <a
-                mat-list-item
-                routerLink="/cadastro/status"
-                routerLinkActive="bg-blue-50 text-blue-700"
-                [class.!pl-6]="isOpen()"
-                [class.!pl-2]="!isOpen()"
-              >
-                <mat-icon matListItemIcon class="text-gray-500 scale-90">fact_check</mat-icon>
-                @if (isOpen()) {
-                  <span matListItemTitle>Status</span>
-                }
-              </a>
-            </mat-nav-list>
-          </mat-expansion-panel>
+        <div
+          class="overflow-hidden transition-all duration-300 ease-in-out flex flex-col"
+          [class.max-h-0]="!openMenus()['gerenciamento']"
+          [class.max-h-40]="openMenus()['gerenciamento']"
+        >
+          <a
+            routerLink="/servidores"
+            routerLinkActive="bg-blue-50 text-blue-600"
+            class="flex items-center h-10 hover:bg-blue-50 transition-colors group
+                  hover:text-blue-700 hover:font-semibold"
+            [class.pl-12]="isOpen()"
+            [class.pl-10]="!isOpen()"
+          >
+            <mat-icon class="scale-90 text-gray-500 group-hover:text-blue-700 hover:text-blue-700">
+              people
+            </mat-icon>
+            @if (isOpen()) {
+              <span class="ml-4">Servidores</span>
+            }
+          </a>
+        </div>
+      </div>
 
-          <mat-expansion-panel class="mat-elevation-z0 bg-transparent">
-            <mat-expansion-panel-header>
-              <mat-panel-title class="flex items-center gap-4 font-medium">
-                <mat-icon [class.pr-10]="!isOpen()" class="text-gray-600"
-                  >admin_panel_settings
-                </mat-icon>
-                @if (isOpen()) {
-                  <span>Permissões</span>
-                }
-              </mat-panel-title>
-            </mat-expansion-panel-header>
-            <mat-nav-list class="pt-0">
-              <a
-                mat-list-item
-                routerLink="/permissoes/procuradores"
-                routerLinkActive="bg-blue-50 text-blue-700"
-                [class.!pl-6]="isOpen()"
-                [class.!pl-2]="!isOpen()"
+      <div class="flex flex-col">
+        <button
+          (click)="toggleSubmenu('cadastros')"
+          class="flex items-center h-12 w-full cursor-pointer transition-colors group relative"
+          [class.px-4]="isOpen()"
+          [class.justify-between]="isOpen()"
+          [class.px-0]="!isOpen()"
+          [class.justify-center]="!isOpen()"
+        >
+          <div
+            class="flex items-center group-hover:text-blue-700"
+            [class.w-full]="!isOpen()"
+            [class.justify-center]="!isOpen()"
+          >
+            <mat-icon class="text-gray-600 group-hover:text-blue-700 transition-colors"
+              >post_add
+            </mat-icon>
+            @if (isOpen()) {
+              <span class="ml-4 font-medium group-hover:font-semibold">Cadastros</span>
+            }
+          </div>
+          <mat-icon
+            class="text-gray-400 transition-transform duration-300 group-hover:!text-blue-700"
+            [class.rotate-180]="openMenus()['cadastros']"
+            [class.absolute]="!isOpen()"
+            [class.right-2]="!isOpen()"
+            [class.scale-75]="!isOpen()"
+          >
+            expand_more
+          </mat-icon>
+        </button>
+
+        <div
+          class="overflow-hidden transition-all duration-300 ease-in-out flex flex-col"
+          [class.max-h-0]="!openMenus()['cadastros']"
+          [class.max-h-96]="openMenus()['cadastros']"
+        >
+          <a
+            routerLink="/cadastro/cargo"
+            routerLinkActive="bg-blue-50 text-blue-600"
+            class="flex items-center h-10 hover:bg-blue-50 transition-colors group"
+            [class.pl-12]="isOpen()"
+            [class.pl-10]="!isOpen()"
+          >
+            <mat-icon class="scale-90 text-gray-500 group-hover:!text-blue-700">work</mat-icon>
+            @if (isOpen()) {
+              <span class="ml-4 group-hover:text-blue-700 group-hover:font-semibold">Cargo</span>
+            }
+          </a>
+          <a
+            routerLink="/cadastro/setor"
+            routerLinkActive="bg-blue-50 text-blue-600"
+            class="flex items-center h-10 hover:bg-blue-50 transition-colors group"
+            [class.pl-12]="isOpen()"
+            [class.pl-10]="!isOpen()"
+          >
+            <mat-icon class="scale-90 text-gray-500 group-hover:!text-blue-700">domain</mat-icon>
+            @if (isOpen()) {
+              <span class="ml-4 group-hover:text-blue-700 group-hover:font-semibold">Setor</span>
+            }
+          </a>
+          <a
+            routerLink="/cadastro/vinculo"
+            routerLinkActive="bg-blue-50 text-blue-600"
+            class="flex items-center h-10 hover:bg-blue-50 transition-colors group"
+            [class.pl-12]="isOpen()"
+            [class.pl-10]="!isOpen()"
+          >
+            <mat-icon class="scale-90 text-gray-500 group-hover:!text-blue-700">link</mat-icon>
+            @if (isOpen()) {
+              <span class="ml-4 group-hover:text-blue-700 group-hover:font-semibold">Vínculo</span>
+            }
+          </a>
+          <a
+            routerLink="/cadastro/status"
+            routerLinkActive="bg-blue-50 text-blue-600"
+            class="flex items-center h-10 hover:bg-blue-50 transition-colors group"
+            [class.pl-12]="isOpen()"
+            [class.pl-10]="!isOpen()"
+          >
+            <mat-icon class="scale-90 text-gray-500 group-hover:!text-blue-700">
+              fact_check
+            </mat-icon>
+            @if (isOpen()) {
+              <span class="ml-4 group-hover:text-blue-700 group-hover:font-semibold">Status</span>
+            }
+          </a>
+        </div>
+      </div>
+
+      <div class="flex flex-col">
+        <button
+          (click)="toggleSubmenu('permissoes')"
+          class="flex items-center h-12 w-full cursor-pointer transition-colors group relative"
+          [class.px-4]="isOpen()"
+          [class.justify-between]="isOpen()"
+          [class.px-0]="!isOpen()"
+          [class.justify-center]="!isOpen()"
+        >
+          <div
+            class="flex items-center group-hover:text-blue-700"
+            [class.w-full]="!isOpen()"
+            [class.justify-center]="!isOpen()"
+          >
+            <mat-icon class="text-gray-600 transition-colors">admin_panel_settings</mat-icon>
+            @if (isOpen()) {
+              <span class="ml-4 font-medium group-hover:font-semibold">Permissões</span>
+            }
+          </div>
+
+          <mat-icon
+            class="text-gray-400 transition-transform duration-300 group-hover:!text-blue-700"
+            [class.rotate-180]="openMenus()['permissoes']"
+            [class.absolute]="!isOpen()"
+            [class.right-2]="!isOpen()"
+            [class.scale-75]="!isOpen()"
+          >
+            expand_more
+          </mat-icon>
+        </button>
+
+        <div
+          class="overflow-hidden transition-all duration-300 ease-in-out flex flex-col"
+          [class.max-h-0]="!openMenus()['permissoes']"
+          [class.max-h-96]="openMenus()['permissoes']"
+        >
+          <a
+            routerLink="/permissoes/procuradores"
+            routerLinkActive="bg-blue-50 text-blue-600"
+            class="flex items-center h-10 hover:bg-blue-50 transition-colors group"
+            [class.pl-12]="isOpen()"
+            [class.pl-10]="!isOpen()"
+          >
+            <mat-icon class="scale-90 text-gray-500 group-hover:!text-blue-700"> gavel</mat-icon>
+            @if (isOpen()) {
+              <span class="ml-4 group-hover:text-blue-700 group-hover:font-semibold"
+                >Procuradores</span
               >
-                <mat-icon matListItemIcon class="text-gray-500 scale-90">gavel</mat-icon>
-                @if (isOpen()) {
-                  <span matListItemTitle>Procuradores</span>
-                }
-              </a>
-              <a
-                mat-list-item
-                routerLink="/permissoes/sistemas"
-                routerLinkActive="bg-blue-50 text-blue-700"
-                [class.!pl-6]="isOpen()"
-                [class.!pl-2]="!isOpen()"
+            }
+          </a>
+          <a
+            routerLink="/permissoes/sistemas"
+            routerLinkActive="bg-blue-50 text-blue-600"
+            class="flex items-center h-10 hover:bg-blue-50 transition-colors group"
+            [class.pl-12]="isOpen()"
+            [class.pl-10]="!isOpen()"
+          >
+            <mat-icon class="scale-90 text-gray-500 group-hover:!text-blue-700"> dns</mat-icon>
+            @if (isOpen()) {
+              <span class="ml-4 group-hover:text-blue-700 group-hover:font-semibold">Sistemas</span>
+            }
+          </a>
+          <a
+            routerLink="/permissoes/alias"
+            routerLinkActive="bg-blue-50 text-blue-600"
+            class="flex items-center h-10 hover:bg-blue-50 transition-colors group"
+            [class.pl-12]="isOpen()"
+            [class.pl-10]="!isOpen()"
+          >
+            <mat-icon class="scale-90 text-gray-500 group-hover:!text-blue-700"> label</mat-icon>
+            @if (isOpen()) {
+              <span class="ml-4 group-hover:text-blue-700 group-hover:font-semibold"
+                >Alias (E-mails)</span
               >
-                <mat-icon matListItemIcon class="text-gray-500 scale-90">dns</mat-icon>
-                @if (isOpen()) {
-                  <span matListItemTitle>Sistemas</span>
-                }
-              </a>
-              <a
-                mat-list-item
-                routerLink="/permissoes/alias"
-                routerLinkActive="bg-blue-50 text-blue-700"
-                [class.!pl-6]="isOpen()"
-                [class.!pl-2]="!isOpen()"
-              >
-                <mat-icon matListItemIcon class="text-gray-500 scale-90">label</mat-icon>
-                @if (isOpen()) {
-                  <span matListItemTitle>alias</span>
-                }
-              </a>
-            </mat-nav-list>
-          </mat-expansion-panel>
-        </mat-accordion>
-      </mat-nav-list>
-    </div>
+            }
+          </a>
+        </div>
+      </div>
+    </nav>
   `,
-  styles: [
-    `
-      :host-context(.sidebar-closed) .mat-expansion-indicator::after {
-        display: none !important;
-      }
-
-      :host-context(.sidebar-closed) .mat-expansion-panel-header {
-        padding: 0 !important;
-        justify-content: center;
-      }
-
-      :host-context(.sidebar-closed) .mat-expansion-panel-header-title {
-        margin-right: 0;
-        justify-content: center;
-      }
-
-      :host-context(.sidebar-closed) mat-icon {
-        margin-right: 0 !important;
-      }
-
-      :host-context(.menu-fechado) .mat-expansion-indicator {
-        margin-right: 12px !important;
-        margin-left: -12px !important;
-        transform: scale(0.9);
-      }
-    `,
-  ],
 })
 export class SidebarComponent {
-  // Recebe o estado de aberto/fechado do MainLayout
+  // Recebe o estado do layout pai
   isOpen = input.required<boolean>();
+
+  // ✨ Signal que mapeia qual submenu está aberto
+  openMenus = signal<Record<string, boolean>>({
+    gerenciamento: false,
+    cadastros: false,
+    permissoes: false,
+  });
+
+  // Função que inverte o estado do submenu clicado
+  toggleSubmenu(menu: string) {
+    this.openMenus.update((menus) => ({
+      ...menus,
+      [menu]: !menus[menu],
+    }));
+  }
 }

@@ -1,47 +1,41 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { MatSidenavModule } from '@angular/material/sidenav';
+// ✨ REPARAMOS O IMPORT: Removemos o MatSidenavModule completamente!
 import { HeaderComponent } from './header.component';
 import { SidebarComponent } from './sidebar.component';
 import { FooterComponent } from './footer.component';
 
 @Component({
   selector: 'app-main-layout',
-  imports: [RouterModule, MatSidenavModule, HeaderComponent, SidebarComponent, FooterComponent],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
+  imports: [RouterModule, HeaderComponent, SidebarComponent, FooterComponent],
   template: `
     <div class="h-screen flex flex-col overflow-hidden bg-gray-50 text-gray-800">
       <app-header (toggleSidebar)="toggle()"></app-header>
 
-      <mat-sidenav-container class="flex-1 bg-transparent">
-        <mat-sidenav
-          opened
-          mode="side"
-          class="border-r border-gray-200 bg-white transition-all duration-300 ease-in-out overflow-x-hidden"
-          [style.width.px]="isSidebarOpen() ? 256 : 80"
+      <div class="flex flex-1 overflow-hidden">
+        <aside
+          class="bg-white border-r border-gray-300 transition-all shadow-xl
+          duration-300 ease-in-out flex flex-col overflow-y-auto overflow-x-hidden"
+          [class.w-64]="isSidebarOpen()"
+          [class.w-20]="!isSidebarOpen()"
         >
           <app-sidebar [isOpen]="isSidebarOpen()"></app-sidebar>
-        </mat-sidenav>
+        </aside>
 
-        <mat-sidenav-content
-          class="flex flex-col h-full overflow-y-auto transition-all duration-300 ease-in-out"
-          [style.margin-left.px]="isSidebarOpen() ? 200 : 0"
-        >
-          <main class="flex-1 p-6 md:p-8">
+        <main class="flex-1 flex flex-col overflow-y-auto transition-all duration-300">
+          <div class="flex-1 p-6 md:p-8">
             <router-outlet></router-outlet>
-          </main>
+          </div>
 
           <app-footer></app-footer>
-        </mat-sidenav-content>
-      </mat-sidenav-container>
+        </main>
+      </div>
     </div>
   `,
-  styles: ``,
 })
 export class MainLayoutComponent {
-  // Recebe o estado de aberto/fechado do MainLayout
-  protected isSidebarOpen = signal(true);
+  isSidebarOpen = signal(true);
 
   toggle() {
     this.isSidebarOpen.update((v) => !v);
