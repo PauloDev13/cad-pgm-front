@@ -65,16 +65,13 @@ import { MatIconModule } from '@angular/material/icon';
           <a
             routerLink="/servidores"
             routerLinkActive="bg-blue-50 text-blue-600"
-            class="flex items-center h-10 hover:bg-blue-50 transition-colors group
-                  hover:text-blue-700 hover:font-semibold"
+            class="menu-subitem group"
             [class.pl-12]="isOpen()"
             [class.pl-10]="!isOpen()"
           >
-            <mat-icon class="scale-90 text-gray-500 group-hover:text-blue-700 hover:text-blue-700">
-              people
-            </mat-icon>
+            <mat-icon> people </mat-icon>
             @if (isOpen()) {
-              <span class="ml-4">Servidores</span>
+              <span>Servidores</span>
             }
           </a>
         </div>
@@ -120,51 +117,49 @@ import { MatIconModule } from '@angular/material/icon';
           <a
             routerLink="/cadastro/cargo"
             routerLinkActive="bg-blue-50 text-blue-600"
-            class="flex items-center h-10 hover:bg-blue-50 transition-colors group"
+            class="menu-subitem group"
             [class.pl-12]="isOpen()"
             [class.pl-10]="!isOpen()"
           >
-            <mat-icon class="scale-90 text-gray-500 group-hover:!text-blue-700">work</mat-icon>
+            <mat-icon>work</mat-icon>
             @if (isOpen()) {
-              <span class="ml-4 group-hover:text-blue-700 group-hover:font-semibold">Cargo</span>
+              <span>Cargo</span>
             }
           </a>
           <a
             routerLink="/cadastro/setor"
             routerLinkActive="bg-blue-50 text-blue-600"
-            class="flex items-center h-10 hover:bg-blue-50 transition-colors group"
+            class="menu-subitem group"
             [class.pl-12]="isOpen()"
             [class.pl-10]="!isOpen()"
           >
-            <mat-icon class="scale-90 text-gray-500 group-hover:!text-blue-700">domain</mat-icon>
+            <mat-icon>domain</mat-icon>
             @if (isOpen()) {
-              <span class="ml-4 group-hover:text-blue-700 group-hover:font-semibold">Setor</span>
+              <span>Setor</span>
             }
           </a>
           <a
             routerLink="/cadastro/vinculo"
             routerLinkActive="bg-blue-50 text-blue-600"
-            class="flex items-center h-10 hover:bg-blue-50 transition-colors group"
+            class="menu-subitem group"
             [class.pl-12]="isOpen()"
             [class.pl-10]="!isOpen()"
           >
-            <mat-icon class="scale-90 text-gray-500 group-hover:!text-blue-700">link</mat-icon>
+            <mat-icon>link</mat-icon>
             @if (isOpen()) {
-              <span class="ml-4 group-hover:text-blue-700 group-hover:font-semibold">Vínculo</span>
+              <span>Vínculo</span>
             }
           </a>
           <a
             routerLink="/cadastro/status"
             routerLinkActive="bg-blue-50 text-blue-600"
-            class="flex items-center h-10 hover:bg-blue-50 transition-colors group"
+            class="menu-subitem group"
             [class.pl-12]="isOpen()"
             [class.pl-10]="!isOpen()"
           >
-            <mat-icon class="scale-90 text-gray-500 group-hover:!text-blue-700">
-              fact_check
-            </mat-icon>
+            <mat-icon> fact_check</mat-icon>
             @if (isOpen()) {
-              <span class="ml-4 group-hover:text-blue-700 group-hover:font-semibold">Status</span>
+              <span>Status</span>
             }
           </a>
         </div>
@@ -209,41 +204,37 @@ import { MatIconModule } from '@angular/material/icon';
           <a
             routerLink="/permissoes/procuradores"
             routerLinkActive="bg-blue-50 text-blue-600"
-            class="flex items-center h-10 hover:bg-blue-50 transition-colors group"
+            class="menu-subitem group"
             [class.pl-12]="isOpen()"
             [class.pl-10]="!isOpen()"
           >
-            <mat-icon class="scale-90 text-gray-500 group-hover:!text-blue-700"> gavel</mat-icon>
+            <mat-icon>gavel</mat-icon>
             @if (isOpen()) {
-              <span class="ml-4 group-hover:text-blue-700 group-hover:font-semibold"
-                >Procuradores</span
-              >
+              <span>Procuradores</span>
             }
           </a>
           <a
             routerLink="/permissoes/sistemas"
             routerLinkActive="bg-blue-50 text-blue-600"
-            class="flex items-center h-10 hover:bg-blue-50 transition-colors group"
+            class="menu-subitem group"
             [class.pl-12]="isOpen()"
             [class.pl-10]="!isOpen()"
           >
-            <mat-icon class="scale-90 text-gray-500 group-hover:!text-blue-700"> dns</mat-icon>
+            <mat-icon>dns</mat-icon>
             @if (isOpen()) {
-              <span class="ml-4 group-hover:text-blue-700 group-hover:font-semibold">Sistemas</span>
+              <span>Sistemas</span>
             }
           </a>
           <a
             routerLink="/permissoes/alias"
             routerLinkActive="bg-blue-50 text-blue-600"
-            class="flex items-center h-10 hover:bg-blue-50 transition-colors group"
+            class="menu-subitem group"
             [class.pl-12]="isOpen()"
             [class.pl-10]="!isOpen()"
           >
-            <mat-icon class="scale-90 text-gray-500 group-hover:!text-blue-700"> label</mat-icon>
+            <mat-icon>label</mat-icon>
             @if (isOpen()) {
-              <span class="ml-4 group-hover:text-blue-700 group-hover:font-semibold"
-                >Alias (E-mails)</span
-              >
+              <span>Alias (E-mails)</span>
             }
           </a>
         </div>

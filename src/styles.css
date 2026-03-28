@@ -2,31 +2,86 @@
 
 @import 'tailwindcss';
 
-/* Reduz a altura padrão (48px) dos itens do mat-select e mat-autocomplete para sistemas Desktop */
-.mat-mdc-option {
-  min-height: 36px !important;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .menu-subitem {
+    @apply flex items-center h-10 transition-colors;
+  }
+
+  .menu-subitem:hover {
+    @apply bg-blue-50 text-blue-700;
+  }
+
+  .menu-subitem mat-icon {
+    @apply scale-90 text-gray-500 transition-colors;
+  }
+
+  .menu-subitem:hover mat-icon {
+    @apply text-blue-700;
+  }
+
+  .menu-subitem span {
+    @apply ml-4 transition-all;
+  }
+
+  .menu-subitem:hover span {
+    @apply text-blue-700 font-semibold;
+  }
 }
 
-/* Centraliza o texto verticalmente no novo espaço menor */
-.mat-mdc-option .mdc-list-item__primary-text {
-  font-size: 14px; /* Um tamanho de fonte ideal para telas densas */
-  line-height: normal;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-.mat-expansion-panel-body {
-  padding: 0 !important;
-}
+@layer components {
+  .menu-subitem {
+    @apply flex items-center h-10 transition-colors;
+  }
 
-.mat-expansion-panel-header {
-  padding: 0 16px !important;
-}
+  .menu-subitem:hover {
+    @apply bg-blue-50 text-blue-700;
+  }
 
-.mat-expansion-panel-header-title {
-  margin-right: 0 !important;
-}
+  .menu-subitem mat-icon {
+    @apply scale-90 text-gray-500 transition-colors;
+  }
 
-.mat-mdc-list-item-unscoped-content {
-  justify-content: flex-start !important;
+  .menu-subitem:hover mat-icon {
+    @apply text-blue-700;
+  }
+
+  .menu-subitem span {
+    @apply ml-4 transition-all;
+  }
+
+  .menu-subitem:hover span {
+    @apply text-blue-700 font-semibold;
+  }
+
+  /* HEADER MENU */
+  .menu-item-header {
+    @apply flex items-center gap-3 px-3 py-2 rounded-md transition-colors duration-200;
+  }
+
+  .menu-item-header mat-icon {
+    @apply text-gray-500 transition-colors;
+  }
+
+  .menu-item-header:hover {
+    @apply bg-blue-50;
+  }
+
+  .menu-item-header:hover mat-icon,
+  .menu-item-header:hover span {
+    @apply text-blue-700;
+  }
+
+  .menu-item-header:hover span {
+    @apply font-semibold;
+  }
 }
 
 /*.layout-container {*/

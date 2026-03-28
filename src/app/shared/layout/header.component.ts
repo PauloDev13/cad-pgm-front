@@ -38,13 +38,13 @@ import { MatDividerModule } from '@angular/material/divider';
         </button>
 
         <mat-menu #userMenu="matMenu">
-          <button mat-menu-item class="group">
-            <mat-icon class="group-hover:!text-blue-700">person</mat-icon>
-            <span class="group-hover:text-blue-700 group-hover:font-semibold">Meu Perfil</span>
+          <button mat-menu-item class="menu-item-header">
+            <mat-icon>person</mat-icon>
+            <span>Meu Perfil</span>
           </button>
-          <button mat-menu-item class="group">
-            <mat-icon class="group-hover:!text-blue-700">settings</mat-icon>
-            <span class="group-hover:text-blue-700 group-hover:font-semibold">Configurações</span>
+          <button mat-menu-item class="menu-item-header">
+            <mat-icon>settings</mat-icon>
+            <span>Configurações</span>
           </button>
           <mat-divider></mat-divider>
           <button mat-menu-item class="group">
