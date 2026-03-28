@@ -16,7 +16,10 @@ import { MatDividerModule } from '@angular/material/divider';
     >
       <div class="flex items-center gap-4 group">
         <button mat-icon-button (click)="toggleSidebar.emit()" aria-label="Toggle menu">
-          <mat-icon class="group-hover:!text-blue-700">menu</mat-icon>
+          <mat-icon
+            class="group-hover:!text-blue-700 group-hover:scale-125 transition-all duration-200"
+            >menu
+          </mat-icon>
         </button>
         <span class="text-xl text-blue-700 font-semibold tracking-wide"
           >Procuradoria Geral do Município</span
@@ -25,16 +28,25 @@ import { MatDividerModule } from '@angular/material/divider';
 
       <div class="flex items-center gap-2">
         <button class="group" mat-icon-button aria-label="Notificações">
-          <mat-icon class="group-hover:!text-blue-700"> notifications</mat-icon>
+          <mat-icon
+            class="group-hover:!text-blue-700 group-hover:scale-125 transition-all duration-200"
+          >
+            notifications
+          </mat-icon>
         </button>
 
         <button mat-button [matMenuTriggerFor]="userMenu" class="flex items-center gap-2 group">
-          <mat-icon class="group-hover:!text-blue-700">account_circle</mat-icon>
+          <mat-icon
+            class="group-hover:!text-blue-700 group-hover:!scale-125 transition-all duration-200"
+          >
+            account_circle
+          </mat-icon>
           <span
             class="hidden md:inline font-medium group-hover:text-blue-700 group-hover:font-semibold"
-            >Administrador</span
           >
-          <mat-icon class="!text-blue-700">arrow_drop_down</mat-icon>
+            Administrador
+          </span>
+          <mat-icon class="!text-blue-700"> arrow_drop_down</mat-icon>
         </button>
 
         <mat-menu #userMenu="matMenu">
@@ -47,11 +59,9 @@ import { MatDividerModule } from '@angular/material/divider';
             <span>Configurações</span>
           </button>
           <mat-divider></mat-divider>
-          <button mat-menu-item class="group">
-            <mat-icon class="group-hover:!text-blue-700">logout</mat-icon>
-            <span class="group-hover:text-blue-700 group-hover:font-semibold">
-              Sair do Sistema
-            </span>
+          <button mat-menu-item class="menu-item-header">
+            <mat-icon>logout</mat-icon>
+            <span> Sair do Sistema </span>
           </button>
         </mat-menu>
       </div>

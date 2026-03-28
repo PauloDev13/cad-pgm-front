@@ -15,7 +15,7 @@ import { FooterComponent } from './footer.component';
 
       <div class="flex flex-1 overflow-hidden">
         <aside
-          class="bg-white border-r border-gray-300 transition-all shadow-xl
+          class="bg-gray-50 border-r border-gray-300 transition-all shadow-xl
           duration-300 ease-in-out flex flex-col overflow-y-auto overflow-x-hidden"
           [class.w-64]="isSidebarOpen()"
           [class.w-20]="!isSidebarOpen()"

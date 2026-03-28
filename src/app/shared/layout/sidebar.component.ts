@@ -1,11 +1,12 @@
 import { Component, input, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterModule, MatIconModule],
+  imports: [RouterModule, MatIconModule, MatTooltipModule],
   template: `
     <nav class="flex flex-col py-2 text-gray-700 select-none">
       <a
@@ -17,8 +18,14 @@ import { MatIconModule } from '@angular/material/icon';
         [class.justify-start]="isOpen()"
         [class.px-0]="!isOpen()"
         [class.justify-center]="!isOpen()"
+        matTooltip="Página inicial"
+        matTooltipPosition="right"
+        [matTooltipDisabled]="isOpen()"
+        matTooltipClass="tooltip-blue"
       >
-        <mat-icon class="text-gray-600 group-hover:text-blue-600 transition-colors">home</mat-icon>
+        <mat-icon class="text-gray-700 group-hover:scale-125 transition-all duration-200">
+          home
+        </mat-icon>
         @if (isOpen()) {
           <span class="ml-4 font-medium">Início</span>
         }
@@ -32,14 +39,18 @@ import { MatIconModule } from '@angular/material/icon';
           [class.justify-between]="isOpen()"
           [class.px-0]="!isOpen()"
           [class.justify-center]="!isOpen()"
+          matTooltip="Gerenciamento"
+          matTooltipPosition="right"
+          [matTooltipDisabled]="isOpen()"
+          matTooltipClass="tooltip-blue"
         >
           <div
             class="flex items-center group-hover:text-blue-700"
             [class.w-full]="!isOpen()"
             [class.justify-center]="!isOpen()"
           >
-            <mat-icon class="text-gray-700 group-hover:text-blue-700 transition-colors"
-              >manage_accounts
+            <mat-icon class="text-gray-700 group-hover:scale-125 transition-all duration-200">
+              manage_accounts
             </mat-icon>
             @if (isOpen()) {
               <span class="ml-4 font-medium group-hover:font-semibold">Gerenciamento</span>
@@ -68,8 +79,12 @@ import { MatIconModule } from '@angular/material/icon';
             class="menu-subitem group"
             [class.pl-12]="isOpen()"
             [class.pl-10]="!isOpen()"
+            matTooltip="Cadastro de Servidores"
+            matTooltipPosition="right"
+            [matTooltipDisabled]="isOpen()"
+            matTooltipClass="tooltip-blue"
           >
-            <mat-icon> people </mat-icon>
+            <mat-icon> people</mat-icon>
             @if (isOpen()) {
               <span>Servidores</span>
             }
@@ -85,14 +100,18 @@ import { MatIconModule } from '@angular/material/icon';
           [class.justify-between]="isOpen()"
           [class.px-0]="!isOpen()"
           [class.justify-center]="!isOpen()"
+          matTooltip="Cadastros"
+          matTooltipPosition="right"
+          [matTooltipDisabled]="isOpen()"
+          matTooltipClass="tooltip-blue"
         >
           <div
             class="flex items-center group-hover:text-blue-700"
             [class.w-full]="!isOpen()"
             [class.justify-center]="!isOpen()"
           >
-            <mat-icon class="text-gray-600 group-hover:text-blue-700 transition-colors"
-              >post_add
+            <mat-icon class="text-gray-700 group-hover:scale-125 transition-all duration-200">
+              post_add
             </mat-icon>
             @if (isOpen()) {
               <span class="ml-4 font-medium group-hover:font-semibold">Cadastros</span>
@@ -120,6 +139,10 @@ import { MatIconModule } from '@angular/material/icon';
             class="menu-subitem group"
             [class.pl-12]="isOpen()"
             [class.pl-10]="!isOpen()"
+            matTooltip="Cadastrar Cargo"
+            matTooltipPosition="right"
+            [matTooltipDisabled]="isOpen()"
+            matTooltipClass="tooltip-blue"
           >
             <mat-icon>work</mat-icon>
             @if (isOpen()) {
@@ -132,6 +155,10 @@ import { MatIconModule } from '@angular/material/icon';
             class="menu-subitem group"
             [class.pl-12]="isOpen()"
             [class.pl-10]="!isOpen()"
+            matTooltip="Cadastrar Setor"
+            matTooltipPosition="right"
+            [matTooltipDisabled]="isOpen()"
+            matTooltipClass="tooltip-blue"
           >
             <mat-icon>domain</mat-icon>
             @if (isOpen()) {
@@ -144,6 +171,10 @@ import { MatIconModule } from '@angular/material/icon';
             class="menu-subitem group"
             [class.pl-12]="isOpen()"
             [class.pl-10]="!isOpen()"
+            matTooltip="Cadastrar Vínculo"
+            matTooltipPosition="right"
+            [matTooltipDisabled]="isOpen()"
+            matTooltipClass="tooltip-blue"
           >
             <mat-icon>link</mat-icon>
             @if (isOpen()) {
@@ -156,6 +187,10 @@ import { MatIconModule } from '@angular/material/icon';
             class="menu-subitem group"
             [class.pl-12]="isOpen()"
             [class.pl-10]="!isOpen()"
+            matTooltip="Cadastrar Status"
+            matTooltipPosition="right"
+            [matTooltipDisabled]="isOpen()"
+            matTooltipClass="tooltip-blue"
           >
             <mat-icon> fact_check</mat-icon>
             @if (isOpen()) {
@@ -173,13 +208,19 @@ import { MatIconModule } from '@angular/material/icon';
           [class.justify-between]="isOpen()"
           [class.px-0]="!isOpen()"
           [class.justify-center]="!isOpen()"
+          matTooltip="Vínculos e Permissões"
+          matTooltipPosition="right"
+          [matTooltipDisabled]="isOpen()"
+          matTooltipClass="tooltip-blue"
         >
           <div
             class="flex items-center group-hover:text-blue-700"
             [class.w-full]="!isOpen()"
             [class.justify-center]="!isOpen()"
           >
-            <mat-icon class="text-gray-600 transition-colors">admin_panel_settings</mat-icon>
+            <mat-icon class="text-gray-700 group-hover:scale-125 transition-all duration-200"
+              >admin_panel_settings
+            </mat-icon>
             @if (isOpen()) {
               <span class="ml-4 font-medium group-hover:font-semibold">Permissões</span>
             }
@@ -207,6 +248,10 @@ import { MatIconModule } from '@angular/material/icon';
             class="menu-subitem group"
             [class.pl-12]="isOpen()"
             [class.pl-10]="!isOpen()"
+            matTooltip="Cadastrar Procurador"
+            matTooltipPosition="right"
+            [matTooltipDisabled]="isOpen()"
+            matTooltipClass="tooltip-blue"
           >
             <mat-icon>gavel</mat-icon>
             @if (isOpen()) {
@@ -219,6 +264,10 @@ import { MatIconModule } from '@angular/material/icon';
             class="menu-subitem group"
             [class.pl-12]="isOpen()"
             [class.pl-10]="!isOpen()"
+            matTooltip="Cadastrar Sistema"
+            matTooltipPosition="right"
+            [matTooltipDisabled]="isOpen()"
+            matTooltipClass="tooltip-blue"
           >
             <mat-icon>dns</mat-icon>
             @if (isOpen()) {
@@ -231,6 +280,10 @@ import { MatIconModule } from '@angular/material/icon';
             class="menu-subitem group"
             [class.pl-12]="isOpen()"
             [class.pl-10]="!isOpen()"
+            matTooltip="Cadastrar Alias(Email)"
+            matTooltipPosition="right"
+            [matTooltipDisabled]="isOpen()"
+            matTooltipClass="tooltip-blue"
           >
             <mat-icon>label</mat-icon>
             @if (isOpen()) {
