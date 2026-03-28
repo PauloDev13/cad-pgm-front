@@ -9,10 +9,15 @@ export const routes: Routes = [
     // Tudo que estiver aqui dentro vai aparecer no <router-outlet> do Menu
     children: [
       {
-        // Se acessar localhost:4200 vazio, joga para servidores
+        // Se acessar localhost:4200 vazio, joga a página inicial
         path: '',
-        redirectTo: 'servidores',
+        redirectTo: 'home',
         pathMatch: 'full',
+      },
+      {
+        path: 'home',
+        title: 'Início | Gestão de Servidores PGM Natal',
+        loadComponent: () => import('./features/home/home.component'),
       },
       {
         // A sua tela já existente, intacta!
@@ -29,6 +34,6 @@ export const routes: Routes = [
 
   {
     path: '**',
-    redirectTo: 'servidores',
+    redirectTo: 'home',
   },
 ];
