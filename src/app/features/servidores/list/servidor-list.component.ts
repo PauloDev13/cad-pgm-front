@@ -189,7 +189,8 @@ import { ToastService } from '../../../core/services/toast.service';
                 class="group !w-8 !h-8 !leading-none"
               >
                 <mat-icon
-                  class="!text-blue-600 transition-transform duration-200 group-hover:!scale-125 !text-[20px]"
+                  class="!text-blue-600 transition-transform duration-200
+                         group-hover:!scale-125 !text-[20px]"
                 >
                   edit
                 </mat-icon>
@@ -202,7 +203,8 @@ import { ToastService } from '../../../core/services/toast.service';
                 class="group !w-8 !h-8 !leading-none"
               >
                 <mat-icon
-                  class="!text-red-600 transition-transform duration-200 group-hover:!scale-125 !text-[20px]"
+                  class="!text-red-600 transition-transform duration-200 g
+                  roup-hover:!scale-125 !text-[20px]"
                 >
                   delete
                 </mat-icon>

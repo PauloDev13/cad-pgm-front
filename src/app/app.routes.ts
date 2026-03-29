@@ -25,6 +25,12 @@ export const routes: Routes = [
         title: 'Gestão de Servidores',
         loadComponent: () => import('./features/servidores/list/servidor-list.component'),
       },
+      {
+        // tela para cadastro, edição e exclusão de cargos
+        path: 'cadastro/cargos',
+        title: 'Gestão de Cargos',
+        loadComponent: () => import('./features/cadastros/cargo.component/cargo.component'),
+      },
     ],
   },
   // PLACEHOLDERS FUTUROS:

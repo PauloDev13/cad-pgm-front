@@ -134,7 +134,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
           [class.max-h-96]="openMenus()['cadastros']"
         >
           <a
-            routerLink="/cadastro/cargo"
+            routerLink="/cadastro/cargos"
             routerLinkActive="bg-blue-50 text-blue-600"
             class="menu-subitem group"
             [class.pl-12]="isOpen()"
