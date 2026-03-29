@@ -1,27 +1,30 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CargoResponseDTO, SaveRequest } from '../../../core/models/cargo.model';
-import { CargoService } from '../../../core/services/cargo.service';
-import { CustomCadFormComponent } from '../../../shared/components/custom-cad-form.component/custom-cad-form.component';
-import { ToastService } from '../../../core/services/toast.service';
+import { CargoCustomListComponent } from './list/cargo-custom-list.component';
+import { CargoResponseDTO, SaveRequest } from '../../core/models/cargo.model';
+import { CargoService } from '../../core/services/cargo.service';
+import { ToastService } from '../../core/services/toast.service';
+import { CustomDeleteService } from '../../shared/service/custom-delete.service';
+import { MatDialog } from '@angular/material/dialog';
+import { CustomCadModalComponent } from '../../shared/components/custom-cad-modal.component/custom-cad-modal.component';
 import { firstValueFrom } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
-import { CustomDeleteService } from '../../../shared/service/custom-delete.service';
 
 @Component({
-  selector: 'app-cargo',
-  imports: [CustomCadFormComponent],
+  selector: 'app-cargo-display',
+  imports: [CargoCustomListComponent],
   standalone: true,
   template: `
-    <app-custom-cad-form
+    <app-cargo-custom-list
       title="Cargo"
       [data]="cargos()"
-      (onSave)="save($event)"
+      (onAdd)="openModalNew()"
+      (onEdit)="openModalEdit($event)"
       (onDelete)="delete($event)"
     />
   `,
   styles: ``,
 })
-export default class CargoComponent implements OnInit {
+export default class CargoDisplayComponent implements OnInit {
   // O estado (lista de cargos) que será passado para o componente filho
   cargos = signal<CargoResponseDTO[]>([]);
 
@@ -29,6 +32,7 @@ export default class CargoComponent implements OnInit {
   private readonly cargoService = inject(CargoService);
   private readonly toastService = inject(ToastService);
   private readonly customDeleteService = inject(CustomDeleteService);
+  private readonly dialog = inject(MatDialog);
 
   ngOnInit() {
     this.loadCargos();
@@ -43,6 +47,22 @@ export default class CargoComponent implements OnInit {
         this.toastService.error('Erro ao buscar cargos');
       },
     });
+  }
+
+  openModalNew() {
+    this.openDialogForm();
+  }
+
+  openModalEdit(selectedCargo: CargoResponseDTO) {
+    this.openDialogForm(selectedCargo);
+  }
+
+  delete(id: number) {
+    this.customDeleteService.execute(
+      () => this.cargoService.delete(id),
+      () => this.loadCargos(),
+      { successMsg: 'Cargo removido com sucesso!' },
+    );
   }
 
   // insere ou edita um registro
@@ -75,11 +95,23 @@ export default class CargoComponent implements OnInit {
     }
   }
 
-  delete(id: number) {
-    this.customDeleteService.execute(
-      () => this.cargoService.delete(id),
-      () => this.loadCargos(),
-      { successMsg: 'Cargo removido com sucesso!' },
-    );
+  // Método privado que centraliza a abertura do Dialog
+  private openDialogForm(selectedCargo?: CargoResponseDTO) {
+    const dialogRef = this.dialog.open(CustomCadModalComponent, {
+      width: '500px',
+      disableClose: true,
+      data: {
+        title: 'Cargo', // Dizemos pro Dialog que ele está lidando com Cargos
+        element: selectedCargo, // Passamos o cargo inteiro se for edição, ou undefined se for novo
+      },
+    });
+
+    // Quando o usuário clica em Salvar lá no Dialog, ele cai aqui:
+    dialogRef.afterClosed().subscribe((result) => {
+      // Se tiver resultado (não cancelou), chamamos a API!
+      if (result) {
+        this.save(result).then();
+      }
+    });
   }
 }

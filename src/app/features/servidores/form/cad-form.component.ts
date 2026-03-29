@@ -261,7 +261,8 @@ export type FormModel = Required<ServidorRequestDTO>;
       <button
         mat-stroked-button
         type="button"
-        class="mr-auto !border-blue-600 !text-blue-600"
+        class="mr-auto !border-blue-600 !text-blue-600 !transition-transform
+              duration-300 !ease-in-out hover:!scale-105"
         [disabled]="servidorForm().invalid()"
         (click)="openPermissions()"
       >
@@ -273,16 +274,19 @@ export type FormModel = Required<ServidorRequestDTO>;
         mat-stroked-button
         type="button"
         mat-dialog-close
-        class="!border-blue-600 !text-blue-600"
+        class="!border-blue-600 !text-blue-600 !transition-transform
+               duration-300 !ease-in-out hover:!scale-105"
       >
+        <mat-icon>close</mat-icon>
         Cancelar
       </button>
       <button
         mat-flat-button
-        color="primary"
+        class="!transition-transform duration-300 !ease-in-out hover:!scale-105"
         (click)="salvar()"
         [disabled]="servidorForm().invalid()"
       >
+        <mat-icon class="!mr-0.5">save</mat-icon>
         {{ isEdit ? 'Atualizar' : 'Salvar' }}
       </button>
     </mat-dialog-actions>

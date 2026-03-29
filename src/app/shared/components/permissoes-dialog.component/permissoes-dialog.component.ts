@@ -5,6 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { DominioService } from '../../../core/services/dominio.service';
 import { BaseEntityDTO } from '../../../core/models/servidor.model';
+import { MatIconModule } from '@angular/material/icon';
 
 // Interface para os dados que entram e saem do Dialog
 export interface PermissoesDialogData {
@@ -15,7 +16,7 @@ export interface PermissoesDialogData {
 
 @Component({
   selector: 'app-permissoes-dialog',
-  imports: [MatDialogModule, MatButtonModule, MatFormFieldModule, MatSelectModule],
+  imports: [MatDialogModule, MatButtonModule, MatFormFieldModule, MatSelectModule, MatIconModule],
   standalone: true,
   template: `
     <h2 mat-dialog-title class="!text-2xl font-bold text-gray-800 border-b pb-2">
@@ -56,16 +57,20 @@ export interface PermissoesDialogData {
         mat-stroked-button
         type="button"
         (click)="cancelar()"
-        class="!border-blue-600 !text-blue-600"
+        class="!border-blue-600 !text-blue-600 !transition-transform
+               duration-300 !ease-in-out hover:!scale-105"
       >
+        <mat-icon>close</mat-icon>
         Cancelar
       </button>
       <button
         type="button"
         mat-flat-button
-        class="!bg-blue-500 text-white ml-2"
+        class="!bg-blue-500 text-white ml-2 !transition-transform
+               duration-300 !ease-in-out hover:!scale-105"
         (click)="confirmar()"
       >
+        <mat-icon>checked</mat-icon>
         Confirmar Seleção
       </button>
     </mat-dialog-actions>

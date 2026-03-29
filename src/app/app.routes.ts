@@ -29,14 +29,10 @@ export const routes: Routes = [
         // tela para cadastro, edição e exclusão de cargos
         path: 'cadastro/cargos',
         title: 'Gestão de Cargos',
-        loadComponent: () => import('./features/cadastros/cargo.component/cargo.component'),
+        loadComponent: () => import('./features/cadastros/cargo-display.component'),
       },
     ],
   },
-  // PLACEHOLDERS FUTUROS:
-  // Quando você for criar as outras telas, basta ir adicionando aqui:
-  // { path: 'inicio', loadComponent: ... },
-  // { path: 'cadastro/cargo', loadComponent: ... },
 
   {
     path: '**',
