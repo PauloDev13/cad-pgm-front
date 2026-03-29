@@ -150,7 +150,7 @@ import { CommonModule } from '@angular/common';
   `,
   styles: ``,
 })
-export class CargoCustomListComponent {
+export class CustomListComponent {
   // recebe o título e os dados
   title = input.required<string>();
   data = input.required<any>();

@@ -150,7 +150,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
             }
           </a>
           <a
-            routerLink="/cadastro/setor"
+            routerLink="/cadastro/setores"
             routerLinkActive="bg-blue-50 text-blue-600"
             class="menu-subitem group"
             [class.pl-12]="isOpen()"
@@ -166,7 +166,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
             }
           </a>
           <a
-            routerLink="/cadastro/vinculo"
+            routerLink="/cadastro/vinculos"
             routerLinkActive="bg-blue-50 text-blue-600"
             class="menu-subitem group"
             [class.pl-12]="isOpen()"

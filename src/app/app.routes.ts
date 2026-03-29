@@ -31,6 +31,12 @@ export const routes: Routes = [
         title: 'Gestão de Cargos',
         loadComponent: () => import('./features/cadastros/cargo-display.component'),
       },
+      {
+        // tela para cadastro, edição e exclusão de cargos
+        path: 'cadastro/setores',
+        title: 'Gestão de Setores',
+        loadComponent: () => import('./features/cadastros/setor-display.component'),
+      },
     ],
   },
 

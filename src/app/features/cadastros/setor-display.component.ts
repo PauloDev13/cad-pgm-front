@@ -1,22 +1,24 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CustomListComponent } from '../../shared/components/custom-list.component/custom-list.component';
 import { CargoResponseDTO, SaveRequest } from '../../core/models/cargo.model';
-import { CargoService } from '../../core/services/cargo.service';
 import { ToastService } from '../../core/services/toast.service';
 import { CustomDeleteService } from '../../shared/service/custom-delete.service';
 import { MatDialog } from '@angular/material/dialog';
 import { CustomCadModalComponent } from '../../shared/components/custom-cad-modal.component/custom-cad-modal.component';
 import { firstValueFrom } from 'rxjs';
+// import { HttpErrorResponse } from '@angular/common/http';
+import { SetorService } from '../../core/services/setor.service';
+import { SetorResponseDTO } from '../../core/models/setor.model';
 import { ApiErrorHandlerService } from '../../shared/service/api-error-handler.service';
 
 @Component({
-  selector: 'app-cargo-display',
+  selector: 'app-setor-display',
   imports: [CustomListComponent],
   standalone: true,
   template: `
     <app-cargo-custom-list
-      title="Cargo"
-      [data]="cargos()"
+      title="Setor"
+      [data]="setores()"
       (onAdd)="openModalNew()"
       (onEdit)="openModalEdit($event)"
       (onDelete)="delete($event)"
@@ -24,12 +26,12 @@ import { ApiErrorHandlerService } from '../../shared/service/api-error-handler.s
   `,
   styles: ``,
 })
-export default class CargoDisplayComponent implements OnInit {
+export default class SetorDisplayComponent implements OnInit {
   // O estado (lista de cargos) que será passado para o componente filho
-  cargos = signal<CargoResponseDTO[]>([]);
+  setores = signal<CargoResponseDTO[]>([]);
 
   // injeção dos serviços
-  private readonly cargoService = inject(CargoService);
+  private readonly setorService = inject(SetorService);
   private readonly toastService = inject(ToastService);
   private readonly errorHandlerService = inject(ApiErrorHandlerService);
   private readonly customDeleteService = inject(CustomDeleteService);
@@ -41,11 +43,11 @@ export default class CargoDisplayComponent implements OnInit {
 
   // busca os registros
   loadCargos() {
-    this.cargoService.findAll().subscribe({
-      next: (dados) => this.cargos.set(dados),
+    this.setorService.findAll().subscribe({
+      next: (dados) => this.setores.set(dados),
       error: (err) => {
-        console.error('Erro ao buscar cargos', err);
-        this.toastService.error('Erro ao buscar cargos');
+        console.error('Erro ao buscar setores', err);
+        this.toastService.error('Erro ao buscar setores');
       },
     });
   }
@@ -60,7 +62,7 @@ export default class CargoDisplayComponent implements OnInit {
 
   delete(id: number) {
     this.customDeleteService.execute(
-      () => this.cargoService.delete(id),
+      () => this.setorService.delete(id),
       () => this.loadCargos(),
       { successMsg: 'Cargo removido com sucesso!' },
     );
@@ -71,9 +73,9 @@ export default class CargoDisplayComponent implements OnInit {
     try {
       // se tem id, é para Editar, se não, é para Inserir
       if (id) {
-        await firstValueFrom(this.cargoService.update(id, payload));
+        await firstValueFrom(this.setorService.update(id, payload));
       } else {
-        await firstValueFrom(this.cargoService.create(payload));
+        await firstValueFrom(this.setorService.create(payload));
       }
 
       this.toastService.success(`Cargo ${id ? 'atualizado' : 'cadastrado'} com sucesso!`);
@@ -85,13 +87,13 @@ export default class CargoDisplayComponent implements OnInit {
   }
 
   // Método privado que centraliza a abertura do Dialog
-  private openDialogForm(selectedCargo?: CargoResponseDTO) {
+  private openDialogForm(selectedSetor?: SetorResponseDTO) {
     const dialogRef = this.dialog.open(CustomCadModalComponent, {
       width: '500px',
       disableClose: true,
       data: {
-        title: 'Cargo', // Dizemos pro Dialog que ele está lidando com Cargos
-        element: selectedCargo, // Passamos o cargo inteiro se for edição, ou undefined se for novo
+        title: 'Setor', // Dizemos pro Dialog que ele está lidando com Cargos
+        element: selectedSetor, // Passamos o cargo inteiro se for edição, ou undefined se for novo
       },
     });
 
