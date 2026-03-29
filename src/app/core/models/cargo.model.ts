@@ -12,3 +12,8 @@ export interface CargoResponseDTO {
   descricao?: string; // Para status_servidor
   email?: string; // Para alias_servidor
 }
+
+export interface SaveRequest {
+  id?: number;
+  payload: CargoRequestDTO;
+}

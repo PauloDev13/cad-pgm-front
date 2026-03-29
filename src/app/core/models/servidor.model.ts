@@ -23,7 +23,7 @@ export interface ServidorRequestDTO {
 // Interfaces auxiliares de Resposta
 export interface BaseEntityDTO {
   id: number;
-  nome?: string;
+  nome: string;
   descricao?: string; // Para status_servidor
   email?: string; // Para alias_servidor
 }

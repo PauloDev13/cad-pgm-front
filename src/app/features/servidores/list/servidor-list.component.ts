@@ -7,7 +7,6 @@ import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CadFormComponent } from '../form/cad-form.component';
 import { DominioService } from '../../../core/services/dominio.service';
@@ -15,8 +14,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { PageResponse } from '../../../core/models/pagination.model';
-import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog.component/confirm-dialog.component';
 import { ToastService } from '../../../core/services/toast.service';
+import { CustomDeleteService } from '../../../shared/service/custom-delete.service';
 
 @Component({
   selector: 'app-servidor-list',
@@ -269,9 +268,6 @@ export default class ServidorListComponent implements OnInit {
   currentPage = signal<number>(0);
   isLoading = signal<boolean>(false);
   displayedColumns: string[] = ['matricula', 'nome', 'email', 'setor', 'cargo', 'acoes'];
-  // displayedColumns: string[] = ['matricula', 'nome', 'email', 'cargo', 'setor', 'vinculo', 'acoes'];
-
-  // NOVOS SIGNALS PARA ESTADO DOS FILTROS
 
   //Lista de status vinda da API
   statusList = signal<BaseEntityDTO[]>([]);
@@ -286,7 +282,7 @@ export default class ServidorListComponent implements OnInit {
   private readonly dominioService = inject(DominioService);
   private readonly toastService = inject(ToastService);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly customDeleteService = inject(CustomDeleteService);
 
   ngOnInit(): void {
     // this.loadData();
@@ -347,26 +343,14 @@ export default class ServidorListComponent implements OnInit {
   }
 
   delete(id: number) {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '500px',
-      disableClose: true,
-      data: {
-        title: 'Remover registro',
-        message: 'Esta ação não poderá ser desfeita. Tem certeza que quer prosseguir?',
+    this.customDeleteService.execute(
+      () => this.servidorService.delete(id),
+      () => this.loadData(),
+      {
+        successMsg: 'Servidor removido com sucesso!',
+        errorMsg: 'Erro ao excluir servidor',
       },
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.servidorService.delete(id).subscribe({
-          next: () => {
-            this.toastService.success('Registro removido com sucesso!');
-            this.loadData();
-          },
-          error: () => this.toastService.error('Erro ao remover registro!'),
-        });
-      }
-    });
+    );
   }
 
   onPageChange(event: PageEvent) {

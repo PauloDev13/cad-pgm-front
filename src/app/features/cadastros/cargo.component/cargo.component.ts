@@ -1,10 +1,11 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CargoRequestDTO, CargoResponseDTO } from '../../../core/models/cargo.model';
+import { CargoResponseDTO, SaveRequest } from '../../../core/models/cargo.model';
 import { CargoService } from '../../../core/services/cargo.service';
 import { CustomCadFormComponent } from '../../../shared/components/custom-cad-form.component/custom-cad-form.component';
 import { ToastService } from '../../../core/services/toast.service';
 import { firstValueFrom } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { CustomDeleteService } from '../../../shared/service/custom-delete.service';
 
 @Component({
   selector: 'app-cargo',
@@ -21,31 +22,40 @@ import { HttpErrorResponse } from '@angular/common/http';
   styles: ``,
 })
 export default class CargoComponent implements OnInit {
-  // O estado (lista de cargos) que será passado para a tabela genérica
+  // O estado (lista de cargos) que será passado para o componente filho
   cargos = signal<CargoResponseDTO[]>([]);
+
+  // injeção dos serviços
   private readonly cargoService = inject(CargoService);
   private readonly toastService = inject(ToastService);
+  private readonly customDeleteService = inject(CustomDeleteService);
 
   ngOnInit() {
     this.loadCargos();
   }
 
+  // busca os registros
   loadCargos() {
     this.cargoService.findAll().subscribe({
       next: (dados) => this.cargos.set(dados),
-      error: (err) => console.error('Erro ao buscar cargos', err),
+      error: (err) => {
+        console.error('Erro ao buscar cargos', err);
+        this.toastService.error('Erro ao buscar cargos');
+      },
     });
   }
 
-  async save(param: { id?: number; payload: CargoRequestDTO }) {
+  // insere ou edita um registro
+  async save({ id, payload }: SaveRequest) {
     try {
-      if (param.id) {
-        await firstValueFrom(this.cargoService.update(param.id, param.payload));
+      // se tem id, é para Editar, se não, é para Inserir
+      if (id) {
+        await firstValueFrom(this.cargoService.update(id, payload));
       } else {
-        await firstValueFrom(this.cargoService.create(param.payload));
+        await firstValueFrom(this.cargoService.create(payload));
       }
 
-      this.toastService.success(`Cargo ${param.id ? 'atualizado' : 'cadastrado'} com sucesso!`);
+      this.toastService.success(`Cargo ${id ? 'atualizado' : 'cadastrado'} com sucesso!`);
       // Recarrega a tabela com os dados novos
       this.loadCargos();
     } catch (error: any) {
@@ -66,18 +76,10 @@ export default class CargoComponent implements OnInit {
   }
 
   delete(id: number) {
-    console.log(id);
-    if (confirm('Tem certeza que deseja excluir este cargo?')) {
-      this.cargoService.delete(id).subscribe({
-        next: () => {
-          this.toastService.success('Cargo excluído com sucesso!');
-          this.loadCargos();
-        },
-        error: (err) => {
-          // Você pode usar o mesmo tratamento de erro aqui no futuro se desejar
-          this.toastService.error(`Erro ao excluir cargo. ${err.errors[0].message()}`);
-        },
-      });
-    }
+    this.customDeleteService.execute(
+      () => this.cargoService.delete(id),
+      () => this.loadCargos(),
+      { successMsg: 'Cargo removido com sucesso!' },
+    );
   }
 }

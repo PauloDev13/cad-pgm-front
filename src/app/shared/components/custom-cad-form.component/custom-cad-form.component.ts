@@ -6,7 +6,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { form, FormField, maxLength, minLength, required, submit } from '@angular/forms/signals';
-import { CargoRequestDTO } from '../../../core/models/cargo.model';
+import { CargoRequestDTO, SaveRequest } from '../../../core/models/cargo.model';
+import { BaseEntityDTO } from '../../../core/models/servidor.model';
 
 @Component({
   selector: 'app-custom-cad-form',
@@ -178,22 +179,22 @@ import { CargoRequestDTO } from '../../../core/models/cargo.model';
   `,
 })
 export class CustomCadFormComponent {
-  // ✨ A Mágica da Reutilização: O título vem de quem chamar o componente!
+  // Reutilização: O título vem de quem chamar o componente!
   title = input.required<string>();
-  data = input.required<any[]>();
+  data = input.required<BaseEntityDTO[]>();
 
-  onSave = output<{ id?: number; payload: CargoRequestDTO }>();
+  onSave = output<SaveRequest>();
   onDelete = output<number>();
   isEdit = signal<number | null>(null);
 
-  // idEdit = signal<number | null>(null);
-
+  // Inicializa o modelo de dados para o formulário
   customModel = signal<CargoRequestDTO>({
     nome: '',
     email: '',
     descricao: '',
   });
 
+  // cria o forulário e suas validações
   customForm = form(this.customModel, (path) => {
     // validações para o campo Nome
     required(path.nome!, { message: 'O nome é obrigatório' });
@@ -205,16 +206,11 @@ export class CustomCadFormComponent {
   // Apenas para renderizar a tabela visualmente (removeremos na fase de lógica)
   displayedColumns: string[] = ['id', 'nome', 'acoes'];
 
-  preparedEdit(element: any) {
-    console.log(element.id);
+  //
+  preparedEdit(element: BaseEntityDTO) {
     this.isEdit.set(element.id);
 
-    // Atualiza o valor do Signal Form com o dado da tabela
-    // this.customModel.set({
-    //   nome: element.nome,
-    //   email: element.email || '',
-    //   descricao: element.descricao || '',
-    // });
+    // Atualiza o valor do Signal Form com os dados de element
     this.customModel.update((m) => ({
       ...m,
       nome: element.nome,
@@ -223,6 +219,7 @@ export class CustomCadFormComponent {
     }));
   }
 
+  // cancela a edição - Atualiza o Signal Form limpando dados
   cancelEdit() {
     this.isEdit.set(null);
     this.customModel.update((m) => ({
@@ -231,9 +228,10 @@ export class CustomCadFormComponent {
       descricao: '',
       email: '',
     }));
-    this.customForm().reset(); // Limpa a mensagem de erro da tela
+    this.customForm().reset(); // Limpa os campos do fomulário
   }
 
+  // emite os dados do formulário para o componente pai
   async emitSave() {
     await submit(this.customForm, async () => {
       this.onSave.emit({
@@ -244,7 +242,8 @@ export class CustomCadFormComponent {
     });
   }
 
-  emitDelete(id: any) {
+  // emite o ID do registro que será excluído para o componente pai
+  emitDelete(id: number) {
     this.onDelete.emit(id);
   }
 }
