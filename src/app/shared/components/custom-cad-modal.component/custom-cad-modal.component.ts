@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { CargoRequestDTO, GenericDialogData } from '../../../core/models/cargo.model';
+import { CargoRequestDTO, GenericDialogData, SaveRequest } from '../../../core/models/cargo.model';
 import { form, FormField, maxLength, minLength, required, submit } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -112,10 +112,18 @@ export class CustomCadModalComponent implements OnInit {
     await submit(this.customForm, async () => {
       const payload = this.customForm().value();
 
-      const result = {
-        id: this.data.element.id,
-        payload: payload,
-      };
+      let result: SaveRequest;
+
+      if (this.isEdit()) {
+        result = {
+          id: this.data.element.id,
+          payload: payload,
+        };
+      } else {
+        result = {
+          payload: payload,
+        };
+      }
 
       this.dialogRef.close(result);
     });

@@ -6,6 +6,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
+import { CargoResponseDTO } from '../../../core/models/cargo.model';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-cargo-custom-list',
@@ -17,6 +19,7 @@ import { CommonModule } from '@angular/common';
     MatTooltipModule,
     MatFormFieldModule,
     MatInputModule,
+    MatPaginator,
   ],
   standalone: true,
   template: `
@@ -32,7 +35,7 @@ import { CommonModule } from '@angular/common';
         <mat-form-field appearance="outline" class="w-full md:w-96" subscriptSizing="dynamic">
           <mat-icon matPrefix class="text-gray-400 mr-2">search</mat-icon>
           <mat-label>Pesquisar {{ title() | lowercase }}...</mat-label>
-          <input matInput />
+          <input matInput (input)="searchInput($event)" (keyup.enter)="pesquisar()" />
         </mat-form-field>
         <button
           mat-flat-button
@@ -145,6 +148,15 @@ import { CommonModule } from '@angular/common';
             </td>
           </tr>
         </table>
+        <mat-paginator
+          [length]="totalElements()"
+          [pageSize]="pageSize()"
+          [pageIndex]="currentPage()"
+          [pageSizeOptions]="[6, 10, 25]"
+          (page)="pageChange($event)"
+          aria-label="Selecione a página"
+        >
+        </mat-paginator>
       </div>
     </div>
   `,
@@ -153,7 +165,18 @@ import { CommonModule } from '@angular/common';
 export class CustomListComponent {
   // recebe o título e os dados
   title = input.required<string>();
-  data = input.required<any>();
+  data = input.required<CargoResponseDTO[]>();
+
+  // signals de paginação
+  totalElements = input.required<number>();
+  pageSize = input<number>();
+  currentPage = input<number>();
+
+  //Avisa o pai que a página ou o tamanho mudaram
+  onPageChange = output<PageEvent>();
+
+  onSearchInput = output<string>();
+  realizarPesquisa = output<void>();
 
   // EVENTOS QUE SERÃO DISPARADOS PARA O COMPONENTE PAIi
   // Emitimos vazio, o Pai sabe que é para abrir o Dialog vazio
@@ -164,4 +187,17 @@ export class CustomListComponent {
   onDelete = output<number>();
 
   displayedColumns: string[] = ['id', 'nome', 'acoes'];
+
+  searchInput(event: Event) {
+    let value = (event.target as HTMLInputElement).value;
+    this.onSearchInput.emit(value);
+  }
+
+  pesquisar() {
+    this.realizarPesquisa.emit();
+  }
+
+  pageChange(pageEvent: PageEvent) {
+    this.onPageChange.emit(pageEvent);
+  }
 }

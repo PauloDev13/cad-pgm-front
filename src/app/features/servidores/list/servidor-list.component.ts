@@ -264,7 +264,7 @@ export default class ServidorListComponent implements OnInit {
   //Signals para Estado
   servidores = signal<ServidorResponseDTO[]>([]);
   totalElements = signal<number>(0);
-  pageSize = signal<number>(10);
+  pageSize = signal<number>(6);
   currentPage = signal<number>(0);
   isLoading = signal<boolean>(false);
   displayedColumns: string[] = ['matricula', 'nome', 'email', 'setor', 'cargo', 'acoes'];
@@ -312,7 +312,10 @@ export default class ServidorListComponent implements OnInit {
 
       // Chama o NOVO ENDPOINT no Service (searchFilter)
       this.servidorService.searchFilter(page, size, statusId, cpf, matricula, nome).subscribe({
-        next: (pageData) => this.setPageData(pageData),
+        next: (pageData) => {
+          this.setPageData(pageData);
+          // this.totalElements.set(pageData.page.totalElements);
+        },
         error: () => this.toastService.error('Erro ao filtrar dados'),
         complete: () => this.isLoading.set(false),
       });
@@ -413,8 +416,4 @@ export default class ServidorListComponent implements OnInit {
       error: () => this.toastService.error('Erro ao carregar lista de status'),
     });
   }
-
-  // private showMessage(msg: string) {
-  //   this.snackBar.open(msg, 'Fechar', { duration: 3000, horizontalPosition: 'right' });
-  // }
 }

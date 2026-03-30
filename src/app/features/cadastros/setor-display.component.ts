@@ -1,5 +1,4 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CustomListComponent } from '../../shared/components/custom-list.component/custom-list.component';
 import { CargoResponseDTO, SaveRequest } from '../../core/models/cargo.model';
 import { ToastService } from '../../core/services/toast.service';
 import { CustomDeleteService } from '../../shared/service/custom-delete.service';
@@ -13,16 +12,16 @@ import { ApiErrorHandlerService } from '../../shared/service/api-error-handler.s
 
 @Component({
   selector: 'app-setor-display',
-  imports: [CustomListComponent],
+  // imports: [CustomListComponent],
   standalone: true,
   template: `
-    <app-cargo-custom-list
-      title="Setor"
-      [data]="setores()"
-      (onAdd)="openModalNew()"
-      (onEdit)="openModalEdit($event)"
-      (onDelete)="delete($event)"
-    />
+    <!--    <app-cargo-custom-list-->
+    <!--      title="Setor"-->
+    <!--      [data]="setores()"-->
+    <!--      (onAdd)="openModalNew()"-->
+    <!--      (onEdit)="openModalEdit($event)"-->
+    <!--      (onDelete)="delete($event)"-->
+    <!--    />-->
   `,
   styles: ``,
 })

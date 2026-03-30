@@ -8,6 +8,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { CustomCadModalComponent } from '../../shared/components/custom-cad-modal.component/custom-cad-modal.component';
 import { firstValueFrom } from 'rxjs';
 import { ApiErrorHandlerService } from '../../shared/service/api-error-handler.service';
+import { PageResponse } from '../../core/models/pagination.model';
+import { PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-cargo-display',
@@ -17,9 +19,15 @@ import { ApiErrorHandlerService } from '../../shared/service/api-error-handler.s
     <app-cargo-custom-list
       title="Cargo"
       [data]="cargos()"
+      [pageSize]="pageSize()"
+      [currentPage]="currentPage()"
+      [totalElements]="totalElements()"
       (onAdd)="openModalNew()"
       (onEdit)="openModalEdit($event)"
       (onDelete)="delete($event)"
+      (onSearchInput)="onSearchInput($event)"
+      (realizarPesquisa)="realizarPesquisa()"
+      (onPageChange)="handlePageEvent($event)"
     />
   `,
   styles: ``,
@@ -27,6 +35,12 @@ import { ApiErrorHandlerService } from '../../shared/service/api-error-handler.s
 export default class CargoDisplayComponent implements OnInit {
   // O estado (lista de cargos) que será passado para o componente filho
   cargos = signal<CargoResponseDTO[]>([]);
+
+  // signals para a pesquisa dinâmica paginada
+  searchTerm = signal<string>('');
+  totalElements = signal<number>(0);
+  pageSize = signal<number>(6);
+  currentPage = signal<number>(0);
 
   // injeção dos serviços
   private readonly cargoService = inject(CargoService);
@@ -41,13 +55,34 @@ export default class CargoDisplayComponent implements OnInit {
 
   // busca os registros
   loadCargos() {
-    this.cargoService.findAll().subscribe({
-      next: (dados) => this.cargos.set(dados),
-      error: (err) => {
-        console.error('Erro ao buscar cargos', err);
-        this.toastService.error('Erro ao buscar cargos');
-      },
-    });
+    // dados da paginação
+    const page = this.currentPage();
+    const size = this.pageSize();
+
+    // Captura o conteúdo digitado no input de pesquisa
+    const filter = this.searchTerm();
+
+    // Regra de Negócio: Se tem algum filtro preenchido
+    const isActivateFilter = filter && filter.trim() !== '';
+
+    if (isActivateFilter) {
+      // Chama o endpoint no Service (searchFilter) de pesquisa dinâmica
+      this.cargoService.searchFilter(page, size, filter).subscribe({
+        next: (pageData) => this.setPageData(pageData),
+        error: () => this.toastService.error('Erro ao filtrar dados'),
+      });
+    } else {
+      // se não tem filtro, chama o endpoint (finByAll) com todos os registros
+      this.cargoService.findAll(page, size).subscribe({
+        next: (pageData) => {
+          this.setPageData(pageData);
+        },
+        error: (err) => {
+          console.error('Erro ao buscar cargos', err);
+          this.toastService.error('Erro ao buscar cargos');
+        },
+      });
+    }
   }
 
   openModalNew() {
@@ -84,6 +119,22 @@ export default class CargoDisplayComponent implements OnInit {
     }
   }
 
+  // É chamado pelo HTML quando o usuário digita no campo de busca
+  onSearchInput(termo: string) {
+    this.searchTerm.set(termo);
+  }
+
+  realizarPesquisa() {
+    this.currentPage.set(0); // Reseta a página ao buscar
+    this.loadCargos();
+  }
+
+  handlePageEvent(event: PageEvent) {
+    this.currentPage.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
+    this.loadCargos();
+  }
+
   // Método privado que centraliza a abertura do Dialog
   private openDialogForm(selectedCargo?: CargoResponseDTO) {
     const dialogRef = this.dialog.open(CustomCadModalComponent, {
@@ -102,5 +153,12 @@ export default class CargoDisplayComponent implements OnInit {
         this.save(result).then();
       }
     });
+  }
+
+  // Helper para centralizar a atualização dos signals da tabela
+  private setPageData(response: PageResponse<any>) {
+    this.cargos.set(response.content);
+    this.totalElements.set(response.page.totalElements);
+    this.currentPage.set(response.page.number);
   }
 }
