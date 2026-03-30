@@ -9,25 +9,41 @@ import { firstValueFrom } from 'rxjs';
 import { SetorService } from '../../core/services/setor.service';
 import { SetorResponseDTO } from '../../core/models/setor.model';
 import { ApiErrorHandlerService } from '../../shared/service/api-error-handler.service';
+import { CustomListComponent } from '../../shared/components/custom-list.component/custom-list.component';
+import { PageResponse } from '../../core/models/pagination.model';
+import { PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-setor-display',
   // imports: [CustomListComponent],
   standalone: true,
   template: `
-    <!--    <app-cargo-custom-list-->
-    <!--      title="Setor"-->
-    <!--      [data]="setores()"-->
-    <!--      (onAdd)="openModalNew()"-->
-    <!--      (onEdit)="openModalEdit($event)"-->
-    <!--      (onDelete)="delete($event)"-->
-    <!--    />-->
+    <app-cargo-custom-list
+      title="Setor"
+      [data]="setores()"
+      [pageSize]="pageSize()"
+      [currentPage]="currentPage()"
+      [totalElements]="totalElements()"
+      (onAdd)="openModalNew()"
+      (onEdit)="openModalEdit($event)"
+      (onDelete)="delete($event)"
+      (onSearchInput)="onSearchInput($event)"
+      (realizarPesquisa)="realizarPesquisa()"
+      (onPageChange)="handlePageEvent($event)"
+    />
   `,
   styles: ``,
+  imports: [CustomListComponent],
 })
 export default class SetorDisplayComponent implements OnInit {
   // O estado (lista de cargos) que será passado para o componente filho
   setores = signal<CargoResponseDTO[]>([]);
+
+  // signals para a pesquisa dinâmica paginada
+  searchTerm = signal<string>('');
+  totalElements = signal<number>(0);
+  pageSize = signal<number>(6);
+  currentPage = signal<number>(0);
 
   // injeção dos serviços
   private readonly setorService = inject(SetorService);
@@ -42,13 +58,34 @@ export default class SetorDisplayComponent implements OnInit {
 
   // busca os registros
   loadCargos() {
-    this.setorService.findAll().subscribe({
-      next: (dados) => this.setores.set(dados),
-      error: (err) => {
-        console.error('Erro ao buscar setores', err);
-        this.toastService.error('Erro ao buscar setores');
-      },
-    });
+    // dados da paginação
+    const page = this.currentPage();
+    const size = this.pageSize();
+
+    // Captura o conteúdo digitado no input de pesquisa
+    const filter = this.searchTerm();
+
+    // Regra de Negócio: Se tem algum filtro preenchido
+    const isActivateFilter = filter && filter.trim() !== '';
+
+    if (isActivateFilter) {
+      // Chama o endpoint no Service (searchFilter) de pesquisa dinâmica
+      this.setorService.searchFilter(page, size, filter).subscribe({
+        next: (pageData) => this.setPageData(pageData),
+        error: () => this.toastService.error('Erro ao filtrar dados'),
+      });
+    } else {
+      // se não tem filtro, chama o endpoint (finByAll) com todos os registros
+      this.setorService.findAll(page, size).subscribe({
+        next: (pageData) => {
+          this.setPageData(pageData);
+        },
+        error: (err) => {
+          console.error('Erro ao buscar setores', err);
+          this.toastService.error('Erro ao buscar setores');
+        },
+      });
+    }
   }
 
   openModalNew() {
@@ -85,6 +122,22 @@ export default class SetorDisplayComponent implements OnInit {
     }
   }
 
+  // É chamado pelo HTML quando o usuário digita no campo de busca
+  onSearchInput(termo: string) {
+    this.searchTerm.set(termo);
+  }
+
+  realizarPesquisa() {
+    this.currentPage.set(0); // Reseta a página ao buscar
+    this.loadCargos();
+  }
+
+  handlePageEvent(event: PageEvent) {
+    this.currentPage.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
+    this.loadCargos();
+  }
+
   // Método privado que centraliza a abertura do Dialog
   private openDialogForm(selectedSetor?: SetorResponseDTO) {
     const dialogRef = this.dialog.open(CustomCadModalComponent, {
@@ -103,5 +156,12 @@ export default class SetorDisplayComponent implements OnInit {
         this.save(result).then();
       }
     });
+  }
+
+  // Helper para centralizar a atualização dos signals da tabela
+  private setPageData(response: PageResponse<any>) {
+    this.setores.set(response.content);
+    this.totalElements.set(response.page.totalElements);
+    this.currentPage.set(response.page.number);
   }
 }
