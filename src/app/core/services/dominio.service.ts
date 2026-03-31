@@ -19,19 +19,29 @@ export class DominioService {
     { id: 3, nome: 'Outros' },
   ];
 
+  readonly statusList: BaseEntityDTO[] = [
+    { id: 1, nome: 'Ativo' },
+    { id: 2, nome: 'Inativo' },
+    { id: 3, nome: 'Férias' },
+    { id: 4, nome: 'Pedente' },
+    { id: 5, nome: 'Afastado' },
+  ];
+
+  readonly vinclos: BaseEntityDTO[] = [
+    { id: 1, nome: 'Efetivo' },
+    { id: 2, nome: 'Comissionado' },
+    { id: 3, nome: 'Terceirizado' },
+  ];
+
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/api/v1`;
 
   getCargos(): Observable<BaseEntityDTO[]> {
-    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/cargos`);
+    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/cargos/select`);
   }
 
   getSetores(): Observable<BaseEntityDTO[]> {
-    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/setores`);
-  }
-
-  getStatus(): Observable<BaseEntityDTO[]> {
-    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/status`);
+    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/setores/select`);
   }
 
   getVinculos(): Observable<BaseEntityDTO[]> {
@@ -39,15 +49,21 @@ export class DominioService {
   }
 
   getSistemas(): Observable<BaseEntityDTO[]> {
-    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/sistemas`);
+    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/sistemas/select`);
   }
 
   getProcuradores(): Observable<BaseEntityDTO[]> {
-    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/procuradores`);
+    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/procuradores/select`);
   }
 
   getAliases(): Observable<BaseEntityDTO[]> {
-    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/alias`);
+    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/alias/select`);
+  }
+
+  // Arrays fixos
+  getStatus(): Observable<BaseEntityDTO[]> {
+    return of(this.statusList).pipe(delay(300));
+    // return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/status`);
   }
 
   getLotacaoList(): Observable<BaseEntityDTO[]> {
