@@ -443,10 +443,6 @@ export class CadFormComponent implements OnInit {
           await firstValueFrom(this.servidorService.create(requestData));
         }
 
-        this.toastService.success(
-          `Servidor ${this.isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`,
-        );
-
         // this.snackBar.open(
         //   `Servidor ${this.isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`,
         //   'Fechar',
@@ -455,6 +451,9 @@ export class CadFormComponent implements OnInit {
         //     panelClass: ['snackbar-success'],
         //   },
         // );
+        this.toastService.success(
+          `Servidor ${this.isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`,
+        );
 
         this.dialogRef.close(true);
       } catch (error: any) {

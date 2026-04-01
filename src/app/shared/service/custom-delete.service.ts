@@ -3,12 +3,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { ToastService } from '../../core/services/toast.service';
 import { Observable } from 'rxjs';
 import { ConfirmDialogComponent } from '../components/confirm-dialog.component/confirm-dialog.component';
+import { ApiErrorHandlerService } from './api-error-handler.service';
 
 type Messages = {
   title?: string;
   message?: string;
   successMsg?: string;
-  errorMsg?: string;
+  // errorMsg?: string;
 };
 
 @Injectable({
@@ -17,8 +18,9 @@ type Messages = {
 export class CustomDeleteService {
   private dialog = inject(MatDialog);
   private readonly toastService = inject(ToastService);
+  private readonly errorHandlerService = inject(ApiErrorHandlerService);
 
-  execute(deleteActions: () => Observable<void>, onSuccess: () => void, options?: Messages) {
+  execute(deleteActions: () => Observable<any>, onSuccess: () => void, options?: Messages) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '500px',
       disableClose: true,
@@ -32,13 +34,15 @@ export class CustomDeleteService {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         deleteActions().subscribe({
-          next: () => {
-            this.toastService.success(options?.successMsg ?? 'Registro removido com sucesso!');
+          next: (response: any) => {
+            const backendMsg = response?.message;
+            const fallbackMsg = options?.successMsg ?? 'Registro removido com sucesso!';
+            this.toastService.success(backendMsg || fallbackMsg);
             onSuccess();
           },
-          error: () => {
+          error: (err) => {
             console.log('Erro ao remover registro');
-            this.toastService.error(options?.errorMsg ?? 'Erro ao remover registro!');
+            this.errorHandlerService.errorHandler(err);
           },
         });
       }

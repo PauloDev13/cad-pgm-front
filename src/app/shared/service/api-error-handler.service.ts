@@ -19,6 +19,13 @@ export class ApiErrorHandlerService {
         messageDefaultErro =
           error.error.errors[0].defaultMessage || 'Erro de validação nos dados enviados.';
       }
+
+      // ✨ DECISÃO ARQUITETURAL ✨
+      // Se for um erro de Proibido (403) ou Conflito (409 - comum em exclusão com vínculo)
+      if (error.status === 403 || error.status === 409) {
+        this.toastService.errorCritical('EXCLUSÃO NEGADA!', messageDefaultErro);
+        return;
+      }
     }
 
     this.toastService.error(messageDefaultErro);

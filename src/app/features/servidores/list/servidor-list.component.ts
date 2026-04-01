@@ -351,7 +351,6 @@ export default class ServidorListComponent implements OnInit {
       () => this.loadData(),
       {
         successMsg: 'Servidor removido com sucesso!',
-        errorMsg: 'Erro ao excluir servidor',
       },
     );
   }

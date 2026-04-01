@@ -19,14 +19,6 @@ export class DominioService {
     { id: 3, nome: 'Outros' },
   ];
 
-  readonly statusList: BaseEntityDTO[] = [
-    { id: 1, nome: 'Ativo' },
-    { id: 2, nome: 'Inativo' },
-    { id: 3, nome: 'Férias' },
-    { id: 4, nome: 'Pedente' },
-    { id: 5, nome: 'Afastado' },
-  ];
-
   readonly vinclos: BaseEntityDTO[] = [
     { id: 1, nome: 'Efetivo' },
     { id: 2, nome: 'Comissionado' },
@@ -56,15 +48,15 @@ export class DominioService {
     return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/procuradores/select`);
   }
 
+  getStatus(): Observable<BaseEntityDTO[]> {
+    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/status`);
+  }
+
   getAliases(): Observable<BaseEntityDTO[]> {
     return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/alias/select`);
   }
 
   // Arrays fixos
-  getStatus(): Observable<BaseEntityDTO[]> {
-    return of(this.statusList).pipe(delay(300));
-    // return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/status`);
-  }
 
   getLotacaoList(): Observable<BaseEntityDTO[]> {
     return of(this.lotacaoList).pipe(delay(300));
