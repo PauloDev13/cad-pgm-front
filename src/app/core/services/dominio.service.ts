@@ -49,7 +49,7 @@ export class DominioService {
   }
 
   getStatus(): Observable<BaseEntityDTO[]> {
-    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/status`);
+    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/status/select`);
   }
 
   getAliases(): Observable<BaseEntityDTO[]> {
