@@ -37,7 +37,7 @@ export class DominioService {
   }
 
   getVinculos(): Observable<BaseEntityDTO[]> {
-    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/vinculos`);
+    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/vinculos/select`);
   }
 
   getSistemas(): Observable<BaseEntityDTO[]> {
