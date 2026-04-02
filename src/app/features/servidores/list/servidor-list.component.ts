@@ -16,6 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { PageResponse } from '../../../core/models/pagination.model';
 import { ToastService } from '../../../core/services/toast.service';
 import { CustomDeleteService } from '../../../shared/service/custom-delete.service';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-servidor-list',
@@ -83,7 +84,6 @@ import { CustomDeleteService } from '../../../shared/service/custom-delete.servi
               matInput
               [value]="searchTerm()"
               (input)="onSearchInput($event)"
-              (keyup.enter)="realizarPesquisa()"
               placeholder="{{
                 searchType() === 'CPF'
                   ? 'Apenas dígitos numéricos'
@@ -92,16 +92,7 @@ import { CustomDeleteService } from '../../../shared/service/custom-delete.servi
                     : 'Ex: T0001 ou 01031'
               }}"
             />
-
-            <button
-              mat-icon-button
-              matSuffix
-              (click)="realizarPesquisa()"
-              color="primary"
-              aria-label="Pesquisar"
-            >
-              <mat-icon>search</mat-icon>
-            </button>
+            <mat-icon matIconPrefix class="text-gray-500">search</mat-icon>
           </mat-form-field>
         </div>
       </div>
@@ -277,6 +268,9 @@ export default class ServidorListComponent implements OnInit {
   searchType = signal<'CPF' | 'MATRICULA' | 'NOME'>('NOME');
   searchTerm = signal<string>('');
 
+  //O funil de eventos de digitação
+  private searchSubject = new Subject<string>();
+
   // Injeções
   private readonly servidorService = inject(ServidorService);
   private readonly dominioService = inject(DominioService);
@@ -285,8 +279,8 @@ export default class ServidorListComponent implements OnInit {
   private readonly customDeleteService = inject(CustomDeleteService);
 
   ngOnInit(): void {
-    // this.loadData();
     this.carregarFiltrosIniciais();
+    this.configurarDebounceDePesquisa(); // Inicializa o nosso escutador
   }
 
   // centralizador: Decide qual endpoint chamar com base nos filtros
@@ -371,6 +365,7 @@ export default class ServidorListComponent implements OnInit {
   }
 
   // É chamado pelo HTML quando o usuário digita no campo de busca
+  // ALTERAÇÃO: O HTML não atualiza mais o Signal direto, ele alimenta o Subject
   onSearchInput(event: Event) {
     let value = (event.target as HTMLInputElement).value;
 
@@ -380,13 +375,37 @@ export default class ServidorListComponent implements OnInit {
       (event.target as HTMLInputElement).value = value; // Reflete a mudança no input HTML
     }
 
+    // Joga o valor digitado no "funil" do RxJS.
+    // O subscribe ali em cima vai decidir quando disparar a busca.
+    this.searchSubject.next(value);
+
     this.searchTerm.set(value);
   }
 
-  // é chamado quando o usuário clica na lupa ou aperta Enter
-  realizarPesquisa() {
-    this.currentPage.set(0); // Reseta a página ao buscar
-    this.loadData();
+  //  NOVO MÉTODO PARA BUSCA DINÂMICA
+  private configurarDebounceDePesquisa() {
+    this.searchSubject
+      .pipe(
+        debounceTime(500), // Espera o usuário parar de digitar por 500ms
+        distinctUntilChanged(), // Só continua se a palavra final for diferente da última busca
+      )
+      .subscribe((termoDigitado) => {
+        // Se o usuário apagou tudo (Cenário 1)
+        if (termoDigitado.trim() === '') {
+          this.selectedStatusId.set(null); // Volta para "Todos os Status"
+          this.searchTerm.set(''); // Limpa o termo no Signal
+          this.currentPage.set(0); // Volta pra página 1
+          this.loadData(); // Recarrega a tabela completa!
+          return;
+        }
+
+        //  Só busca se tiver 3 caracteres ou mais (Cenário 2)
+        if (termoDigitado.trim().length >= 3) {
+          this.searchTerm.set(termoDigitado.trim());
+          this.currentPage.set(0);
+          this.loadData();
+        }
+      });
   }
 
   // Helper para centralizar a atualização dos signals da tabela
