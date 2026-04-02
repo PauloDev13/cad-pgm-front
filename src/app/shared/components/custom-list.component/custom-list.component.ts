@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, OnInit, output } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { CargoResponseDTO } from '../../../core/models/cargo.model';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-cargo-custom-list',
@@ -35,7 +36,11 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
         <mat-form-field appearance="outline" class="w-full md:w-96" subscriptSizing="dynamic">
           <mat-icon matPrefix class="text-gray-400 mr-2">search</mat-icon>
           <mat-label>Pesquisar {{ title() | lowercase }}...</mat-label>
-          <input matInput (input)="searchInput($event)" (keyup.enter)="pesquisar()" />
+          <input
+            matInput
+            (input)="searchInput($event)"
+            placeholder="Digite pelo menos e letras..."
+          />
         </mat-form-field>
         <button
           mat-flat-button
@@ -46,7 +51,7 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
           hover:!scale-105"
           (click)="onAdd.emit()"
         >
-          <mat-icon>add</mat-icon>
+          <mat-icon class="text-gray-500">add</mat-icon>
           Novo
         </button>
       </div>
@@ -162,7 +167,7 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
   `,
   styles: ``,
 })
-export class CustomListComponent {
+export class CustomListComponent implements OnInit {
   // recebe o título e os dados
   title = input.required<string>();
   data = input.required<CargoResponseDTO[]>();
@@ -175,10 +180,11 @@ export class CustomListComponent {
   //Avisa o pai que a página ou o tamanho mudaram
   onPageChange = output<PageEvent>();
 
-  onSearchInput = output<string>();
-  realizarPesquisa = output<void>();
+  // onSearchInput = output<string>();
+  // realizarPesquisa = output<void>();
 
   // EVENTOS QUE SERÃO DISPARADOS PARA O COMPONENTE PAIi
+  onSearch = output<string>();
   // Emitimos vazio, o Pai sabe que é para abrir o Dialog vazio
   onAdd = output<void>();
   // Emitimos o objeto inteiro para o Pai preencher o Dialog
@@ -188,16 +194,35 @@ export class CustomListComponent {
 
   displayedColumns: string[] = ['id', 'nome', 'acoes'];
 
-  searchInput(event: Event) {
+  // O Funil do RxJS fica escondido aqui no componente genérico
+  private searchSubject = new Subject<string>();
+
+  searchInput(event: any) {
     let value = (event.target as HTMLInputElement).value;
-    this.onSearchInput.emit(value);
+
+    // Joga o que o usuário digita no funil
+    this.searchSubject.next(value);
+
+    // Emite o valor para o pai
+    // this.onSearchInput.emit(value);
   }
 
-  pesquisar() {
-    this.realizarPesquisa.emit();
-  }
+  // pesquisar() {
+  //   this.realizarPesquisa.emit();
+  // }
 
   pageChange(pageEvent: PageEvent) {
     this.onPageChange.emit(pageEvent);
+  }
+
+  ngOnInit(): void {
+    this.searchSubject.pipe(debounceTime(500), distinctUntilChanged()).subscribe((termo) => {
+      const termoLimpo = termo.trim();
+
+      // Regra de Ouro: Só emite para o Pai se apagou tudo OU se tem 3+ letras
+      if (termoLimpo === '' || termoLimpo.length >= 3) {
+        this.onSearch.emit(termoLimpo);
+      }
+    });
   }
 }

@@ -25,9 +25,8 @@ import { PageEvent } from '@angular/material/paginator';
       (onAdd)="openModalNew()"
       (onEdit)="openModalEdit($event)"
       (onDelete)="delete($event)"
-      (onSearchInput)="onSearchInput($event)"
-      (realizarPesquisa)="realizarPesquisa()"
       (onPageChange)="handlePageEvent($event)"
+      (onSearch)="handleSearch($event)"
     />
   `,
   styles: ``,
@@ -119,13 +118,10 @@ export default class CargoDisplayComponent implements OnInit {
     }
   }
 
-  // É chamado pelo HTML quando o usuário digita no campo de busca
-  onSearchInput(termo: string) {
+  // Criamos apenas o tratador do evento que vem do filho:
+  handleSearch(termo: string) {
     this.searchTerm.set(termo);
-  }
-
-  realizarPesquisa() {
-    this.currentPage.set(0); // Reseta a página ao buscar
+    this.currentPage.set(0); // Reseta a página sempre que buscar algo novo
     this.loadCargos();
   }
 

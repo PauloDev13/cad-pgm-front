@@ -27,8 +27,6 @@ import { PageEvent } from '@angular/material/paginator';
       (onAdd)="openModalNew()"
       (onEdit)="openModalEdit($event)"
       (onDelete)="delete($event)"
-      (onSearchInput)="onSearchInput($event)"
-      (realizarPesquisa)="realizarPesquisa()"
       (onPageChange)="handlePageEvent($event)"
     />
   `,
@@ -120,16 +118,6 @@ export default class SetorDisplayComponent implements OnInit {
     } catch (error: any) {
       this.errorHandlerService.errorHandler(error);
     }
-  }
-
-  // É chamado pelo HTML quando o usuário digita no campo de busca
-  onSearchInput(termo: string) {
-    this.searchTerm.set(termo);
-  }
-
-  realizarPesquisa() {
-    this.currentPage.set(0); // Reseta a página ao buscar
-    this.loadCargos();
   }
 
   handlePageEvent(event: PageEvent) {
