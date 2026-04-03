@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CustomListComponent } from '../../shared/components/custom-list.component';
 import { BaseGenericComponent } from '../../shared/components/generic/base-generic.component';
-import { ICrudGeneric } from '../../core/models/generic/crud-generic.model';
+import { ICrudGeneric } from '../../shared/model/crud-generic.model';
 import { StatusRequestDTO, StatusResponseDTO } from '../../core/models/status.model';
 import { StatusService } from '../../core/services/status.service';
 
@@ -16,6 +16,7 @@ import { StatusService } from '../../core/services/status.service';
       [pageSize]="pageSize()"
       [currentPage]="currentPage()"
       [totalElements]="totalElements()"
+      [isLoading]="isLoading()"
       (onAdd)="openModalNew()"
       (onEdit)="openModalEdit($event)"
       (onDelete)="delete($event)"

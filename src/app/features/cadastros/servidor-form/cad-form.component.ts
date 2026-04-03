@@ -33,7 +33,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { TestSelectComponent } from '../../../shared/components/test-select.component';
-import { ToastService } from '../../../core/services/toast.service';
+import { ToastService } from '../../../shared/service/toast.service';
 import {
   PermissoesDialogComponent,
   PermissoesDialogData,

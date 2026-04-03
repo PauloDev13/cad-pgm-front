@@ -1,14 +1,14 @@
 import { Directive, inject, OnInit, signal } from '@angular/core';
-import { ToastService } from '../../../core/services/toast.service';
+import { ToastService } from '../../service/toast.service';
 import { ApiErrorHandlerService } from '../../service/api-error-handler.service';
 import { CustomDeleteService } from '../../service/custom-delete.service';
 import { MatDialog } from '@angular/material/dialog';
-import { ICrudGeneric } from '../../../core/models/generic/crud-generic.model';
+import { ICrudGeneric } from '../../model/crud-generic.model';
 import { PageEvent } from '@angular/material/paginator';
 import { finalize, firstValueFrom } from 'rxjs';
 import { CustomCadModalComponent } from '../custom-cad-modal.component';
-import { PageResponse } from '../../../core/models/pagination.model';
-import { SingleInputDialogData, SingleInputModalResult } from '../../model/BaseGeneric.model';
+import { PageResponse } from '../../model/pagination.model';
+import { SingleInputDialogData, SingleInputModalResult } from '../../model/base-generic.model';
 
 @Directive()
 export abstract class BaseGenericComponent<T> implements OnInit {

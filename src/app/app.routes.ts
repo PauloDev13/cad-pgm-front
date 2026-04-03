@@ -23,7 +23,7 @@ export const routes: Routes = [
         // A sua tela já existente, intacta!
         path: 'servidores',
         title: 'Gestão de Servidores',
-        loadComponent: () => import('./features/servidores/list/servidor-list.component'),
+        loadComponent: () => import('./features/cadastros/servidor-list/servidor-list.component'),
       },
       {
         // tela para cadastro, edição e exclusão de cargos

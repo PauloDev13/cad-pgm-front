@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CustomListComponent } from '../../shared/components/custom-list.component';
 import { BaseGenericComponent } from '../../shared/components/generic/base-generic.component';
-import { ICrudGeneric } from '../../core/models/generic/crud-generic.model';
+import { ICrudGeneric } from '../../shared/model/crud-generic.model';
 import { VinculoRequestDTO, VinculoResponseDTO } from '../../core/models/vinculo.model';
 import { VinculoService } from '../../core/services/vinculo.service';
 
@@ -16,6 +16,7 @@ import { VinculoService } from '../../core/services/vinculo.service';
       [pageSize]="pageSize()"
       [currentPage]="currentPage()"
       [totalElements]="totalElements()"
+      [isLoading]="isLoading()"
       (onAdd)="openModalNew()"
       (onEdit)="openModalEdit($event)"
       (onDelete)="delete($event)"

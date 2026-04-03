@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { CustomSearchFilterService } from '../custom-search-filter.service';
 import { environment } from '../../../../environments/environment.development';
 import { Observable } from 'rxjs';
-import { PageResponse } from '../../../core/models/pagination.model';
+import { PageResponse } from '../../model/pagination.model';
 
 export abstract class BaseGenericService<TReq, TRes> {
   protected readonly http = inject(HttpClient);

@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ToastService } from '../../core/services/toast.service';
+import { ToastService } from './toast.service';
 import { Observable } from 'rxjs';
 import { ConfirmDialogComponent } from '../components/confirm-dialog.component';
 import { ApiErrorHandlerService } from './api-error-handler.service';

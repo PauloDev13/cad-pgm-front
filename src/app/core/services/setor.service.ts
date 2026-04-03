@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { SetorRequestDTO, SetorResponseDTO } from '../models/setor.model';
-import { BaseGenericService } from '../../shared/service/generic/BaseGeneric.service';
+import { BaseGenericService } from '../../shared/service/generic/base-generic.service';
 
 @Injectable({
   providedIn: 'root',

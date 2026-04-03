@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { PageResponse } from '../pagination.model';
+import { PageResponse } from './pagination.model';
 
 export interface ICrudGeneric<T> {
   findAll(page: number, size: number): Observable<PageResponse<T[]>>;

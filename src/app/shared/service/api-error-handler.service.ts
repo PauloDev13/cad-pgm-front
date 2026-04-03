@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { ToastService } from '../../core/services/toast.service';
+import { ToastService } from './toast.service';
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Injectable({

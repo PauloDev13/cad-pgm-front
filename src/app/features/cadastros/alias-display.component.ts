@@ -3,7 +3,7 @@ import { CustomListComponent } from '../../shared/components/custom-list.compone
 import { AliasRequestDTO, AliasResponseDTO } from '../../core/models/alias.model';
 import { AliasService } from '../../core/services/alias.service';
 import { BaseGenericComponent } from '../../shared/components/generic/base-generic.component';
-import { ICrudGeneric } from '../../core/models/generic/crud-generic.model';
+import { ICrudGeneric } from '../../shared/model/crud-generic.model';
 
 @Component({
   selector: 'app-cargo-display',
@@ -16,6 +16,7 @@ import { ICrudGeneric } from '../../core/models/generic/crud-generic.model';
       [pageSize]="pageSize()"
       [currentPage]="currentPage()"
       [totalElements]="totalElements()"
+      [isLoading]="isLoading()"
       (onAdd)="openModalNew()"
       (onEdit)="openModalEdit($event)"
       (onDelete)="delete($event)"

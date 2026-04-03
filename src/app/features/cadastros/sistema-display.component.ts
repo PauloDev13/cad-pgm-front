@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CustomListComponent } from '../../shared/components/custom-list.component';
 import { SistemaRequestDTO, SistemaResponseDTO } from '../../core/models/sistema.model';
 import { BaseGenericComponent } from '../../shared/components/generic/base-generic.component';
-import { ICrudGeneric } from '../../core/models/generic/crud-generic.model';
+import { ICrudGeneric } from '../../shared/model/crud-generic.model';
 import { SistemaService } from '../../core/services/sistema.service';
 
 @Component({
@@ -16,6 +16,7 @@ import { SistemaService } from '../../core/services/sistema.service';
       [pageSize]="pageSize()"
       [currentPage]="currentPage()"
       [totalElements]="totalElements()"
+      [isLoading]="isLoading()"
       (onAdd)="openModalNew()"
       (onEdit)="openModalEdit($event)"
       (onDelete)="delete($event)"

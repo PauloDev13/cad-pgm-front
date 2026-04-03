@@ -1,4 +1,4 @@
-import { BaseEntityResponse } from '../../shared/model/BaseGeneric.model';
+import { BaseEntityResponse } from '../../shared/model/base-generic.model';
 
 export interface AliasRequestDTO {
   email: string;

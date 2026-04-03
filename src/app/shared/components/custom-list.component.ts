@@ -128,7 +128,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
             >
               <button
                 mat-icon-button
-                class="group !w-8 !h-8 !leading-none mr-3"
+                class="group !w-8 !h-8 !leading-none mr-2"
                 matTooltip="Editar"
                 (click)="onEdit.emit(element)"
               >

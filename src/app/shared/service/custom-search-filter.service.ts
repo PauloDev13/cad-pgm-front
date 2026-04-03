@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
-import { PageResponse } from '../../core/models/pagination.model';
+import { PageResponse } from '../model/pagination.model';
 
 @Injectable({
   providedIn: 'root',

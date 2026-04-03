@@ -8,15 +8,15 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { CadFormComponent } from '../form/cad-form.component';
+import { CadFormComponent } from '../servidor-form/cad-form.component';
 import { DominioService } from '../../../core/services/dominio.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
-import { PageResponse } from '../../../core/models/pagination.model';
-import { ToastService } from '../../../core/services/toast.service';
+import { PageResponse } from '../../../shared/model/pagination.model';
+import { ToastService } from '../../../shared/service/toast.service';
 import { CustomDeleteService } from '../../../shared/service/custom-delete.service';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, finalize, Subject } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
@@ -186,7 +186,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
                 mat-icon-button
                 (click)="openForm(s)"
                 matTooltip="Editar"
-                class="group !w-8 !h-8 !leading-none"
+                class="group !w-8 !h-8 !leading-none mr-2"
               >
                 <mat-icon
                   class="!text-blue-600 transition-transform duration-200
@@ -318,21 +318,26 @@ export default class ServidorListComponent implements OnInit {
       const nome = tipo === 'NOME' && termo ? termo : undefined;
 
       // Chama o NOVO ENDPOINT no Service (searchFilter)
-      this.servidorService.searchFilter(page, size, statusId, cpf, matricula, nome).subscribe({
-        next: (pageData) => {
-          this.setPageData(pageData);
-          // this.totalElements.set(pageData.page.totalElements);
-        },
-        error: () => this.toastService.error('Erro ao filtrar dados'),
-        complete: () => this.isLoading.set(false),
-      });
+      this.servidorService
+        .searchFilter(page, size, statusId, cpf, matricula, nome)
+        .pipe(finalize(() => this.isLoading.set(false)))
+        .subscribe({
+          next: (pageData) => {
+            this.setPageData(pageData);
+            // this.totalElements.set(pageData.page.totalElements);
+          },
+          error: () => this.toastService.error('Erro ao filtrar dados'),
+        });
     } else {
       // Chama o ENDPOINT ORIGINAL (findAll) - Listagem limpa
-      this.servidorService.findAll(page, size).subscribe({
-        next: (pageData) => this.setPageData(pageData),
-        error: () => this.toastService.error('Erro ao carregar dados'),
-        complete: () => this.isLoading.set(false),
-      });
+      this.servidorService
+        .findAll(page, size)
+        .pipe(finalize(() => this.isLoading.set(false)))
+        .subscribe({
+          next: (pageData) => this.setPageData(pageData),
+          error: () => this.toastService.error('Erro ao carregar dados'),
+          complete: () => this.isLoading.set(false),
+        });
     }
   }
 
