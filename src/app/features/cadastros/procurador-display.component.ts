@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
-import { SetorService } from '../../core/services/setor.service';
-import { SetorRequestDTO, SetorResponseDTO } from '../../core/models/setor.model';
 import { CustomListComponent } from '../../shared/components/custom-list.component';
+import { ProcuradorRequestDTO, ProcuradorResponseDTO } from '../../core/models/procurador.model';
+import { ProcuradorService } from '../../core/services/procurador.service';
 import { BaseGenericComponent } from '../../shared/components/generic/base-generic.component';
 import { ICrudGeneric } from '../../core/models/generic/crud-generic.model';
 
 @Component({
-  selector: 'app-setor-display',
+  selector: 'app-procurador-display',
   imports: [CustomListComponent],
   standalone: true,
   template: `
@@ -24,28 +24,28 @@ import { ICrudGeneric } from '../../core/models/generic/crud-generic.model';
     />
   `,
 })
-export default class SetorDisplayComponent extends BaseGenericComponent<SetorResponseDTO> {
+export default class ProcuradorDisplayComponent extends BaseGenericComponent<ProcuradorResponseDTO> {
   // Injeções
-  private readonly setorService = inject(SetorService);
+  private readonly procuradorService = inject(ProcuradorService);
 
   // Implementação dos métodos obrigários herdados do pai
-  get entityService(): ICrudGeneric<SetorResponseDTO> {
-    return this.setorService;
+  get entityService(): ICrudGeneric<ProcuradorResponseDTO> {
+    return this.procuradorService;
   }
 
   get entityTitle(): string {
-    return 'Setor';
+    return 'Procurador';
   }
 
   get inputLabel(): string {
-    return 'Setor';
+    return 'Nome';
   }
 
-  buildPayload(value: string): SetorRequestDTO {
+  buildPayload(value: string): ProcuradorRequestDTO {
     return { nome: value };
   }
 
-  getInputValue(item: SetorResponseDTO): string {
+  getInputValue(item: ProcuradorResponseDTO): string {
     return item.nome;
   }
 }

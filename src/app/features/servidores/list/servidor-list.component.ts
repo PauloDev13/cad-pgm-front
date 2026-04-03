@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { ServidorService } from '../../../core/services/servidor.service';
 import { BaseEntityDTO, ServidorResponseDTO } from '../../../core/models/servidor.model';
 import { MatDialog } from '@angular/material/dialog';
@@ -17,12 +17,14 @@ import { PageResponse } from '../../../core/models/pagination.model';
 import { ToastService } from '../../../core/services/toast.service';
 import { CustomDeleteService } from '../../../shared/service/custom-delete.service';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-servidor-list',
   standalone: true,
   template: `
-    <div class="p-6 max-w-7xl mx-auto">
+    <div class="bg-gray-50 shadow rounded-2xl border border-gray-200 p-4 md:p-6  mx-auto mt-4">
       <div class="flex justify-between items-center mb-6">
         <div>
           <h1 class="text-2xl font-bold text-gray-800">Gestão de Servidores</h1>
@@ -44,7 +46,7 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
       <div
         class="flex flex-col md:flex-row justify-between items-end gap-4 mb-6
-        bg-gray-100 p-4 rounded-lg shadow-sm shadow-gray-500 border border-gray-100"
+        bg-gray-50 p-4 rounded-lg shadow-sm shadow-gray-300 border border-gray-300"
       >
         <div class="w-full md:w-64 bg-white">
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -64,10 +66,7 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
         <div class="flex flex-col md:flex-row gap-2 flex-1 w-full md:justify-end bg-white">
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-32">
             <mat-label>Filtrar por Nome/CPF/Matrícula</mat-label>
-            <mat-select
-              [value]="searchType()"
-              (selectionChange)="searchType.set($event.value); searchTerm.set('')"
-            >
+            <mat-select [value]="searchType()" (selectionChange)="onSearchTypeChange($event.value)">
               <mat-option value="NOME">NOME</mat-option>
               <mat-option value="CPF">CPF</mat-option>
               <mat-option value="MATRICULA">MATRÍCULA</mat-option>
@@ -97,7 +96,18 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
         </div>
       </div>
 
-      <div class="bg-black rounded-lg drop-shadow-md overflow-hidden">
+      <div class="border border-gray-300 rounded-lg drop-shadow-md overflow-hidden">
+        @if (isLoading()) {
+          <div
+            class="absolute inset-0 z-50 flex flex-col items-center
+                      justify-center bg-white/80 backdrop-blur-sm"
+          >
+            <mat-spinner diameter="50" color="primary"></mat-spinner>
+            <span class="mt-4 text-sm font-semibold text-blue-600 tracking-wider animate-pulse">
+              CARREGANDO...
+            </span>
+          </div>
+        }
         <table mat-table [dataSource]="servidores()" class="w-full">
           <ng-container matColumnDef="matricula">
             <th
@@ -205,7 +215,7 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
           <tr
             mat-header-row
             *matHeaderRowDef="displayedColumns"
-            class="!min-h-[40px] !h-[40px] !bg-gray-100 border-b-2 border-gray-300"
+            class="!min-h-[40px] !h-[40px] !bg-gray-50 border-b-2 border-gray-300"
           ></tr>
           <tr
             mat-row
@@ -220,7 +230,7 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
               class="mat-cell p-4 text-center text-red-800 text-xl"
               [colSpan]="displayedColumns.length"
             >
-              {{ isLoading() ? 'Carregando servidores...' : 'Nenhum servidor encontrado.' }}
+              {{ 'Nenhum servidor encontrado.' }}
             </td>
           </tr>
         </table>
@@ -229,7 +239,7 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
           [length]="totalElements()"
           [pageSize]="pageSize()"
           [pageIndex]="currentPage()"
-          [pageSizeOptions]="[3, 10, 25, 100]"
+          [pageSizeOptions]="[10, 15, 20]"
           (page)="onPageChange($event)"
           aria-label="Selecione a página"
         >
@@ -249,13 +259,14 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
     MatInputModule,
     MatIconModule,
     MatButtonModule,
+    MatProgressSpinnerModule,
   ],
 })
 export default class ServidorListComponent implements OnInit {
   //Signals para Estado
   servidores = signal<ServidorResponseDTO[]>([]);
   totalElements = signal<number>(0);
-  pageSize = signal<number>(6);
+  pageSize = signal<number>(10);
   currentPage = signal<number>(0);
   isLoading = signal<boolean>(false);
   displayedColumns: string[] = ['matricula', 'nome', 'email', 'setor', 'cargo', 'acoes'];
@@ -270,6 +281,8 @@ export default class ServidorListComponent implements OnInit {
 
   //O funil de eventos de digitação
   private searchSubject = new Subject<string>();
+  // O Angular nos dá uma referência da destruição deste componente
+  private destroyRef = inject(DestroyRef);
 
   // Injeções
   private readonly servidorService = inject(ServidorService);
@@ -378,8 +391,18 @@ export default class ServidorListComponent implements OnInit {
     // Joga o valor digitado no "funil" do RxJS.
     // O subscribe ali em cima vai decidir quando disparar a busca.
     this.searchSubject.next(value);
+  }
 
-    this.searchTerm.set(value);
+  // É chamado quando o usuário troca entre Nome, CPF ou Matrícula
+  onSearchTypeChange(newType: 'CPF' | 'MATRICULA' | 'NOME') {
+    this.searchType.set(newType);
+    this.searchTerm.set(''); // Limpa a memória oficial
+
+    // Esvazia o "funil" do RxJS para garantir que nenhuma busca fantasma aconteça
+    this.searchSubject.next('');
+
+    this.currentPage.set(0); // Volta pra página 1
+    this.loadData(); //Recarrega a tabela mostrando todos os registros novamente!
   }
 
   //  NOVO MÉTODO PARA BUSCA DINÂMICA
@@ -388,6 +411,7 @@ export default class ServidorListComponent implements OnInit {
       .pipe(
         debounceTime(500), // Espera o usuário parar de digitar por 500ms
         distinctUntilChanged(), // Só continua se a palavra final for diferente da última busca
+        takeUntilDestroyed(this.destroyRef), // Dizemos pro fluxo morrer com o componente
       )
       .subscribe((termoDigitado) => {
         // Se o usuário apagou tudo (Cenário 1)

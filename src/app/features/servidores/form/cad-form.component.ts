@@ -25,26 +25,23 @@ import {
 import { firstValueFrom } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DominioService } from '../../../core/services/dominio.service';
-import { AutocompleteComponent } from '../../../shared/components/autocomplete.component/autocomplete.component';
+import { AutocompleteComponent } from '../../../shared/components/autocomplete.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { TestSelectComponent } from '../../../shared/components/test-select/test-select.component';
+import { TestSelectComponent } from '../../../shared/components/test-select.component';
 import { ToastService } from '../../../core/services/toast.service';
 import {
   PermissoesDialogComponent,
   PermissoesDialogData,
-} from '../../../shared/components/permissoes-dialog.component/permissoes-dialog.component';
+} from '../../../shared/components/permissoes-dialog.component';
 import { MatIconModule } from '@angular/material/icon';
 import { CustomValidators } from '../../../shared/utils/custom-validators';
 import { NgxMaskDirective } from 'ngx-mask';
 
-// export type FormModel = Required<
-//   Omit<ServidorRequestDTO, 'sistemaIds' | 'aliasIds' | 'procuraIds'>
-// >;
 export type FormModel = Required<ServidorRequestDTO>;
 
 @Component({

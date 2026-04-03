@@ -15,7 +15,7 @@ import { FooterComponent } from './footer.component';
 
       <div class="flex flex-1 overflow-hidden">
         <aside
-          class="bg-gray-50 border-r border-gray-300 transition-all shadow-xl
+          class="bg-gray-100 border-r border-gray-300 transition-all shadow-xl
           duration-300 ease-in-out flex flex-col overflow-y-auto overflow-x-hidden"
           [class.w-64]="isSidebarOpen()"
           [class.w-20]="!isSidebarOpen()"
@@ -24,7 +24,7 @@ import { FooterComponent } from './footer.component';
         </aside>
 
         <main class="flex-1 flex flex-col overflow-y-auto transition-all duration-300">
-          <div class="flex-1 p-6 md:p-8">
+          <div class="flex-1 p-4 md:p-6">
             <router-outlet></router-outlet>
           </div>
 

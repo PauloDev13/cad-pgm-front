@@ -3,7 +3,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { FormField } from '@angular/forms/signals';
-import { BaseEntityDTO } from '../../../core/models/servidor.model';
+import { BaseEntityDTO } from '../../core/models/servidor.model';
 
 @Component({
   selector: 'app-test-select',

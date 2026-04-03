@@ -32,10 +32,40 @@ export const routes: Routes = [
         loadComponent: () => import('./features/cadastros/cargo-display.component'),
       },
       {
-        // tela para cadastro, edição e exclusão de cargos
+        // tela para cadastro, edição e exclusão de setores
         path: 'cadastro/setores',
         title: 'Gestão de Setores',
         loadComponent: () => import('./features/cadastros/setor-display.component'),
+      },
+      {
+        // tela para cadastro, edição e exclusão de vínculos
+        path: 'cadastro/vinculos',
+        title: 'Gestão de Vínculos',
+        loadComponent: () => import('./features/cadastros/vinculo-display.component'),
+      },
+      {
+        // tela para cadastro, edição e exclusão status
+        path: 'cadastro/status',
+        title: 'Gestão de Status',
+        loadComponent: () => import('./features/cadastros/status-display.component'),
+      },
+      {
+        // tela para cadastro, edição e exclusão de procuradores
+        path: 'permissoes/procuradores',
+        title: 'Gestão de Procuradores',
+        loadComponent: () => import('./features/cadastros/procurador-display.component'),
+      },
+      {
+        // tela para cadastro, edição e exclusão de sistemas
+        path: 'permissoes/sistemas',
+        title: 'Gestão de Sistemas',
+        loadComponent: () => import('./features/cadastros/sistema-display.component'),
+      },
+      {
+        // tela para cadastro, edição e exclusão de alias
+        path: 'permissoes/alias',
+        title: 'Gestão de Alias',
+        loadComponent: () => import('./features/cadastros/alias-display.component'),
       },
     ],
   },

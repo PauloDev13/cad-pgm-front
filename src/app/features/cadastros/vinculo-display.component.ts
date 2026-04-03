@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
-import { SetorService } from '../../core/services/setor.service';
-import { SetorRequestDTO, SetorResponseDTO } from '../../core/models/setor.model';
 import { CustomListComponent } from '../../shared/components/custom-list.component';
 import { BaseGenericComponent } from '../../shared/components/generic/base-generic.component';
 import { ICrudGeneric } from '../../core/models/generic/crud-generic.model';
+import { VinculoRequestDTO, VinculoResponseDTO } from '../../core/models/vinculo.model';
+import { VinculoService } from '../../core/services/vinculo.service';
 
 @Component({
-  selector: 'app-setor-display',
+  selector: 'app-vinculo-display',
   imports: [CustomListComponent],
   standalone: true,
   template: `
@@ -24,28 +24,28 @@ import { ICrudGeneric } from '../../core/models/generic/crud-generic.model';
     />
   `,
 })
-export default class SetorDisplayComponent extends BaseGenericComponent<SetorResponseDTO> {
+export default class VinculoDisplayComponent extends BaseGenericComponent<VinculoResponseDTO> {
   // Injeções
-  private readonly setorService = inject(SetorService);
+  private readonly vinculoService = inject(VinculoService);
 
-  // Implementação dos métodos obrigários herdados do pai
-  get entityService(): ICrudGeneric<SetorResponseDTO> {
-    return this.setorService;
+  // Implementação dos métodos obrigatórios herdados do pai
+  get entityService(): ICrudGeneric<VinculoResponseDTO> {
+    return this.vinculoService;
   }
 
   get entityTitle(): string {
-    return 'Setor';
+    return 'Vínculo';
   }
 
   get inputLabel(): string {
-    return 'Setor';
+    return 'Vínculo';
   }
 
-  buildPayload(value: string): SetorRequestDTO {
+  buildPayload(value: string): VinculoRequestDTO {
     return { nome: value };
   }
 
-  getInputValue(item: SetorResponseDTO): string {
+  getInputValue(item: VinculoResponseDTO): string {
     return item.nome;
   }
 }

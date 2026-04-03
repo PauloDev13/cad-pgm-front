@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
-import { SetorService } from '../../core/services/setor.service';
-import { SetorRequestDTO, SetorResponseDTO } from '../../core/models/setor.model';
 import { CustomListComponent } from '../../shared/components/custom-list.component';
+import { AliasRequestDTO, AliasResponseDTO } from '../../core/models/alias.model';
+import { AliasService } from '../../core/services/alias.service';
 import { BaseGenericComponent } from '../../shared/components/generic/base-generic.component';
 import { ICrudGeneric } from '../../core/models/generic/crud-generic.model';
 
 @Component({
-  selector: 'app-setor-display',
+  selector: 'app-cargo-display',
   imports: [CustomListComponent],
   standalone: true,
   template: `
@@ -21,31 +21,33 @@ import { ICrudGeneric } from '../../core/models/generic/crud-generic.model';
       (onDelete)="delete($event)"
       (onPageChange)="handlePageEvent($event)"
       (onSearch)="handleSearch($event)"
+      mainColumnLabel="E-mail"
+      mainColumnKey="email"
     />
   `,
 })
-export default class SetorDisplayComponent extends BaseGenericComponent<SetorResponseDTO> {
+export default class AliasDisplayComponent extends BaseGenericComponent<AliasResponseDTO> {
   // Injeções
-  private readonly setorService = inject(SetorService);
+  private readonly aliasService = inject(AliasService);
 
-  // Implementação dos métodos obrigários herdados do pai
-  get entityService(): ICrudGeneric<SetorResponseDTO> {
-    return this.setorService;
+  // Implementação dos métodos obrigatórios herdados do pai
+  get entityService(): ICrudGeneric<AliasResponseDTO> {
+    return this.aliasService;
   }
 
   get entityTitle(): string {
-    return 'Setor';
+    return 'Alias';
   }
 
   get inputLabel(): string {
-    return 'Setor';
+    return 'Email';
   }
 
-  buildPayload(value: string): SetorRequestDTO {
-    return { nome: value };
+  buildPayload(value: string): AliasRequestDTO {
+    return { email: value };
   }
 
-  getInputValue(item: SetorResponseDTO): string {
-    return item.nome;
+  getInputValue(item: AliasResponseDTO): string {
+    return item.email;
   }
 }

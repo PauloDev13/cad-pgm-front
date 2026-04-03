@@ -3,8 +3,8 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { DominioService } from '../../../core/services/dominio.service';
-import { BaseEntityDTO } from '../../../core/models/servidor.model';
+import { DominioService } from '../../core/services/dominio.service';
+import { BaseEntityDTO } from '../../core/models/servidor.model';
 import { MatIconModule } from '@angular/material/icon';
 
 // Interface para os dados que entram e saem do Dialog

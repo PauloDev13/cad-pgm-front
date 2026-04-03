@@ -1,4 +1,4 @@
-import { Component, input, OnInit, output } from '@angular/core';
+import { Component, DestroyRef, inject, input, OnInit, output } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -6,12 +6,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
-import { CargoResponseDTO } from '../../../core/models/cargo.model';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
-  selector: 'app-cargo-custom-list',
+  selector: 'app-custom-list',
   imports: [
     CommonModule,
     MatTableModule,
@@ -21,25 +22,33 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
     MatFormFieldModule,
     MatInputModule,
     MatPaginator,
+    MatProgressSpinnerModule,
   ],
   standalone: true,
   template: `
     <div
-      class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6 max-w-5xl mx-auto mt-4"
+      class="bg-gray-50 shadow rounded-2xl border border-gray-200 p-4 md:p-6 max-w-5xl mx-auto mt-4"
     >
       <div class="mb-6">
         <h2 class="text-2xl font-bold text-gray-800 leading-tight">Gestão de {{ title() }}</h2>
         <p class="text-sm text-gray-500">Gerencie os {{ title() }}s do sistema</p>
       </div>
 
-      <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
-        <mat-form-field appearance="outline" class="w-full md:w-96" subscriptSizing="dynamic">
+      <div
+        class="flex md:flex-row justify-between items-end gap-4 mb-4
+        bg-gray-100 p-3 rounded-lg shadow-sm shadow-gray-300 border border-gray-300"
+      >
+        <mat-form-field
+          appearance="outline"
+          class="bg-white w-full md:w-96"
+          subscriptSizing="dynamic"
+        >
           <mat-icon matPrefix class="text-gray-400 mr-2">search</mat-icon>
           <mat-label>Pesquisar {{ title() | lowercase }}...</mat-label>
           <input
             matInput
             (input)="searchInput($event)"
-            placeholder="Digite pelo menos e letras..."
+            placeholder="Digite pelo menos 3 letras..."
           />
         </mat-form-field>
         <button
@@ -56,7 +65,19 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
         </button>
       </div>
 
-      <div class="overflow-y-auto rounded-xl border border-gray-200" style="max-height: 480px;">
+      <div
+        class="overflow-y-auto shadow-sm shadow-gray-300 rounded-xl border border-gray-200"
+        style="max-height: 500px;"
+      >
+        @if (isLoading()) {
+          <div
+            class="absolute inset-0 z-50 flex flex-col items-center
+                      justify-center bg-white/80 backdrop-blur-sm"
+          >
+            <mat-spinner diameter="50" color="primary"></mat-spinner>
+          </div>
+        }
+
         <table mat-table [dataSource]="data()" class="w-full">
           <ng-container matColumnDef="id">
             <th
@@ -75,20 +96,20 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
             </td>
           </ng-container>
 
-          <ng-container matColumnDef="nome">
+          <ng-container matColumnDef="main">
             <th
               mat-header-cell
               *matHeaderCellDef
               class="!font-semibold text-gray-800 !text-sm !px-3"
             >
-              Nome
+              {{ mainColumnLabel() }}
             </th>
             <td
               mat-cell
               *matCellDef="let element"
               class="!font-medium !text-sm !px-3 text-gray-600"
             >
-              {{ element.nome }}
+              {{ element[mainColumnKey()] }}
             </td>
           </ng-container>
 
@@ -96,7 +117,7 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
             <th
               mat-header-cell
               *matHeaderCellDef
-              class="!text-center !text-sm !px-3 !w-[1%] whitespace-nowrap"
+              class="!text-center !font-semibold !text-sm !px-3 !w-[1%] whitespace-nowrap"
             >
               Ações
             </th>
@@ -107,12 +128,13 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
             >
               <button
                 mat-icon-button
-                class="group !w-8 !h-8 !leading-none"
+                class="group !w-8 !h-8 !leading-none mr-3"
                 matTooltip="Editar"
                 (click)="onEdit.emit(element)"
               >
                 <mat-icon
-                  class="!text-blue-600 transition-transform duration-200 group-hover:!scale-125 !text-[20px]"
+                  class="!text-blue-600 transition-transform duration-200
+                        group-hover:!scale-125 !text-[20px]"
                 >
                   edit
                 </mat-icon>
@@ -125,7 +147,8 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
                 (click)="onDelete.emit(element.id)"
               >
                 <mat-icon
-                  class="!text-red-600 transition-transform duration-200 group-hover:!scale-125 !text-[20px]"
+                  class="!text-red-600 transition-transform duration-200
+                         group-hover:!scale-125 !text-[20px]"
                 >
                   delete
                 </mat-icon>
@@ -154,10 +177,11 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
           </tr>
         </table>
         <mat-paginator
+          class="!bg-gray-100"
           [length]="totalElements()"
           [pageSize]="pageSize()"
           [pageIndex]="currentPage()"
-          [pageSizeOptions]="[6, 10, 25]"
+          [pageSizeOptions]="[10, 15, 20]"
           (page)="pageChange($event)"
           aria-label="Selecione a página"
         >
@@ -168,21 +192,23 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
   styles: ``,
 })
 export class CustomListComponent implements OnInit {
-  // recebe o título e os dados
+  // Inputs Signals de recebimento de dados (título e
   title = input.required<string>();
-  data = input.required<CargoResponseDTO[]>();
+  data = input.required<any[]>();
 
-  // signals de paginação
+  // Novos Inputs para tornar a coluna dinâmica (Com valores padrão para não quebrar o que já existe)
+  mainColumnKey = input<string>('nome'); // Qual atributo ler do objeto? (ex: 'nome', 'descricao')
+  mainColumnLabel = input<string>('Nome'); // Qual o título da coluna? (ex: 'Nome', 'Descrição')
+
+  // Inputs signals de paginação
   totalElements = input.required<number>();
   pageSize = input<number>();
   currentPage = input<number>();
 
+  isLoading = input<boolean>(false);
+
   //Avisa o pai que a página ou o tamanho mudaram
   onPageChange = output<PageEvent>();
-
-  // onSearchInput = output<string>();
-  // realizarPesquisa = output<void>();
-
   // EVENTOS QUE SERÃO DISPARADOS PARA O COMPONENTE PAIi
   onSearch = output<string>();
   // Emitimos vazio, o Pai sabe que é para abrir o Dialog vazio
@@ -192,37 +218,40 @@ export class CustomListComponent implements OnInit {
   // Emitimos o ID para o Pai chamar a API de Delete
   onDelete = output<number>();
 
-  displayedColumns: string[] = ['id', 'nome', 'acoes'];
+  displayedColumns: string[] = ['id', 'main', 'acoes'];
 
   // O Funil do RxJS fica escondido aqui no componente genérico
   private searchSubject = new Subject<string>();
+  // O Angular nos dá uma referência da destruição deste componente
+  private destroyRef = inject(DestroyRef);
 
   searchInput(event: any) {
     let value = (event.target as HTMLInputElement).value;
 
     // Joga o que o usuário digita no funil
     this.searchSubject.next(value);
-
-    // Emite o valor para o pai
-    // this.onSearchInput.emit(value);
   }
-
-  // pesquisar() {
-  //   this.realizarPesquisa.emit();
-  // }
 
   pageChange(pageEvent: PageEvent) {
     this.onPageChange.emit(pageEvent);
   }
 
   ngOnInit(): void {
-    this.searchSubject.pipe(debounceTime(500), distinctUntilChanged()).subscribe((termo) => {
-      const termoLimpo = termo.trim();
+    this.searchSubject
+      .pipe(
+        debounceTime(500),
+        distinctUntilChanged(),
+        // Dizemos pro fluxo morrer com o componente
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((termo) => {
+        //Se existirem, limpa os espaços vazios do conteúdo informado para pesquisa
+        const termoLimpo = termo.trim();
 
-      // Regra de Ouro: Só emite para o Pai se apagou tudo OU se tem 3+ letras
-      if (termoLimpo === '' || termoLimpo.length >= 3) {
-        this.onSearch.emit(termoLimpo);
-      }
-    });
+        // Regra de Ouro: Só emite para o Pai se apagou tudo OU se tem 3+ letras
+        if (termoLimpo === '' || termoLimpo.length >= 3) {
+          this.onSearch.emit(termoLimpo);
+        }
+      });
   }
 }

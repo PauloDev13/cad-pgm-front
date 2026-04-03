@@ -15,12 +15,20 @@ export class CustomSearchFilterService {
     page: number,
     size: number,
     endpoint: string,
-    nome?: string,
+    term?: string,
   ): Observable<PageResponse<T>> {
     let params = new HttpParams().set('page', page).set('size', size);
 
-    if (nome && nome.trim() !== '') {
-      params = params.set('nome', nome.trim());
+    if (term && term.trim() !== 'nome') {
+      params = params.set('nome', term.trim());
+    }
+
+    if (term && term.trim() !== 'descricao') {
+      params = params.set('descricao', term.trim());
+    }
+
+    if (term && term.trim() !== 'email') {
+      params = params.set('email', term.trim());
     }
 
     return this.http.get<PageResponse<T>>(`${this.baseUrl}/${endpoint}/searchFilter`, {

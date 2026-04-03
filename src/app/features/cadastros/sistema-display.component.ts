@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
-import { SetorService } from '../../core/services/setor.service';
-import { SetorRequestDTO, SetorResponseDTO } from '../../core/models/setor.model';
 import { CustomListComponent } from '../../shared/components/custom-list.component';
+import { SistemaRequestDTO, SistemaResponseDTO } from '../../core/models/sistema.model';
 import { BaseGenericComponent } from '../../shared/components/generic/base-generic.component';
 import { ICrudGeneric } from '../../core/models/generic/crud-generic.model';
+import { SistemaService } from '../../core/services/sistema.service';
 
 @Component({
-  selector: 'app-setor-display',
+  selector: 'app-sistema-display',
   imports: [CustomListComponent],
   standalone: true,
   template: `
@@ -24,28 +24,28 @@ import { ICrudGeneric } from '../../core/models/generic/crud-generic.model';
     />
   `,
 })
-export default class SetorDisplayComponent extends BaseGenericComponent<SetorResponseDTO> {
+export default class SistemaDisplayComponent extends BaseGenericComponent<SistemaResponseDTO> {
   // Injeções
-  private readonly setorService = inject(SetorService);
+  private readonly sistemaService = inject(SistemaService);
 
-  // Implementação dos métodos obrigários herdados do pai
-  get entityService(): ICrudGeneric<SetorResponseDTO> {
-    return this.setorService;
+  // Implementação dos métodos obrigatórios herdados do pai
+  get entityService(): ICrudGeneric<SistemaResponseDTO> {
+    return this.sistemaService;
   }
 
   get entityTitle(): string {
-    return 'Setor';
+    return 'Sistema';
   }
 
   get inputLabel(): string {
-    return 'Setor';
+    return 'Nome';
   }
 
-  buildPayload(value: string): SetorRequestDTO {
+  buildPayload(value: string): SistemaRequestDTO {
     return { nome: value };
   }
 
-  getInputValue(item: SetorResponseDTO): string {
+  getInputValue(item: SistemaResponseDTO): string {
     return item.nome;
   }
 }

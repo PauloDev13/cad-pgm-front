@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { SetorRequestDTO, SetorResponseDTO } from '../models/setor.model';
+import { CargoRequestDTO, CargoResponseDTO } from '../models/cargo.model';
 import { BaseGenericService } from '../../shared/service/generic/BaseGeneric.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class SetorService extends BaseGenericService<SetorRequestDTO, SetorResponseDTO> {
+export class ProcuradorService extends BaseGenericService<CargoRequestDTO, CargoResponseDTO> {
   protected get endpoint(): string {
-    return 'setores';
+    return 'procuradores';
   }
 }

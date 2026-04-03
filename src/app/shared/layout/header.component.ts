@@ -14,16 +14,33 @@ import { MatDividerModule } from '@angular/material/divider';
       color="primary"
       class="flex justify-between !bg-blue-50 items-center shadow-md z-50 relative h-16"
     >
-      <div class="flex items-center gap-4 group">
-        <button mat-icon-button (click)="toggleSidebar.emit()" aria-label="Toggle menu">
+      <div class="flex items-center">
+        <button
+          mat-icon-button
+          (click)="toggleSidebar.emit()"
+          aria-label="Toggle menu"
+          class="group"
+        >
           <mat-icon
             class="group-hover:!text-blue-700 group-hover:scale-125 transition-all duration-200"
-            >menu
+          >
+            menu
           </mat-icon>
         </button>
-        <span class="text-xl text-blue-700 font-semibold tracking-wide"
-          >Procuradoria Geral do Município</span
+      </div>
+
+      <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-3">
+        <img
+          src="/img/logo.png"
+          alt="Logo Prefeitura Municipal de Natal"
+          class="h-10 w-auto object-contain cursor-pointer drop-shadow-sm hover:scale-105 transition-transform duration-200"
+        />
+        <span
+          class="text-2xl md:text-3xl font-semibold tracking-tight text-center
+                      text-blue-900 leading-tight sm:block"
         >
+          Prefeitura Municipal de Natal
+        </span>
       </div>
 
       <div class="flex items-center gap-2">
