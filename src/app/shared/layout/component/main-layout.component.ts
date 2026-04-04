@@ -10,12 +10,16 @@ import { FooterComponent } from './footer.component';
   standalone: true,
   imports: [RouterModule, HeaderComponent, SidebarComponent, FooterComponent],
   template: `
-    <div class="h-screen flex flex-col overflow-hidden bg-gray-50 text-gray-800">
-      <app-header (toggleSidebar)="toggle()"></app-header>
+    <div
+      class="h-screen print:h-auto flex flex-col overflow-hidden
+            print:overflow-visible bg-gray-50 text-gray-800"
+    >
+      <!-- exibe a barra do cabeçalho-->
+      <app-header class="print:hidden" (toggleSidebar)="toggle()"></app-header>
 
-      <div class="flex flex-1 overflow-hidden">
+      <div class="flex print:block flex-1 overflow-hidden print:overflow-visible">
         <aside
-          class="bg-gray-100 border-r border-gray-300 transition-all shadow-xl
+          class="print:hidden bg-gray-100 border-r border-gray-300 transition-all shadow-xl
           duration-300 ease-in-out flex flex-col overflow-y-auto overflow-x-hidden"
           [class.w-64]="isSidebarOpen()"
           [class.w-20]="!isSidebarOpen()"
@@ -23,12 +27,15 @@ import { FooterComponent } from './footer.component';
           <app-sidebar [isOpen]="isSidebarOpen()"></app-sidebar>
         </aside>
 
-        <main class="flex-1 flex flex-col overflow-hidden transition-all duration-300">
-          <div class="flex-1 overflow-y-auto p-4 md:p-6">
+        <main
+          class="flex-1 print:block flex flex-col overflow-hidden
+                    print:overflow-visible transition-all duration-300"
+        >
+          <div class="flex-1 overflow-y-auto print:overflow-visible p-4 md:p-6 print:p-0">
             <router-outlet></router-outlet>
           </div>
 
-          <app-footer></app-footer>
+          <app-footer class="print:hidden"></app-footer>
         </main>
       </div>
     </div>

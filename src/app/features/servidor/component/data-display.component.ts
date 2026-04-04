@@ -5,7 +5,7 @@ import { Component, input } from '@angular/core';
   imports: [],
   standalone: true,
   template: `
-    <div class="flex flex-col">
+    <div class="flex flex-col print:break-inside-avoid">
       <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">{{ label() }}</span>
       <span class="text-base text-gray-800 font-medium">{{ fieldData() || 'Não informado' }}</span>
     </div>

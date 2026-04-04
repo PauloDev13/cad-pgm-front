@@ -28,7 +28,9 @@ import { DataInfoComponent } from '../component/data-info.component';
   standalone: true,
   template: `
     <div
-      class="max-w-7xl mx-auto mt-4 p-4 md:p-6 bg-gray-50 shadow rounded-2xl border border-gray-200"
+      class="max-w-7xl mx-auto mt-4 print:t-0 p-4 md:p-4 print:p-0
+      bg-gray-50 print:bg-white shadow print:shadow-none rounded-2xl
+      print:rounded-none border border-gray-200 print:border-none"
     >
       <div class="flex justify-between items-center mb-6">
         <div class="flex items-center gap-3">
@@ -36,7 +38,7 @@ import { DataInfoComponent } from '../component/data-info.component';
             mat-icon-button
             (click)="goBack()"
             matTooltip="Voltar"
-            class="!bg-blue-600 border border-gray-300 drop-shadow-sm
+            class="print:!hidden !bg-blue-600 border border-gray-300 drop-shadow-sm
                    transition-transform duration-500 hover:scale-105"
           >
             <mat-icon class="!text-white">arrow_back</mat-icon>
@@ -46,13 +48,27 @@ import { DataInfoComponent } from '../component/data-info.component';
             <p class="text-sm text-gray-600">Visualização completa dos dados</p>
           </div>
         </div>
+        <button
+          mat-flat-button
+          (click)="imprimir()"
+          class="!bg-blue-600 text-white print:!hidden transition-transform hover:scale-105"
+        >
+          <mat-icon>print</mat-icon>
+          Imprimir / PDF
+        </button>
       </div>
+
+      <!-- Sessão Dados Pessoais-->
+      <mat-divider class="print:!my-2"></mat-divider>
 
       <app-loading [isLoading]="isLoading()" />
 
       @if (!isLoading() && servidor(); as s) {
-        <div class="bg-gray-50 rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div class="p-6">
+        <div
+          class="bg-gray-50 print:bg-white rounded-xl border print:border-none border-gray-200
+                shadow-sm print:shadow-none overflow-hidden print:overflow-visible"
+        >
+          <div class="p-4 print:p-0 print:break-inside-avoid">
             <h2 class="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
               <mat-icon>person</mat-icon>
               Dados Pessoais
@@ -89,15 +105,17 @@ import { DataInfoComponent } from '../component/data-info.component';
             </div>
           </div>
 
-          <mat-divider></mat-divider>
+          <!-- Sessão Vínculo Funcional-->
+          <mat-divider class="print:!my-2"></mat-divider>
 
-          <div class="p-6 bg-gray-50/50">
+          <div class="p-4 bg-gray-50/50 print:bg-transparent print:p-0 print:break-inside-avoid">
             <h2 class="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
               <mat-icon>work</mat-icon>
               Vínculo Funcional
             </h2>
 
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              <!-- Campo Matrícula-->
               <app-data-display label="Matrícula" [fieldData]="s.matricula" />
 
               <!-- Campo Status-->
@@ -126,9 +144,10 @@ import { DataInfoComponent } from '../component/data-info.component';
             </div>
           </div>
 
-          <mat-divider></mat-divider>
+          <!-- Sessão Permissões e Acessos-->
+          <mat-divider class="print:!my-2"></mat-divider>
 
-          <div class="p-6">
+          <div class="p-4 print:p-0 print:break-inside-avoid">
             <h2 class="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
               <mat-icon>security</mat-icon>
               Permissões e Acessos
@@ -137,8 +156,8 @@ import { DataInfoComponent } from '../component/data-info.component';
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               <!-- Campo Sistemas Acessados-->
               <app-data-info
-                spanClass="px-2 py-1 bg-blue-50 text-blue-700 border
-                          border-blue-200 rounded-md text-xs font-medium"
+                spanClass="px-2 py-1 bg-blue-50 text-blue-700 border border-blue-200
+                          rounded-md text-xs font-medium"
                 label="Acessa os Sistemas"
                 [data]="s.sistemas"
                 emptyMessage="Sistema"
@@ -191,6 +210,10 @@ export default class ServidorDetalhesPage {
 
   goBack() {
     this.location.back(); // Retorna para a página anterior (a tabela) no histórico do navegador
+  }
+
+  imprimir() {
+    window.print();
   }
 
   protected cssStatus(descricao: string | undefined): string {

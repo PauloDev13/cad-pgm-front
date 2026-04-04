@@ -68,7 +68,7 @@ import { LoadingComponent } from '../loading.component/loading.component';
       </div>
 
       <div
-        class="overflow-y-auto shadow-sm shadow-gray-300 rounded-xl border border-gray-200"
+        class="relative overflow-y-auto shadow-sm shadow-gray-300 rounded-xl border border-gray-200"
         style="max-height: 500px;"
       >
         <!-- Chama o componente de loading-->

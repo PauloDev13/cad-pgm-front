@@ -6,7 +6,7 @@ import { BaseEntityDTO } from '../models/servidor.model';
   imports: [],
   standalone: true,
   template: `
-    <div class="flex flex-col">
+    <div class="flex flex-col print:break-inside-avoid">
       <span class="text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">
         {{ label() }}
       </span>

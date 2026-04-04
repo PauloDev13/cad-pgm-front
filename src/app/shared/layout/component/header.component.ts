@@ -12,7 +12,7 @@ import { MatDividerModule } from '@angular/material/divider';
   template: `
     <mat-toolbar
       color="primary"
-      class="flex justify-between !bg-blue-50 items-center shadow-md z-50 relative h-16"
+      class="flex justify-between !bg-gray-50 items-center shadow-sm z-50 relative h-16"
     >
       <div class="flex items-center">
         <button
