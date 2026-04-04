@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { MainLayoutComponent } from './shared/layout/main-layout.component';
+import { MainLayoutComponent } from './shared/layout/component/main-layout.component';
 
 export const routes: Routes = [
   {
@@ -17,55 +17,55 @@ export const routes: Routes = [
       {
         path: 'home',
         title: 'Início | Gestão de Servidores PGM Natal',
-        loadComponent: () => import('./features/home/home.component'),
+        loadComponent: () => import('./features/home/pages/home.page'),
       },
       {
         // A sua tela já existente, intacta!
         path: 'servidores',
         title: 'Gestão de Servidores',
-        loadComponent: () => import('./features/cadastros/servidor-list/servidor-list.component'),
+        loadComponent: () => import('./features/servidor/pages/servidor-list.page'),
       },
       {
         // tela para cadastro, edição e exclusão de cargos
         path: 'cadastro/cargos',
         title: 'Gestão de Cargos',
-        loadComponent: () => import('./features/cadastros/cargo-display.component'),
+        loadComponent: () => import('./features/cargo/pages/cargo-display.page'),
       },
       {
         // tela para cadastro, edição e exclusão de setores
         path: 'cadastro/setores',
         title: 'Gestão de Setores',
-        loadComponent: () => import('./features/cadastros/setor-display.component'),
+        loadComponent: () => import('./features/setor/pages/setor-display.page'),
       },
       {
         // tela para cadastro, edição e exclusão de vínculos
         path: 'cadastro/vinculos',
         title: 'Gestão de Vínculos',
-        loadComponent: () => import('./features/cadastros/vinculo-display.component'),
+        loadComponent: () => import('./features/vinculo/pages/vinculo-display.page'),
       },
       {
         // tela para cadastro, edição e exclusão status
         path: 'cadastro/status',
         title: 'Gestão de Status',
-        loadComponent: () => import('./features/cadastros/status-display.component'),
+        loadComponent: () => import('./features/status/pages/status-display.page'),
       },
       {
         // tela para cadastro, edição e exclusão de procuradores
         path: 'permissoes/procuradores',
         title: 'Gestão de Procuradores',
-        loadComponent: () => import('./features/cadastros/procurador-display.component'),
+        loadComponent: () => import('./features/procurador/pages/procurador-display.page'),
       },
       {
         // tela para cadastro, edição e exclusão de sistemas
         path: 'permissoes/sistemas',
         title: 'Gestão de Sistemas',
-        loadComponent: () => import('./features/cadastros/sistema-display.component'),
+        loadComponent: () => import('./features/sistema/pages/sistema-display.page'),
       },
       {
         // tela para cadastro, edição e exclusão de alias
         path: 'permissoes/alias',
         title: 'Gestão de Alias',
-        loadComponent: () => import('./features/cadastros/alias-display.component'),
+        loadComponent: () => import('./features/alias/pages/alias-display.page'),
       },
     ],
   },
