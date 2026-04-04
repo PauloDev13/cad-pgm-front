@@ -67,6 +67,12 @@ export const routes: Routes = [
         title: 'Gestão de Alias',
         loadComponent: () => import('./features/alias/pages/alias-display.page'),
       },
+      {
+        // tela para visualização de detalhes do servidor
+        path: 'servidores/detalhes/:id',
+        title: 'Detalhes do servidor',
+        loadComponent: () => import('./features/servidor/pages/servidor-detalhes.page'),
+      },
     ],
   },
 

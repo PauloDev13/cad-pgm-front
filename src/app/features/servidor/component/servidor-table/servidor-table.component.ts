@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -8,6 +8,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ServidorResponseDTO } from '../../models/servidor.model';
 import { LoadingComponent } from '../../../../shared/components/loading.component/loading.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-servidor-table',
@@ -92,12 +93,26 @@ import { LoadingComponent } from '../../../../shared/components/loading.componen
           <td mat-cell *matCellDef="let s" class="!text-sm !px-3 text-gray-600 whitespace-nowrap">
             <button
               mat-icon-button
+              (click)="visualizarServidor(s.id)"
+              matTooltip="Exibir detalhes"
+              class="group !w-8 !h-8 !leading-none mr-2"
+            >
+              <mat-icon
+                class="!text-gray-600 transition-transform duration-200
+                group-hover:!text-gray-900 group-hover:!scale-125 !text-[20px]"
+              >
+                visibility
+              </mat-icon>
+            </button>
+            <button
+              mat-icon-button
               (click)="edit.emit(s)"
               matTooltip="Editar"
               class="group !w-8 !h-8 !leading-none mr-2"
             >
               <mat-icon
-                class="!text-blue-600 transition-transform duration-200 group-hover:!scale-125 !text-[20px]"
+                class="!text-blue-600 transition-transform duration-200
+                group-hover:!text-blue-900 group-hover:!scale-125 !text-[20px]"
               >
                 edit
               </mat-icon>
@@ -109,7 +124,8 @@ import { LoadingComponent } from '../../../../shared/components/loading.componen
               class="group !w-8 !h-8 !leading-none"
             >
               <mat-icon
-                class="!text-red-600 transition-transform duration-200 group-hover:!scale-125 !text-[20px]"
+                class="!text-red-600 transition-transform duration-200
+                group-hover:!text-red-900 group-hover:!scale-125 !text-[20px]"
               >
                 delete
               </mat-icon>
@@ -149,7 +165,6 @@ import { LoadingComponent } from '../../../../shared/components/loading.componen
       </mat-paginator>
     </div>
   `,
-  styles: ``,
 })
 export class ServidorTableComponent {
   // INPUTS (Dados que vêm do Pai)
@@ -158,12 +173,16 @@ export class ServidorTableComponent {
   totalElements = input.required<number>();
   pageSize = input.required<number>();
   currentPage = input.required<number>();
-
   // OUTPUTS (Eventos que avisam o Pai)
   edit = output<ServidorResponseDTO>();
   delete = output<number>();
   pageChange = output<PageEvent>();
-
   // Estado interno (Só pertence à tabela, o Pai não precisa saber disso)
   displayedColumns: string[] = ['matricula', 'nome', 'email', 'setor', 'cargo', 'acoes'];
+  // injete o router no ServidorListComponent ou ServidorTableComponent
+  private readonly router = inject(Router);
+
+  visualizarServidor(id: number) {
+    this.router.navigate(['/servidores/detalhes', id]).then();
+  }
 }
