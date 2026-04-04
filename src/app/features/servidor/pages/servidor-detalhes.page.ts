@@ -24,7 +24,7 @@ import { LoadingComponent } from '../../../shared/components/loading.component/l
   standalone: true,
   template: `
     <div
-      class="max-w-5xl mx-auto mt-4 p-4 md:p-6 bg-gray-50 shadow rounded-2xl border border-gray-200"
+      class="max-w-7xl mx-auto mt-4 p-4 md:p-6 bg-gray-50 shadow rounded-2xl border border-gray-200"
     >
       <div class="flex justify-between items-center mb-6">
         <div class="flex items-center gap-3">
@@ -38,7 +38,7 @@ import { LoadingComponent } from '../../../shared/components/loading.component/l
           </button>
           <div>
             <h1 class="text-2xl font-bold text-gray-800 leading-tight">Detalhes do Servidor</h1>
-            <p class="text-sm text-gray-500">Visualização completa dos dados</p>
+            <p class="text-sm text-gray-600">Visualização completa dos dados</p>
           </div>
         </div>
       </div>
@@ -46,60 +46,50 @@ import { LoadingComponent } from '../../../shared/components/loading.component/l
       <app-loading [isLoading]="isLoading()" />
 
       @if (!isLoading() && servidor(); as s) {
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-gray-50 rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           <div class="p-6">
             <h2 class="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
               <mat-icon>person</mat-icon>
               Dados Pessoais
             </h2>
-
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              <div class="flex flex-col">
-                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider"
+              <div class="flex flex-col col-span-2 mb-6">
+                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider"
                   >Nome Completo</span
                 >
                 <span class="text-base text-gray-800 font-medium">{{ s.nome }}</span>
               </div>
               <div class="flex flex-col">
-                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                  >CPF</span
-                >
+                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">CPF</span>
                 <span class="text-base text-gray-800 font-medium"
                   >{{ s.cpf | slice: 0 : 3 }} .***.***-{{ s.cpf | slice: 9 : 11 }}</span
                 >
               </div>
               <div class="flex flex-col">
-                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider"
                   >Data de Nascimento</span
                 >
-                <span class="text-base text-gray-800 font-medium">{{
-                  s.dataNascimento || 'Não informada'
-                }}</span>
-              </div>
-              <div class="flex flex-col">
-                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                  >Gênero</span
+                <span class="text-base text-gray-800 font-medium">
+                  {{ (s.dataNascimento | date: 'dd/MM/yyyy') || 'Não informado' }}</span
                 >
-                <span class="text-base text-gray-800 font-medium">{{
-                  s.genero || 'Não informado'
-                }}</span>
               </div>
-              <div class="flex flex-col md:col-span-2">
-                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                  >Filiação</span
-                >
-                <span class="text-base text-gray-800 font-medium">{{
-                  s.filiacao || 'Não informada'
-                }}</span>
-              </div>
-              <div class="flex flex-col">
-                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider"
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              <div class="flex flex-col col-span-2">
+                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider"
                   >E-mail Pessoal</span
                 >
                 <span class="text-base text-gray-800 font-medium">{{ s.emailPessoal }}</span>
               </div>
               <div class="flex flex-col">
-                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">Gênero</span>
+                <span class="text-base text-gray-800 font-medium">{{
+                  s.genero || 'Não informado'
+                }}</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider"
                   >Telefone</span
                 >
                 <span class="text-base text-gray-800 font-medium">{{
@@ -107,7 +97,16 @@ import { LoadingComponent } from '../../../shared/components/loading.component/l
                 }}</span>
               </div>
               <div class="flex flex-col md:col-span-4">
-                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider"
+                  >Filiação</span
+                >
+                <span class="text-base text-gray-800 font-medium">{{
+                  s.filiacao || 'Não informada'
+                }}</span>
+              </div>
+
+              <div class="flex flex-col md:col-span-4">
+                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider"
                   >Endereço</span
                 >
                 <span class="text-base text-gray-800 font-medium">{{
@@ -127,30 +126,24 @@ import { LoadingComponent } from '../../../shared/components/loading.component/l
 
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
               <div class="flex flex-col">
-                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider"
                   >Matrícula</span
                 >
                 <span class="text-base text-gray-800 font-medium">{{ s.matricula }}</span>
               </div>
               <div class="flex flex-col">
-                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                  >Status</span
-                >
+                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">Status</span>
                 <span class="inline-flex items-center mt-1">
                   <span
                     class="px-3 py-1 rounded-full text-xs font-bold"
-                    [ngClass]="
-                      s.status?.descricao === 'ATIVO'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-red-100 text-red-700'
-                    "
+                    [ngClass]="cssStatus(s.status?.descricao!)"
                   >
                     {{ s.status?.descricao || 'INDEFINIDO' }}
                   </span>
                 </span>
               </div>
               <div class="flex flex-col">
-                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider"
                   >Vínculo</span
                 >
                 <span class="text-base text-gray-800 font-medium">{{
@@ -158,19 +151,15 @@ import { LoadingComponent } from '../../../shared/components/loading.component/l
                 }}</span>
               </div>
               <div class="flex flex-col">
-                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                  >Cargo</span
-                >
+                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">Cargo</span>
                 <span class="text-base text-gray-800 font-medium">{{ s.cargo?.nome || '-' }}</span>
               </div>
               <div class="flex flex-col">
-                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                  >Setor</span
-                >
+                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">Setor</span>
                 <span class="text-base text-gray-800 font-medium">{{ s.setor?.nome || '-' }}</span>
               </div>
               <div class="flex flex-col">
-                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider"
                   >Lotação</span
                 >
                 <span class="text-base text-gray-800 font-medium">{{
@@ -178,7 +167,7 @@ import { LoadingComponent } from '../../../shared/components/loading.component/l
                 }}</span>
               </div>
               <div class="flex flex-col md:col-span-2">
-                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider"
                   >E-mail Institucional</span
                 >
                 <span class="text-base text-gray-800 font-medium">{{
@@ -198,18 +187,18 @@ import { LoadingComponent } from '../../../shared/components/loading.component/l
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div class="flex flex-col">
-                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2"
+                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider mb-2"
                   >Sistemas</span
                 >
                 <div class="flex flex-wrap gap-2">
                   @for (sistema of s.sistemas; track sistema.id) {
                     <span
-                      class="px-2 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-md text-xs font-medium"
+                      class="px-2 py-1 bg-blue-50 text-blue-800 border border-blue-200 rounded-md text-xs font-medium"
                     >
                       {{ sistema.nome }}
                     </span>
                   } @empty {
-                    <span class="text-sm text-gray-500 italic">Nenhum sistema vinculado</span>
+                    <span class="text-sm text-gray-600 italic">Nenhum sistema vinculado</span>
                   }
                 </div>
               </div>
@@ -226,7 +215,7 @@ import { LoadingComponent } from '../../../shared/components/loading.component/l
                       {{ alias.email }}
                     </span>
                   } @empty {
-                    <span class="text-sm text-gray-500 italic">Nenhum alias vinculado</span>
+                    <span class="text-sm text-gray-600 italic">Nenhum alias vinculado</span>
                   }
                 </div>
               </div>
@@ -260,6 +249,7 @@ export default class ServidorDetalhesPage {
   // Estado
   servidor = signal<ServidorResponseDTO | null>(null);
   isLoading = signal<boolean>(true);
+
   // Injeções
   private readonly servidorService = inject(ServidorService);
   private readonly toastService = inject(ToastService);
@@ -280,6 +270,22 @@ export default class ServidorDetalhesPage {
 
   voltar() {
     this.location.back(); // Retorna para a página anterior (a tabela) no histórico do navegador
+  }
+
+  protected cssStatus(descricao: string): string {
+    if (descricao.toLowerCase() === 'ativo') {
+      return 'bg-green-700 text-white';
+    }
+    if (descricao.toLowerCase() === 'férias') {
+      return 'bg-blue-700 text-white';
+    }
+    if (descricao.toLowerCase() === 'afastado') {
+      return 'bg-yellow-700 text-white';
+    }
+    if (descricao.toLowerCase() === 'pendente') {
+      return 'bg-red-700 text-white';
+    }
+    return 'bg-gray-700 text-white';
   }
 
   private carregarServidor() {

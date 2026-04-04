@@ -13,6 +13,5 @@ import { Component } from '@angular/core';
       <p class="text-xs mt-1">Desenvolvido pelo Departamento do TI/PGM - Versão 1.0.0</p>
     </footer>
   `,
-  styles: ``,
 })
 export class FooterComponent {}

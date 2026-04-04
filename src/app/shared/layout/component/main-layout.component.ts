@@ -23,8 +23,8 @@ import { FooterComponent } from './footer.component';
           <app-sidebar [isOpen]="isSidebarOpen()"></app-sidebar>
         </aside>
 
-        <main class="flex-1 flex flex-col overflow-y-auto transition-all duration-300">
-          <div class="flex-1 p-4 md:p-6">
+        <main class="flex-1 flex flex-col overflow-hidden transition-all duration-300">
+          <div class="flex-1 overflow-y-auto p-4 md:p-6">
             <router-outlet></router-outlet>
           </div>
 
