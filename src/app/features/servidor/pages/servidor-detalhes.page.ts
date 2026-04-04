@@ -9,6 +9,8 @@ import { ServidorService } from '../services/servidor.service';
 import { ToastService } from '../../../shared/service/toast.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LoadingComponent } from '../../../shared/components/loading.component/loading.component';
+import { DataDisplayComponent } from '../component/data-display.component';
+import { DataInfoComponent } from '../component/data-info.component';
 
 @Component({
   selector: 'app-servidor-detalhes',
@@ -20,6 +22,8 @@ import { LoadingComponent } from '../../../shared/components/loading.component/l
     MatProgressSpinnerModule,
     MatDividerModule,
     LoadingComponent,
+    DataDisplayComponent,
+    DataInfoComponent,
   ],
   standalone: true,
   template: `
@@ -30,11 +34,12 @@ import { LoadingComponent } from '../../../shared/components/loading.component/l
         <div class="flex items-center gap-3">
           <button
             mat-icon-button
-            (click)="voltar()"
+            (click)="goBack()"
             matTooltip="Voltar"
-            class="!bg-white border border-gray-300 drop-shadow-sm transition-transform hover:scale-105"
+            class="!bg-blue-600 border border-gray-300 drop-shadow-sm
+                   transition-transform duration-500 hover:scale-105"
           >
-            <mat-icon class="text-gray-600">arrow_back</mat-icon>
+            <mat-icon class="!text-white">arrow_back</mat-icon>
           </button>
           <div>
             <h1 class="text-2xl font-bold text-gray-800 leading-tight">Detalhes do Servidor</h1>
@@ -53,66 +58,34 @@ import { LoadingComponent } from '../../../shared/components/loading.component/l
               Dados Pessoais
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              <div class="flex flex-col col-span-2 mb-6">
-                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider"
-                  >Nome Completo</span
-                >
-                <span class="text-base text-gray-800 font-medium">{{ s.nome }}</span>
-              </div>
-              <div class="flex flex-col">
-                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">CPF</span>
-                <span class="text-base text-gray-800 font-medium"
-                  >{{ s.cpf | slice: 0 : 3 }} .***.***-{{ s.cpf | slice: 9 : 11 }}</span
-                >
-              </div>
-              <div class="flex flex-col">
-                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider"
-                  >Data de Nascimento</span
-                >
-                <span class="text-base text-gray-800 font-medium">
-                  {{ (s.dataNascimento | date: 'dd/MM/yyyy') || 'Não informado' }}</span
-                >
-              </div>
+              <!-- Campo Nome-->
+              <app-data-display class="col-span-2 mb-6" label="Nome" [fieldData]="s.nome" />
+
+              <!-- Campo CPF-->
+              <app-data-display
+                label="CFP"
+                [fieldData]="(s.cpf | slice: 0 : 3) + '.***.***-' + (s.cpf | slice: 9 : 11)"
+              />
+
+              <!-- Campo Data de Nascimento-->
+              <app-data-display
+                label="Data de Nascimento"
+                [fieldData]="s.dataNascimento | date: 'dd/MM/yyyy'"
+              />
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              <div class="flex flex-col col-span-2">
-                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider"
-                  >E-mail Pessoal</span
-                >
-                <span class="text-base text-gray-800 font-medium">{{ s.emailPessoal }}</span>
-              </div>
-              <div class="flex flex-col">
-                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">Gênero</span>
-                <span class="text-base text-gray-800 font-medium">{{
-                  s.genero || 'Não informado'
-                }}</span>
-              </div>
-              <div class="flex flex-col">
-                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider"
-                  >Telefone</span
-                >
-                <span class="text-base text-gray-800 font-medium">{{
-                  s.telefone || 'Não informado'
-                }}</span>
-              </div>
-              <div class="flex flex-col md:col-span-4">
-                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider"
-                  >Filiação</span
-                >
-                <span class="text-base text-gray-800 font-medium">{{
-                  s.filiacao || 'Não informada'
-                }}</span>
-              </div>
-
-              <div class="flex flex-col md:col-span-4">
-                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider"
-                  >Endereço</span
-                >
-                <span class="text-base text-gray-800 font-medium">{{
-                  s.endereco || 'Não informado'
-                }}</span>
-              </div>
+              <!-- Campo E-mail Pessoal-->
+              <app-data-display
+                class="col-span-2"
+                label="E-mail Pessoal"
+                [fieldData]="s.emailPessoal"
+              />
+              <!-- Campos Gênero, Telefone, Filiação e Endereço-->
+              <app-data-display label="Gênero" [fieldData]="s.genero" />
+              <app-data-display label="Telefone" [fieldData]="s.telefone" />
+              <app-data-display class="md:col-span-2" label="Filiação" [fieldData]="s.filiacao" />
+              <app-data-display class="md:col-span-2" label="Endereço" [fieldData]="s.endereco" />
             </div>
           </div>
 
@@ -125,55 +98,31 @@ import { LoadingComponent } from '../../../shared/components/loading.component/l
             </h2>
 
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              <div class="flex flex-col">
-                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider"
-                  >Matrícula</span
-                >
-                <span class="text-base text-gray-800 font-medium">{{ s.matricula }}</span>
-              </div>
+              <app-data-display label="Matrícula" [fieldData]="s.matricula" />
+
+              <!-- Campo Status-->
               <div class="flex flex-col">
                 <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">Status</span>
                 <span class="inline-flex items-center mt-1">
                   <span
                     class="px-3 py-1 rounded-full text-xs font-bold"
-                    [ngClass]="cssStatus(s.status?.descricao!)"
+                    [ngClass]="cssStatus(s.status?.descricao)"
                   >
                     {{ s.status?.descricao || 'INDEFINIDO' }}
                   </span>
                 </span>
               </div>
-              <div class="flex flex-col">
-                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider"
-                  >Vínculo</span
-                >
-                <span class="text-base text-gray-800 font-medium">{{
-                  s.vinculo?.nome || '-'
-                }}</span>
-              </div>
-              <div class="flex flex-col">
-                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">Cargo</span>
-                <span class="text-base text-gray-800 font-medium">{{ s.cargo?.nome || '-' }}</span>
-              </div>
-              <div class="flex flex-col">
-                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">Setor</span>
-                <span class="text-base text-gray-800 font-medium">{{ s.setor?.nome || '-' }}</span>
-              </div>
-              <div class="flex flex-col">
-                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider"
-                  >Lotação</span
-                >
-                <span class="text-base text-gray-800 font-medium">{{
-                  s.lotacao?.nome || '-'
-                }}</span>
-              </div>
-              <div class="flex flex-col md:col-span-2">
-                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider"
-                  >E-mail Institucional</span
-                >
-                <span class="text-base text-gray-800 font-medium">{{
-                  s.emailInstitucional || 'Não informado'
-                }}</span>
-              </div>
+
+              <!-- Campos Vínculo, Cargo, Setor, Lotação e E-mail Institucional-->
+              <app-data-display label="Vínculo" [fieldData]="s.vinculo?.nome" />
+              <app-data-display label="Cargo" [fieldData]="s.cargo?.nome" />
+              <app-data-display label="Setor" [fieldData]="s.setor?.nome" />
+              <app-data-display label="Lotação" [fieldData]="s.lotacao?.nome" />
+              <app-data-display
+                class="md:col-span-2"
+                label="E-mail Institucional"
+                [fieldData]="s.emailInstitucional"
+              />
             </div>
           </div>
 
@@ -186,56 +135,32 @@ import { LoadingComponent } from '../../../shared/components/loading.component/l
             </h2>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div class="flex flex-col">
-                <span class="text-xs font-bold text-gray-600 uppercase tracking-wider mb-2"
-                  >Sistemas</span
-                >
-                <div class="flex flex-wrap gap-2">
-                  @for (sistema of s.sistemas; track sistema.id) {
-                    <span
-                      class="px-2 py-1 bg-blue-50 text-blue-800 border border-blue-200 rounded-md text-xs font-medium"
-                    >
-                      {{ sistema.nome }}
-                    </span>
-                  } @empty {
-                    <span class="text-sm text-gray-600 italic">Nenhum sistema vinculado</span>
-                  }
-                </div>
-              </div>
+              <!-- Campo Sistemas Acessados-->
+              <app-data-info
+                spanClass="px-2 py-1 bg-blue-50 text-blue-700 border
+                          border-blue-200 rounded-md text-xs font-medium"
+                label="Acessa os Sistemas"
+                [data]="s.sistemas"
+                emptyMessage="Sistema"
+              />
 
-              <div class="flex flex-col">
-                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2"
-                  >Aliases de E-mail</span
-                >
-                <div class="flex flex-wrap gap-2">
-                  @for (alias of s.aliases; track alias.id) {
-                    <span
-                      class="px-2 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-md text-xs font-medium"
-                    >
-                      {{ alias.email }}
-                    </span>
-                  } @empty {
-                    <span class="text-sm text-gray-600 italic">Nenhum alias vinculado</span>
-                  }
-                </div>
-              </div>
+              <!-- Campo com lista de aliasses-->
+              <app-data-info
+                spanClass="px-2 py-1 bg-purple-50 text-purple-700 border
+                          border-purple-200 rounded-md text-xs font-medium"
+                label="Aliasses de E-mail"
+                [data]="s.aliases"
+                emptyMessage="Alias"
+              />
 
-              <div class="flex flex-col">
-                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2"
-                  >Procuradores Vinculados</span
-                >
-                <div class="flex flex-wrap gap-2">
-                  @for (proc of s.procuradores; track proc.id) {
-                    <span
-                      class="px-2 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-md text-xs font-medium"
-                    >
-                      {{ proc.nome }}
-                    </span>
-                  } @empty {
-                    <span class="text-sm text-gray-500 italic">Nenhum procurador vinculado</span>
-                  }
-                </div>
-              </div>
+              <!-- Campo Procuradores Vinculados-->
+              <app-data-info
+                spanClass="px-2 py-1 bg-amber-50 text-amber-700 border
+                          border-amber-200 rounded-md text-xs font-medium"
+                label="Procuradores Vinculados"
+                [data]="s.procuradores"
+                emptyMessage="Procurador"
+              />
             </div>
           </div>
         </div>
@@ -259,36 +184,37 @@ export default class ServidorDetalhesPage {
     effect(() => {
       const currentId = this.id;
       if (currentId()) {
-        this.carregarServidor();
+        this.loadServidorList();
       }
     });
   }
 
-  // ngOnInit(): void {
-  //   this.carregarServidor();
-  // }
-
-  voltar() {
+  goBack() {
     this.location.back(); // Retorna para a página anterior (a tabela) no histórico do navegador
   }
 
-  protected cssStatus(descricao: string): string {
-    if (descricao.toLowerCase() === 'ativo') {
-      return 'bg-green-700 text-white';
+  protected cssStatus(descricao: string | undefined): string {
+    if (!descricao) {
+      return 'bg-gray-700 text-white';
     }
-    if (descricao.toLowerCase() === 'férias') {
-      return 'bg-blue-700 text-white';
-    }
-    if (descricao.toLowerCase() === 'afastado') {
-      return 'bg-yellow-700 text-white';
-    }
-    if (descricao.toLowerCase() === 'pendente') {
-      return 'bg-red-700 text-white';
-    }
-    return 'bg-gray-700 text-white';
+
+    // Remove acentos e converte para minúsculo
+    // Exemplo: Transforma "Férias" ou "férias" em "ferias"
+    const statusNormalizado = descricao
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+
+    const mapColors: Record<string, string> = {
+      ativo: 'bg-green-700 text-white',
+      afastado: 'bg-yellow-300 text-black',
+      ferias: 'bg-blue-700 text-white',
+      pendente: 'bg-red-700 text-white',
+    };
+    return mapColors[statusNormalizado] || 'bg-gray-700 text-white';
   }
 
-  private carregarServidor() {
+  private loadServidorList() {
     this.isLoading.set(true);
 
     // Converte o id (string da URL) para número
@@ -302,7 +228,7 @@ export default class ServidorDetalhesPage {
       error: () => {
         this.toastService.error('Erro ao buscar detalhes do servidor.');
         this.isLoading.set(false);
-        this.voltar(); // Volta para a tabela se o ID não existir
+        this.goBack(); // Volta para a tabela se o ID não existir
       },
     });
   }
