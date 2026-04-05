@@ -5,6 +5,10 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
   selector: 'app-loading',
   imports: [MatProgressSpinner],
   standalone: true,
+  // Adicione o host para garantir que a tag do Angular não ocupe espaço:
+  host: {
+    class: 'contents',
+  },
   template: `
     @if (isLoading()) {
       <div
@@ -17,7 +21,6 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
       </div>
     }
   `,
-  styles: ``,
 })
 export class LoadingComponent {
   isLoading = input.required<boolean>();

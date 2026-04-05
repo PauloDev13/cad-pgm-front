@@ -3,6 +3,18 @@ import { MainLayoutComponent } from './shared/layout/component/main-layout.compo
 
 export const routes: Routes = [
   {
+    path: '',
+    redirectTo: 'login',
+    pathMatch: 'full',
+  },
+  {
+    path: '',
+    title: 'Login | Gestão de Servidores PGM Natal',
+    // Ajuste o caminho do import para onde você salvou o LoginComponent
+    loadComponent: () =>
+      import('./core/auth/component/login.component').then((c) => c.LoginComponent),
+  },
+  {
     // A Rota Principal agora carrega o Menu Lateral
     path: '',
     component: MainLayoutComponent,
@@ -11,7 +23,7 @@ export const routes: Routes = [
       {
         // Se acessar localhost:4200 vazio, joga a página inicial
         path: '',
-        redirectTo: 'home',
+        redirectTo: '',
         pathMatch: 'full',
       },
       {
@@ -76,7 +88,12 @@ export const routes: Routes = [
     ],
   },
 
+  // ==========================================
+  // 3. ROTA DE FALLBACK (Qualquer URL inválida)
+  // ==========================================
+
   {
+    // Se o usuário digitar qualquer URL que não exista, é expulso para o login
     path: '**',
     redirectTo: 'home',
   },
