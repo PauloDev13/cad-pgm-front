@@ -1,9 +1,11 @@
-import { Component, output } from '@angular/core';
+import { Component, computed, inject, output } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
+import { AuthService } from '../../../core/auth/services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
@@ -61,7 +63,7 @@ import { MatDividerModule } from '@angular/material/divider';
           <span
             class="hidden md:inline font-medium group-hover:text-blue-700 group-hover:font-semibold"
           >
-            Administrador
+            {{ loggedUserName() }}
           </span>
           <mat-icon class="!text-blue-700"> arrow_drop_down</mat-icon>
         </button>
@@ -76,7 +78,7 @@ import { MatDividerModule } from '@angular/material/divider';
             <span>Configurações</span>
           </button>
           <mat-divider></mat-divider>
-          <button mat-menu-item class="menu-item-header">
+          <button (click)="logout()" mat-menu-item class="menu-item-header">
             <mat-icon>logout</mat-icon>
             <span> Sair do Sistema </span>
           </button>
@@ -89,4 +91,15 @@ import { MatDividerModule } from '@angular/material/divider';
 export class HeaderComponent {
   // Emite o evento de clique para o layout principal
   toggleSidebar = output<void>();
+  private readonly authService = inject(AuthService);
+  // Retorna o usuário logado
+  loggedUserName = computed(() => this.authService.currentUser()?.userName || '');
+  // loggedUserName = computed(() => this.authService.getStoredLoggedUser()?.userName);
+
+  private readonly router = inject(Router);
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['login']).then();
+  }
 }

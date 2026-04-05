@@ -8,7 +8,7 @@ export const routes: Routes = [
     pathMatch: 'full',
   },
   {
-    path: '',
+    path: 'login',
     title: 'Login | Gestão de Servidores PGM Natal',
     // Ajuste o caminho do import para onde você salvou o LoginPage
     loadComponent: () => import('./core/auth/pages/login.page').then((c) => c.LoginPage),
