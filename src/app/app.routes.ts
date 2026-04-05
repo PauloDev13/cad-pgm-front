@@ -10,9 +10,8 @@ export const routes: Routes = [
   {
     path: '',
     title: 'Login | Gestão de Servidores PGM Natal',
-    // Ajuste o caminho do import para onde você salvou o LoginComponent
-    loadComponent: () =>
-      import('./core/auth/component/login.component').then((c) => c.LoginComponent),
+    // Ajuste o caminho do import para onde você salvou o LoginPage
+    loadComponent: () => import('./core/auth/pages/login.page').then((c) => c.LoginPage),
   },
   {
     // A Rota Principal agora carrega o Menu Lateral
