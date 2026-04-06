@@ -32,19 +32,19 @@ import { Router } from '@angular/router';
         </button>
       </div>
 
-      <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-3">
-        <img
-          src="/img/logo.png"
-          alt="Logo Prefeitura Municipal de Natal"
-          class="h-10 w-auto object-contain cursor-pointer drop-shadow-sm hover:scale-105 transition-transform duration-200"
-        />
-        <span
-          class="text-2xl md:text-3xl font-semibold tracking-tight text-center
-                      text-blue-900 leading-tight sm:block"
-        >
-          Prefeitura Municipal de Natal
-        </span>
-      </div>
+      <!--      <div class="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-3">-->
+      <!--        <img-->
+      <!--          src="/img/logo.png"-->
+      <!--          alt="Logo Prefeitura Municipal de Natal"-->
+      <!--          class="h-10 w-auto object-contain cursor-pointer drop-shadow-sm hover:scale-105 transition-transform duration-200"-->
+      <!--        />-->
+      <!--        <span-->
+      <!--          class="text-2xl md:text-3xl font-semibold tracking-tight text-center-->
+      <!--                      text-blue-900 leading-tight sm:block"-->
+      <!--        >-->
+      <!--          Prefeitura Municipal de Natal-->
+      <!--        </span>-->
+      <!--      </div>-->
 
       <div class="flex items-center gap-2">
         <button class="group" mat-icon-button aria-label="Notificações">
