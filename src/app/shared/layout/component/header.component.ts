@@ -1,4 +1,4 @@
-import { Component, computed, inject, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, output } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
   selector: 'app-header',
   imports: [MatToolbarModule, MatButtonModule, MatIconModule, MatMenuModule, MatDividerModule],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <mat-toolbar
       color="primary"

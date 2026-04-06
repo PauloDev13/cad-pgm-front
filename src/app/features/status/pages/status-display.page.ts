@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CustomListComponent } from '../../../shared/components/custom-list/custom-list.component';
 import { BaseGenericComponent } from '../../../shared/components/generic/base-generic.component';
 import { ICrudGeneric } from '../../../shared/model/generic/crud-generic.model';
@@ -9,6 +9,7 @@ import { StatusService } from '../services/status.service';
   selector: 'app-status-display',
   imports: [CustomListComponent],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-custom-list
       [title]="entityTitle"

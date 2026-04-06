@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { SetorService } from '../services/setor.service';
 import { SetorRequestDTO, SetorResponseDTO } from '../models/setor.model';
 import { CustomListComponent } from '../../../shared/components/custom-list/custom-list.component';
@@ -9,6 +9,7 @@ import { ICrudGeneric } from '../../../shared/model/generic/crud-generic.model';
   selector: 'app-setor-display',
   imports: [CustomListComponent],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-custom-list
       [title]="entityTitle"

@@ -1,9 +1,10 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 @Component({
   selector: 'app-data-display',
   imports: [],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col print:break-inside-avoid">
       <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">{{ label() }}</span>

@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { MainLayoutComponent } from './shared/layout/component/main-layout.component';
+import { authGuard, publicGuard, roleGuard } from './core/auth/services/auth.guard';
 
 export const routes: Routes = [
   {
@@ -10,13 +11,14 @@ export const routes: Routes = [
   {
     path: 'login',
     title: 'Login | Gestão de Servidores PGM Natal',
-    // Ajuste o caminho do import para onde você salvou o LoginPage
+    canActivate: [publicGuard], // Protegemos o login aqui!
     loadComponent: () => import('./core/auth/pages/login.page').then((c) => c.LoginPage),
   },
   {
     // A Rota Principal agora carrega o Menu Lateral
     path: '',
     component: MainLayoutComponent,
+    canActivate: [authGuard], // Ninguém passa daqui sem estar logado!
     // Tudo que estiver aqui dentro vai aparecer no <router-outlet> do Menu
     children: [
       {
@@ -40,42 +42,57 @@ export const routes: Routes = [
         // tela para cadastro, edição e exclusão de cargos
         path: 'cadastro/cargos',
         title: 'Gestão de Cargos',
+        // Empilhamos o roleGuard e informamos no 'data' qual o cargo exigido
+        canActivate: [roleGuard],
+        data: { role: 'admin' },
         loadComponent: () => import('./features/cargo/pages/cargo-display.page'),
       },
       {
         // tela para cadastro, edição e exclusão de setores
         path: 'cadastro/setores',
         title: 'Gestão de Setores',
+        canActivate: [roleGuard],
+        data: { role: 'admin' },
         loadComponent: () => import('./features/setor/pages/setor-display.page'),
       },
       {
         // tela para cadastro, edição e exclusão de vínculos
         path: 'cadastro/vinculos',
         title: 'Gestão de Vínculos',
+        canActivate: [roleGuard],
+        data: { role: 'admin' },
         loadComponent: () => import('./features/vinculo/pages/vinculo-display.page'),
       },
       {
         // tela para cadastro, edição e exclusão status
         path: 'cadastro/status',
         title: 'Gestão de Status',
+        canActivate: [roleGuard],
+        data: { role: 'admin' },
         loadComponent: () => import('./features/status/pages/status-display.page'),
       },
       {
         // tela para cadastro, edição e exclusão de procuradores
         path: 'permissoes/procuradores',
         title: 'Gestão de Procuradores',
+        canActivate: [roleGuard],
+        data: { role: 'admin' },
         loadComponent: () => import('./features/procurador/pages/procurador-display.page'),
       },
       {
         // tela para cadastro, edição e exclusão de sistemas
         path: 'permissoes/sistemas',
         title: 'Gestão de Sistemas',
+        canActivate: [roleGuard],
+        data: { role: 'admin' },
         loadComponent: () => import('./features/sistema/pages/sistema-display.page'),
       },
       {
         // tela para cadastro, edição e exclusão de alias
         path: 'permissoes/alias',
         title: 'Gestão de Alias',
+        canActivate: [roleGuard],
+        data: { role: 'admin' },
         loadComponent: () => import('./features/alias/pages/alias-display.page'),
       },
       {

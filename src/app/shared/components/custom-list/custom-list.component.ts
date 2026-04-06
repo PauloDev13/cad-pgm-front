@@ -1,4 +1,12 @@
-import { Component, DestroyRef, inject, input, OnInit, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  input,
+  OnInit,
+  output,
+} from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,6 +35,7 @@ import { LoadingComponent } from '../loading.component/loading.component';
     LoadingComponent,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
       class="bg-gray-50 shadow rounded-2xl border border-gray-200 p-4 md:p-6 max-w-5xl mx-auto mt-4"

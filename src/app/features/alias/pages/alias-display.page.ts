@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CustomListComponent } from '../../../shared/components/custom-list/custom-list.component';
 import { AliasRequestDTO, AliasResponseDTO } from '../models/alias.model';
 import { AliasService } from '../services/alias.service';
@@ -9,6 +9,7 @@ import { ICrudGeneric } from '../../../shared/model/generic/crud-generic.model';
   selector: 'app-cargo-display',
   imports: [CustomListComponent],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-custom-list
       [title]="entityTitle"

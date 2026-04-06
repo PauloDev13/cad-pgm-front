@@ -1,4 +1,11 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { ServidorService } from '../../services/servidor.service';
 import {
   MAT_DIALOG_DATA,
@@ -42,6 +49,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { CustomValidators } from '../../../../shared/utils/custom-validators';
 import { NgxMaskDirective } from 'ngx-mask';
 import { FormErrorComponent } from '../../../../shared/components/form-error/form-error.component';
+import { AuthService } from '../../../../core/auth/services/auth.service';
 
 export type FormModel = Required<ServidorRequestDTO>;
 
@@ -63,6 +71,7 @@ export type FormModel = Required<ServidorRequestDTO>;
     FormErrorComponent,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <h2 mat-dialog-title class="!font-bold !text-xl !pb-0">
       {{ isEdit ? 'Editar Servidor' : 'Novo Servidor' }}
@@ -244,17 +253,19 @@ export type FormModel = Required<ServidorRequestDTO>;
       </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end" class="!pb-6 !pr-6">
-      <button
-        mat-stroked-button
-        type="button"
-        class="mr-auto !border-blue-600 !text-blue-600 !transition-transform
-              duration-300 !ease-in-out hover:!scale-105"
-        [disabled]="servidorForm().invalid()"
-        (click)="openPermissions()"
-      >
-        <mat-icon>security</mat-icon>
-        Gerenciar Permissões
-      </button>
+      @if (isPermissionsButtonHidden()) {
+        <button
+          mat-stroked-button
+          type="button"
+          class="mr-auto !border-blue-600 !text-blue-600 !transition-transform
+                duration-300 !ease-in-out hover:!scale-105"
+          [disabled]="servidorForm().invalid"
+          (click)="openPermissions()"
+        >
+          <mat-icon>security</mat-icon>
+          Gerenciar Permissões
+        </button>
+      }
 
       <button
         mat-stroked-button
@@ -281,6 +292,7 @@ export type FormModel = Required<ServidorRequestDTO>;
 export class ServidorFormComponent implements OnInit {
   isEdit: boolean = false;
   readonly data = inject<ServidorResponseDTO>(MAT_DIALOG_DATA, { optional: true });
+
   // Signals para armazenar os dados que virão da API
   cargos = signal<BaseEntityDTO[]>([]);
   setores = signal<BaseEntityDTO[]>([]);
@@ -368,10 +380,19 @@ export class ServidorFormComponent implements OnInit {
   // protected readonly form = form;
   private readonly servidorService = inject(ServidorService);
   private readonly dominioService = inject(DominioService);
+  private readonly authService = inject(AuthService);
+
+  // Computed
+  isPermissionsButtonHidden = computed(() => {
+    const user = this.authService.currentUser();
+    if (!user) return;
+    return user.permissions.some((p) => p.description === 'admin');
+  });
+
   private readonly toastService = inject(ToastService);
   private readonly dialogRef = inject(MatDialogRef<ServidorFormComponent>);
+
   private readonly dialog = inject(MatDialog);
-  // private readonly snackBar = inject(MatSnackBar);
 
   // controla as mudanças no campo autocomplete Cargo
   onCargoChange(id: number | null) {
@@ -428,14 +449,6 @@ export class ServidorFormComponent implements OnInit {
           await firstValueFrom(this.servidorService.create(requestData));
         }
 
-        // this.snackBar.open(
-        //   `Servidor ${this.isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`,
-        //   'Fechar',
-        //   {
-        //     duration: 3000,
-        //     panelClass: ['snackbar-success'],
-        //   },
-        // );
         this.toastService.success(
           `Servidor ${this.isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`,
         );
@@ -463,12 +476,6 @@ export class ServidorFormComponent implements OnInit {
           }
         }
         this.toastService.error(messageDefaultErro);
-        // this.snackBar.open(messageDefaultErro, 'Fechar', {
-        //   duration: 3000,
-        //   horizontalPosition: 'center',
-        //   verticalPosition: 'bottom',
-        //   panelClass: ['danger'],
-        // });
       }
     });
   }

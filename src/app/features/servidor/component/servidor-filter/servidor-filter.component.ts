@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -10,6 +10,7 @@ import { BaseEntityDTO } from '../../models/servidor.model';
   selector: 'app-servidor-filter',
   imports: [CommonModule, MatFormFieldModule, MatSelectModule, MatInputModule, MatIconModule],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
       class="flex flex-col md:flex-row justify-between items-end gap-4 mb-6

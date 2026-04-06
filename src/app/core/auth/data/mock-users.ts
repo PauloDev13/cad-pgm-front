@@ -42,7 +42,7 @@ export const MOCK_USERS: IUser[] = [
     name: 'Clayton Liberato',
     userName: 'clayton.liberato',
     email: 'clayton@gmail.com',
-    activated: false,
+    activated: true,
     password: '123456',
     permissions: [
       {

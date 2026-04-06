@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CustomListComponent } from '../../../shared/components/custom-list/custom-list.component';
 import { SistemaRequestDTO, SistemaResponseDTO } from '../models/sistema.model';
 import { BaseGenericComponent } from '../../../shared/components/generic/base-generic.component';
@@ -9,6 +9,7 @@ import { SistemaService } from '../services/sistema.service';
   selector: 'app-sistema-display',
   imports: [CustomListComponent],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-custom-list
       [title]="entityTitle"

@@ -1,4 +1,4 @@
-import { Component, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -9,6 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ServidorResponseDTO } from '../../models/servidor.model';
 import { LoadingComponent } from '../../../../shared/components/loading.component/loading.component';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../../core/auth/services/auth.service';
 
 @Component({
   selector: 'app-servidor-table',
@@ -23,6 +24,7 @@ import { Router } from '@angular/router';
     LoadingComponent,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="border border-gray-300 rounded-lg drop-shadow-md overflow-hidden relative">
       <!-- Chama o componente de loading-->
@@ -118,6 +120,7 @@ import { Router } from '@angular/router';
               </mat-icon>
             </button>
             <button
+              [disabled]="!isButtonsDisabled()"
               mat-icon-button
               (click)="delete.emit(s.id)"
               matTooltip="Excluir"
@@ -181,6 +184,13 @@ export class ServidorTableComponent {
   displayedColumns: string[] = ['matricula', 'nome', 'email', 'setor', 'cargo', 'acoes'];
   // injete o router no ServidorListComponent ou ServidorTableComponent
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+
+  isButtonsDisabled = computed(() => {
+    const user = this.authService.currentUser();
+    if (!user) return;
+    return user.permissions.find((p) => p.description === 'admin');
+  });
 
   visualizarServidor(id: number) {
     this.router.navigate(['/servidores/detalhes', id]).then();
