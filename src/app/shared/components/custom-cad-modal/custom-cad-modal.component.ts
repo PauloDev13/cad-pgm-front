@@ -9,6 +9,7 @@ import {
   SingleInputDialogData,
   SingleInputModalResult,
 } from '../../model/generic/base-generic.model';
+import { FormErrorComponent } from '../form-error/form-error.component';
 
 @Component({
   selector: 'app-custom-cad-modal.component',
@@ -18,7 +19,9 @@ import {
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    FormField, // Diretiva do seu Signal Forms
+    FormField,
+    FormErrorComponent,
+    // Diretiva do seu Signal Forms
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,17 +34,11 @@ import {
       <div class="flex flex-col w-full min-w-[300px] md:min-w-[400px]">
         <mat-form-field appearance="outline" class="w-full mt-2" subscriptSizing="dynamic">
           <mat-label>{{ data.inputLabel }}</mat-label>
-          <input matInput [formField]="customForm.value" placeholder="Campo obtigtório.." />
+          <input matInput [formField]="customForm.fieldValue" placeholder="Campo obtigtório.." />
         </mat-form-field>
-
-        @if (customForm.value().invalid() && customForm.value().touched()) {
-          <div class="mt-1 pl-2 text-sm font-medium text-red-600">
-            @for (error of customForm.value().errors(); track error) {
-              <mat-error>{{ error.message }}</mat-error>
-            }
-          </div>
-        }
+        <app-form-error [field]="customForm.fieldValue()" />
       </div>
+      <!--Chama o componente customizado para exibir os erros-->
     </mat-dialog-content>
 
     <mat-dialog-actions align="end" class="!px-6 !pb-6 !pt-2">
@@ -58,7 +55,7 @@ import {
       <button
         mat-flat-button
         class="!transition-transform duration-300 !ease-in-out hover:!scale-105"
-        [disabled]="customForm().invalid()"
+        [disabled]="customForm().invalid"
         (click)="save()"
       >
         <mat-icon class="!mr-0.5">save</mat-icon>
@@ -75,18 +72,18 @@ export class CustomCadModalComponent implements OnInit {
   isEdit = signal<boolean>(false);
 
   // Inicializa o modelo de dados para o formulário
-  customModel = signal<{ value: string }>({
-    value: '',
+  customModel = signal<{ fieldValue: string }>({
+    fieldValue: '',
   });
 
   // cria o formulário e suas validações
   customForm = form(this.customModel, (path) => {
     // validações para o campo Nome
-    required(path.value, { message: `O campo ${this.data.inputLabel} é obrigatório` });
-    minLength(path.value, 5, {
+    required(path.fieldValue, { message: `O campo ${this.data.inputLabel} é obrigatório` });
+    minLength(path.fieldValue, 5, {
       message: `O campo ${this.data.inputLabel} deve ter no mínimo 5 caracteres`,
     });
-    maxLength(path.value, 150, {
+    maxLength(path.fieldValue, 150, {
       message: `O campo ${this.data.inputLabel} deve ter no máximo 150 caracteres`,
     });
   });
@@ -110,7 +107,7 @@ export class CustomCadModalComponent implements OnInit {
   // emite os dados do formulário para o componente pai
   async save() {
     await submit(this.customForm, async () => {
-      const payload = this.customForm().value().value;
+      const payload = this.customForm().controlValue().fieldValue;
       const result: SingleInputModalResult = {
         id: this.data.id,
         value: payload,
