@@ -22,7 +22,7 @@ import { MatInputModule } from '@angular/material/input';
       <!-- Permite a injeção do componente HeaderLogin neste ponto-->
       <ng-content />
 
-      <form (submit)="login($event)" class="flex flex-col gap-5 w-full">
+      <form (submit)="login($event)" autocomplete="off" class="flex flex-col gap-5 w-full">
         @if (errorMessage()) {
           <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
             <p class="text-sm text-red-700 font-medium">{{ errorMessage() }}</p>
@@ -33,7 +33,12 @@ import { MatInputModule } from '@angular/material/input';
           <!--Campo userName-->
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
             <mat-label>Nome do Usuário</mat-label>
-            <input matInput [formField]="loginForm().login" placeholder="Ex: jonh.river" />
+            <input
+              matInput
+              [formField]="loginForm().login"
+              autocomplete="off"
+              placeholder="Ex: jonh.river"
+            />
           </mat-form-field>
 
           <!--Chama o componente customizado para exibir os erros-->
@@ -41,7 +46,7 @@ import { MatInputModule } from '@angular/material/input';
           <!--Campo password-->
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
             <mat-label>Senha</mat-label>
-            <input type="password" matInput [formField]="loginForm().password" />
+            <input type="password" matInput [formField]="loginForm().password" autocomplete="off" />
           </mat-form-field>
           <!--Chama o componente customizado para exibir os erros-->
           <app-form-error [field]="loginForm().password()" />

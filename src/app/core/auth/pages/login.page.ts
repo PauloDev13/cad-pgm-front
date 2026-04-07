@@ -101,7 +101,7 @@ export class LoginPage {
   loginCadForm = form(this.formCadLoginModel, (path) => {
     // Nome completo
     required(path.name, { message: 'Nome completo é obrigatório' });
-    minLength(path.name, 5, { message: 'O Nome completo deve ter no mínimo 5 caracteres' });
+    minLength(path.name, 5, { message: 'O Nome deve ter no mínimo 5 caracteres' });
     // Login
     required(path.userName, { message: 'login é obrigatório' });
     minLength(path.userName, 5, { message: 'O Login deve ter no mínimo 5 caracteres' });
@@ -166,20 +166,23 @@ export class LoginPage {
     this.isLoading.set(true);
 
     await submit(this.loginCadForm, async () => {
+      // pega os valores de todos os campos do fomulário
       const dataRegister = this.loginCadForm().value();
 
-      this.usuarioService.register(dataRegister).subscribe({
+      // Retira o campo confirmPassword do objeto que será enviado para o backend
+      const { confirmPassword, ...payload } = dataRegister;
+
+      this.usuarioService.register(payload).subscribe({
         next: (response) => {
           this.isLoading.set(false);
           this.isRegisterOrLogin.set(true);
           this.loginCadForm().reset();
 
-          const data = {
+          // seta o login com o nome do usuário e a senha vazio
+          this.loginForm().reset({
             login: response.userName,
             password: '',
-          };
-
-          this.loginForm().controlValue.set(data);
+          });
         },
         error: (err) => {
           this.isLoading.set(false);

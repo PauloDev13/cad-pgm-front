@@ -24,12 +24,17 @@ import { MatButtonModule } from '@angular/material/button';
       <!-- Permite a injeção do componente HeaderLogin neste ponto-->
       <ng-content />
 
-      <form (submit)="save($event)" class="flex flex-col gap-5 w-full">
+      <form (submit)="save($event)" autocomplete="off" class="flex flex-col gap-5 w-full">
         <div class="flex flex-col gap-1.5">
           <!--Campo Name-->
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
             <mat-label>Nome Completo</mat-label>
-            <input matInput [formField]="loginCadForm().name" placeholder="Ex: Jonh River" />
+            <input
+              matInput
+              [formField]="loginCadForm().name"
+              autocomplete="off"
+              placeholder="Ex: Jonh River"
+            />
           </mat-form-field>
           <!--Chama o componente customizado para exibir os erros-->
           <app-form-error [field]="loginCadForm().name()" />
@@ -37,7 +42,12 @@ import { MatButtonModule } from '@angular/material/button';
           <!--Campo userName-->
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
             <mat-label>Login</mat-label>
-            <input matInput [formField]="loginCadForm().userName" placeholder="Ex: jonh.river" />
+            <input
+              matInput
+              [formField]="loginCadForm().userName"
+              autocomplete="off"
+              placeholder="Ex: jonh.river"
+            />
           </mat-form-field>
           <!--Chama o componente customizado para exibir os erros-->
           <app-form-error [field]="loginCadForm().userName()" />
@@ -49,6 +59,7 @@ import { MatButtonModule } from '@angular/material/button';
               type="text"
               matInput
               [formField]="loginCadForm().email"
+              autocomplete="off"
               placeholder="Ex: jonhriver@gmail.com"
             />
           </mat-form-field>
@@ -62,6 +73,7 @@ import { MatButtonModule } from '@angular/material/button';
               [type]="hidePassword() ? 'password' : 'text'"
               matInput
               [formField]="loginCadForm().password"
+              autocomplete="new-password"
             />
             <button
               class="!mr-2 text-gray-500 hover:text-gray-700"
@@ -86,6 +98,7 @@ import { MatButtonModule } from '@angular/material/button';
               [type]="hideConfirm() ? 'password' : 'text'"
               matInput
               [formField]="loginCadForm().confirmPassword"
+              autocomplete="new-password"
             />
             <button
               class="!mr-2 text-gray-500 hover:text-gray-700"

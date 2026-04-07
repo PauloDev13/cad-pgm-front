@@ -2,7 +2,7 @@ export interface IUsuarioRequest {
   name: string;
   userName: string;
   email: string;
-  password: string;
+  password?: string;
   confirmPassword?: string;
   activated: boolean;
   permissions: string[];

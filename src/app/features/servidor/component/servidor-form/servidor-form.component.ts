@@ -77,7 +77,7 @@ export type FormModel = Required<ServidorRequestDTO>;
       {{ isEdit ? 'Editar Servidor' : 'Novo Servidor' }}
     </h2>
     <mat-dialog-content class="!pt-4">
-      <form class="flex flex-col gap-5">
+      <form autocomplete="off" class="flex flex-col gap-5">
         <div>
           <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">
             Dados Pessoais
@@ -172,11 +172,16 @@ export type FormModel = Required<ServidorRequestDTO>;
               <app-form-error [field]="servidorForm.emailPessoal()" />
             </div>
 
-            <!--Campo email institucional-->
-            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>E-mail Institucional</mat-label>
-              <input matInput [formField]="servidorForm.emailInstitucional" type="email" />
-            </mat-form-field>
+            <div class="flex flex-col">
+              <!--Campo email institucional-->
+              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                <mat-label>E-mail Institucional</mat-label>
+                <input matInput [formField]="servidorForm.emailInstitucional" type="email" />
+              </mat-form-field>
+
+              <!--Chama o componente customizado para exibir os erros-->
+              <app-form-error [field]="servidorForm.emailInstitucional()" />
+            </div>
           </div>
 
           <div class="grid grid-cols-1 gap-3 mt-1">
@@ -232,7 +237,7 @@ export type FormModel = Required<ServidorRequestDTO>;
             />
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-1">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
             <!--Campo Status-->
             <app-custom-select
               label="Status"
