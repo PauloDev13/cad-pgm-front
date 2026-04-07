@@ -33,11 +33,11 @@ import { MatInputModule } from '@angular/material/input';
           <!--Campo userName-->
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
             <mat-label>Nome do Usuário</mat-label>
-            <input matInput [formField]="loginForm().userName" placeholder="Ex: jonh.river" />
+            <input matInput [formField]="loginForm().login" placeholder="Ex: jonh.river" />
           </mat-form-field>
 
           <!--Chama o componente customizado para exibir os erros-->
-          <app-form-error [field]="loginForm().userName()" />
+          <app-form-error [field]="loginForm().login()" />
           <!--Campo password-->
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
             <mat-label>Senha</mat-label>

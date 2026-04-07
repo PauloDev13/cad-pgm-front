@@ -1,10 +1,11 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormField } from '@angular/forms/signals';
 import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-form-register-login',
@@ -13,6 +14,7 @@ import { MatInputModule } from '@angular/material/input';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    MatButtonModule,
     MatProgressSpinnerModule,
     FormField,
   ],
@@ -56,7 +58,23 @@ import { MatInputModule } from '@angular/material/input';
           <!--Campo password-->
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
             <mat-label>Senha</mat-label>
-            <input type="password" matInput [formField]="loginCadForm().password" />
+            <input
+              [type]="hidePassword() ? 'password' : 'text'"
+              matInput
+              [formField]="loginCadForm().password"
+            />
+            <button
+              class="!mr-2 text-gray-500 hover:text-gray-700"
+              mat-icon-button
+              matSuffix
+              type="button"
+              aria-label="Ocultar/Exibir senha"
+              (click)="togglePassword($event)"
+            >
+              <mat-icon class="transition-transform duration-200 hover:scale-110">
+                {{ hidePassword() ? 'visibility_off' : 'visibility' }}
+              </mat-icon>
+            </button>
           </mat-form-field>
           <!--Chama o componente customizado para exibir os erros-->
           <app-form-error [field]="loginCadForm().password()" />
@@ -104,6 +122,20 @@ export class FormRegisterLoginComponent {
   // Outputs
   onRegisterSubmit = output<void>();
   onRegisterLogin = output<boolean>();
+
+  hidePassword = signal<boolean>(true);
+  hideConfirm = signal<boolean>(true);
+
+  // Métodos para alternar a visualização
+  togglePassword(event: MouseEvent) {
+    event.preventDefault(); // Evita que o formulário submeta ao clicar no botão do ícone
+    this.hidePassword.set(!this.hidePassword());
+  }
+
+  toggleConfirm(event: MouseEvent) {
+    event.preventDefault();
+    this.hideConfirm.set(!this.hideConfirm());
+  }
 
   save(event: Event) {
     event.preventDefault();

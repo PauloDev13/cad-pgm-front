@@ -1,12 +1,14 @@
 import { Component, inject, signal } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
-import { IFormCadLoginModel, IFormLoginModel } from '../models/auth.model';
 import { email, form, maxLength, minLength, required, submit } from '@angular/forms/signals';
 import { FormInfoLoginComponent } from '../component/form-info-login.component';
 import { FormMainLoginComponent } from '../component/form-main-login.component';
 import { HeaderLoginComponent } from '../component/header-login.component';
-import { FormRegisterLoginComponent } from '../component/form-register-login.component';
+import { FormRegisterLoginComponent } from '../../../features/usuario/components/form-register-login.component';
+import { IAuthRequest } from '../models/auth.model';
+import { UsuarioService } from '../../../features/usuario/services/usuario.service';
+import { IUsuarioRequest } from '../../../features/usuario/models/usuario.model';
 
 @Component({
   selector: 'app-login',
@@ -71,19 +73,19 @@ export class LoginPage {
   errorMessage = signal('');
 
   // Modelo do formulário para login
-  formLoginModel = signal<IFormLoginModel>({
-    userName: '',
+  formLoginModel = signal<IAuthRequest>({
+    login: '',
     password: '',
   });
 
   // Modelo do formulário para cadastro
-  formCadLoginModel = signal<IFormCadLoginModel>({
+  formCadLoginModel = signal<IUsuarioRequest>({
     name: '',
     userName: '',
     password: '',
     email: '',
     activated: true,
-    permissions: [],
+    permissions: ['guest'],
   });
 
   // Formulário com validações
@@ -96,8 +98,8 @@ export class LoginPage {
     minLength(path.userName, 5, { message: 'O Login deve ter no mínimo 5 caracteres' });
     maxLength(path.userName, 30, { message: 'O Login deve ter no máximo 30 caracteres' });
     // Password
-    required(path.password, { message: 'Senha é obrigatória' });
-    minLength(path.password, 6, { message: 'Senha deve ter no mínimo 6 caracteres' });
+    required(path.password!, { message: 'Senha é obrigatória' });
+    minLength(path.password!, 6, { message: 'Senha deve ter no mínimo 6 caracteres' });
     // E-mail
     required(path.email, { message: 'E-mail é obrigatório' });
     email(path.email, { message: 'E-mail inválido' });
@@ -105,12 +107,13 @@ export class LoginPage {
 
   // Formulário de login com validações
   loginForm = form(this.formLoginModel, (path) => {
-    required(path.userName, { message: 'Nome do usuário é obrigatório' });
-    required(path.password, { message: 'A senha é obrigatório' });
+    required(path.login, { message: 'Nome do usuário é obrigatório' });
+    required(path.password!, { message: 'A senha é obrigatório' });
   });
 
   // Injeções de dependências
   private readonly authService = inject(AuthService);
+  private readonly usuarioService = inject(UsuarioService);
   private readonly router = inject(Router);
 
   // Métodos
@@ -118,7 +121,6 @@ export class LoginPage {
     this.isLoading.set(true);
     await submit(this.loginForm, async () => {
       const dataLogin = this.loginForm().value();
-      console.log(dataLogin);
       this.authService.login(dataLogin).subscribe({
         next: () => {
           this.isLoading.set(false);
@@ -126,6 +128,7 @@ export class LoginPage {
         },
         error: (err) => {
           this.isLoading.set(false);
+          this.loginForm().reset({ login: '', password: '' });
           this.errorMessage.set(err.message);
         },
       });
@@ -138,13 +141,14 @@ export class LoginPage {
     await submit(this.loginCadForm, async () => {
       const dataRegister = this.loginCadForm().value();
 
-      this.authService.register(dataRegister).subscribe({
-        next: () => {
+      this.usuarioService.register(dataRegister).subscribe({
+        next: (response) => {
           this.isLoading.set(false);
           this.isRegisterOrLogin.set(true);
+          this.loginCadForm().reset();
 
           const data = {
-            ...dataRegister,
+            login: response.userName,
             password: '',
           };
 

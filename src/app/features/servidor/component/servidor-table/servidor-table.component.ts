@@ -189,7 +189,7 @@ export class ServidorTableComponent {
   isButtonsDisabled = computed(() => {
     const user = this.authService.currentUser();
     if (!user) return;
-    return user.permissions.find((p) => p.description === 'admin');
+    return user.roles.find((p) => p === 'admin');
   });
 
   visualizarServidor(id: number) {

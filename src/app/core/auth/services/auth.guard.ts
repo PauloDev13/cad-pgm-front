@@ -21,7 +21,7 @@ export const authGuard: CanActivateFn = () => {
 export const publicGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
-  // Se tem usuário no Signal, não tem motivo para ver o login. Joga pra home!
+  // Se tem usuário no Signal, não tem motivo para ver o login. Joga para home!
   if (authService.currentUser()) {
     router.navigate(['/home']).then();
     return false;
@@ -46,13 +46,13 @@ export const roleGuard: CanActivateFn = (route) => {
   if (!user) return false;
 
   // Verifica se dentro do array de permissões do usuário existe a permissão exigida
-  const hasPermission = user.permissions.some((p) => p.description === expectedRole);
+  const hasPermission = user.roles.some((p) => p === expectedRole);
 
   if (hasPermission) {
     return true; // Pode entrar!
   }
 
-  // Se não tiver a permissão, dá um aviso e joga de volta pra Home
+  // Se não tiver a permissão, dá um aviso e joga de volta para Home
   alert('Acesso Negado: Você não tem permissão de Administrador para acessar esta tela.');
   router.navigate(['/home']).then();
   return false;

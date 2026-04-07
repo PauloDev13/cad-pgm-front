@@ -1,28 +1,9 @@
-export interface IUser {
-  id: number;
-  name: string;
-  userName: string;
-  email: string;
+export interface IAuthRequest {
+  login: string;
   password?: string;
-  activated: boolean;
-  permissions: IPermission[];
 }
 
-interface IPermission {
-  id: number;
-  description: string;
-}
-
-export interface IFormCadLoginModel {
-  name: string;
+export interface IAuthResponse {
   userName: string;
-  email: string;
-  password: string;
-  activated: boolean;
-  permissions: IPermission[];
-}
-
-export interface IFormLoginModel {
-  userName: string;
-  password: string;
+  roles: string[];
 }

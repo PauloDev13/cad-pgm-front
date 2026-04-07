@@ -386,7 +386,7 @@ export class ServidorFormComponent implements OnInit {
   isPermissionsButtonHidden = computed(() => {
     const user = this.authService.currentUser();
     if (!user) return;
-    return user.permissions.some((p) => p.description === 'admin');
+    return user.roles.some((p) => p === 'admin');
   });
 
   private readonly toastService = inject(ToastService);
