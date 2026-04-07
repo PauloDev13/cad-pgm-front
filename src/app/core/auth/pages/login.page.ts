@@ -1,7 +1,15 @@
 import { Component, inject, signal } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
-import { email, form, maxLength, minLength, required, submit } from '@angular/forms/signals';
+import {
+  email,
+  form,
+  maxLength,
+  minLength,
+  required,
+  submit,
+  validate,
+} from '@angular/forms/signals';
 import { FormInfoLoginComponent } from '../component/form-info-login.component';
 import { FormMainLoginComponent } from '../component/form-main-login.component';
 import { HeaderLoginComponent } from '../component/header-login.component';
@@ -83,6 +91,7 @@ export class LoginPage {
     name: '',
     userName: '',
     password: '',
+    confirmPassword: '',
     email: '',
     activated: true,
     permissions: ['guest'],
@@ -100,6 +109,24 @@ export class LoginPage {
     // Password
     required(path.password!, { message: 'Senha é obrigatória' });
     minLength(path.password!, 6, { message: 'Senha deve ter no mínimo 6 caracteres' });
+
+    // ConfirmPassword
+    required(path.confirmPassword!, { message: 'Confirme a Senha' });
+    validate(path.confirmPassword!, (fieldContext) => {
+      // Pegamos o valor que está no campo 'password' original
+      const currentValue = fieldContext.value();
+      const originalPassword = this.formCadLoginModel().password;
+
+      // Se a confirmação for diferente da original, retornamos o erro
+      if (currentValue !== originalPassword) {
+        return {
+          kind: 'passwordMismatch', // Um identificador único para o erro
+          message: 'As senhas não conferem',
+        };
+      }
+      // Se forem iguais, retornamos null (significa que passou na validação!)
+      return null;
+    });
     // E-mail
     required(path.email, { message: 'E-mail é obrigatório' });
     email(path.email, { message: 'E-mail inválido' });

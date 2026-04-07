@@ -79,11 +79,28 @@ import { MatButtonModule } from '@angular/material/button';
           <!--Chama o componente customizado para exibir os erros-->
           <app-form-error [field]="loginCadForm().password()" />
 
-          <!--Campo password-->
+          <!--Campo confirm password-->
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
             <mat-label>Confirmar Senha</mat-label>
-            <input type="password" matInput />
+            <input
+              [type]="hideConfirm() ? 'password' : 'text'"
+              matInput
+              [formField]="loginCadForm().confirmPassword"
+            />
+            <button
+              class="!mr-2 text-gray-500 hover:text-gray-700"
+              mat-icon-button
+              matSuffix
+              type="button"
+              aria-label="Ocultar/Exibir senha"
+              (click)="toggleConfirm($event)"
+            >
+              <mat-icon class="transition-transform duration-200 hover:scale-110">
+                {{ hidePassword() ? 'visibility_off' : 'visibility' }}
+              </mat-icon>
+            </button>
           </mat-form-field>
+          <app-form-error [field]="loginCadForm().confirmPassword()" />
         </div>
 
         <div class="flex flex-col gap-1.5">
@@ -119,12 +136,13 @@ export class FormRegisterLoginComponent {
   isLoading = input.required<boolean>();
   isInvalid = input.required<boolean>();
 
+  // Signals para exibir/ocultar senha/confirmar senha
+  hidePassword = signal<boolean>(true);
+  hideConfirm = signal<boolean>(true);
+
   // Outputs
   onRegisterSubmit = output<void>();
   onRegisterLogin = output<boolean>();
-
-  hidePassword = signal<boolean>(true);
-  hideConfirm = signal<boolean>(true);
 
   // Métodos para alternar a visualização
   togglePassword(event: MouseEvent) {
