@@ -1,10 +1,14 @@
-import { Component, input, output } from '@angular/core';
+import { Component, inject, output, signal } from '@angular/core';
 import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { FormField } from '@angular/forms/signals';
+import { form, FormField, required, submit } from '@angular/forms/signals';
 import { MatInputModule } from '@angular/material/input';
+import { IAuthRequest } from '../models/auth.model';
+import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
+import { MatIconButton } from '@angular/material/button';
 
 @Component({
   selector: 'app-form-main-login',
@@ -15,6 +19,7 @@ import { MatInputModule } from '@angular/material/input';
     MatInputModule,
     MatProgressSpinnerModule,
     FormField,
+    MatIconButton,
   ],
   standalone: true,
   template: `
@@ -22,7 +27,7 @@ import { MatInputModule } from '@angular/material/input';
       <!-- Permite a injeção do componente HeaderLogin neste ponto-->
       <ng-content />
 
-      <form (submit)="login($event)" autocomplete="off" class="flex flex-col gap-5 w-full">
+      <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col gap-5 w-full">
         @if (errorMessage()) {
           <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
             <p class="text-sm text-red-700 font-medium">{{ errorMessage() }}</p>
@@ -35,21 +40,38 @@ import { MatInputModule } from '@angular/material/input';
             <mat-label>Nome do Usuário</mat-label>
             <input
               matInput
-              [formField]="loginForm().login"
+              [formField]="loginForm.login"
               autocomplete="off"
               placeholder="Ex: jonh.river"
             />
           </mat-form-field>
 
           <!--Chama o componente customizado para exibir os erros-->
-          <app-form-error [field]="loginForm().login()" />
+          <app-form-error [field]="loginForm.login()" />
           <!--Campo password-->
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
             <mat-label>Senha</mat-label>
-            <input type="password" matInput [formField]="loginForm().password" autocomplete="off" />
+            <input
+              [type]="hidePassword() ? 'password' : 'text'"
+              matInput
+              [formField]="loginForm.password!"
+              autocomplete="new_password"
+            />
+            <button
+              class="!mr-2 text-gray-500 hover:text-gray-700"
+              mat-icon-button
+              matSuffix
+              type="button"
+              aria-label="Ocultar/Exibir senha"
+              (click)="togglePassword($event)"
+            >
+              <mat-icon class="transition-transform duration-200 hover:scale-110">
+                {{ hidePassword() ? 'visibility_off' : 'visibility' }}
+              </mat-icon>
+            </button>
           </mat-form-field>
           <!--Chama o componente customizado para exibir os erros-->
-          <app-form-error [field]="loginForm().password()" />
+          <app-form-error [field]="loginForm.password!()" />
         </div>
 
         <div class="flex flex-col gap-1.5">
@@ -70,7 +92,7 @@ import { MatInputModule } from '@angular/material/input';
 
         <button
           type="submit"
-          [disabled]="isInvalid() || isLoading()"
+          [disabled]="loginForm().invalid() || isLoading()"
           class="mt-4 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all disabled:opacity-70 flex justify-center items-center gap-2 h-12"
         >
           @if (isLoading()) {
@@ -85,23 +107,52 @@ import { MatInputModule } from '@angular/material/input';
   `,
 })
 export class FormMainLoginComponent {
-  // Inputs
-  loginForm = input.required<any>();
-  isLoading = input.required<boolean>();
-  isInvalid = input.required<boolean>();
-  errorMessage = input.required<string>();
-
+  isLoading = signal<boolean>(false);
+  errorMessage = signal('');
+  hidePassword = signal<boolean>(true);
   //Outputs
-  onLoginSubmit = output<void>();
-  onLogin = output<boolean>();
+  onLoginOrRegister = output<boolean>();
+  // Modelo do formulário para login
+  formLoginModel = signal<IAuthRequest>({
+    login: '',
+    password: '',
+  });
+  // Formulário de login com validações
+  loginForm = form(this.formLoginModel, (path: any) => {
+    required(path.login, { message: 'Nome do usuário é obrigatório' });
+    required(path.password!, { message: 'A senha é obrigatório' });
+  });
+  // Injeções de dependências
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
-  login(event: Event) {
+  // Métodos para alternar a visualização
+  togglePassword(event: MouseEvent) {
+    event.preventDefault(); // Evita que o formulário submeta ao clicar no botão do ícone
+    this.hidePassword.set(!this.hidePassword());
+  }
+
+  async onSubmit(event: Event) {
     event.preventDefault();
-    this.onLoginSubmit.emit();
+    this.isLoading.set(true);
+    await submit(this.loginForm, async () => {
+      const dataLogin = this.loginForm().value();
+      this.authService.login(dataLogin).subscribe({
+        next: () => {
+          this.isLoading.set(false);
+          this.router.navigate(['home']);
+        },
+        error: (err) => {
+          this.isLoading.set(false);
+          this.loginForm().reset({ login: '', password: '' });
+          this.errorMessage.set(err.message);
+        },
+      });
+    });
   }
 
   goToRegisterLogin(event: Event) {
     event.preventDefault();
-    this.onLogin.emit(true);
+    this.onLoginOrRegister.emit(true);
   }
 }

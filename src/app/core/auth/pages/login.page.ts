@@ -1,22 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
-import { AuthService } from '../services/auth.service';
-import { Router } from '@angular/router';
-import {
-  email,
-  form,
-  maxLength,
-  minLength,
-  required,
-  submit,
-  validate,
-} from '@angular/forms/signals';
+import { Component, signal } from '@angular/core';
 import { FormInfoLoginComponent } from '../component/form-info-login.component';
 import { FormMainLoginComponent } from '../component/form-main-login.component';
 import { HeaderLoginComponent } from '../component/header-login.component';
-import { FormRegisterLoginComponent } from '../../../features/usuario/components/form-register-login.component';
-import { IAuthRequest } from '../models/auth.model';
-import { UsuarioService } from '../../../features/usuario/services/usuario.service';
-import { IUsuarioRequest } from '../../../features/usuario/models/usuario.model';
+import { FormRegisterUsuarioComponent } from '../../../features/usuario/components/form-register-usuario.component';
 
 @Component({
   selector: 'app-login',
@@ -24,7 +10,7 @@ import { IUsuarioRequest } from '../../../features/usuario/models/usuario.model'
     FormInfoLoginComponent,
     FormMainLoginComponent,
     HeaderLoginComponent,
-    FormRegisterLoginComponent,
+    FormRegisterUsuarioComponent,
   ],
   standalone: true,
   template: `
@@ -41,14 +27,7 @@ import { IUsuarioRequest } from '../../../features/usuario/models/usuario.model'
       <div class="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 md:p-24">
         @if (isRegisterOrLogin()) {
           <!-- Formulário para login-->
-          <app-form-main-login
-            [isLoading]="isLoading()"
-            [isInvalid]="loginForm().invalid()"
-            (onLoginSubmit)="onSubmit()"
-            [errorMessage]="errorMessage()"
-            [loginForm]="loginForm"
-            (onLogin)="onLoginOrRegister()"
-          >
+          <app-form-main-login (onLoginOrRegister)="onLoginOrRegister()">
             <app-header-login
               title="Bem-vindo de volta"
               subtitle="Insira suas credenciais para acessar o painel."
@@ -56,13 +35,7 @@ import { IUsuarioRequest } from '../../../features/usuario/models/usuario.model'
           </app-form-main-login>
         } @else {
           <!-- Formulário para cadastro de usuários-->
-          <app-form-register-login
-            [isLoading]="isLoading()"
-            [isInvalid]="loginCadForm().invalid()"
-            (onRegisterSubmit)="onRegisterSubmit()"
-            [loginCadForm]="loginCadForm"
-            (onRegisterLogin)="onLoginOrRegister()"
-          >
+          <app-form-register-login (onLoginOrRegister)="onLoginOrRegister()">
             <app-header-login
               title="Bem-vindo"
               subtitle="Insira as informações e confirme o cadastro."
@@ -74,123 +47,7 @@ import { IUsuarioRequest } from '../../../features/usuario/models/usuario.model'
   `,
 })
 export class LoginPage {
-  // Controla se o formulário de Login ou de Cadastro são exibidos
-  // Se verdadeiro, exibe Login, se falso, exibe cadastro
   isRegisterOrLogin = signal<boolean>(true);
-  isLoading = signal<boolean>(false);
-  errorMessage = signal('');
-
-  // Modelo do formulário para login
-  formLoginModel = signal<IAuthRequest>({
-    login: '',
-    password: '',
-  });
-
-  // Modelo do formulário para cadastro
-  formCadLoginModel = signal<IUsuarioRequest>({
-    name: '',
-    userName: '',
-    password: '',
-    confirmPassword: '',
-    email: '',
-    activated: true,
-    permissions: ['guest'],
-  });
-
-  // Formulário com validações
-  loginCadForm = form(this.formCadLoginModel, (path) => {
-    // Nome completo
-    required(path.name, { message: 'Nome completo é obrigatório' });
-    minLength(path.name, 5, { message: 'O Nome deve ter no mínimo 5 caracteres' });
-    // Login
-    required(path.userName, { message: 'login é obrigatório' });
-    minLength(path.userName, 5, { message: 'O Login deve ter no mínimo 5 caracteres' });
-    maxLength(path.userName, 30, { message: 'O Login deve ter no máximo 30 caracteres' });
-    // Password
-    required(path.password!, { message: 'Senha é obrigatória' });
-    minLength(path.password!, 6, { message: 'Senha deve ter no mínimo 6 caracteres' });
-
-    // ConfirmPassword
-    required(path.confirmPassword!, { message: 'Confirme a Senha' });
-    validate(path.confirmPassword!, (fieldContext) => {
-      // Pegamos o valor que está no campo 'password' original
-      const currentValue = fieldContext.value();
-      const originalPassword = this.formCadLoginModel().password;
-
-      // Se a confirmação for diferente da original, retornamos o erro
-      if (currentValue !== originalPassword) {
-        return {
-          kind: 'passwordMismatch', // Um identificador único para o erro
-          message: 'As senhas não conferem',
-        };
-      }
-      // Se forem iguais, retornamos null (significa que passou na validação!)
-      return null;
-    });
-    // E-mail
-    required(path.email, { message: 'E-mail é obrigatório' });
-    email(path.email, { message: 'E-mail inválido' });
-  });
-
-  // Formulário de login com validações
-  loginForm = form(this.formLoginModel, (path) => {
-    required(path.login, { message: 'Nome do usuário é obrigatório' });
-    required(path.password!, { message: 'A senha é obrigatório' });
-  });
-
-  // Injeções de dependências
-  private readonly authService = inject(AuthService);
-  private readonly usuarioService = inject(UsuarioService);
-  private readonly router = inject(Router);
-
-  // Métodos
-  async onSubmit() {
-    this.isLoading.set(true);
-    await submit(this.loginForm, async () => {
-      const dataLogin = this.loginForm().value();
-      this.authService.login(dataLogin).subscribe({
-        next: () => {
-          this.isLoading.set(false);
-          this.router.navigate(['home']);
-        },
-        error: (err) => {
-          this.isLoading.set(false);
-          this.loginForm().reset({ login: '', password: '' });
-          this.errorMessage.set(err.message);
-        },
-      });
-    });
-  }
-
-  async onRegisterSubmit() {
-    this.isLoading.set(true);
-
-    await submit(this.loginCadForm, async () => {
-      // pega os valores de todos os campos do fomulário
-      const dataRegister = this.loginCadForm().value();
-
-      // Retira o campo confirmPassword do objeto que será enviado para o backend
-      const { confirmPassword, ...payload } = dataRegister;
-
-      this.usuarioService.register(payload).subscribe({
-        next: (response) => {
-          this.isLoading.set(false);
-          this.isRegisterOrLogin.set(true);
-          this.loginCadForm().reset();
-
-          // seta o login com o nome do usuário e a senha vazio
-          this.loginForm().reset({
-            login: response.userName,
-            password: '',
-          });
-        },
-        error: (err) => {
-          this.isLoading.set(false);
-          console.error(err.message);
-        },
-      });
-    });
-  }
 
   onLoginOrRegister() {
     this.isRegisterOrLogin.set(!this.isRegisterOrLogin());

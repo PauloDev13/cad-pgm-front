@@ -1,11 +1,22 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, inject, output, signal } from '@angular/core';
 import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { FormField } from '@angular/forms/signals';
+import {
+  email,
+  form,
+  FormField,
+  maxLength,
+  minLength,
+  required,
+  submit,
+  validate,
+} from '@angular/forms/signals';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { IUsuarioRequest } from '../models/usuario.model';
+import { UsuarioService } from '../services/usuario.service';
 
 @Component({
   selector: 'app-form-register-login',
@@ -24,33 +35,38 @@ import { MatButtonModule } from '@angular/material/button';
       <!-- Permite a injeção do componente HeaderLogin neste ponto-->
       <ng-content />
 
-      <form (submit)="save($event)" autocomplete="off" class="flex flex-col gap-5 w-full">
+      <form (submit)="onSubmit()" autocomplete="off" class="flex flex-col gap-5 w-full">
+        @if (errorMessage()) {
+          <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
+            <p class="text-sm text-red-700 font-medium">{{ errorMessage() }}</p>
+          </div>
+        }
         <div class="flex flex-col gap-1.5">
           <!--Campo Name-->
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
             <mat-label>Nome Completo</mat-label>
             <input
               matInput
-              [formField]="loginCadForm().name"
+              [formField]="registerFormLogin.name"
               autocomplete="off"
               placeholder="Ex: Jonh River"
             />
           </mat-form-field>
           <!--Chama o componente customizado para exibir os erros-->
-          <app-form-error [field]="loginCadForm().name()" />
+          <app-form-error [field]="registerFormLogin.name()" />
 
           <!--Campo userName-->
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
             <mat-label>Login</mat-label>
             <input
               matInput
-              [formField]="loginCadForm().userName"
+              [formField]="registerFormLogin.userName"
               autocomplete="off"
               placeholder="Ex: jonh.river"
             />
           </mat-form-field>
           <!--Chama o componente customizado para exibir os erros-->
-          <app-form-error [field]="loginCadForm().userName()" />
+          <app-form-error [field]="registerFormLogin.userName()" />
 
           <!--Campo userName-->
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
@@ -58,13 +74,13 @@ import { MatButtonModule } from '@angular/material/button';
             <input
               type="text"
               matInput
-              [formField]="loginCadForm().email"
+              [formField]="registerFormLogin.email"
               autocomplete="off"
               placeholder="Ex: jonhriver@gmail.com"
             />
           </mat-form-field>
           <!--Chama o componente customizado para exibir os erros-->
-          <app-form-error [field]="loginCadForm().email()" />
+          <app-form-error [field]="registerFormLogin.email()" />
 
           <!--Campo password-->
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
@@ -72,13 +88,14 @@ import { MatButtonModule } from '@angular/material/button';
             <input
               [type]="hidePassword() ? 'password' : 'text'"
               matInput
-              [formField]="loginCadForm().password"
+              [formField]="registerFormLogin.password"
               autocomplete="new-password"
             />
             <button
               class="!mr-2 text-gray-500 hover:text-gray-700"
               mat-icon-button
               matSuffix
+              tabIndex="-1"
               type="button"
               aria-label="Ocultar/Exibir senha"
               (click)="togglePassword($event)"
@@ -89,7 +106,7 @@ import { MatButtonModule } from '@angular/material/button';
             </button>
           </mat-form-field>
           <!--Chama o componente customizado para exibir os erros-->
-          <app-form-error [field]="loginCadForm().password()" />
+          <app-form-error [field]="registerFormLogin.password()" />
 
           <!--Campo confirm password-->
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
@@ -97,13 +114,14 @@ import { MatButtonModule } from '@angular/material/button';
             <input
               [type]="hideConfirm() ? 'password' : 'text'"
               matInput
-              [formField]="loginCadForm().confirmPassword"
+              [formField]="registerFormLogin.confirmPassword!"
               autocomplete="new-password"
             />
             <button
               class="!mr-2 text-gray-500 hover:text-gray-700"
               mat-icon-button
               matSuffix
+              tabIndex="-1"
               type="button"
               aria-label="Ocultar/Exibir senha"
               (click)="toggleConfirm($event)"
@@ -113,7 +131,7 @@ import { MatButtonModule } from '@angular/material/button';
               </mat-icon>
             </button>
           </mat-form-field>
-          <app-form-error [field]="loginCadForm().confirmPassword()" />
+          <app-form-error [field]="registerFormLogin.confirmPassword!()" />
         </div>
 
         <div class="flex flex-col gap-1.5">
@@ -129,7 +147,7 @@ import { MatButtonModule } from '@angular/material/button';
 
         <button
           type="submit"
-          [disabled]="isInvalid() || isLoading()"
+          [disabled]="registerFormLogin().invalid()"
           class="mt-4 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all disabled:opacity-70 flex justify-center items-center gap-2 h-12"
         >
           @if (isLoading()) {
@@ -143,19 +161,60 @@ import { MatButtonModule } from '@angular/material/button';
     </div>
   `,
 })
-export class FormRegisterLoginComponent {
-  // Inputs
-  loginCadForm = input.required<any>();
-  isLoading = input.required<boolean>();
-  isInvalid = input.required<boolean>();
-
+export class FormRegisterUsuarioComponent {
+  isLoading = signal<boolean>(false);
+  isRegisterOrLogin = signal<boolean>(true);
+  errorMessage = signal<string>('');
   // Signals para exibir/ocultar senha/confirmar senha
   hidePassword = signal<boolean>(true);
   hideConfirm = signal<boolean>(true);
-
   // Outputs
-  onRegisterSubmit = output<void>();
-  onRegisterLogin = output<boolean>();
+  onLoginOrRegister = output<boolean>();
+  // Modelo do formulário para cadastro
+  registerFormModel = signal<IUsuarioRequest>({
+    name: '',
+    userName: '',
+    password: '',
+    confirmPassword: '',
+    email: '',
+    activated: true,
+    permissions: ['guest'],
+  });
+  registerFormLogin = form(this.registerFormModel, (path: any) => {
+    // Nome completo
+    required(path.name, { message: 'Nome completo é obrigatório' });
+    minLength(path.name, 5, { message: 'O Nome deve ter no mínimo 5 caracteres' });
+    // Login
+    required(path.userName, { message: 'login é obrigatório' });
+    minLength(path.userName, 5, { message: 'O Login deve ter no mínimo 5 caracteres' });
+    maxLength(path.userName, 30, { message: 'O Login deve ter no máximo 30 caracteres' });
+    // Password
+    required(path.password!, { message: 'Senha é obrigatória' });
+    minLength(path.password!, 6, { message: 'Senha deve ter no mínimo 6 caracteres' });
+
+    // ConfirmPassword
+    required(path.confirmPassword!, { message: 'Confirme a Senha' });
+    validate(path.confirmPassword!, (fieldContext: any) => {
+      // Pegamos o valor que está no campo 'password' original
+      const currentValue = fieldContext.value();
+      const originalPassword = this.registerFormModel().password;
+
+      // Se a confirmação for diferente da original, retornamos o erro
+      if (currentValue !== originalPassword) {
+        return {
+          kind: 'passwordMismatch', // Um identificador único para o erro
+          message: 'As senhas não conferem',
+        };
+      }
+      // Se forem iguais, retornamos null (significa que passou na validação!)
+      return null;
+    });
+    // E-mail
+    required(path.email, { message: 'E-mail é obrigatório' });
+    email(path.email, { message: 'E-mail inválido' });
+  });
+
+  private readonly usuarioService = inject(UsuarioService);
 
   // Métodos para alternar a visualização
   togglePassword(event: MouseEvent) {
@@ -168,13 +227,35 @@ export class FormRegisterLoginComponent {
     this.hideConfirm.set(!this.hideConfirm());
   }
 
-  save(event: Event) {
-    event.preventDefault();
-    this.onRegisterSubmit.emit();
-  }
-
   goToLogin(event: Event) {
     event.preventDefault();
-    this.onRegisterLogin.emit(true);
+    this.onLoginOrRegister.emit(true);
+  }
+
+  async onSubmit() {
+    this.isLoading.set(true);
+
+    await submit(this.registerFormLogin, async () => {
+      // pega os valores de todos os campos do fomulário
+      const dataRegister = this.registerFormLogin().value();
+
+      // Retira o campo confirmPassword do objeto que será enviado para o backend
+      const { confirmPassword, ...payload } = dataRegister;
+
+      this.usuarioService.register(payload).subscribe({
+        next: () => {
+          this.isLoading.set(false);
+          this.isRegisterOrLogin.set(true);
+
+          // TODO: setar o nome do usuário que se cadastrou no
+          //  fornulário de login. A senha deve ser vazia.;
+        },
+        error: (err) => {
+          this.isLoading.set(false);
+          this.errorMessage.set(err.message);
+          console.error(err.message);
+        },
+      });
+    });
   }
 }
