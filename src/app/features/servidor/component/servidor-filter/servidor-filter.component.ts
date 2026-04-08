@@ -67,7 +67,6 @@ import { BaseEntityDTO } from '../../models/servidor.model';
       </div>
     </div>
   `,
-  styles: ``,
 })
 export class ServidorFilterComponent {
   // INPUTS: O que o Pai vai mandar para cá

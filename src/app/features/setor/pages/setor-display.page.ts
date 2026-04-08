@@ -30,7 +30,7 @@ export default class SetorDisplayPage extends BaseGenericComponent<SetorResponse
   // Injeções
   private readonly setorService = inject(SetorService);
 
-  // Implementação dos métodos obrigários herdados do pai
+  // Implementação dos métodos obrigatórios herdados do pai
   get entityService(): ICrudGeneric<SetorResponseDTO> {
     return this.setorService;
   }

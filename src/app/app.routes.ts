@@ -33,6 +33,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/home/pages/home.page'),
       },
       {
+        path: 'usuarios',
+        title: 'Gestão de Usuários',
+        loadComponent: () => import('./features/usuario/pages/usuario-list.page'),
+      },
+      {
         // A sua tela já existente, intacta!
         path: 'servidores',
         title: 'Gestão de Servidores',
