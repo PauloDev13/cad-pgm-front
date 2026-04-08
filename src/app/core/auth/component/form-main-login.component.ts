@@ -9,6 +9,7 @@ import { IAuthRequest } from '../models/auth.model';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
 import { MatIconButton } from '@angular/material/button';
+import { LoginStateService } from '../services/login-state.service';
 
 @Component({
   selector: 'app-form-main-login',
@@ -58,6 +59,7 @@ import { MatIconButton } from '@angular/material/button';
               autocomplete="new_password"
             />
             <button
+              tabIndex="-1"
               class="!mr-2 text-gray-500 hover:text-gray-700"
               mat-icon-button
               matSuffix
@@ -77,12 +79,14 @@ import { MatIconButton } from '@angular/material/button';
         <div class="flex flex-col gap-1.5">
           <div class="flex justify-between items-center">
             <a
+              tabindex="-1"
               href="#"
               class="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
               >Esqueceu a senha?</a
             >
             <a
               (click)="goToRegisterLogin($event)"
+              tabIndex="-1"
               href="#"
               class="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
               >Não é cadastrado?</a
@@ -107,14 +111,19 @@ import { MatIconButton } from '@angular/material/button';
   `,
 })
 export class FormMainLoginComponent {
+  // Signals
   isLoading = signal<boolean>(false);
   errorMessage = signal('');
+  // Signals para exibir/ocultar senha
   hidePassword = signal<boolean>(true);
   //Outputs
   onLoginOrRegister = output<boolean>();
-  // Modelo do formulário para login
+  // Injeções de dependências
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private loginStateService = inject(LoginStateService);
   formLoginModel = signal<IAuthRequest>({
-    login: '',
+    login: this.loginStateService.newUserName(),
     password: '',
   });
   // Formulário de login com validações
@@ -122,9 +131,10 @@ export class FormMainLoginComponent {
     required(path.login, { message: 'Nome do usuário é obrigatório' });
     required(path.password!, { message: 'A senha é obrigatório' });
   });
-  // Injeções de dependências
-  private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
+
+  constructor() {
+    this.loginStateService.newUserName.set('');
+  }
 
   // Métodos para alternar a visualização
   togglePassword(event: MouseEvent) {
@@ -136,10 +146,15 @@ export class FormMainLoginComponent {
     event.preventDefault();
     this.isLoading.set(true);
     await submit(this.loginForm, async () => {
+      // pega os valores de todos os campos do fomulário
       const dataLogin = this.loginForm().value();
+
+      // Chama o service para realizar enviar os dados de login
       this.authService.login(dataLogin).subscribe({
         next: () => {
           this.isLoading.set(false);
+
+          // Se o login foi bem-sucedido, vai para a página home
           this.router.navigate(['home']);
         },
         error: (err) => {

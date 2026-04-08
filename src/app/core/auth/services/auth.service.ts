@@ -49,7 +49,7 @@ export class AuthService {
     }
   }
 
-  // MÉTODO PRIVADO PARA BUSCAR O USUÁRIO LOGADO NO LOCALSTORAGE
+  // MÉTHOD PRIVADO PARA BUSCAR O USUÁRIO LOGADO NO LOCALSTORAGE
   private getStoredLoggedUser(): IAuthResponse | null {
     if (isPlatformBrowser(this.plataformId)) {
       const stored = localStorage.getItem(this.AUTH_KEY);

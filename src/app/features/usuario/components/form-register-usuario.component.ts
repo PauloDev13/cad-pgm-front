@@ -17,6 +17,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { IUsuarioRequest } from '../models/usuario.model';
 import { UsuarioService } from '../services/usuario.service';
+import { LoginStateService } from '../../../core/auth/services/login-state.service';
 
 @Component({
   selector: 'app-form-register-login',
@@ -35,7 +36,7 @@ import { UsuarioService } from '../services/usuario.service';
       <!-- Permite a injeção do componente HeaderLogin neste ponto-->
       <ng-content />
 
-      <form (submit)="onSubmit()" autocomplete="off" class="flex flex-col gap-5 w-full">
+      <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col gap-5 w-full">
         @if (errorMessage()) {
           <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
             <p class="text-sm text-red-700 font-medium">{{ errorMessage() }}</p>
@@ -137,6 +138,7 @@ import { UsuarioService } from '../services/usuario.service';
         <div class="flex flex-col gap-1.5">
           <div class="flex justify-end items-center">
             <a
+              tabindex="-1"
               href="#"
               (click)="goToLogin($event)"
               class="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
@@ -148,7 +150,9 @@ import { UsuarioService } from '../services/usuario.service';
         <button
           type="submit"
           [disabled]="registerFormLogin().invalid()"
-          class="mt-4 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all disabled:opacity-70 flex justify-center items-center gap-2 h-12"
+          class="mt-4 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg
+                hover:bg-blue-700 transition-all disabled:opacity-70 flex
+                justify-center items-center gap-2 h-12"
         >
           @if (isLoading()) {
             <mat-spinner diameter="20" color="accent"></mat-spinner>
@@ -162,14 +166,17 @@ import { UsuarioService } from '../services/usuario.service';
   `,
 })
 export class FormRegisterUsuarioComponent {
+  //Signals
   isLoading = signal<boolean>(false);
-  isRegisterOrLogin = signal<boolean>(true);
   errorMessage = signal<string>('');
+
   // Signals para exibir/ocultar senha/confirmar senha
   hidePassword = signal<boolean>(true);
   hideConfirm = signal<boolean>(true);
+
   // Outputs
   onLoginOrRegister = output<boolean>();
+
   // Modelo do formulário para cadastro
   registerFormModel = signal<IUsuarioRequest>({
     name: '',
@@ -180,6 +187,8 @@ export class FormRegisterUsuarioComponent {
     activated: true,
     permissions: ['guest'],
   });
+
+  // Formulário de cadastro com validações
   registerFormLogin = form(this.registerFormModel, (path: any) => {
     // Nome completo
     required(path.name, { message: 'Nome completo é obrigatório' });
@@ -215,6 +224,7 @@ export class FormRegisterUsuarioComponent {
   });
 
   private readonly usuarioService = inject(UsuarioService);
+  private readonly loginStateService = inject(LoginStateService);
 
   // Métodos para alternar a visualização
   togglePassword(event: MouseEvent) {
@@ -227,12 +237,8 @@ export class FormRegisterUsuarioComponent {
     this.hideConfirm.set(!this.hideConfirm());
   }
 
-  goToLogin(event: Event) {
+  async onSubmit(event: Event) {
     event.preventDefault();
-    this.onLoginOrRegister.emit(true);
-  }
-
-  async onSubmit() {
     this.isLoading.set(true);
 
     await submit(this.registerFormLogin, async () => {
@@ -242,13 +248,16 @@ export class FormRegisterUsuarioComponent {
       // Retira o campo confirmPassword do objeto que será enviado para o backend
       const { confirmPassword, ...payload } = dataRegister;
 
+      // Chama o service para realizar enviar os dados de cadastro
       this.usuarioService.register(payload).subscribe({
-        next: () => {
+        next: (response) => {
           this.isLoading.set(false);
-          this.isRegisterOrLogin.set(true);
 
-          // TODO: setar o nome do usuário que se cadastrou no
-          //  fornulário de login. A senha deve ser vazia.;
+          // Atualiza o signal do service com o nome do usuário recém-cadastrado
+          this.loginStateService.newUserName.set(response.userName);
+
+          // Avisa ao loginPage para trocar a tela
+          this.onLoginOrRegister.emit(true);
         },
         error: (err) => {
           this.isLoading.set(false);
@@ -257,5 +266,10 @@ export class FormRegisterUsuarioComponent {
         },
       });
     });
+  }
+
+  goToLogin(event: Event) {
+    event.preventDefault();
+    this.onLoginOrRegister.emit(true);
   }
 }
