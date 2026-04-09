@@ -12,38 +12,43 @@ import { BaseEntityDTO } from '../../../features/servidor/models/servidor.model'
   standalone: true,
   template: `
     @if (field()) {
-      <mat-form-field
-        appearance="outline"
-        class="w-full"
-        subscriptSizing="dynamic"
-        floatLabel="always"
-      >
-        <mat-label>{{ label() }}</mat-label>
-        <mat-select [formField]="field" [placeholder]="placeholder()">
-          @for (option of options(); track option.id) {
-            <mat-option [value]="option.id">
-              {{ option.nome || option.descricao }}
-            </mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+      <div class="flex flex-col relative pb-5">
+        <mat-form-field
+          appearance="outline"
+          class="w-full"
+          subscriptSizing="dynamic"
+          floatLabel="always"
+        >
+          <mat-label>{{ label() }}</mat-label>
+          <mat-select [formField]="field" [placeholder]="placeholder()">
+            @for (option of options(); track option.id) {
+              <mat-option [value]="option.id">
+                {{ option.nome || option.descricao }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
 
-      <app-form-error [field]="field()" />
+        <app-form-error class="absolute bottom-0 left-0 w-full" [field]="field()" />
+      </div>
     } @else {
-      <mat-form-field
-        appearance="outline"
-        class="w-full"
-        floatLabel="always"
-        subscriptSizing="dynamic"
-      >
-        <mat-select [(value)]="value" [placeholder]="placeholder()" [multiple]="multiple()">
-          @for (option of options(); track option.id) {
-            <mat-option [value]="option.id">
-              {{ option.nome || option.email }}
-            </mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+      <div class="flex flex-col relative pb-5">
+        <mat-form-field
+          appearance="outline"
+          class="w-full"
+          floatLabel="always"
+          subscriptSizing="dynamic"
+        >
+          <mat-select [(value)]="value" [placeholder]="placeholder()" [multiple]="multiple()">
+            @for (option of options(); track option.id) {
+              <mat-option [value]="option.id">
+                {{ option.nome || option.email }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <app-form-error class="absolute bottom-0 left-0 w-full" [field]="field()" />
+      </div>
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

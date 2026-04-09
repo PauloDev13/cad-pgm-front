@@ -48,15 +48,25 @@ import { MatSelectModule } from '@angular/material/select';
     <h2 mat-dialog-title class="!font-bold !text-xl !pb-0">
       {{ isEdit ? 'Editar Usuário' : 'Novo Usuário' }}
     </h2>
+    <button
+      mat-icon-button
+      mat-dialog-close
+      aria-label="Fechar"
+      class="!absolute !top-3 !right-6 !w-8 !h-8 !flex !items-center !justify-center
+            !bg-blue-600 hover:!bg-blue-500 !transition-transform !duration-300
+             !ease-in-out hover:!scale-105"
+    >
+      <mat-icon class="!text-white !scale-75">close</mat-icon>
+    </button>
     <mat-dialog-content class="!pt-4">
-      <form autocomplete="off" class="flex flex-col gap-5">
+      <form autocomplete="off" class="flex flex-col gap-2">
         <div>
           <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">
             Dados do cadastro
           </h3>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div class="flex flex-col col-span-2">
+          <div class="grid grid-cols-1 gap-3">
+            <div class="flex flex-col relative pb-5">
               <!--Campo nome-->
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                 <mat-label>Nome Completo</mat-label>
@@ -66,16 +76,20 @@ import { MatSelectModule } from '@angular/material/select';
               <!--Chama o componente customizado para exibir os erros-->
               <app-form-error [field]="usuarioForm.name()" />
             </div>
-            <div class="flex flex-col">
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1">
+            <div class="flex flex-col relative pb-5">
               <!--Campo Login-->
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                 <mat-label>Login (User Name)</mat-label>
                 <input matInput [formField]="usuarioForm.userName" />
               </mat-form-field>
+
               <!--Chama o componente customizado para exibir os erros-->
               <app-form-error [field]="usuarioForm.userName()" />
             </div>
-            <div class="flex flex-col">
+
+            <div class="flex flex-col relative pb-5">
               <!--Campo E-mail-->
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                 <mat-label>E-Mail</mat-label>
@@ -86,34 +100,15 @@ import { MatSelectModule } from '@angular/material/select';
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mt-3">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
             <div class="flex flex-col">
-              <!--Campo Senha-->
-              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                <mat-label>Senha</mat-label>
-                <input matInput [formField]="usuarioForm.password" />
-              </mat-form-field>
-              <!--Chama o componente customizado para exibir os erros-->
-              <app-form-error [field]="usuarioForm.password()" />
-            </div>
-
-            <div class="flex flex-col">
-              <!--Confirmar Senha-->
-              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                <mat-label>Confirmar Senha</mat-label>
-                <input matInput [formField]="usuarioForm.confirmPassword!" />
-              </mat-form-field>
-
-              <!--Chama o componente customizado para exibir os erros-->
-              <app-form-error [field]="usuarioForm.confirmPassword!()" />
-            </div>
-            <div class="flex flex-col col-span-2">
               <mat-form-field
                 appearance="outline"
                 class="w-full"
                 floatLabel="always"
                 subscriptSizing="dynamic"
               >
+                <mat-label>Permissões de Acesso</mat-label>
                 <mat-select
                   multiple="true"
                   placeholder="Adicione permissões de acesso"
@@ -125,32 +120,34 @@ import { MatSelectModule } from '@angular/material/select';
                 </mat-select>
               </mat-form-field>
             </div>
+            <div class="flex flex-col">
+              <div class=" flex justify-end gap-2">
+                <button
+                  mat-stroked-button
+                  type="button"
+                  mat-dialog-close
+                  class="!border-blue-600 !text-blue-600 !transition-transform
+                        duration-300 !ease-in-out hover:!scale-105"
+                >
+                  <mat-icon>close</mat-icon>
+                  Alterar Senha
+                </button>
+                <button
+                  mat-flat-button
+                  class="!transition-transform duration-300 !ease-in-out hover:!scale-105"
+                  (click)="salvar()"
+                  [disabled]="usuarioForm().invalid()"
+                >
+                  <mat-icon class="!mr-0.5">save</mat-icon>
+                  {{ isEdit ? 'Atualizar' : 'Salvar' }}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
         <div></div>
       </form>
     </mat-dialog-content>
-    <mat-dialog-actions align="end" class="!pb-6 !pr-6">
-      <button
-        mat-stroked-button
-        type="button"
-        mat-dialog-close
-        class="!border-blue-600 !text-blue-600 !transition-transform
-               duration-300 !ease-in-out hover:!scale-105"
-      >
-        <mat-icon>close</mat-icon>
-        Cancelar
-      </button>
-      <button
-        mat-flat-button
-        class="!transition-transform duration-300 !ease-in-out hover:!scale-105"
-        (click)="salvar()"
-        [disabled]="usuarioForm().invalid()"
-      >
-        <mat-icon class="!mr-0.5">save</mat-icon>
-        {{ isEdit ? 'Atualizar' : 'Salvar' }}
-      </button>
-    </mat-dialog-actions>
   `,
 })
 export class UsuarioFormComponent implements OnInit {

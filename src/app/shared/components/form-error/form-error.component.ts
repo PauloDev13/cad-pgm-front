@@ -8,7 +8,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
   template: `
     @if (field().invalid() && field().touched()) {
       @for (error of field().errors(); track error) {
-        <mat-error class="pl-3 text-xs">{{ error.message }}</mat-error>
+        <mat-error class="pl-3 text-xs absolute bottom-0 left-0 w-full"
+          >{{ error.message }}
+        </mat-error>
       }
     }
   `,

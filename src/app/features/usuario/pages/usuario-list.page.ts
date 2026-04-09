@@ -30,14 +30,14 @@ import { MatDialog } from '@angular/material/dialog';
         </div>
         <button
           mat-flat-button
-          class="!bg-blue-500
+          class="!bg-blue-600 hover:!bg-blue-500
           !transition-transform
-          duration-300
+          !duration-300
           !ease-in-out
           hover:!scale-105"
           (click)="openForm()"
         >
-          <mat-icon>add</mat-icon>
+          <mat-icon class="!scale-105 right-1">add</mat-icon>
           Novo
         </button>
       </div>
@@ -130,7 +130,6 @@ export default class UsuarioListPage implements OnInit {
   }
 
   openForm(usuario?: IUsuarioResponse) {
-    // TODO: Implementar chamada para o modal de cadastro
     const dialogRef = this.dialog.open(UsuarioFormComponent, {
       width: '700px',
       maxWidth: '95vw',

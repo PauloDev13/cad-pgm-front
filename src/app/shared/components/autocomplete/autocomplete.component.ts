@@ -19,37 +19,44 @@ import { ErrorStateMatcher } from '@angular/material/core';
   ],
   standalone: true,
   template: `
-    <mat-form-field
-      appearance="outline"
-      subscriptSizing="dynamic"
-      floatLabel="always"
-      class="w-full"
-    >
-      <mat-label>{{ label() }}</mat-label>
+    <div class="flex flex-col relative pb-5 w-full">
+      <mat-form-field
+        appearance="outline"
+        subscriptSizing="dynamic"
+        floatLabel="always"
+        class="w-full"
+      >
+        <mat-label>{{ label() }}</mat-label>
 
-      <input
-        type="text"
-        matInput
-        [placeholder]="placeholder()"
-        [matAutocomplete]="auto"
-        [value]="displayValue()"
-        (input)="onInput($event)"
-        (blur)="onBlur()"
-        [errorStateMatcher]="errorMatcher"
-      />
+        <input
+          type="text"
+          matInput
+          [placeholder]="placeholder()"
+          [matAutocomplete]="auto"
+          [value]="displayValue()"
+          (input)="onInput($event)"
+          (blur)="onBlur()"
+          [errorStateMatcher]="errorMatcher"
+        />
 
-      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onSelected($event.option.value)">
-        @for (item of filteredData(); track item[valueKey()]) {
-          <mat-option [value]="item[valueKey()]">
-            {{ item[displayKey()] }}
-          </mat-option>
-        }
-      </mat-autocomplete>
-    </mat-form-field>
+        <mat-autocomplete
+          #auto="matAutocomplete"
+          (optionSelected)="onSelected($event.option.value)"
+        >
+          @for (item of filteredData(); track item[valueKey()]) {
+            <mat-option [value]="item[valueKey()]">
+              {{ item[displayKey()] }}
+            </mat-option>
+          }
+        </mat-autocomplete>
+      </mat-form-field>
 
-    @if (showError()) {
-      <mat-error class="!text-[12px] pl-3">{{ showError() }}</mat-error>
-    }
+      @if (showError()) {
+        <mat-error class="!text-[12px] pl-3 absolute bottom-0 left-0 w-full">{{
+          showError()
+        }}</mat-error>
+      }
+    </div>
   `,
 })
 export class AutocompleteComponent {
