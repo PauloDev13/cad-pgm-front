@@ -92,7 +92,12 @@ import { LoadingComponent } from '../../../../shared/components/loading.componen
               visibility
             </mat-icon>
           </button>
-          <button mat-icon-button matTooltip="Editar" class="group !w-8 !h-8 !leading-none mr-2">
+          <button
+            (click)="edit.emit(u)"
+            mat-icon-button
+            matTooltip="Editar"
+            class="group !w-8 !h-8 !leading-none mr-2"
+          >
             <mat-icon
               class="!text-blue-600 transition-transform duration-200
                 group-hover:!text-blue-900 group-hover:!scale-125 !text-[20px]"

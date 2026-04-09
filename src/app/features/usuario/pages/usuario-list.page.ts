@@ -13,6 +13,8 @@ import { IUsuarioResponse } from '../models/usuario.model';
 import { UsuarioService } from '../services/usuario.service';
 import { UsuarioTableComponent } from '../components/usuario-table.component/usuario-table.component';
 import { UsuarioFilterComponent } from '../components/usuario-filter.component/usuario-filter.component';
+import { UsuarioFormComponent } from '../components/usuario-form.component/usuario-form.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-servidor-list',
@@ -90,7 +92,8 @@ export default class UsuarioListPage implements OnInit {
   // Injeções
   private readonly usuarioService = inject(UsuarioService);
   private readonly toastService = inject(ToastService);
-  // private readonly dialog = inject(MatDialog);
+  private readonly dialog = inject(MatDialog);
+
   // private readonly customDeleteService = inject(CustomDeleteService);
 
   ngOnInit(): void {
@@ -128,19 +131,19 @@ export default class UsuarioListPage implements OnInit {
 
   openForm(usuario?: IUsuarioResponse) {
     // TODO: Implementar chamada para o modal de cadastro
-    // const dialogRef = this.dialog.open(ServidorFormComponent, {
-    //   width: '1000px',
-    //   maxWidth: '95vw',
-    //   maxHeight: '90vw',
-    //   data: servidor,
-    //   disableClose: true,
-    // });
-    //
-    // dialogRef.afterClosed().subscribe((result) => {
-    //   if (result) {
-    //     this.loadData(); // Recarrega se houve alteração
-    //   }
-    // });
+    const dialogRef = this.dialog.open(UsuarioFormComponent, {
+      width: '700px',
+      maxWidth: '95vw',
+      maxHeight: '90vw',
+      data: usuario,
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loadData(); // Recarrega se houve alteração
+      }
+    });
   }
 
   delete(id: number) {

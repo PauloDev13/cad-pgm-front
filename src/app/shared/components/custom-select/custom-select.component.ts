@@ -3,8 +3,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { FormField } from '@angular/forms/signals';
-import { BaseEntityDTO } from '../../../features/servidor/models/servidor.model';
 import { FormErrorComponent } from '../form-error/form-error.component';
+import { BaseEntityDTO } from '../../../features/servidor/models/servidor.model';
 
 @Component({
   selector: 'app-custom-select',
@@ -30,7 +30,12 @@ import { FormErrorComponent } from '../form-error/form-error.component';
 
       <app-form-error [field]="field()" />
     } @else {
-      <mat-form-field appearance="outline" class="w-full" floatLabel="always">
+      <mat-form-field
+        appearance="outline"
+        class="w-full"
+        floatLabel="always"
+        subscriptSizing="dynamic"
+      >
         <mat-select [(value)]="value" [placeholder]="placeholder()" [multiple]="multiple()">
           @for (option of options(); track option.id) {
             <mat-option [value]="option.id">

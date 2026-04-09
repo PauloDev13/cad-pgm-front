@@ -16,3 +16,11 @@ export interface IUsuarioResponse {
   activated: boolean;
   permissions: string[];
 }
+
+export interface IRoles {
+  roles: string[];
+}
+
+export const roles: IRoles = {
+  roles: ['admin', 'rh', 'gabinete', 'guest'],
+};

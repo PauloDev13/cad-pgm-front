@@ -51,6 +51,7 @@ import { MatSelect } from '@angular/material/select';
     </div>
   `,
   styles: ``,
+  standalone: true,
 })
 export class UsuarioFilterComponent {
   // INPUTS: O que o Pai vai mandar para cá

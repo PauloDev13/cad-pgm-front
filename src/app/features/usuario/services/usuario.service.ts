@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { catchError, Observable, throwError } from 'rxjs';
-import { IUsuarioRequest, IUsuarioResponse } from '../models/usuario.model';
+import { catchError, Observable, of, throwError } from 'rxjs';
+import { IRoles, IUsuarioRequest, IUsuarioResponse, roles } from '../models/usuario.model';
 import { PageResponse } from '../../../shared/model/pagination.model';
 import { UsuarioResponse } from '../../../shared/model/auth-login.model';
 
@@ -21,6 +21,14 @@ export class UsuarioService {
         return throwError(() => new Error(msg));
       }),
     );
+  }
+
+  create(data: IUsuarioRequest): Observable<IUsuarioResponse> {
+    return this.http.post<IUsuarioResponse>(`${this.API_URL}/usuarios`, data);
+  }
+
+  update(id: number, data: IUsuarioRequest): Observable<IUsuarioResponse> {
+    return this.http.put<IUsuarioResponse>(`${this.API_URL}/usuarios/${id}`, data);
   }
 
   searchFilter(
@@ -49,8 +57,7 @@ export class UsuarioService {
     });
   }
 
-  findAll(page: number = 0, size: number = 10): Observable<PageResponse<IUsuarioResponse>> {
-    const params = new HttpParams().set('page', page).set('size', size);
-    return this.http.get<PageResponse<IUsuarioResponse>>(`${this.API_URL}/usuarios`, { params });
+  getRoles(): Observable<IRoles> {
+    return of(roles);
   }
 }
