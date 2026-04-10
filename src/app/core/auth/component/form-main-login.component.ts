@@ -7,7 +7,7 @@ import { form, FormField, required, submit } from '@angular/forms/signals';
 import { MatInputModule } from '@angular/material/input';
 import { IAuthRequest } from '../models/auth.model';
 import { AuthService } from '../services/auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatIconButton } from '@angular/material/button';
 import { LoginStateService } from '../services/login-state.service';
 
@@ -21,6 +21,7 @@ import { LoginStateService } from '../services/login-state.service';
     MatProgressSpinnerModule,
     FormField,
     MatIconButton,
+    RouterLink
   ],
   standalone: true,
   template: `
@@ -80,16 +81,16 @@ import { LoginStateService } from '../services/login-state.service';
           <div class="flex justify-between items-center">
             <a
               tabindex="-1"
-              href="#"
+              routerLink="/auth/esqueci-senha"
               class="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
-              >Esqueceu a senha?</a
+            >Esqueceu a senha?</a
             >
             <a
               (click)="goToRegisterLogin($event)"
               tabIndex="-1"
               href="#"
               class="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
-              >Não é cadastrado?</a
+            >Não é cadastrado?</a
             >
           </div>
         </div>
@@ -108,24 +109,29 @@ import { LoginStateService } from '../services/login-state.service';
         </button>
       </form>
     </div>
-  `,
+  `
 })
 export class FormMainLoginComponent {
+  // Injeções de dependências
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly loginStateService = inject(LoginStateService);
+
   // Signals
   isLoading = signal<boolean>(false);
   errorMessage = signal('');
   // Signals para exibir/ocultar senha
   hidePassword = signal<boolean>(true);
+
   //Outputs
   onLoginOrRegister = output<boolean>();
-  // Injeções de dependências
-  private authService = inject(AuthService);
-  private router = inject(Router);
-  private loginStateService = inject(LoginStateService);
+
+  // Modelo do formulário
   formLoginModel = signal<IAuthRequest>({
     login: this.loginStateService.newUserName(),
-    password: '',
+    password: ''
   });
+
   // Formulário de login com validações
   loginForm = form(this.formLoginModel, (path: any) => {
     required(path.login, { message: 'Nome do usuário é obrigatório' });
@@ -161,7 +167,7 @@ export class FormMainLoginComponent {
           this.isLoading.set(false);
           this.loginForm().reset({ login: '', password: '' });
           this.errorMessage.set(err.message);
-        },
+        }
       });
     });
   }

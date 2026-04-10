@@ -2,19 +2,20 @@ import { inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { IAuthRequest, IAuthResponse } from '../models/auth.model';
+import { IAuthRequest, IAuthResponse, IForgotPasswordRequest, IResetPasswordRequest } from '../models/auth.model';
 import { isPlatformBrowser } from '@angular/common';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class AuthService {
-  currentUser = signal<IAuthResponse | null>(null);
-  // A chave que usaremos para guardar o usuário logado no localstorage
   private readonly AUTH_KEY = 'sistema_logged_user';
-  private API_URL = `${environment.apiUrl}/api/v1`;
+  private readonly API_URL = `${environment.apiUrl}/api/v1`;
   private readonly plataformId = inject(PLATFORM_ID);
   private readonly http = inject(HttpClient);
+
+  // A chave que usaremos para guardar o usuário logado no localstorage
+  currentUser = signal<IAuthResponse | null>(null);
 
   constructor() {
     this.currentUser.set(this.getStoredLoggedUser());
@@ -34,7 +35,7 @@ export class AuthService {
         console.error('Erro na autenticação:', error);
         const msg = error.error?.message || 'Credenciais inválidas';
         return throwError(() => new Error(msg));
-      }),
+      })
     );
   }
 
@@ -47,6 +48,34 @@ export class AuthService {
       // Remove o usuário logado do localstorage
       localStorage.removeItem(this.AUTH_KEY);
     }
+  }
+
+  // Solicita o envio do e-mail de recuperação
+
+  forgotPassword(email: string): Observable<any> {
+    const url = `${environment.apiUrl}/api/v1/auth/forgot-password`;
+    const payload: IForgotPasswordRequest = { email };
+
+    // Como o retorno provavelmente é apenas um 200 OK genérico, tipamos como 'any' ou 'void'
+    return this.http.post(url, payload, { responseType: 'text' }).pipe(
+      catchError((error) => {
+        console.error('Erro ao solicitar redefinição:', error);
+        return throwError(() => new Error('Falha ao processar a solicitação.'));
+      })
+    );
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<any> {
+    const url = `${environment.apiUrl}/api/v1/auth/reset-password`;
+    const payload: IResetPasswordRequest = { token, newPassword };
+
+    return this.http.post(url, payload, { responseType: 'text' }).pipe(
+      catchError((error) => {
+        console.error('Erro ao redefinir senha:', error);
+        // Pode ser token expirado ou inválido
+        return throwError(() => new Error('O link é inválido ou expirou. Solicite novamente.'));
+      })
+    );
   }
 
   // MÉTHOD PRIVADO PARA BUSCAR O USUÁRIO LOGADO NO LOCALSTORAGE
