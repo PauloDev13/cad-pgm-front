@@ -79,7 +79,7 @@ export type FormModel = Required<ServidorRequestDTO>;
     <mat-dialog-content class="!pt-4">
       <form autocomplete="off" class="flex flex-col">
         <div>
-          <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">
+          <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
             Dados Pessoais
           </h3>
           <button

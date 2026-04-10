@@ -35,7 +35,7 @@ import { ServidorTableComponent } from '../component/servidor-table/servidor-tab
           hover:!scale-105"
           (click)="openForm()"
         >
-          <mat-icon>add</mat-icon>
+          <mat-icon class="!scale-105 right-1">add</mat-icon>
           Novo
         </button>
       </div>

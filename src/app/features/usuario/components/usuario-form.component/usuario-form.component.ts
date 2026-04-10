@@ -61,7 +61,7 @@ import { MatSelectModule } from '@angular/material/select';
     <mat-dialog-content class="!pt-4">
       <form autocomplete="off" class="flex flex-col gap-2">
         <div>
-          <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">
+          <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
             Dados do cadastro
           </h3>
 

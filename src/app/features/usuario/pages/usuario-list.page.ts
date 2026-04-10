@@ -30,7 +30,7 @@ import { MatDialog } from '@angular/material/dialog';
         </div>
         <button
           mat-flat-button
-          class="!bg-blue-600 hover:!bg-blue-500
+          class="!bg-blue-600 hover:!bg-blue-600
           !transition-transform
           !duration-300
           !ease-in-out
