@@ -1,23 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ServidorService } from '../../services/servidor.service';
-import {
-  MAT_DIALOG_DATA,
-  MatDialog,
-  MatDialogModule,
-  MatDialogRef,
-} from '@angular/material/dialog';
-import {
-  BaseEntityDTO,
-  ServidorRequestDTO,
-  ServidorResponseDTO,
-} from '../../models/servidor.model';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { BaseEntityDTO, ServidorRequestDTO, ServidorResponseDTO } from '../../models/servidor.model';
 import {
   email,
   form,
@@ -27,7 +11,7 @@ import {
   pattern,
   required,
   submit,
-  validate,
+  validate
 } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -43,13 +27,13 @@ import { CustomSelectComponent } from '../../../../shared/components/custom-sele
 import { ToastService } from '../../../../shared/service/toast.service';
 import {
   PermissoesDialogComponent,
-  PermissoesDialogData,
+  PermissoesDialogData
 } from '../../../../shared/components/permissoes-dialog/permissoes-dialog.component';
 import { MatIconModule } from '@angular/material/icon';
 import { CustomValidators } from '../../../../shared/utils/custom-validators';
 import { NgxMaskDirective } from 'ngx-mask';
-import { FormErrorComponent } from '../../../../shared/components/form-error/form-error.component';
 import { AuthService } from '../../../../core/auth/services/auth.service';
+import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper.component';
 
 export type FormModel = Required<ServidorRequestDTO>;
 
@@ -68,60 +52,54 @@ export type FormModel = Required<ServidorRequestDTO>;
     AutocompleteComponent,
     CustomSelectComponent,
     NgxMaskDirective,
-    FormErrorComponent,
+    FieldWrapperComponent
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <h2 mat-dialog-title class="!font-bold !text-xl !pb-0">
+    <h2 mat-dialog-title class="!font-bold !text-xl !pb-0 !text-blue-700">
       {{ isEdit ? 'Editar Servidor' : 'Novo Servidor' }}
     </h2>
+    <button
+      mat-icon-button
+      mat-dialog-close
+      aria-label="Fechar"
+      class="!absolute !top-3 !right-3 !w-8 !h-8 !flex !items-center !justify-center
+            !bg-blue-600 hover:!bg-blue-500 !transition-transform !duration-300
+             !ease-in-out hover:!scale-105"
+    >
+      <mat-icon class="!text-white !scale-75">close</mat-icon>
+    </button>
     <mat-dialog-content class="!pt-4">
-      <form autocomplete="off" class="flex flex-col">
+      <form autocomplete="off" class="flex flex-col gap-2">
         <div>
           <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
             Dados Pessoais
           </h3>
-          <button
-            mat-icon-button
-            mat-dialog-close
-            aria-label="Fechar"
-            class="!absolute !top-3 !right-6 !w-8 !h-8 !flex !items-center !justify-center
-            !bg-blue-600 hover:!bg-blue-500 !transition-transform !duration-300
-             !ease-in-out hover:!scale-105"
-          >
-            <mat-icon class="!text-white !scale-75">close</mat-icon>
-          </button>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div class="flex flex-col relative pb-5">
-              <!--Campo nome-->
-              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                <mat-label>Nome Completo</mat-label>
-                <input matInput [formField]="servidorForm.nome" placeholder="Ex: João da Silva" />
-              </mat-form-field>
-              <!--Chama o componente customizado para exibir os erros-->
-              <app-form-error [field]="servidorForm.nome()" />
-            </div>
-
-            <!--Campo filiação-->
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Filiação (Nome da Mãe/Pai)</mat-label>
-              <input matInput [formField]="servidorForm.filiacao" />
+          <app-field-wrapper [field]="servidorForm.nome()">
+            <!--Campo nome-->
+            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+              <mat-label>Nome Completo</mat-label>
+              <input matInput [formField]="servidorForm.nome" placeholder="Ex: João da Silva" />
             </mat-form-field>
-          </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mt-1">
-            <div class="flex flex-col relative pb-5">
+          </app-field-wrapper>
+          <!--Campo filiação-->
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Filiação (Nome da Mãe/Pai)</mat-label>
+            <input matInput [formField]="servidorForm.filiacao" />
+          </mat-form-field>
+
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <app-field-wrapper [field]="servidorForm.matricula()">
               <!--Campo Matrícula-->
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                 <mat-label>Matrícula</mat-label>
                 <input matInput [formField]="servidorForm.matricula" />
               </mat-form-field>
-              <!--Chama o componente customizado para exibir os erros-->
-              <app-form-error [field]="servidorForm.matricula()" />
-            </div>
+            </app-field-wrapper>
 
-            <div class="flex flex-col relative pb-5">
+            <app-field-wrapper [field]="servidorForm.cpf()">
               <!--Campo CPF-->
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                 <mat-label>CPF</mat-label>
@@ -132,11 +110,10 @@ export type FormModel = Required<ServidorRequestDTO>;
                   mask="000.000.000-00"
                 />
               </mat-form-field>
-              <!--Chama o componente customizado para exibir os erros-->
-              <app-form-error [field]="servidorForm.cpf()" />
-            </div>
 
-            <div class="flex flex-col relative pb-5">
+            </app-field-wrapper>
+
+            <app-field-wrapper [field]="servidorForm.dataNascimento()">
               <!--Campo Data Nascimento-->
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                 <mat-label>Data de Nascimento</mat-label>
@@ -150,9 +127,7 @@ export type FormModel = Required<ServidorRequestDTO>;
                 <mat-datepicker #pickerNascimento></mat-datepicker>
               </mat-form-field>
 
-              <!--Chama o componente customizado para exibir os erros-->
-              <app-form-error [field]="servidorForm.dataNascimento()" />
-            </div>
+            </app-field-wrapper>
 
             <!--Campo Gênero-->
             <app-custom-select
@@ -163,37 +138,33 @@ export type FormModel = Required<ServidorRequestDTO>;
             />
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-1">
-            <!--Campo telefone-->
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Telefone</mat-label>
-              <input matInput [formField]="servidorForm.telefone" />
-            </mat-form-field>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <app-field-wrapper [field]="servidorForm.telefone()">
+              <!--Campo telefone-->
+              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                <mat-label>Telefone</mat-label>
+                <input matInput [formField]="servidorForm.telefone" />
+              </mat-form-field>
+            </app-field-wrapper>
 
-            <div class="flex flex-col relative pb-5">
+            <app-field-wrapper [field]="servidorForm.emailPessoal()">
               <!--Campo email pessoal-->
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                 <mat-label>E-mail Pessoal</mat-label>
                 <input matInput [formField]="servidorForm.emailPessoal" type="email" />
               </mat-form-field>
+            </app-field-wrapper>
 
-              <!--Chama o componente customizado para exibir os erros-->
-              <app-form-error [field]="servidorForm.emailPessoal()" />
-            </div>
-
-            <div class="flex flex-col relative pb-5">
+            <app-field-wrapper [field]="servidorForm.emailInstitucional()">
               <!--Campo email institucional-->
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                 <mat-label>E-mail Institucional</mat-label>
                 <input matInput [formField]="servidorForm.emailInstitucional" type="email" />
               </mat-form-field>
-
-              <!--Chama o componente customizado para exibir os erros-->
-              <app-form-error [field]="servidorForm.emailInstitucional()" />
-            </div>
+            </app-field-wrapper>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-1 gap-3 mb-5 mt-1">
+          <div class="grid grid-cols-1 md:grid-cols-1 mb-6">
             <!--Campo Endereço-->
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
               <mat-label>Endereço Completo</mat-label>
@@ -242,7 +213,7 @@ export type FormModel = Required<ServidorRequestDTO>;
             />
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-1">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
             <!--Campo Status-->
             <app-custom-select
               label="Status"
@@ -286,7 +257,7 @@ export type FormModel = Required<ServidorRequestDTO>;
         {{ isEdit ? 'Atualizar' : 'Salvar' }}
       </button>
     </mat-dialog-actions>
-  `,
+  `
 })
 export class ServidorFormComponent implements OnInit {
   isEdit: boolean = false;
@@ -323,7 +294,7 @@ export class ServidorFormComponent implements OnInit {
 
     procuradorIds: [],
     aliasIds: [],
-    sistemaIds: [],
+    sistemaIds: []
   });
 
   // validações dos campos do formulário
@@ -332,13 +303,13 @@ export class ServidorFormComponent implements OnInit {
     required(path.nome, { message: 'O nome é obrigatório' });
     minLength(path.nome, 5, { message: 'O Nome deve ter no mínimo 5 caracteres' });
     maxLength(path.nome, 150, {
-      message: 'O nome deve ter no máximo 150 caracteres',
+      message: 'O nome deve ter no máximo 150 caracteres'
     });
 
     // validações para o campo Matrícula
     required(path.matricula, { message: 'A matrícula é obrigatório' });
     maxLength(path.matricula, 20, {
-      message: 'A matrícula deve ter no máximo 20 caracteres',
+      message: 'A matrícula deve ter no máximo 20 caracteres'
     });
 
     // validações para o campo CPF
@@ -352,19 +323,19 @@ export class ServidorFormComponent implements OnInit {
 
     // validações para o campo Telefone
     maxLength(path.telefone, 20, {
-      message: 'O telefone deve ter no máximo 20 dígitos',
+      message: 'O telefone deve ter no máximo 20 dígitos'
     });
 
     // validações para o campo Email Pessoal
     required(path.emailPessoal, { message: 'O Email é obrigatório' });
     email(path.emailPessoal, { message: 'Formato de email inválido' });
     maxLength(path.emailPessoal, 100, {
-      message: 'O Email deve ter no máximo 100 caracteres',
+      message: 'O Email deve ter no máximo 100 caracteres'
     });
 
     // validações para o campo Email Institucional
     maxLength(path.emailInstitucional, 100, {
-      message: 'O Email deve ter no máximo 100 caracteres',
+      message: 'O Email deve ter no máximo 100 caracteres'
     });
     email(path.emailInstitucional, { message: 'Formato de email inválido' });
 
@@ -397,7 +368,7 @@ export class ServidorFormComponent implements OnInit {
   onCargoChange(id: number | null) {
     this.servidorModel.update((m) => ({
       ...m,
-      cargoId: id as number,
+      cargoId: id as number
     }));
   }
 
@@ -428,7 +399,7 @@ export class ServidorFormComponent implements OnInit {
         // O map() extrai só os IDs para o DTO de envio: [1]. Se for nulo, devolve [] vazio.
         sistemaIds: this.data?.sistemas?.map((s) => s.id) || [],
         procuradorIds: this.data?.procuradores?.map((p) => p.id) || [],
-        aliasIds: this.data?.aliases?.map((a) => a.id) || [],
+        aliasIds: this.data?.aliases?.map((a) => a.id) || []
       }));
     }
   }
@@ -449,7 +420,7 @@ export class ServidorFormComponent implements OnInit {
         }
 
         this.toastService.success(
-          `Servidor ${this.isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`,
+          `Servidor ${this.isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`
         );
 
         this.dialogRef.close(true);
@@ -467,7 +438,7 @@ export class ServidorFormComponent implements OnInit {
             messageDefaultErro =
               error.error.errors[0].defaultMessage || 'Erro de validação nos dados enviados.';
           }
-          // Tratamento 3: Erro de Validação de Múltiplos Campos (@Valid do Spring)
+            // Tratamento 3: Erro de Validação de Múltiplos Campos (@Valid do Spring)
           // (Às vezes o Spring mapeia os erros em um array chamado "errors")
           else if (error.error && Array.isArray(error.error.errors)) {
             messageDefaultErro =
@@ -486,8 +457,8 @@ export class ServidorFormComponent implements OnInit {
       data: {
         sistemaIds: this.servidorModel().sistemaIds || [],
         procuradorIds: this.servidorModel().procuradorIds || [],
-        aliasIds: this.servidorModel().aliasIds || [],
-      },
+        aliasIds: this.servidorModel().aliasIds || []
+      }
     });
     dialogRef.afterClosed().subscribe((result: PermissoesDialogData | undefined) => {
       if (result) {
@@ -496,7 +467,7 @@ export class ServidorFormComponent implements OnInit {
           ...model,
           sistemaIds: result.sistemaIds,
           procuradorIds: result.procuradorIds,
-          aliasIds: result.aliasIds,
+          aliasIds: result.aliasIds
         }));
       }
     });

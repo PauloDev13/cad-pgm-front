@@ -1,22 +1,6 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import {
-  email,
-  form,
-  FormField,
-  maxLength,
-  minLength,
-  required,
-  submit,
-  validate,
-} from '@angular/forms/signals';
+import { email, form, FormField, maxLength, minLength, required, submit, validate } from '@angular/forms/signals';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { ToastService } from '../../../../shared/service/toast.service';
 import { firstValueFrom } from 'rxjs';
@@ -27,8 +11,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { FormErrorComponent } from '../../../../shared/components/form-error/form-error.component';
 import { MatSelectModule } from '@angular/material/select';
+import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper.component';
 
 @Component({
   selector: 'app-usuario-form.component',
@@ -39,20 +23,20 @@ import { MatSelectModule } from '@angular/material/select';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    FormErrorComponent,
     MatSelectModule,
+    FieldWrapperComponent
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <h2 mat-dialog-title class="!font-bold !text-xl !pb-0">
+    <h2 mat-dialog-title class="!font-bold !text-xl !pb-0 !text-blue-700">
       {{ isEdit ? 'Editar Usuário' : 'Novo Usuário' }}
     </h2>
     <button
       mat-icon-button
       mat-dialog-close
       aria-label="Fechar"
-      class="!absolute !top-3 !right-6 !w-8 !h-8 !flex !items-center !justify-center
+      class="!absolute !top-3 !right-3 !w-8 !h-8 !flex !items-center !justify-center
             !bg-blue-600 hover:!bg-blue-500 !transition-transform !duration-300
              !ease-in-out hover:!scale-105"
     >
@@ -65,50 +49,40 @@ import { MatSelectModule } from '@angular/material/select';
             Dados do cadastro
           </h3>
 
-          <div class="grid grid-cols-1 gap-3">
-            <div class="flex flex-col relative pb-5">
-              <!--Campo nome-->
-              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                <mat-label>Nome Completo</mat-label>
-                <input matInput [formField]="usuarioForm.name" placeholder="Ex: João da Silva" />
-              </mat-form-field>
+          <app-field-wrapper [field]="usuarioForm.name()">
+            <!--Campo nome-->
+            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+              <mat-label>Nome Completo</mat-label>
+              <input matInput [formField]="usuarioForm.name" placeholder="Ex: João da Silva" />
+            </mat-form-field>
+          </app-field-wrapper>
 
-              <!--Chama o componente customizado para exibir os erros-->
-              <app-form-error [field]="usuarioForm.name()" />
-            </div>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1">
-            <div class="flex flex-col relative pb-5">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <app-field-wrapper [field]="usuarioForm.userName()">
               <!--Campo Login-->
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                 <mat-label>Login (User Name)</mat-label>
                 <input matInput [formField]="usuarioForm.userName" />
               </mat-form-field>
-
-              <!--Chama o componente customizado para exibir os erros-->
-              <app-form-error [field]="usuarioForm.userName()" />
-            </div>
-
-            <div class="flex flex-col relative pb-5">
+            </app-field-wrapper>
+            <app-field-wrapper [field]="usuarioForm.userName()">
               <!--Campo E-mail-->
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                 <mat-label>E-Mail</mat-label>
                 <input matInput [formField]="usuarioForm.email" />
               </mat-form-field>
-              <!--Chama o componente customizado para exibir os erros-->
-              <app-form-error [field]="usuarioForm.email()" />
-            </div>
+            </app-field-wrapper>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-            <div class="flex flex-col">
+          <div class="grid grid-cols-1 md:grid-cols-[23%_37%_36%] gap-3 mb-2">
+            <app-field-wrapper [field]="usuarioForm.permissions()">
               <mat-form-field
                 appearance="outline"
                 class="w-full"
                 floatLabel="always"
                 subscriptSizing="dynamic"
               >
-                <mat-label>Permissões de Acesso</mat-label>
+                <mat-label>Roles</mat-label>
                 <mat-select
                   multiple="true"
                   placeholder="Adicione permissões de acesso"
@@ -119,36 +93,73 @@ import { MatSelectModule } from '@angular/material/select';
                   }
                 </mat-select>
               </mat-form-field>
-            </div>
-            <div class="flex flex-col">
-              <div class=" flex justify-end gap-2">
+            </app-field-wrapper>
+
+            <app-field-wrapper [field]="usuarioForm.password()">
+              <!--Campo Senha-->
+              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                <mat-label>Senha</mat-label>
+                <input
+                  autocomplete="new-password"
+                  [type]="hidePassword() ? 'password' : 'text'"
+                  matInput
+                  [formField]="usuarioForm.password" />
                 <button
-                  mat-stroked-button
+                  class="!mr-2 text-gray-500 hover:text-gray-700"
+                  mat-icon-button
+                  matSuffix
+                  tabIndex="-1"
                   type="button"
-                  mat-dialog-close
-                  class="!border-blue-600 !text-blue-600 !transition-transform
-                        duration-300 !ease-in-out hover:!scale-105"
+                  aria-label="Ocultar/Exibir senha"
+                  (click)="togglePassword($event)"
                 >
-                  <mat-icon>close</mat-icon>
-                  Alterar Senha
+                  <mat-icon class="transition-transform duration-200 hover:scale-110">
+                    {{ hidePassword() ? 'visibility_off' : 'visibility' }}
+                  </mat-icon>
                 </button>
+              </mat-form-field>
+            </app-field-wrapper>
+
+            <app-field-wrapper [field]="usuarioForm.confirmPassword!()">
+              <!--Campo Senha-->
+              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                <mat-label>Confirmar Senha</mat-label>
+                <input
+                  autocomplete="new-password"
+                  [type]="hideConfirm() ? 'password' : 'text'"
+                  matInput
+                  [formField]="usuarioForm.confirmPassword!" />
                 <button
-                  mat-flat-button
-                  class="!transition-transform duration-300 !ease-in-out hover:!scale-105"
-                  (click)="salvar()"
-                  [disabled]="usuarioForm().invalid()"
+                  class="!mr-2 text-gray-500 hover:text-gray-700"
+                  mat-icon-button
+                  matSuffix
+                  tabIndex="-1"
+                  type="button"
+                  aria-label="Ocultar/Exibir senha"
+                  (click)="toggleConfirm($event)"
                 >
-                  <mat-icon class="!mr-0.5">save</mat-icon>
-                  {{ isEdit ? 'Atualizar' : 'Salvar' }}
+                  <mat-icon class="transition-transform duration-200 hover:scale-110">
+                    {{ hideConfirm() ? 'visibility_off' : 'visibility' }}
+                  </mat-icon>
                 </button>
-              </div>
-            </div>
+              </mat-form-field>
+            </app-field-wrapper>
           </div>
         </div>
-        <div></div>
       </form>
     </mat-dialog-content>
-  `,
+    <mat-dialog-actions align="end" class="!pb-6 !pr-6">
+      <button
+        mat-flat-button
+        class="!transition-transform duration-300 !ease-in-out hover:!scale-105"
+        (click)="salvar()"
+        [disabled]="usuarioForm().invalid()"
+      >
+        <mat-icon class="!mr-0.5">save</mat-icon>
+        {{ isEdit ? 'Atualizar' : 'Salvar' }}
+      </button>
+    </mat-dialog-actions>
+  `
 })
 export class UsuarioFormComponent implements OnInit {
   isEdit: boolean = false;
@@ -157,6 +168,9 @@ export class UsuarioFormComponent implements OnInit {
   // Signals para armazenar os dados que virão da API
   usuarios = signal<IUsuarioResponse[]>([]);
   roles = signal<string[]>([]);
+  // Signals para exibir/ocultar senha/confirmar senha
+  hidePassword = signal<boolean>(true);
+  hideConfirm = signal<boolean>(true);
 
   // Modelo do formulário para cadastro
   userFormModel = signal<IUsuarioRequest>({
@@ -166,7 +180,7 @@ export class UsuarioFormComponent implements OnInit {
     confirmPassword: '',
     email: '',
     activated: true,
-    permissions: ['guest'],
+    permissions: ['guest']
   });
 
   // Formulário de cadastro com validações
@@ -184,21 +198,19 @@ export class UsuarioFormComponent implements OnInit {
 
     // ConfirmPassword
     required(path.confirmPassword!, { message: 'Confirme a Senha' });
-    validate(path.confirmPassword!, (fieldContext: any) => {
-      // Pegamos o valor que está no campo 'password' original
-      const currentValue = fieldContext.value();
-      const originalPassword = this.userFormModel().password;
+    validate(path.confirmPassword!, ({ value, valueOf }) => {
+      const confirm = value();
+      const password = valueOf(path.password);
 
-      // Se a confirmação for diferente da original, retornamos o erro
-      if (currentValue !== originalPassword) {
+      if (confirm !== password) {
         return {
           kind: 'passwordMismatch', // Um identificador único para o erro
-          message: 'As senhas não conferem',
+          message: 'As senhas não conferem'
         };
       }
-      // Se forem iguais, retornamos null (significa que passou na validação!)
       return null;
     });
+
     // E-mail
     required(path.email, { message: 'E-mail é obrigatório' });
     email(path.email, { message: 'E-mail inválido' });
@@ -226,7 +238,7 @@ export class UsuarioFormComponent implements OnInit {
     if (this.isEdit && this.data) {
       this.userFormModel.update((u) => ({
         ...u,
-        ...this.data,
+        ...this.data
       }));
     }
   }
@@ -247,7 +259,7 @@ export class UsuarioFormComponent implements OnInit {
         }
 
         this.toastService.success(
-          `Usuário ${this.isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`,
+          `Usuário ${this.isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`
         );
 
         this.dialogRef.close(true);
@@ -265,7 +277,7 @@ export class UsuarioFormComponent implements OnInit {
             messageDefaultErro =
               error.error.errors[0].defaultMessage || 'Erro de validação nos dados enviados.';
           }
-          // Tratamento 3: Erro de Validação de Múltiplos Campos (@Valid do Spring)
+            // Tratamento 3: Erro de Validação de Múltiplos Campos (@Valid do Spring)
           // (Às vezes o Spring mapeia os erros em um array chamado "errors")
           else if (error.error && Array.isArray(error.error.errors)) {
             messageDefaultErro =
@@ -275,6 +287,17 @@ export class UsuarioFormComponent implements OnInit {
         this.toastService.error(messageDefaultErro);
       }
     });
+  }
+
+  // Métodos para alternar a visualização
+  togglePassword(event: MouseEvent) {
+    event.preventDefault(); // Evita que o formulário submeta ao clicar no botão do ícone
+    this.hidePassword.set(!this.hidePassword());
+  }
+
+  toggleConfirm(event: MouseEvent) {
+    event.preventDefault();
+    this.hideConfirm.set(!this.hideConfirm());
   }
 
   loadRoles() {

@@ -1,12 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  inject,
-  input,
-  OnInit,
-  output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, OnInit, output } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -32,7 +24,7 @@ import { LoadingComponent } from '../loading.component/loading.component';
     MatInputModule,
     MatPaginator,
     MatProgressSpinnerModule,
-    LoadingComponent,
+    LoadingComponent
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,7 +33,7 @@ import { LoadingComponent } from '../loading.component/loading.component';
       class="bg-gray-50 shadow rounded-2xl border border-gray-200 p-4 md:p-6 max-w-5xl mx-auto mt-4"
     >
       <div class="mb-6">
-        <h2 class="text-2xl font-bold text-gray-800 leading-tight">Gestão de {{ title() }}</h2>
+        <h2 class="text-2xl font-bold text-blue-800 leading-tight">Gestão de {{ title() }}</h2>
         <p class="text-sm text-gray-500">Gerencie os {{ title() }}s do sistema</p>
       </div>
 
@@ -193,7 +185,7 @@ import { LoadingComponent } from '../loading.component/loading.component';
         </mat-paginator>
       </div>
     </div>
-  `,
+  `
 })
 export class CustomListComponent implements OnInit {
   // Inputs Signals de recebimento de dados (título e
@@ -246,7 +238,7 @@ export class CustomListComponent implements OnInit {
         debounceTime(500),
         distinctUntilChanged(),
         // Dizemos pro fluxo morrer com o componente
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((termo) => {
         //Se existirem, limpa os espaços vazios do conteúdo informado para pesquisa

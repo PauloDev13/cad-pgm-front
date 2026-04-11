@@ -1,5 +1,4 @@
-import { Component, inject, output, signal } from '@angular/core';
-import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
+import { Component, inject, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -10,73 +9,72 @@ import { AuthService } from '../services/auth.service';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconButton } from '@angular/material/button';
 import { LoginStateService } from '../services/login-state.service';
+import { HeaderLoginComponent } from './header-login.component';
+import { ToastService } from '../../../shared/service/toast.service';
+import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper.component';
 
 @Component({
   selector: 'app-form-main-login',
   imports: [
-    FormErrorComponent,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
     MatProgressSpinnerModule,
     FormField,
     MatIconButton,
-    RouterLink
+    RouterLink,
+    HeaderLoginComponent,
+    FieldWrapperComponent
   ],
   standalone: true,
   template: `
-    <div class="w-full max-w-md flex flex-col">
+    <div class="w-full max-w-md flex flex-col bg-white rounded-xl shadow-lg p-8">
       <!-- Permite a injeção do componente HeaderLogin neste ponto-->
-      <ng-content />
+      <app-header-login title="Bem-vindo de volta" subtitle="Insira suas credenciais para acessar o painel." />
 
-      <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col gap-5 w-full">
-        @if (errorMessage()) {
-          <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
-            <p class="text-sm text-red-700 font-medium">{{ errorMessage() }}</p>
-          </div>
-        }
-
+      <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col w-full gap-2">
         <div class="flex flex-col gap-1.5">
-          <!--Campo userName-->
-          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-            <mat-label>Nome do Usuário</mat-label>
-            <input
-              matInput
-              [formField]="loginForm.login"
-              autocomplete="off"
-              placeholder="Ex: jonh.river"
-            />
-          </mat-form-field>
-
-          <!--Chama o componente customizado para exibir os erros-->
-          <app-form-error [field]="loginForm.login()" />
-          <!--Campo password-->
-          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-            <mat-label>Senha</mat-label>
-            <input
-              [type]="hidePassword() ? 'password' : 'text'"
-              matInput
-              [formField]="loginForm.password!"
-              autocomplete="new_password"
-            />
-            <button
-              tabIndex="-1"
-              class="!mr-2 text-gray-500 hover:text-gray-700"
-              mat-icon-button
-              matSuffix
-              type="button"
-              aria-label="Ocultar/Exibir senha"
-              (click)="togglePassword($event)"
-            >
-              <mat-icon class="transition-transform duration-200 hover:scale-110">
-                {{ hidePassword() ? 'visibility_off' : 'visibility' }}
-              </mat-icon>
-            </button>
-          </mat-form-field>
-          <!--Chama o componente customizado para exibir os erros-->
-          <app-form-error [field]="loginForm.password!()" />
+          <app-field-wrapper [field]="loginForm.login()">
+            <!--Campo userName-->
+            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+              <mat-label>Login do Usuário</mat-label>
+              <input
+                matInput
+                [formField]="loginForm.login"
+                autocomplete="off"
+                placeholder="Ex: jonh.river"
+              />
+            </mat-form-field>
+          </app-field-wrapper>
         </div>
 
+        <div class="flex flex-col gap-1.5">
+          <app-field-wrapper [field]="loginForm.password!()">
+            <!--Campo password-->
+            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+              <mat-label>Senha</mat-label>
+              <input
+                [type]="hidePassword() ? 'password' : 'text'"
+                matInput
+                [formField]="loginForm.password!"
+                autocomplete="new_password"
+              />
+              <button
+                tabIndex="-1"
+                class="!mr-2 text-gray-500 hover:text-gray-700"
+                mat-icon-button
+                matSuffix
+                type="button"
+                aria-label="Ocultar/Exibir senha"
+                (click)="togglePassword($event)"
+              >
+                <mat-icon class="transition-transform duration-200 hover:scale-110">
+                  {{ hidePassword() ? 'visibility_off' : 'visibility' }}
+                </mat-icon>
+              </button>
+            </mat-form-field>
+          </app-field-wrapper>
+        </div>
         <div class="flex flex-col gap-1.5">
           <div class="flex justify-between items-center">
             <a
@@ -86,7 +84,7 @@ import { LoginStateService } from '../services/login-state.service';
             >Esqueceu a senha?</a
             >
             <a
-              (click)="goToRegisterLogin($event)"
+              routerLink="/auth/register"
               tabIndex="-1"
               href="#"
               class="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
@@ -98,7 +96,9 @@ import { LoginStateService } from '../services/login-state.service';
         <button
           type="submit"
           [disabled]="loginForm().invalid() || isLoading()"
-          class="mt-4 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all disabled:opacity-70 flex justify-center items-center gap-2 h-12"
+          class="mt-4 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg
+                 hover:bg-blue-700 transition-all disabled:opacity-70 flex
+                 justify-center items-center gap-2 h-12"
         >
           @if (isLoading()) {
             <mat-spinner diameter="20" color="accent"></mat-spinner>
@@ -114,6 +114,7 @@ import { LoginStateService } from '../services/login-state.service';
 export class FormMainLoginComponent {
   // Injeções de dependências
   private readonly authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
   private readonly loginStateService = inject(LoginStateService);
 
@@ -122,9 +123,6 @@ export class FormMainLoginComponent {
   errorMessage = signal('');
   // Signals para exibir/ocultar senha
   hidePassword = signal<boolean>(true);
-
-  //Outputs
-  onLoginOrRegister = output<boolean>();
 
   // Modelo do formulário
   formLoginModel = signal<IAuthRequest>({
@@ -165,15 +163,11 @@ export class FormMainLoginComponent {
         },
         error: (err) => {
           this.isLoading.set(false);
-          this.loginForm().reset({ login: '', password: '' });
-          this.errorMessage.set(err.message);
+          // this.loginForm().reset({ login: '', password: '' });
+          // this.errorMessage.set(err.message);
+          this.toastService.errorLogin('Login', err.message);
         }
       });
     });
-  }
-
-  goToRegisterLogin(event: Event) {
-    event.preventDefault();
-    this.onLoginOrRegister.emit(true);
   }
 }

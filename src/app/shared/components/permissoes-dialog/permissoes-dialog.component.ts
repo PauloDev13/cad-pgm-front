@@ -23,11 +23,11 @@ export interface PermissoesDialogData {
     MatFormFieldModule,
     MatSelectModule,
     MatIconModule,
-    CustomSelectComponent,
+    CustomSelectComponent
   ],
   standalone: true,
   template: `
-    <h2 mat-dialog-title class="!text-2xl font-bold text-gray-800 border-b pb-2">
+    <h2 mat-dialog-title class="!text-2xl font-bold text-blue-800 border-b pb-2">
       Gerenciar Permissões e Vínculos
     </h2>
 
@@ -75,7 +75,7 @@ export interface PermissoesDialogData {
         Confirmar Seleção
       </button>
     </mat-dialog-actions>
-  `,
+  `
 })
 export class PermissoesDialogComponent implements OnInit {
   readonly dialogRef = inject(MatDialogRef<PermissoesDialogComponent>);
@@ -86,7 +86,7 @@ export class PermissoesDialogComponent implements OnInit {
   listas = {
     sistemas: signal<BaseEntityDTO[]>([]),
     procuradores: signal<BaseEntityDTO[]>([]),
-    aliases: signal<BaseEntityDTO[]>([]),
+    aliases: signal<BaseEntityDTO[]>([])
   };
 
   // Arrays locais para o two-way binding do MatSelect
@@ -119,7 +119,7 @@ export class PermissoesDialogComponent implements OnInit {
     this.dialogRef.close({
       sistemaIds: this.selectedSistemas,
       procuradorIds: this.selectedProcuradores,
-      aliasIds: this.selectedAliases,
+      aliasIds: this.selectedAliases
     } as PermissoesDialogData);
   }
 }

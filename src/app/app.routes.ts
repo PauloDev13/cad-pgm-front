@@ -1,34 +1,52 @@
 import { Routes } from '@angular/router';
 import { MainLayoutComponent } from './shared/layout/component/main-layout.component';
 import { authGuard, publicGuard, roleGuard } from './core/auth/services/auth.guard';
+import { AuthLayoutPage } from './core/auth/pages/auth-layout.page';
 
 export const routes: Routes = [
+  // ==========================================
+  // 1. ÁREA PÚBLICA (Layout de Autenticação)
+  // ==========================================
   {
     path: '',
-    redirectTo: 'login',
+    redirectTo: 'auth/login',
     pathMatch: 'full'
   },
   {
-    path: 'login',
-    title: 'Login | Gestão de Servidores PGM Natal',
-    canActivate: [publicGuard], // Protegemos o login aqui!
-    loadComponent: () => import('./core/auth/pages/login.page').then((c) => c.LoginPage)
+    path: 'auth',
+    component: AuthLayoutPage,
+    canActivate: [publicGuard],
+    children: [
+      {
+        path: 'login',
+        title: 'Login | Gestão de Servidores PGM Natal',
+        loadComponent: () => import('./core/auth/component/form-main-login.component')
+          .then((m) => m.FormMainLoginComponent)
+      },
+      {
+        path: 'register',
+        title: 'Cadastro | Gestão de Servidores PGM Natal',
+        loadComponent: () => import('./core/auth/component/form-register-usuario.component')
+          .then((m) => m.FormRegisterUsuarioComponent)
+      },
+      {
+        path: 'esqueci-senha',
+        title: 'Recuperar Senha | Gestão de Servidores PGM Natal',
+        loadComponent: () =>
+          import('./core/auth/component/forgot-password.component').then((m) => m.ForgotPasswordComponent)
+      },
+      {
+        path: 'redefinir-senha',
+        title: 'Nova Senha | Gestão de Servidores PGM Natal',
+        loadComponent: () =>
+          import('./core/auth/component/reset-password.component').then((m) => m.ResetPasswordComponent)
+      }
+    ]
   },
 
-  {
-    path: 'auth/esqueci-senha',
-    title: 'Recuperar Senha | Gestão de Servidores PGM Natal',
-    canActivate: [publicGuard],
-    loadComponent: () =>
-      import('./core/auth/pages/forgot-password.page').then((m) => m.ForgotPasswordPage)
-  },
-  {
-    path: 'auth/redefinir-senha',
-    title: 'Nova Senha | Gestão de Servidores PGM Natal',
-    canActivate: [publicGuard],
-    loadComponent: () =>
-      import('./core/auth/pages/reset-password.page').then((m) => m.ResetPasswordPage)
-  },
+  // ==========================================
+  // 2. ÁREA PRIVADA (Layout Principal do Sistema)
+  // ==========================================
 
   {
     // A Rota Principal agora carrega o Menu Lateral

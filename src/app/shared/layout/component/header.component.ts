@@ -87,7 +87,7 @@ import { Router } from '@angular/router';
       </div>
     </mat-toolbar>
   `,
-  styles: ``,
+  styles: ``
 })
 export class HeaderComponent {
   // Emite o evento de clique para o layout principal
@@ -101,6 +101,6 @@ export class HeaderComponent {
 
   logout() {
     this.authService.logout();
-    this.router.navigate(['login']).then();
+    this.router.navigate(['auth/login']).then();
   }
 }

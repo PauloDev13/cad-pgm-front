@@ -5,11 +5,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import {
-  SingleInputDialogData,
-  SingleInputModalResult,
-} from '../../model/generic/base-generic.model';
+import { SingleInputDialogData, SingleInputModalResult } from '../../model/generic/base-generic.model';
 import { FormErrorComponent } from '../form-error/form-error.component';
+import { FieldWrapperComponent } from '../../layout/component/field-wrapper.component';
 
 @Component({
   selector: 'app-custom-cad-modal.component',
@@ -21,24 +19,24 @@ import { FormErrorComponent } from '../form-error/form-error.component';
     MatIconModule,
     FormField,
     FormErrorComponent,
-    // Diretiva do seu Signal Forms
+    FieldWrapperComponent
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <h2 mat-dialog-title class="!text-xl !font-bold !text-gray-800 !pb-2 border-b">
+    <h2 mat-dialog-title class="!text-xl !font-bold !text-blue-800 !pb-2">
       {{ isEdit() ? 'Editar' : 'Novo' }} {{ data.title }}
     </h2>
 
     <mat-dialog-content class="!pt-4 !pb-2">
       <div class="flex flex-col w-full min-w-[300px] md:min-w-[400px]">
-        <mat-form-field appearance="outline" class="w-full mt-2" subscriptSizing="dynamic">
-          <mat-label>{{ data.inputLabel }}</mat-label>
-          <input matInput [formField]="customForm.fieldValue" placeholder="Campo obtigtório.." />
-        </mat-form-field>
-        <app-form-error [field]="customForm.fieldValue()" />
+        <app-field-wrapper [field]="customForm.fieldValue()">
+          <mat-form-field appearance="outline" class="w-full mt-2" subscriptSizing="dynamic">
+            <mat-label>{{ data.inputLabel }}</mat-label>
+            <input matInput [formField]="customForm.fieldValue" placeholder="Campo obtigtório.." />
+          </mat-form-field>
+        </app-field-wrapper>
       </div>
-      <!--Chama o componente customizado para exibir os erros-->
     </mat-dialog-content>
 
     <mat-dialog-actions align="end" class="!px-6 !pb-6 !pt-2">
@@ -63,7 +61,7 @@ import { FormErrorComponent } from '../form-error/form-error.component';
       </button>
     </mat-dialog-actions>
   `,
-  styles: ``,
+  styles: ``
 })
 export class CustomCadModalComponent implements OnInit {
   dialogRef = inject(MatDialogRef<CustomCadModalComponent>);
@@ -73,7 +71,7 @@ export class CustomCadModalComponent implements OnInit {
 
   // Inicializa o modelo de dados para o formulário
   customModel = signal<{ fieldValue: string }>({
-    fieldValue: '',
+    fieldValue: ''
   });
 
   // cria o formulário e suas validações
@@ -81,10 +79,10 @@ export class CustomCadModalComponent implements OnInit {
     // validações para o campo Nome
     required(path.fieldValue, { message: `O campo ${this.data.inputLabel} é obrigatório` });
     minLength(path.fieldValue, 5, {
-      message: `O campo ${this.data.inputLabel} deve ter no mínimo 5 caracteres`,
+      message: `O campo ${this.data.inputLabel} deve ter no mínimo 5 caracteres`
     });
     maxLength(path.fieldValue, 150, {
-      message: `O campo ${this.data.inputLabel} deve ter no máximo 150 caracteres`,
+      message: `O campo ${this.data.inputLabel} deve ter no máximo 150 caracteres`
     });
   });
 
@@ -95,7 +93,7 @@ export class CustomCadModalComponent implements OnInit {
       // Atualiza o valor do Signal Form com os dados de element
       this.customModel.update((m) => ({
         ...m,
-        value: this.data.inputValue,
+        value: this.data.inputValue
       }));
     }
   }
@@ -110,7 +108,7 @@ export class CustomCadModalComponent implements OnInit {
       const payload = this.customForm().controlValue().fieldValue;
       const result: SingleInputModalResult = {
         id: this.data.id,
-        value: payload,
+        value: payload
       };
 
       this.dialogRef.close(result);

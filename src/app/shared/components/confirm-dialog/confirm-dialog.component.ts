@@ -12,7 +12,7 @@ export interface ConfirmDialogData {
   imports: [MatDialogModule, MatButtonModule],
   standalone: true,
   template: `
-    <h2 mat-dialog-title class="!text-2xl !font-bold text-gray-800 border-b">
+    <h2 mat-dialog-title class="!text-2xl !font-bold text-blue-800 border-b">
       {{ data.title }}
     </h2>
 
@@ -47,7 +47,7 @@ export interface ConfirmDialogData {
         SIM
       </button>
     </mat-dialog-actions>
-  `,
+  `
 })
 export class ConfirmDialogComponent {
   // Injeções
