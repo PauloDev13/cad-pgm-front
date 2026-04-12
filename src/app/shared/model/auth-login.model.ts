@@ -15,4 +15,5 @@ export interface UsuarioResponse {
   email: string;
   activated: boolean;
   permissions: string[];
+  forcePasswordChange: boolean;
 }

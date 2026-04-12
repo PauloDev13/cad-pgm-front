@@ -1,34 +1,60 @@
 import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { AuthService } from './auth.service';
+import { IAuthResponse } from '../models/auth.model';
 
 // Protege as rotas privadas (Exige estar logado)
-export const authGuard: CanActivateFn = () => {
+export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
+  const user: IAuthResponse | null = authService.currentUser();
   const router = inject(Router);
 
-  // Se tem usuário no Signal, a catraca está liberada!
-  if (authService.currentUser()) {
+  if (user) {
+    // Se ele precisa trocar a senha e tentar ir para qualquer lugar
+    // que não seja a tela de troca, nós o bloqueamos.
+    if (user.forcePasswordChange && !state.url.includes('/auth/troca-obrigatoria')) {
+      router.navigate(['/auth/troca-obrigatoria']).then();
+      return false;
+    }
+    // Se o usuário está logado e sem a necessidade de trocar a senha,
+    // acessa a aplicação
     return true;
   }
 
   // Se não tem, chuta o intruso para o login
-  router.navigate(['/login']).then();
+  router.navigate(['/auth/login']).then();
   return false;
 };
 
 // Protege a tela de Login (Impede logados de verem o login)
-export const publicGuard: CanActivateFn = () => {
+export const publicGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
-  // Se tem usuário no Signal, não tem motivo para ver o login. Joga para home!
-  if (authService.currentUser()) {
+  const user: IAuthResponse | null = authService.currentUser();
+
+  if (user) {
+    // Precisa trocar a senha E já está na rota certa.
+    // Ação: Deixa ele renderizar a tela.
+    if (user.forcePasswordChange && state.url.includes('/auth/troca-obrigatoria')) {
+      return true;
+    }
+
+    // Precisa trocar a senha, mas está tentando acessar o /login ou /register.
+    // Ação: Sequestra de volta para a troca obrigatória.
+    if (user.forcePasswordChange) {
+      router.navigate(['/auth/troca-obrigatoria']).then();
+      return false;
+    }
+
+    // Está logado normalmente e a senha está em dia.
+    // Ação: Expulsa do módulo público e manda para a Home.
     router.navigate(['/home']).then();
     return false;
   }
-
-  // Se está vazio, pode ver o formulário de login tranquilamente
+  // Não tem usuário logado.
+  // Ação: Acesso livre às rotas públicas (Login, Register).
   return true;
+
 };
 
 // Verifica se o usuário tem a permissão necessária

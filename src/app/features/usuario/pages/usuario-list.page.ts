@@ -15,6 +15,11 @@ import { UsuarioTableComponent } from '../components/usuario-table.component/usu
 import { UsuarioFilterComponent } from '../components/usuario-filter.component/usuario-filter.component';
 import { UsuarioFormComponent } from '../components/usuario-form.component/usuario-form.component';
 import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { AuthService } from '../../../core/auth/services/auth.service';
+import {
+  TemporaryPasswordDialogComponent
+} from '../../../core/auth/component/temporary -password-dialog/temporary-password-dialog.component';
 
 @Component({
   selector: 'app-servidor-list',
@@ -58,6 +63,7 @@ import { MatDialog } from '@angular/material/dialog';
         [pageSize]="pageSize()"
         [currentPage]="currentPage()"
         (edit)="openForm($event)"
+        (confirmResetPassword)="onResetPassword($event)"
         (delete)="delete($event)"
         (pageChange)="onPageChange($event)"
       />
@@ -68,10 +74,21 @@ import { MatDialog } from '@angular/material/dialog';
     MatIconModule,
     MatButtonModule,
     UsuarioTableComponent,
-    UsuarioFilterComponent,
-  ],
+    UsuarioFilterComponent
+  ]
 })
 export default class UsuarioListPage implements OnInit {
+  // Injeções
+  private readonly usuarioService = inject(UsuarioService);
+  private readonly toastService = inject(ToastService);
+  private readonly authService = inject(AuthService);
+  private readonly dialog = inject(MatDialog);
+
+  //O funil de eventos de digitação
+  private searchSubject = new Subject<string>();
+  // O Angular nos dá uma referência da destruição deste componente
+  private destroyRef = inject(DestroyRef);
+
   //Signals para Estado
   usuarios = signal<IUsuarioResponse[]>([]);
   totalElements = signal<number>(0);
@@ -83,16 +100,6 @@ export default class UsuarioListPage implements OnInit {
   selectedNameId = signal<number | null>(null);
   searchType = signal<'NOME' | 'LOGIN' | 'EMAIL'>('NOME');
   searchTerm = signal<string>('');
-
-  //O funil de eventos de digitação
-  private searchSubject = new Subject<string>();
-  // O Angular nos dá uma referência da destruição deste componente
-  private destroyRef = inject(DestroyRef);
-
-  // Injeções
-  private readonly usuarioService = inject(UsuarioService);
-  private readonly toastService = inject(ToastService);
-  private readonly dialog = inject(MatDialog);
 
   // private readonly customDeleteService = inject(CustomDeleteService);
 
@@ -125,7 +132,7 @@ export default class UsuarioListPage implements OnInit {
           this.setPageData(pageData);
           // this.totalElements.set(pageData.page.totalElements);
         },
-        error: () => this.toastService.error('Erro ao filtrar dados'),
+        error: () => this.toastService.error('Erro ao filtrar dados')
       });
   }
 
@@ -135,12 +142,43 @@ export default class UsuarioListPage implements OnInit {
       maxWidth: '95vw',
       maxHeight: '90vw',
       data: usuario,
-      disableClose: true,
+      disableClose: true
     });
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.loadData(); // Recarrega se houve alteração
+      }
+    });
+  }
+
+  onResetPassword(usuario?: IUsuarioResponse) {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Resetar Senha',
+        message: `Deseja gerar uma nova senha para ${usuario?.userName}`
+      }
+    });
+    dialogRef.afterClosed().subscribe(confirm => {
+      if (confirm) {
+        this.authService.resetPasswordByAdmin(usuario?.id).subscribe({
+          next: (response) => {
+            this.dialog.open(TemporaryPasswordDialogComponent, {
+              data: {
+                title: 'Geração de Senha',
+                message: `
+                  Copie e informe esta senha ao usuário.
+                  Ele será obrigado a trocá-la no próximo login
+                `,
+                password: response.temporaryPassword
+              },
+              disableClose: true
+            });
+          },
+          error: (err) => {
+            this.toastService.errorLogin('Senha temporária', err.message);
+          }
+        });
       }
     });
   }
@@ -198,7 +236,7 @@ export default class UsuarioListPage implements OnInit {
       .pipe(
         debounceTime(500), // Espera o usuário parar de digitar por 500ms
         distinctUntilChanged(), // Só continua se a palavra final for diferente da última busca
-        takeUntilDestroyed(this.destroyRef), // Dizemos pro fluxo morrer com o componente
+        takeUntilDestroyed(this.destroyRef) // Dizemos pro fluxo morrer com o componente
       )
       .subscribe((termoDigitado) => {
         // Se o usuário apagou tudo (Cenário 1)

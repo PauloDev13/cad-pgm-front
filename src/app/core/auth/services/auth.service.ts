@@ -9,7 +9,7 @@ import { isPlatformBrowser } from '@angular/common';
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly AUTH_KEY = 'sistema_logged_user';
+  readonly AUTH_KEY = 'sistema_logged_user';
   private readonly API_URL = `${environment.apiUrl}/api/v1`;
   private readonly plataformId = inject(PLATFORM_ID);
   private readonly http = inject(HttpClient);
@@ -25,8 +25,11 @@ export class AuthService {
   login(payload: IAuthRequest): Observable<IAuthResponse> {
     return this.http.post<IAuthResponse>(`${this.API_URL}/auth/login`, payload).pipe(
       tap((response) => {
+
+        // Atualiza o Signal para o restante do app reagir
         this.currentUser.set(response);
 
+        // Persiste no Storage para manter a sessão ao dar F5
         if (isPlatformBrowser(this.plataformId)) {
           localStorage.setItem(this.AUTH_KEY, JSON.stringify(response));
         }
@@ -78,8 +81,20 @@ export class AuthService {
     );
   }
 
-  // MÉTHOD PRIVADO PARA BUSCAR O USUÁRIO LOGADO NO LOCALSTORAGE
-  private getStoredLoggedUser(): IAuthResponse | null {
+  resetPasswordByAdmin(userId: number | undefined): Observable<{ temporaryPassword: string }> {
+    return this.http.post<{ temporaryPassword: string }>(
+      `${environment.apiUrl}/api/v1/usuarios/${userId}/reset-password`, {});
+  }
+
+  forcePasswordChange(userName: string, newPassword: string): Observable<void> {
+    const payload = { userName, newPassword };
+
+    return this.http.post<void>(
+      `${environment.apiUrl}/api/v1/auth/force-password-change`, payload);
+  }
+
+  // MÉTHOD PARA BUSCAR O USUÁRIO LOGADO NO LOCALSTORAGE
+  getStoredLoggedUser(): IAuthResponse | null {
     if (isPlatformBrowser(this.plataformId)) {
       const stored = localStorage.getItem(this.AUTH_KEY);
       if (stored) {

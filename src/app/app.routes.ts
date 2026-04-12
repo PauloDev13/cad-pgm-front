@@ -40,6 +40,11 @@ export const routes: Routes = [
         title: 'Nova Senha | Gestão de Servidores PGM Natal',
         loadComponent: () =>
           import('./core/auth/component/reset-password.component').then((m) => m.ResetPasswordComponent)
+      },
+      {
+        path: 'troca-obrigatoria',
+        title: 'Troca de Senha Obrigatória | PGM Natal',
+        loadComponent: () => import('./core/auth/pages/force-password-change.page').then(m => m.ForcePasswordChangePage)
       }
     ]
   },

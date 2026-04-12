@@ -6,6 +6,7 @@ export interface IAuthRequest {
 export interface IAuthResponse {
   userName: string;
   roles: string[];
+  forcePasswordChange: boolean;
 }
 
 export interface IForgotPasswordRequest {

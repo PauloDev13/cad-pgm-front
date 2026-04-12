@@ -15,6 +15,7 @@ export interface IUsuarioResponse {
   email: string;
   activated: boolean;
   permissions: string[];
+  forcePasswordChange: boolean;
 }
 
 export interface IRoles {
@@ -22,5 +23,5 @@ export interface IRoles {
 }
 
 export const roles: IRoles = {
-  roles: ['admin', 'rh', 'gabinete', 'guest'],
+  roles: ['admin', 'rh', 'gabinete', 'guest']
 };

@@ -6,7 +6,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { SingleInputDialogData, SingleInputModalResult } from '../../model/generic/base-generic.model';
-import { FormErrorComponent } from '../form-error/form-error.component';
 import { FieldWrapperComponent } from '../../layout/component/field-wrapper.component';
 
 @Component({
@@ -18,7 +17,6 @@ import { FieldWrapperComponent } from '../../layout/component/field-wrapper.comp
     MatButtonModule,
     MatIconModule,
     FormField,
-    FormErrorComponent,
     FieldWrapperComponent
   ],
   standalone: true,

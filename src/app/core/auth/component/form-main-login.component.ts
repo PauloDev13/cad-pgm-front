@@ -4,7 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { form, FormField, required, submit } from '@angular/forms/signals';
 import { MatInputModule } from '@angular/material/input';
-import { IAuthRequest } from '../models/auth.model';
+import { IAuthRequest, IAuthResponse } from '../models/auth.model';
 import { AuthService } from '../services/auth.service';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconButton } from '@angular/material/button';
@@ -155,16 +155,19 @@ export class FormMainLoginComponent {
 
       // Chama o service para realizar enviar os dados de login
       this.authService.login(dataLogin).subscribe({
-        next: () => {
-          this.isLoading.set(false);
+        next: (user: IAuthResponse) => {
+          if (user.forcePasswordChange) {
+            this.router.navigate(['/auth/troca-obrigatoria']);
+          } else {
 
-          // Se o login foi bem-sucedido, vai para a página home
-          this.router.navigate(['home']);
+            // Se o login foi bem-sucedido, vai para a página home
+            this.router.navigate(['home']);
+
+          }
+          this.isLoading.set(false);
         },
         error: (err) => {
           this.isLoading.set(false);
-          // this.loginForm().reset({ login: '', password: '' });
-          // this.errorMessage.set(err.message);
           this.toastService.errorLogin('Login', err.message);
         }
       });
