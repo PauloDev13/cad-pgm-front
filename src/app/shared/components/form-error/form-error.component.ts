@@ -7,11 +7,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
   standalone: true,
   template: `
     @if (field().invalid() && field().touched() && field().errors().length > 0) {
-      <mat-error class="pl-3 text-xs leading-tight font-medium text-red-500 block w-full">
+      <mat-error class="text-xs leading-tight font-medium text-red-500 block w-full">
         {{ field().errors()[0].message }}
       </mat-error>
     }
-  `
+  `,
 })
 export class FormErrorComponent {
   field = input.required<any>();

@@ -6,10 +6,10 @@ export interface IUsuarioRequest {
   confirmPassword?: string;
   activated: boolean;
   permissions: string[];
+  forcePasswordChange?: boolean;
 }
 
-export type TUsuarioUpdate = Omit<IUsuarioRequest, 'confirmPassword' | 'password'>
-
+export type TUsuarioUpdate = Omit<IUsuarioRequest, 'confirmPassword' | 'password'>;
 
 export interface IUsuarioResponse {
   id: number;
@@ -26,5 +26,5 @@ export interface IRoles {
 }
 
 export const roles: IRoles = {
-  roles: ['admin', 'rh', 'gabinete', 'guest']
+  roles: ['admin', 'rh', 'gabinete', 'guest'],
 };

@@ -1,7 +1,16 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { email, form, FormField, maxLength, minLength, required, submit, validate } from '@angular/forms/signals';
-import { AuthService } from '../../../../core/auth/services/auth.service';
+import {
+  disabled,
+  email,
+  form,
+  FormField,
+  maxLength,
+  minLength,
+  required,
+  submit,
+  validate,
+} from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { IUsuarioRequest, IUsuarioResponse } from '../../models/usuario.model';
@@ -13,6 +22,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper.component';
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
+import { MatCheckbox } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-usuario-form.component',
@@ -24,7 +34,8 @@ import { NotificationService } from '../../../../shared/service/NotificationSnac
     MatInputModule,
     MatButtonModule,
     MatSelectModule,
-    FieldWrapperComponent
+    FieldWrapperComponent,
+    MatCheckbox,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,7 +53,7 @@ import { NotificationService } from '../../../../shared/service/NotificationSnac
     >
       <mat-icon class="!text-white !scale-75">close</mat-icon>
     </button>
-    <mat-dialog-content class="!pt-4">
+    <mat-dialog-content class="!pt-2 !pb-0">
       <form autocomplete="off" class="flex flex-col gap-2">
         <div>
           <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
@@ -74,83 +85,94 @@ import { NotificationService } from '../../../../shared/service/NotificationSnac
             </app-field-wrapper>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-[23%_37%_36%] gap-3 mb-2">
-            <app-field-wrapper [field]="usuarioForm.permissions()">
-              <mat-form-field
-                appearance="outline"
-                class="w-full"
-                floatLabel="always"
-                subscriptSizing="dynamic"
+          <div class="grid grid-cols-1 md:grid-cols-[70%_30%] gap-3">
+            <!--Campo Permissões-->
+            <mat-form-field
+              appearance="outline"
+              class="w-full"
+              floatLabel="always"
+              subscriptSizing="dynamic"
+            >
+              <mat-label>Roles</mat-label>
+              <mat-select
+                multiple="true"
+                placeholder="Adicione permissões de acesso"
+                [formField]="usuarioForm.permissions"
               >
-                <mat-label>Roles</mat-label>
-                <mat-select
-                  multiple="true"
-                  placeholder="Adicione permissões de acesso"
-                  [formField]="usuarioForm.permissions"
+                @for (role of roles(); track role) {
+                  <mat-option [value]="role">{{ role }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <!--Campo Ativo-->
+            <mat-checkbox [formField]="usuarioForm.activated">
+              <span class="-ml-2">Usuário Ativo</span>
+            </mat-checkbox>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 mt-6 gap-3">
+            <app-field-wrapper class="mb-1" [field]="usuarioForm.password()">
+              <!--Campo Senha-->
+              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                <mat-label>Senha</mat-label>
+                <input
+                  autocomplete="new-password"
+                  [type]="hidePassword() ? 'password' : 'text'"
+                  matInput
+                  [formField]="usuarioForm.password"
+                />
+                <button
+                  class="!mr-2 text-gray-500 hover:text-gray-700"
+                  mat-icon-button
+                  matSuffix
+                  tabIndex="-1"
+                  type="button"
+                  aria-label="Ocultar/Exibir senha"
+                  (click)="togglePassword($event)"
                 >
-                  @for (role of roles(); track role) {
-                    <mat-option [value]="role">{{ role }}</mat-option>
-                  }
-                </mat-select>
+                  <mat-icon class="transition-transform duration-200 hover:scale-110">
+                    {{ hidePassword() ? 'visibility_off' : 'visibility' }}
+                  </mat-icon>
+                </button>
               </mat-form-field>
             </app-field-wrapper>
 
-            @if (!isEdit) {
-              <app-field-wrapper [field]="usuarioForm.password()">
-                <!--Campo Senha-->
-                <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                  <mat-label>Senha</mat-label>
-                  <input
-                    autocomplete="new-password"
-                    [type]="hidePassword() ? 'password' : 'text'"
-                    matInput
-                    [formField]="usuarioForm.password" />
-                  <button
-                    class="!mr-2 text-gray-500 hover:text-gray-700"
-                    mat-icon-button
-                    matSuffix
-                    tabIndex="-1"
-                    type="button"
-                    aria-label="Ocultar/Exibir senha"
-                    (click)="togglePassword($event)"
-                  >
-                    <mat-icon class="transition-transform duration-200 hover:scale-110">
-                      {{ hidePassword() ? 'visibility_off' : 'visibility' }}
-                    </mat-icon>
-                  </button>
-                </mat-form-field>
-              </app-field-wrapper>
+            <app-field-wrapper [field]="usuarioForm.confirmPassword!()">
+              <!--Campo Senha-->
+              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                <mat-label>Confirmar Senha</mat-label>
+                <input
+                  autocomplete="new-password"
+                  [type]="hideConfirm() ? 'password' : 'text'"
+                  matInput
+                  [formField]="usuarioForm.confirmPassword!"
+                />
+                <button
+                  class="!mr-2 text-gray-500 hover:text-gray-700"
+                  mat-icon-button
+                  matSuffix
+                  tabIndex="-1"
+                  type="button"
+                  aria-label="Ocultar/Exibir senha"
+                  (click)="toggleConfirm($event)"
+                >
+                  <mat-icon class="transition-transform duration-200 hover:scale-110">
+                    {{ hideConfirm() ? 'visibility_off' : 'visibility' }}
+                  </mat-icon>
+                </button>
+              </mat-form-field>
+            </app-field-wrapper>
 
-              <app-field-wrapper [field]="usuarioForm.confirmPassword!()">
-                <!--Campo Senha-->
-                <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                  <mat-label>Confirmar Senha</mat-label>
-                  <input
-                    autocomplete="new-password"
-                    [type]="hideConfirm() ? 'password' : 'text'"
-                    matInput
-                    [formField]="usuarioForm.confirmPassword!" />
-                  <button
-                    class="!mr-2 text-gray-500 hover:text-gray-700"
-                    mat-icon-button
-                    matSuffix
-                    tabIndex="-1"
-                    type="button"
-                    aria-label="Ocultar/Exibir senha"
-                    (click)="toggleConfirm($event)"
-                  >
-                    <mat-icon class="transition-transform duration-200 hover:scale-110">
-                      {{ hideConfirm() ? 'visibility_off' : 'visibility' }}
-                    </mat-icon>
-                  </button>
-                </mat-form-field>
-              </app-field-wrapper>
-            }
+            <app-field-wrapper [field]="usuarioForm.forcePasswordChange!()">
+              <mat-checkbox [formField]="usuarioForm.forcePasswordChange!">
+                <span class="-ml-2">Trocar Senha</span>
+              </mat-checkbox>
+            </app-field-wrapper>
           </div>
         </div>
       </form>
     </mat-dialog-content>
-    <mat-dialog-actions align="end" class="!pb-6 !pr-6">
+    <mat-dialog-actions align="end" class="!pt-0 !pb-6 !pr-6">
       <button
         mat-flat-button
         class="!transition-transform duration-300 !ease-in-out hover:!scale-105"
@@ -161,25 +183,17 @@ import { NotificationService } from '../../../../shared/service/NotificationSnac
         {{ isEdit ? 'Atualizar' : 'Salvar' }}
       </button>
     </mat-dialog-actions>
-  `
+  `,
 })
 export class UsuarioFormComponent implements OnInit {
-  // protected readonly form = form;
-  private readonly usuarioService = inject(UsuarioService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly authService = inject(AuthService);
-  private readonly dialogRef = inject(MatDialogRef<UsuarioFormComponent>);
-
   isEdit: boolean = false;
   readonly data = inject<IUsuarioResponse>(MAT_DIALOG_DATA, { optional: true });
-
   // Signals para armazenar os dados que virão da API
   usuarios = signal<IUsuarioResponse[]>([]);
   roles = signal<string[]>([]);
   // Signals para exibir/ocultar senha/confirmar senha
   hidePassword = signal<boolean>(true);
   hideConfirm = signal<boolean>(true);
-
   // Modelo do formulário para cadastro
   userFormModel = signal<IUsuarioRequest>({
     name: '',
@@ -188,9 +202,9 @@ export class UsuarioFormComponent implements OnInit {
     confirmPassword: '',
     email: '',
     activated: true,
-    permissions: ['guest']
+    permissions: ['guest'],
+    forcePasswordChange: false,
   });
-
   // Formulário de cadastro com validações
   usuarioForm = form(this.userFormModel, (path: any) => {
     // Nome completo
@@ -201,8 +215,10 @@ export class UsuarioFormComponent implements OnInit {
     minLength(path.userName, 5, { message: 'O Login deve ter no mínimo 5 caracteres' });
     maxLength(path.userName, 30, { message: 'O Login deve ter no máximo 30 caracteres' });
 
+    disabled(path.password, () => this.isEdit);
+    disabled(path.confirmPassword, () => this.isEdit);
     // Validação dinâmica do Password
-    validate(path.password!, ({ value, valueOf }) => {
+    validate(path.password!, ({ value }) => {
       // 1. Se for edição, a senha é sempre válida (retorna null para ignorar erros)
       // Nota: Se isEdit for um Signal no seu código, use this.isEdit()
       if (this.isEdit) return null;
@@ -220,15 +236,15 @@ export class UsuarioFormComponent implements OnInit {
       return null; // Tudo certo
     });
 
-// Validação dinâmica do Confirm Password
+    // Validação dinâmica do confirmar senha
     validate(path.confirmPassword!, ({ value, valueOf }) => {
-      // 1. Se for edição, passa direto
+      // Se for edição, passa direto
       if (this.isEdit) return null;
 
       const confirm = value();
       const password = valueOf(path.password);
 
-      // 2. Regras de criação:
+      // Regras de criação:
       if (!confirm) {
         return { kind: 'required', message: 'Confirme a Senha' };
       }
@@ -238,39 +254,15 @@ export class UsuarioFormComponent implements OnInit {
 
       return null; // Tudo certo
     });
-    // if (!this.isEdit) {
-    //   // Password
-    //   required(path.password!, { message: 'Senha é obrigatória' });
-    //   minLength(path.password!, 6, { message: 'Senha deve ter no mínimo 6 caracteres' });
-    //
-    //   // ConfirmPassword
-    //   required(path.confirmPassword!, { message: 'Confirme a Senha' });
-    //   validate(path.confirmPassword!, ({ value, valueOf }) => {
-    //     const confirm = value();
-    //     const password = valueOf(path.password);
-    //
-    //     if (confirm !== password) {
-    //       return {
-    //         kind: 'passwordMismatch', // Um identificador único para o erro
-    //         message: 'As senhas não conferem'
-    //       };
-    //     }
-    //     return null;
-    //   });
-    //
-    // }
 
     // E-mail
     required(path.email, { message: 'E-mail é obrigatório' });
     email(path.email, { message: 'E-mail inválido' });
   });
-
-  // Computed
-  isPermissionsButtonHidden = computed(() => {
-    const user = this.authService.currentUser();
-    if (!user) return;
-    return user.roles.some((p) => p === 'admin');
-  });
+  // protected readonly form = form;
+  private readonly usuarioService = inject(UsuarioService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly dialogRef = inject(MatDialogRef<UsuarioFormComponent>);
 
   ngOnInit() {
     this.loadRoles();
@@ -280,7 +272,7 @@ export class UsuarioFormComponent implements OnInit {
     if (this.isEdit && this.data) {
       this.userFormModel.update((u) => ({
         ...u,
-        ...this.data
+        ...this.data,
       }));
     }
   }
@@ -293,12 +285,9 @@ export class UsuarioFormComponent implements OnInit {
         // Obtemos os valores diretos do Signal de Modelo Atualizado
         const requestData = this.userFormModel() as IUsuarioRequest;
 
-
         // Transformamos as chamadas Observable em Promise com firstValueFrom
         if (this.isEdit) {
-          const {
-            password, confirmPassword, ...payload
-          } = requestData;
+          const { password, confirmPassword, ...payload } = requestData;
           await firstValueFrom(this.usuarioService.update(this.data!.id, payload));
         } else {
           await firstValueFrom(this.usuarioService.create(requestData));
@@ -306,7 +295,7 @@ export class UsuarioFormComponent implements OnInit {
 
         this.notificationService.success(
           `Usuário ${this.isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`,
-          `${this.isEdit ? 'Atualização' : 'Cadastro'}`
+          `${this.isEdit ? 'Atualização' : 'Cadastro'}`,
         );
 
         this.dialogRef.close(true);
@@ -324,17 +313,14 @@ export class UsuarioFormComponent implements OnInit {
             messageDefaultErro =
               error.error.errors[0].defaultMessage || 'Erro de validação nos dados enviados.';
           }
-            // Tratamento 3: Erro de Validação de Múltiplos Campos (@Valid do Spring)
+          // Tratamento 3: Erro de Validação de Múltiplos Campos (@Valid do Spring)
           // (Às vezes o Spring mapeia os erros em um array chamado "errors")
           else if (error.error && Array.isArray(error.error.errors)) {
             messageDefaultErro =
               error.error.errors[0].defaultMessage || 'Erro de validação nos dados enviados.';
           }
         }
-        this.notificationService.error(
-          messageDefaultErro,
-          'Register'
-        );
+        this.notificationService.error(messageDefaultErro, 'Register');
       }
     });
   }

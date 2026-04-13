@@ -23,7 +23,7 @@ export interface PermissoesDialogData {
     MatFormFieldModule,
     MatSelectModule,
     MatIconModule,
-    CustomSelectComponent
+    CustomSelectComponent,
   ],
   standalone: true,
   template: `
@@ -67,15 +67,18 @@ export interface PermissoesDialogData {
       <button
         type="button"
         mat-flat-button
+        [disabled]="!onDisabledButtonConfirm()"
         class="!bg-blue-500 text-white ml-2 !transition-transform
-               duration-300 !ease-in-out hover:!scale-105"
+               duration-300 !ease-in-out hover:!scale-105
+               disabled:!bg-gray-200 disabled:!cursor-not-allowed disabled:hover:!scale-100
+               disabled:!text-gray-400 disabled:!border-gray-400"
         (click)="confirmar()"
       >
         <mat-icon>checked</mat-icon>
         Confirmar Seleção
       </button>
     </mat-dialog-actions>
-  `
+  `,
 })
 export class PermissoesDialogComponent implements OnInit {
   readonly dialogRef = inject(MatDialogRef<PermissoesDialogComponent>);
@@ -86,7 +89,7 @@ export class PermissoesDialogComponent implements OnInit {
   listas = {
     sistemas: signal<BaseEntityDTO[]>([]),
     procuradores: signal<BaseEntityDTO[]>([]),
-    aliases: signal<BaseEntityDTO[]>([])
+    aliases: signal<BaseEntityDTO[]>([]),
   };
 
   // Arrays locais para o two-way binding do MatSelect
@@ -119,7 +122,15 @@ export class PermissoesDialogComponent implements OnInit {
     this.dialogRef.close({
       sistemaIds: this.selectedSistemas,
       procuradorIds: this.selectedProcuradores,
-      aliasIds: this.selectedAliases
+      aliasIds: this.selectedAliases,
     } as PermissoesDialogData);
+  }
+
+  onDisabledButtonConfirm(): boolean {
+    return (
+      this.selectedAliases.length > 0 ||
+      this.selectedSistemas.length > 0 ||
+      this.selectedProcuradores.length > 0
+    );
   }
 }

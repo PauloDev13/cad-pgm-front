@@ -23,7 +23,7 @@ import { BaseEntityDTO } from '../../../features/servidor/models/servidor.model'
           <mat-select [formField]="field" [placeholder]="placeholder()">
             @for (option of options(); track option.id) {
               <mat-option [value]="option.id">
-                {{ option.nome || option.descricao }}
+                {{ option.nome || option.descricao || option.email }}
               </mat-option>
             }
           </mat-select>
@@ -39,15 +39,15 @@ import { BaseEntityDTO } from '../../../features/servidor/models/servidor.model'
           floatLabel="always"
           subscriptSizing="dynamic"
         >
+          <mat-label>{{ label() }}</mat-label>
           <mat-select [(value)]="value" [placeholder]="placeholder()" [multiple]="multiple()">
             @for (option of options(); track option.id) {
               <mat-option [value]="option.id">
-                {{ option.nome || option.email }}
+                {{ option.nome || option.descricao || option.email }}
               </mat-option>
             }
           </mat-select>
         </mat-form-field>
-        <app-form-error class="absolute bottom-0 left-0 w-full" [field]="field()" />
       </div>
     }
   `,

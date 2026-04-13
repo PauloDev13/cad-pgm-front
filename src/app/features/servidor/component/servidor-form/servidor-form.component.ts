@@ -1,7 +1,23 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { ServidorService } from '../../services/servidor.service';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { BaseEntityDTO, ServidorRequestDTO, ServidorResponseDTO } from '../../models/servidor.model';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
+import {
+  BaseEntityDTO,
+  ServidorRequestDTO,
+  ServidorResponseDTO,
+} from '../../models/servidor.model';
 import {
   email,
   form,
@@ -11,7 +27,7 @@ import {
   pattern,
   required,
   submit,
-  validate
+  validate,
 } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -26,7 +42,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { CustomSelectComponent } from '../../../../shared/components/custom-select/custom-select.component';
 import {
   PermissoesDialogComponent,
-  PermissoesDialogData
+  PermissoesDialogData,
 } from '../../../../shared/components/permissoes-dialog/permissoes-dialog.component';
 import { MatIconModule } from '@angular/material/icon';
 import { CustomValidators } from '../../../../shared/utils/custom-validators';
@@ -52,7 +68,7 @@ export type FormModel = Required<ServidorRequestDTO>;
     AutocompleteComponent,
     CustomSelectComponent,
     NgxMaskDirective,
-    FieldWrapperComponent
+    FieldWrapperComponent,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -82,7 +98,6 @@ export type FormModel = Required<ServidorRequestDTO>;
               <mat-label>Nome Completo</mat-label>
               <input matInput [formField]="servidorForm.nome" placeholder="Ex: João da Silva" />
             </mat-form-field>
-
           </app-field-wrapper>
           <!--Campo filiação-->
           <mat-form-field appearance="outline" class="w-full">
@@ -110,7 +125,6 @@ export type FormModel = Required<ServidorRequestDTO>;
                   mask="000.000.000-00"
                 />
               </mat-form-field>
-
             </app-field-wrapper>
 
             <app-field-wrapper [field]="servidorForm.dataNascimento()">
@@ -126,7 +140,6 @@ export type FormModel = Required<ServidorRequestDTO>;
                 <mat-datepicker-toggle class="!mr-2" matIconSuffix [for]="pickerNascimento" />
                 <mat-datepicker #pickerNascimento></mat-datepicker>
               </mat-form-field>
-
             </app-field-wrapper>
 
             <!--Campo Gênero-->
@@ -239,8 +252,10 @@ export type FormModel = Required<ServidorRequestDTO>;
           mat-stroked-button
           type="button"
           class="mr-auto !border-blue-600 !text-blue-600 !transition-transform
-                duration-300 !ease-in-out hover:!scale-105"
-          [disabled]="servidorForm().invalid"
+                 duration-300 !ease-in-out hover:!scale-105 disabled:!bg-gray-200
+                 disabled:!cursor-not-allowed disabled:hover:!scale-100
+                 disabled:!text-gray-400 disabled:!border-gray-400"
+          [disabled]="servidorForm().invalid()"
           (click)="openPermissions()"
         >
           <mat-icon>security</mat-icon>
@@ -257,24 +272,27 @@ export type FormModel = Required<ServidorRequestDTO>;
         {{ isEdit ? 'Atualizar' : 'Salvar' }}
       </button>
     </mat-dialog-actions>
-  `
+  `,
 })
 export class ServidorFormComponent implements OnInit {
-  isEdit: boolean = false;
-  readonly data = inject<ServidorResponseDTO>(
-    MAT_DIALOG_DATA, { optional: true }
-  );
+  private readonly servidorService = inject(ServidorService);
+  private readonly dominioService = inject(DominioService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly dialogRef = inject(MatDialogRef<ServidorFormComponent>);
+  private readonly dialog = inject(MatDialog);
+  private readonly authService = inject(AuthService);
 
+  // Variáveis diversas
+  isEdit: boolean = false;
+  readonly data = inject<ServidorResponseDTO>(MAT_DIALOG_DATA, { optional: true });
   // Signals para armazenar os dados que virão da API
   cargos = signal<BaseEntityDTO[]>([]);
   setores = signal<BaseEntityDTO[]>([]);
   vinculos = signal<BaseEntityDTO[]>([]);
   statusList = signal<BaseEntityDTO[]>([]);
-
   // Signals para armazenar dados estáticos vindos do domínio service
   generos = signal<BaseEntityDTO[]>([]);
   lotacaoList = signal<BaseEntityDTO[]>([]);
-
   // Modelo para validação
   servidorModel = signal<FormModel>({
     nome: '',
@@ -296,22 +314,21 @@ export class ServidorFormComponent implements OnInit {
 
     procuradorIds: [],
     aliasIds: [],
-    sistemaIds: []
+    sistemaIds: [],
   });
-
   // validações dos campos do formulário
   servidorForm = form(this.servidorModel, (path) => {
     // validações para o campo Nome
     required(path.nome, { message: 'O nome é obrigatório' });
     minLength(path.nome, 5, { message: 'O Nome deve ter no mínimo 5 caracteres' });
     maxLength(path.nome, 150, {
-      message: 'O nome deve ter no máximo 150 caracteres'
+      message: 'O nome deve ter no máximo 150 caracteres',
     });
 
     // validações para o campo Matrícula
     required(path.matricula, { message: 'A matrícula é obrigatório' });
     maxLength(path.matricula, 20, {
-      message: 'A matrícula deve ter no máximo 20 caracteres'
+      message: 'A matrícula deve ter no máximo 20 caracteres',
     });
 
     // validações para o campo CPF
@@ -325,19 +342,19 @@ export class ServidorFormComponent implements OnInit {
 
     // validações para o campo Telefone
     maxLength(path.telefone, 20, {
-      message: 'O telefone deve ter no máximo 20 dígitos'
+      message: 'O telefone deve ter no máximo 20 dígitos',
     });
 
     // validações para o campo Email Pessoal
     required(path.emailPessoal, { message: 'O Email é obrigatório' });
     email(path.emailPessoal, { message: 'Formato de email inválido' });
     maxLength(path.emailPessoal, 100, {
-      message: 'O Email deve ter no máximo 100 caracteres'
+      message: 'O Email deve ter no máximo 100 caracteres',
     });
 
     // validações para o campo Email Institucional
     maxLength(path.emailInstitucional, 100, {
-      message: 'O Email deve ter no máximo 100 caracteres'
+      message: 'O Email deve ter no máximo 100 caracteres',
     });
     email(path.emailInstitucional, { message: 'Formato de email inválido' });
 
@@ -348,14 +365,6 @@ export class ServidorFormComponent implements OnInit {
     required(path.statusId, { message: 'O Status é obrigatório' });
     required(path.vinculoId, { message: 'O vinculo é obrigatório' });
   });
-
-  // protected readonly form = form;
-  private readonly servidorService = inject(ServidorService);
-  private readonly dominioService = inject(DominioService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly dialogRef = inject(MatDialogRef<ServidorFormComponent>);
-  private readonly dialog = inject(MatDialog);
-  private readonly authService = inject(AuthService);
 
   // Computed
   isPermissionsButtonHidden = computed(() => {
@@ -368,7 +377,7 @@ export class ServidorFormComponent implements OnInit {
   onCargoChange(id: number | null) {
     this.servidorModel.update((m) => ({
       ...m,
-      cargoId: id as number
+      cargoId: id as number,
     }));
   }
 
@@ -399,7 +408,7 @@ export class ServidorFormComponent implements OnInit {
         // O map() extrai só os IDs para o DTO de envio: [1]. Se for nulo, devolve [] vazio.
         sistemaIds: this.data?.sistemas?.map((s) => s.id) || [],
         procuradorIds: this.data?.procuradores?.map((p) => p.id) || [],
-        aliasIds: this.data?.aliases?.map((a) => a.id) || []
+        aliasIds: this.data?.aliases?.map((a) => a.id) || [],
       }));
     }
   }
@@ -421,7 +430,7 @@ export class ServidorFormComponent implements OnInit {
 
         this.notificationService.success(
           `Servidor ${this.isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`,
-          `${this.isEdit ? 'Atualização' : 'Cadastro'}`
+          `${this.isEdit ? 'Atualização' : 'Cadastro'}`,
         );
 
         this.dialogRef.close(true);
@@ -439,7 +448,7 @@ export class ServidorFormComponent implements OnInit {
             messageDefaultErro =
               error.error.errors[0].defaultMessage || 'Erro de validação nos dados enviados.';
           }
-            // Tratamento 3: Erro de Validação de Múltiplos Campos (@Valid do Spring)
+          // Tratamento 3: Erro de Validação de Múltiplos Campos (@Valid do Spring)
           // (Às vezes o Spring mapeia os erros em um array chamado "errors")
           else if (error.error && Array.isArray(error.error.errors)) {
             messageDefaultErro =
@@ -447,10 +456,7 @@ export class ServidorFormComponent implements OnInit {
           }
         }
 
-        this.notificationService.error(
-          messageDefaultErro,
-          'Erro Servidor'
-        );
+        this.notificationService.error(messageDefaultErro, 'Erro Servidor');
       }
     });
   }
@@ -462,8 +468,8 @@ export class ServidorFormComponent implements OnInit {
       data: {
         sistemaIds: this.servidorModel().sistemaIds || [],
         procuradorIds: this.servidorModel().procuradorIds || [],
-        aliasIds: this.servidorModel().aliasIds || []
-      }
+        aliasIds: this.servidorModel().aliasIds || [],
+      },
     });
     dialogRef.afterClosed().subscribe((result: PermissoesDialogData | undefined) => {
       if (result) {
@@ -472,7 +478,7 @@ export class ServidorFormComponent implements OnInit {
           ...model,
           sistemaIds: result.sistemaIds,
           procuradorIds: result.procuradorIds,
-          aliasIds: result.aliasIds
+          aliasIds: result.aliasIds,
         }));
       }
     });
