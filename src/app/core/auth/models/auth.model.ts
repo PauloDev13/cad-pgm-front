@@ -17,3 +17,10 @@ export interface IResetPasswordRequest {
   token: string;
   newPassword: string;
 }
+
+export interface ResetPasswordDialogData {
+  title: string;
+  message: string;
+  password: string;
+}
+

@@ -10,8 +10,8 @@ import { UsuarioService } from '../../../features/usuario/services/usuario.servi
 import { LoginStateService } from '../services/login-state.service';
 import { HeaderLoginComponent } from './header-login.component';
 import { RouterLink } from '@angular/router';
-import { ToastService } from '../../../shared/service/toast.service';
 import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper.component';
+import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 
 @Component({
   selector: 'app-form-register-login',
@@ -163,7 +163,8 @@ import { FieldWrapperComponent } from '../../../shared/layout/component/field-wr
   `
 })
 export class FormRegisterUsuarioComponent {
-  private readonly toastService = inject(ToastService);
+  private readonly notificationService = inject(NotificationService);
+  // private readonly toastService = inject(ToastService);
   private readonly usuarioService = inject(UsuarioService);
   private readonly loginStateService = inject(LoginStateService);
 
@@ -263,15 +264,21 @@ export class FormRegisterUsuarioComponent {
           // Atualiza o signal do service com o nome do usuário recém-cadastrado
           this.loginStateService.newUserName.set(response.userName);
 
-          this.toastService.successLogin('Register',
-            `Usuário <strong>${response.userName}<strong> cadastrado.`);
+          this.notificationService.success(
+            `Usuário <strong>${response.userName}<strong> cadastrado.`,
+            'Register'
+          );
+          // this.toastService.successLogin('Register',
+          //   `Usuário <strong>${response.userName}<strong> cadastrado.`);
 
         },
         error: (err) => {
           this.isLoading.set(false);
-          // this.errorMessage.set(err.message);
-          this.toastService.errorLogin('Register', err.message);
-          console.error(err.message);
+          this.notificationService.error(
+            err.message,
+            'Register'
+          );
+          // console.error(err.message);
         }
       });
     });

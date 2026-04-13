@@ -24,7 +24,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { CustomSelectComponent } from '../../../../shared/components/custom-select/custom-select.component';
-import { ToastService } from '../../../../shared/service/toast.service';
 import {
   PermissoesDialogComponent,
   PermissoesDialogData
@@ -34,6 +33,7 @@ import { CustomValidators } from '../../../../shared/utils/custom-validators';
 import { NgxMaskDirective } from 'ngx-mask';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper.component';
+import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 
 export type FormModel = Required<ServidorRequestDTO>;
 
@@ -261,7 +261,9 @@ export type FormModel = Required<ServidorRequestDTO>;
 })
 export class ServidorFormComponent implements OnInit {
   isEdit: boolean = false;
-  readonly data = inject<ServidorResponseDTO>(MAT_DIALOG_DATA, { optional: true });
+  readonly data = inject<ServidorResponseDTO>(
+    MAT_DIALOG_DATA, { optional: true }
+  );
 
   // Signals para armazenar os dados que virão da API
   cargos = signal<BaseEntityDTO[]>([]);
@@ -350,6 +352,9 @@ export class ServidorFormComponent implements OnInit {
   // protected readonly form = form;
   private readonly servidorService = inject(ServidorService);
   private readonly dominioService = inject(DominioService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly dialogRef = inject(MatDialogRef<ServidorFormComponent>);
+  private readonly dialog = inject(MatDialog);
   private readonly authService = inject(AuthService);
 
   // Computed
@@ -358,11 +363,6 @@ export class ServidorFormComponent implements OnInit {
     if (!user) return;
     return user.roles.some((p) => p === 'admin');
   });
-
-  private readonly toastService = inject(ToastService);
-  private readonly dialogRef = inject(MatDialogRef<ServidorFormComponent>);
-
-  private readonly dialog = inject(MatDialog);
 
   // controla as mudanças no campo autocomplete Cargo
   onCargoChange(id: number | null) {
@@ -419,8 +419,9 @@ export class ServidorFormComponent implements OnInit {
           await firstValueFrom(this.servidorService.create(requestData));
         }
 
-        this.toastService.success(
-          `Servidor ${this.isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`
+        this.notificationService.success(
+          `Servidor ${this.isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`,
+          `${this.isEdit ? 'Atualização' : 'Cadastro'}`
         );
 
         this.dialogRef.close(true);
@@ -445,7 +446,11 @@ export class ServidorFormComponent implements OnInit {
               error.error.errors[0].defaultMessage || 'Erro de validação nos dados enviados.';
           }
         }
-        this.toastService.error(messageDefaultErro);
+
+        this.notificationService.error(
+          messageDefaultErro,
+          'Erro Servidor'
+        );
       }
     });
   }

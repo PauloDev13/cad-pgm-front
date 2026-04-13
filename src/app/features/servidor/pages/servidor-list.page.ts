@@ -9,12 +9,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { ServidorFormComponent } from '../component/servidor-form/servidor-form.component';
 import { DominioService } from '../services/dominio.service';
 import { PageResponse } from '../../../shared/model/pagination.model';
-import { ToastService } from '../../../shared/service/toast.service';
 import { CustomDeleteService } from '../../../shared/service/custom-delete.service';
 import { debounceTime, distinctUntilChanged, finalize, Subject } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ServidorFilterComponent } from '../component/servidor-filter/servidor-filter.component';
 import { ServidorTableComponent } from '../component/servidor-table/servidor-table.component';
+import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 
 @Component({
   selector: 'app-servidor-list',
@@ -23,7 +23,7 @@ import { ServidorTableComponent } from '../component/servidor-table/servidor-tab
     <div class="bg-gray-50 shadow rounded-2xl border border-gray-200 p-4 md:p-6  mx-auto mt-4">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-gray-800">Gestão de Servidores</h1>
+          <h1 class="text-2xl font-bold text-blue-800">Gestão de Servidores</h1>
           <p class="text-sm text-gray-500">Gerencie os servidores do sistema</p>
         </div>
         <button
@@ -68,10 +68,17 @@ import { ServidorTableComponent } from '../component/servidor-table/servidor-tab
     MatIconModule,
     MatButtonModule,
     ServidorFilterComponent,
-    ServidorTableComponent,
-  ],
+    ServidorTableComponent
+  ]
 })
 export default class ServidorListPage implements OnInit {
+  // Injeções
+  private readonly servidorService = inject(ServidorService);
+  private readonly dominioService = inject(DominioService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly dialog = inject(MatDialog);
+  private readonly customDeleteService = inject(CustomDeleteService);
+
   //Signals para Estado
   servidores = signal<ServidorResponseDTO[]>([]);
   totalElements = signal<number>(0);
@@ -91,13 +98,6 @@ export default class ServidorListPage implements OnInit {
   private searchSubject = new Subject<string>();
   // O Angular nos dá uma referência da destruição deste componente
   private destroyRef = inject(DestroyRef);
-
-  // Injeções
-  private readonly servidorService = inject(ServidorService);
-  private readonly dominioService = inject(DominioService);
-  private readonly toastService = inject(ToastService);
-  private readonly dialog = inject(MatDialog);
-  private readonly customDeleteService = inject(CustomDeleteService);
 
   ngOnInit(): void {
     this.carregarFiltrosIniciais();
@@ -134,7 +134,10 @@ export default class ServidorListPage implements OnInit {
             this.setPageData(pageData);
             // this.totalElements.set(pageData.page.totalElements);
           },
-          error: () => this.toastService.error('Erro ao filtrar dados'),
+          error: () => this.notificationService.error(
+            'Erro ao pesquisar dados',
+            'Pesquisar'
+          )
         });
     } else {
       // Chama o ENDPOINT ORIGINAL (findAll) - Listagem limpa
@@ -143,8 +146,14 @@ export default class ServidorListPage implements OnInit {
         .pipe(finalize(() => this.isLoading.set(false)))
         .subscribe({
           next: (pageData) => this.setPageData(pageData),
-          error: () => this.toastService.error('Erro ao carregar dados'),
-          complete: () => this.isLoading.set(false),
+          error: (err) => {
+            this.notificationService.error(
+              'Erro ao carregar dados',
+              'Load'
+            );
+            console.error('Erro ao carregar dados ' + err.message);
+          },
+          complete: () => this.isLoading.set(false)
         });
     }
   }
@@ -155,7 +164,7 @@ export default class ServidorListPage implements OnInit {
       maxWidth: '95vw',
       maxHeight: '90vw',
       data: servidor,
-      disableClose: true,
+      disableClose: true
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -170,8 +179,8 @@ export default class ServidorListPage implements OnInit {
       () => this.servidorService.delete(id),
       () => this.loadData(),
       {
-        successMsg: 'Servidor removido com sucesso!',
-      },
+        successMsg: 'Servidor removido com sucesso!'
+      }
     );
   }
 
@@ -224,7 +233,7 @@ export default class ServidorListPage implements OnInit {
       .pipe(
         debounceTime(500), // Espera o usuário parar de digitar por 500ms
         distinctUntilChanged(), // Só continua se a palavra final for diferente da última busca
-        takeUntilDestroyed(this.destroyRef), // Dizemos pro fluxo morrer com o componente
+        takeUntilDestroyed(this.destroyRef) // Dizemos pro fluxo morrer com o componente
       )
       .subscribe((termoDigitado) => {
         // Se o usuário apagou tudo (Cenário 1)
@@ -268,7 +277,13 @@ export default class ServidorListPage implements OnInit {
         // Após configurar o status padrão, chamamos a listagem inicial
         this.loadData();
       },
-      error: () => this.toastService.error('Erro ao carregar lista de status'),
+      error: (err) => {
+        this.notificationService.error(
+          'Erro ao carregar lista de status',
+          'Loading'
+        );
+        console.error('Erro ao carregar lista  ' + err.message);
+      }
     });
   }
 }

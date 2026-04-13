@@ -6,9 +6,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { UsuarioResponse } from '../../../../shared/model/auth-login.model';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { LoadingComponent } from '../../../../shared/components/loading.component/loading.component';
+import { IUsuarioResponse } from '../../models/usuario.model';
 
 @Component({
   selector: 'app-usuario-table',
@@ -158,14 +158,14 @@ import { LoadingComponent } from '../../../../shared/components/loading.componen
 })
 export class UsuarioTableComponent {
   // INPUTS (Dados que vêm do Pai)
-  data = input.required<UsuarioResponse[]>();
+  data = input.required<IUsuarioResponse[]>();
   isLoading = input.required<boolean>();
   totalElements = input.required<number>();
   pageSize = input.required<number>();
   currentPage = input.required<number>();
   // OUTPUTS (Eventos que avisam o Pai)
-  edit = output<UsuarioResponse>();
-  confirmResetPassword = output<UsuarioResponse>();
+  edit = output<IUsuarioResponse>();
+  confirmResetPassword = output<IUsuarioResponse>();
   delete = output<number>();
 
   pageChange = output<PageEvent>();

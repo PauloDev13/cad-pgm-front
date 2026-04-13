@@ -51,4 +51,22 @@
   .tooltip-blue .mdc-tooltip__surface {
     @apply !bg-blue-700 !text-white text-xs px-2 py-1 rounded shadow;
   }
+
+  /* Classe para "resetar" o container do Material Snackbar */
+  .custom-snackbar-container {
+    /* Remove o fundo e a sombra das variáveis do MDC */
+    --mdc-snackbar-container-color: transparent !important;
+    --mdc-snackbar-container-elevation-shadow: none !important;
+
+    /* Garante que o fundo seja transparente */
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  /* Remove o padding e o fundo da superfície interna do MDC */
+  .custom-snackbar-container .mdc-snackbar__surface {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
 }

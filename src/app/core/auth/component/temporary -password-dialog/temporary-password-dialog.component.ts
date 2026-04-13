@@ -4,16 +4,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { ToastService } from '../../../../shared/service/toast.service';
-
-export interface ConfirmDialogData {
-  title: string;
-  message: string;
-  password: string;
-}
+import { ResetPasswordDialogData } from '../../models/auth.model';
+import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 
 @Component({
-  selector: 'app-confirm-dialog',
+  selector: 'app-temporary-password-dialog',
   imports: [MatDialogModule, MatButtonModule, MatIconModule, MatSnackBarModule],
   standalone: true,
   template: `
@@ -22,7 +17,7 @@ export interface ConfirmDialogData {
     </h2>
 
     <mat-dialog-content>
-      <p class="text-gray-600 text-base pt-2">
+      <p class="text-gray-600 text-base pt-2 mb-6">
         {{ data.message }}
       </p>
       <div class="bg-gray-100 p-4 rounded-lg flex items-center justify-between border">
@@ -35,7 +30,7 @@ export interface ConfirmDialogData {
 
     <mat-dialog-actions align="end" class="!pb-4 !pr-4">
       <button
-        mat-stroked-button
+        mat-button
         type="button"
         (click)="onYesClick()"
         class="hover:!bg-red-600
@@ -52,13 +47,13 @@ export interface ConfirmDialogData {
 export class TemporaryPasswordDialogComponent {
   // Injeções
   readonly dialogRef = inject(MatDialogRef<TemporaryPasswordDialogComponent>);
-  readonly data = inject<ConfirmDialogData>(MAT_DIALOG_DATA);
+  readonly data = inject<ResetPasswordDialogData>(MAT_DIALOG_DATA);
 
   // Injeta os serviços utilitários
   private clipboard = inject(Clipboard);
-  private toastService = inject(ToastService);
+  private notificationService = inject(NotificationService);
 
-  // private snackBar = inject(MatSnackBar);
+  // private toastService = inject(ToastService);
 
   onYesClick(): void {
     this.dialogRef.close(true);
@@ -67,9 +62,14 @@ export class TemporaryPasswordDialogComponent {
   copyPassword(password: string) {
     this.clipboard.copy(password);
 
-    this.toastService.successLogin(
-      'Copiar Senha',
-      'Senha copiada para a área de transferência!'
+    this.notificationService.success(
+      'Senha copiada para a área de transferência!',
+      'Copiar Senha'
     );
+
+    // this.toastService.successLogin(
+    //   'Copiar Senha',
+    //   'Senha copiada para a área de transferência!'
+    // );
   }
 }

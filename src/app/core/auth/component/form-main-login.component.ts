@@ -10,8 +10,8 @@ import { Router, RouterLink } from '@angular/router';
 import { MatIconButton } from '@angular/material/button';
 import { LoginStateService } from '../services/login-state.service';
 import { HeaderLoginComponent } from './header-login.component';
-import { ToastService } from '../../../shared/service/toast.service';
 import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper.component';
+import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 
 @Component({
   selector: 'app-form-main-login',
@@ -114,7 +114,7 @@ import { FieldWrapperComponent } from '../../../shared/layout/component/field-wr
 export class FormMainLoginComponent {
   // Injeções de dependências
   private readonly authService = inject(AuthService);
-  private readonly toastService = inject(ToastService);
+  private readonly notificationService = inject(NotificationService);
   private readonly router = inject(Router);
   private readonly loginStateService = inject(LoginStateService);
 
@@ -168,7 +168,10 @@ export class FormMainLoginComponent {
         },
         error: (err) => {
           this.isLoading.set(false);
-          this.toastService.errorLogin('Login', err.message);
+          this.notificationService.error(
+            err.message,
+            'Login'
+          );
         }
       });
     });

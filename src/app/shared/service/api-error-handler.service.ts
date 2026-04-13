@@ -1,12 +1,12 @@
 import { inject, Injectable } from '@angular/core';
-import { ToastService } from './toast.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { NotificationService } from './NotificationSnackbar.service';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class ApiErrorHandlerService {
-  private readonly toastService = inject(ToastService);
+  private readonly notificationService = inject(NotificationService);
 
   errorHandler(error: any) {
     // O seu excelente bloco de tratamento de erro do Spring
@@ -20,14 +20,21 @@ export class ApiErrorHandlerService {
           error.error.errors[0].defaultMessage || 'Erro de validação nos dados enviados.';
       }
 
-      // ✨ DECISÃO ARQUITETURAL ✨
+      //  DECISÃO ARQUITETURAL
       // Se for um erro de Proibido (403) ou Conflito (409 - comum em exclusão com vínculo)
       if (error.status === 403 || error.status === 409) {
-        this.toastService.errorCritical('EXCLUSÃO NEGADA!', messageDefaultErro);
+        this.notificationService.error(
+          messageDefaultErro,
+          'EXCLUSÃO NEGADA'
+        );
         return;
       }
     }
 
-    this.toastService.error(messageDefaultErro);
+    this.notificationService.error(
+      messageDefaultErro,
+      'Exclusão'
+    );
+
   }
 }

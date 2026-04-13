@@ -44,7 +44,7 @@ export const routes: Routes = [
       {
         path: 'troca-obrigatoria',
         title: 'Troca de Senha Obrigatória | PGM Natal',
-        loadComponent: () => import('./core/auth/pages/force-password-change.page').then(m => m.ForcePasswordChangePage)
+        loadComponent: () => import('./core/auth/component/force-password-change.component').then(m => m.ForcePasswordChangeComponent)
       }
     ]
   },

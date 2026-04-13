@@ -8,8 +8,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { form, FormField, minLength, required, submit, validate } from '@angular/forms/signals';
 import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
 import { AuthService } from '../services/auth.service';
-import { ToastService } from '../../../shared/service/toast.service';
 import { HeaderLoginComponent } from './header-login.component';
+import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 
 @Component({
   selector: 'app-reset-password',
@@ -118,13 +118,12 @@ import { HeaderLoginComponent } from './header-login.component';
 export class ResetPasswordComponent {
   //Injeção de dependência
   private readonly authService = inject(AuthService);
-  private readonly toastService = inject(ToastService);
+  private readonly notificationService = inject(NotificationService);
 
-  // O Angular lê ?token=XYZ da URL e joga aqui dentro automaticamente.
+  // O Angular ler ?token=XYZ da URL e joga aqui dentro automaticamente.
   token = input<string>('');
   // Estado da tela
   isLoading = signal(<boolean>false);
-  mensagemSucesso = signal<string>('');
   mensagemErro = signal<string>('');
   // Controle dos ícones visuais
   hidePassword = signal(true);
@@ -170,14 +169,25 @@ export class ResetPasswordComponent {
 
     // Prevenção extra caso o usuário chegue na tela sem token na URL
     if (!this.token()) {
-      this.toastService.errorLogin('Token',
-        'Token de segurança ausente. Por favor, acesse através do link ' +
-        'enviado para o seu e-mail.'
+      this.notificationService.error(
+        `Token de segurança ausente. Por favor, acesse através do link
+                  enviado para o seu e-mail.`, 'Token'
       );
-      this.toastService.errorLogin('Token',
-        'Token de segurança ausente. Por favor, acesse através do link ' +
-        'enviado para o seu e-mail.'
+
+      this.notificationService.error(
+        `Token de segurança ausente. Por favor, acesse através do link
+                  enviado para o seu e-mail.`, 'Token'
       );
+
+      // this.toastService.errorLogin('Token',
+      //   'Token de segurança ausente. Por favor, acesse através do link ' +
+      //   'enviado para o seu e-mail.'
+      // );
+
+      // this.toastService.errorLogin('Token',
+      //   'Token de segurança ausente. Por favor, acesse através do link ' +
+      //   'enviado para o seu e-mail.'
+      // );
       return;
     }
 
@@ -190,16 +200,24 @@ export class ResetPasswordComponent {
       this.authService.resetPassword(this.token(), password).subscribe({
         next: () => {
           this.isLoading.set(false);
-          // Ocultamos o formulário mostrando o @if (mensagemSucesso())
-          this.toastService.successLogin('Senha',
-            'Senha atualizada com sucesso! Você já pode acessar o sistema.'
+
+          this.notificationService.success(
+            `Senha atualizada com sucesso! Você já pode acessar o sistema.
+              `, 'Senha'
           );
-          // this.mensagemSucesso.set('Senha atualizada com sucesso! Você já pode acessar o sistema.');
+
+          // this.toastService.successLogin('Senha',
+          //   'Senha atualizada com sucesso! Você já pode acessar o sistema.'
+          // );
+
         },
         error: (err) => {
           this.isLoading.set(false);
-          this.toastService.errorLogin('Link', err.message);
-          this.mensagemErro.set(err.message);
+          this.notificationService.error(
+            err.message,
+            'Link'
+          );
+          // this.toastService.errorLogin('Link', err.message);
         }
       });
     });

@@ -1,5 +1,4 @@
 import { Directive, inject, OnInit, signal } from '@angular/core';
-import { ToastService } from '../../service/toast.service';
 import { ApiErrorHandlerService } from '../../service/api-error-handler.service';
 import { CustomDeleteService } from '../../service/custom-delete.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -8,10 +7,8 @@ import { PageEvent } from '@angular/material/paginator';
 import { finalize, firstValueFrom } from 'rxjs';
 import { CustomCadModalComponent } from '../custom-cad-modal/custom-cad-modal.component';
 import { PageResponse } from '../../model/pagination.model';
-import {
-  SingleInputDialogData,
-  SingleInputModalResult,
-} from '../../model/generic/base-generic.model';
+import { SingleInputDialogData, SingleInputModalResult } from '../../model/generic/base-generic.model';
+import { NotificationService } from '../../service/NotificationSnackbar.service';
 
 @Directive()
 export abstract class BaseGenericComponent<T> implements OnInit {
@@ -26,7 +23,8 @@ export abstract class BaseGenericComponent<T> implements OnInit {
   currentPage = signal<number>(0);
 
   // Injeções
-  protected readonly toastService = inject(ToastService);
+  // protected readonly toastService = inject(ToastService);
+  protected readonly notificationService = inject(NotificationService);
   protected readonly errorHandlerService = inject(ApiErrorHandlerService);
   protected readonly customDeleteService = inject(CustomDeleteService);
   protected readonly dialog = inject(MatDialog);
@@ -59,7 +57,10 @@ export abstract class BaseGenericComponent<T> implements OnInit {
         .pipe(finalize(() => this.isLoading.set(false)))
         .subscribe({
           next: (pageData) => this.setPageData(pageData),
-          error: () => this.toastService.error(`Erro ao filtrar ${this.entityTitle}s`),
+          error: () => this.notificationService.error(
+            `Erro ao filtrar ${this.entityTitle}s`,
+            'Pesquisa'
+          )
         });
     } else {
       this.entityService
@@ -69,8 +70,11 @@ export abstract class BaseGenericComponent<T> implements OnInit {
           next: (pageData) => this.setPageData(pageData),
           error: (err) => {
             console.error(`Erro ao buscar ${this.entityTitle}s`, err);
-            this.toastService.error(`Erro ao buscar ${this.entityTitle}s`);
-          },
+            this.notificationService.error(
+              `Erro ao buscar ${this.entityTitle}s`,
+              'Pesquisa'
+            );
+          }
         });
     }
   }
@@ -90,7 +94,7 @@ export abstract class BaseGenericComponent<T> implements OnInit {
         this.loadData();
         this.currentPage.set(0);
       },
-      { successMsg: `${this.entityTitle} removido(a) com sucesso!` },
+      { successMsg: `${this.entityTitle} removido(a) com sucesso!` }
     );
   }
 
@@ -101,10 +105,12 @@ export abstract class BaseGenericComponent<T> implements OnInit {
       } else {
         await firstValueFrom(this.entityService.create(resultado.payload));
       }
-      // this.toastService.success(`${this.entityTitle} salvo(a) com sucesso!`);
-      this.toastService.success(
+
+      this.notificationService.success(
         `${this.entityTitle} ${resultado.id ? 'atualizado' : 'cadastrado'} com sucesso!`,
+        'Cadastro'
       );
+
       this.loadData();
     } catch (error: any) {
       this.errorHandlerService.errorHandler(error);
@@ -131,8 +137,8 @@ export abstract class BaseGenericComponent<T> implements OnInit {
         title: this.entityTitle,
         inputLabel: this.inputLabel,
         inputValue: selectedItem ? this.getInputValue(selectedItem) : '',
-        id: selectedItem ? (selectedItem as any).id : undefined,
-      } as SingleInputDialogData,
+        id: selectedItem ? (selectedItem as any).id : undefined
+      } as SingleInputDialogData
     });
 
     dialogRef.afterClosed().subscribe((result: SingleInputModalResult) => {

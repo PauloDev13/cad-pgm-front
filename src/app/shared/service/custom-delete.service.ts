@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ToastService } from './toast.service';
 import { Observable } from 'rxjs';
 import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
 import { ApiErrorHandlerService } from './api-error-handler.service';
+import { NotificationService } from './NotificationSnackbar.service';
 
 type Messages = {
   title?: string;
@@ -12,11 +12,11 @@ type Messages = {
 };
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class CustomDeleteService {
   private dialog = inject(MatDialog);
-  private readonly toastService = inject(ToastService);
+  private readonly notificationService = inject(NotificationService);
   private readonly errorHandlerService = inject(ApiErrorHandlerService);
 
   execute(deleteActions: () => Observable<any>, onSuccess: () => void, options?: Messages) {
@@ -26,8 +26,8 @@ export class CustomDeleteService {
       data: {
         title: options?.title ?? 'Remover registro',
         message:
-          options?.message ?? 'Esta ação não poderá ser desfeita. Tem certeza que quer prosseguir?',
-      },
+          options?.message ?? 'Esta ação não poderá ser desfeita. Tem certeza que quer prosseguir?'
+      }
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -36,13 +36,16 @@ export class CustomDeleteService {
           next: (response: any) => {
             const backendMsg = response?.message;
             const fallbackMsg = options?.successMsg ?? 'Registro removido com sucesso!';
-            this.toastService.success(backendMsg || fallbackMsg);
+            this.notificationService.success(
+              backendMsg || fallbackMsg,
+              'Exclusão'
+            );
             onSuccess();
           },
           error: (err) => {
             console.log('Erro ao remover registro');
             this.errorHandlerService.errorHandler(err);
-          },
+          }
         });
       }
     });

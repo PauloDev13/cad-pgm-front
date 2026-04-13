@@ -51,7 +51,7 @@ import { FieldWrapperComponent } from '../../layout/component/field-wrapper.comp
       <button
         mat-flat-button
         class="!transition-transform duration-300 !ease-in-out hover:!scale-105"
-        [disabled]="customForm().invalid"
+        [disabled]="customForm().invalid()"
         (click)="save()"
       >
         <mat-icon class="!mr-0.5">save</mat-icon>

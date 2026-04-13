@@ -1,7 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { RouterModule } from '@angular/router';
-import { ToastService } from '../../../shared/service/toast.service';
 import { email, form, FormField, required, submit } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -9,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
 import { HeaderLoginComponent } from './header-login.component';
+import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 
 @Component({
   selector: 'app-forgot-password',
@@ -89,7 +89,8 @@ import { HeaderLoginComponent } from './header-login.component';
 export class ForgotPasswordComponent {
   // Injeção de dependências
   private readonly authService = inject(AuthService);
-  private readonly toastService = inject(ToastService);
+  private readonly notificationService = inject(NotificationService);
+  // private readonly toastService = inject(ToastService);
 
   // Signals de estado
   isLoading = signal(false);
@@ -117,17 +118,25 @@ export class ForgotPasswordComponent {
         next: () => {
           this.isLoading.set(false);
           // Mensagem de sucesso (segurança: dizemos que enviamos mesmo se o email não existir para não vazar dados)
-          // this.mensagemSucesso.set(
+          this.notificationService.success(
+            `
+              Se o e-mail estiver cadastrado, você receberá um link de redefinição em instantes.
+            `,
+            'Email'
+          );
+
+          // this.toastService.successLogin('Email',
           //   'Se o e-mail estiver cadastrado, você receberá um link de redefinição em instantes.'
           // );
-          this.toastService.successLogin('Email',
-            'Se o e-mail estiver cadastrado, você receberá um link de redefinição em instantes.'
-          );
         },
         error: (err) => {
           this.isLoading.set(false);
           this.mensagemErro.set(err.message);
-          this.toastService.errorLogin('Error', err.message);
+          this.notificationService.error(
+            err.message,
+            'Erro'
+          );
+          // this.toastService.errorLogin('Error', err.message);
         }
       });
     });

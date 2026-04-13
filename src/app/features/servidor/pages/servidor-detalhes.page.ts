@@ -6,11 +6,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { ServidorResponseDTO } from '../models/servidor.model';
 import { ServidorService } from '../services/servidor.service';
-import { ToastService } from '../../../shared/service/toast.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LoadingComponent } from '../../../shared/components/loading.component/loading.component';
 import { DataDisplayComponent } from '../component/data-display.component';
 import { DataInfoComponent } from '../component/data-info.component';
+import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 
 @Component({
   selector: 'app-servidor-detalhes',
@@ -23,7 +23,7 @@ import { DataInfoComponent } from '../component/data-info.component';
     MatDividerModule,
     LoadingComponent,
     DataDisplayComponent,
-    DataInfoComponent,
+    DataInfoComponent
   ],
   standalone: true,
   template: `
@@ -185,19 +185,20 @@ import { DataInfoComponent } from '../component/data-info.component';
         </div>
       }
     </div>
-  `,
+  `
 })
 export default class ServidorDetalhesPage {
+  // Injeções
+  private readonly servidorService = inject(ServidorService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly location = inject(Location); // Para o botão voltar
+
   // O Angular injeta o :id da URL direto aqui!
   id = input.required<string>();
   // Estado
   servidor = signal<ServidorResponseDTO | null>(null);
   isLoading = signal<boolean>(true);
 
-  // Injeções
-  private readonly servidorService = inject(ServidorService);
-  private readonly toastService = inject(ToastService);
-  private readonly location = inject(Location); // Para o botão voltar
 
   constructor() {
     effect(() => {
@@ -232,7 +233,7 @@ export default class ServidorDetalhesPage {
       ativo: 'bg-green-700 text-white',
       afastado: 'bg-yellow-300 text-black',
       ferias: 'bg-blue-700 text-white',
-      pendente: 'bg-red-700 text-white',
+      pendente: 'bg-red-700 text-white'
     };
     return mapColors[statusNormalizado] || 'bg-gray-700 text-white';
   }
@@ -240,6 +241,7 @@ export default class ServidorDetalhesPage {
   private loadServidorList() {
     this.isLoading.set(true);
 
+    let servidorName = '';
     // Converte o id (string da URL) para número
     const servidorId = Number(this.id());
 
@@ -247,12 +249,17 @@ export default class ServidorDetalhesPage {
       next: (dados) => {
         this.servidor.set(dados);
         this.isLoading.set(false);
+        servidorName = dados.nome;
       },
       error: () => {
-        this.toastService.error('Erro ao buscar detalhes do servidor.');
+        this.notificationService.error(
+          `Erro ao buscar detalhes do servidor ${servidorName}.`,
+          'Detalhe'
+        );
         this.isLoading.set(false);
+        servidorName = '';
         this.goBack(); // Volta para a tabela se o ID não existir
-      },
+      }
     });
   }
 }

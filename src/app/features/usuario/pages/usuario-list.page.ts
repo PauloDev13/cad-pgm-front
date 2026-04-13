@@ -5,7 +5,6 @@ import { PageEvent } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { PageResponse } from '../../../shared/model/pagination.model';
-import { ToastService } from '../../../shared/service/toast.service';
 // import { CustomDeleteService } from '../../../shared/service/custom-delete.service';
 import { debounceTime, distinctUntilChanged, finalize, Subject } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -20,6 +19,7 @@ import { AuthService } from '../../../core/auth/services/auth.service';
 import {
   TemporaryPasswordDialogComponent
 } from '../../../core/auth/component/temporary -password-dialog/temporary-password-dialog.component';
+import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 
 @Component({
   selector: 'app-servidor-list',
@@ -30,7 +30,7 @@ import {
     >
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-gray-800">Gestão de Usuários</h1>
+          <h1 class="text-2xl font-bold text-blue-800">Gestão de Usuários</h1>
           <p class="text-sm text-gray-500">Gerencie os usuários do sistema</p>
         </div>
         <button
@@ -80,7 +80,7 @@ import {
 export default class UsuarioListPage implements OnInit {
   // Injeções
   private readonly usuarioService = inject(UsuarioService);
-  private readonly toastService = inject(ToastService);
+  private readonly notificationService = inject(NotificationService);
   private readonly authService = inject(AuthService);
   private readonly dialog = inject(MatDialog);
 
@@ -132,7 +132,14 @@ export default class UsuarioListPage implements OnInit {
           this.setPageData(pageData);
           // this.totalElements.set(pageData.page.totalElements);
         },
-        error: () => this.toastService.error('Erro ao filtrar dados')
+        error: (err) => {
+          this.notificationService.error(
+            'Erro ao pesquisar',
+            'Pesquisa'
+          );
+
+          console.error('Erro ao pesquisar ' + err.message);
+        }
       });
   }
 
@@ -176,7 +183,12 @@ export default class UsuarioListPage implements OnInit {
             });
           },
           error: (err) => {
-            this.toastService.errorLogin('Senha temporária', err.message);
+            this.notificationService.error(
+              'Erro ao gerar senha temporária!',
+              'Senha'
+            );
+
+            console.error('Erro ao gerar senha temporária: ' + err.message);
           }
         });
       }

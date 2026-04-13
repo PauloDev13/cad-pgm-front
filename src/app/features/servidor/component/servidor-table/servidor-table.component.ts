@@ -21,7 +21,7 @@ import { AuthService } from '../../../../core/auth/services/auth.service';
     MatButtonModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
-    LoadingComponent,
+    LoadingComponent
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -167,24 +167,27 @@ import { AuthService } from '../../../../core/auth/services/auth.service';
       >
       </mat-paginator>
     </div>
-  `,
+  `
 })
 export class ServidorTableComponent {
+  // injete o router no ServidorListComponent ou ServidorTableComponent
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+
   // INPUTS (Dados que vêm do Pai)
   data = input.required<ServidorResponseDTO[]>();
   isLoading = input.required<boolean>();
   totalElements = input.required<number>();
   pageSize = input.required<number>();
   currentPage = input.required<number>();
+
   // OUTPUTS (Eventos que avisam o Pai)
   edit = output<ServidorResponseDTO>();
   delete = output<number>();
   pageChange = output<PageEvent>();
+
   // Estado interno (Só pertence à tabela, o Pai não precisa saber disso)
   displayedColumns: string[] = ['matricula', 'nome', 'email', 'setor', 'cargo', 'acoes'];
-  // injete o router no ServidorListComponent ou ServidorTableComponent
-  private readonly router = inject(Router);
-  private readonly authService = inject(AuthService);
 
   isButtonsDisabled = computed(() => {
     const user = this.authService.currentUser();

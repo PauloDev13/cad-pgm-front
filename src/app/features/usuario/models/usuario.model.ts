@@ -8,6 +8,9 @@ export interface IUsuarioRequest {
   permissions: string[];
 }
 
+export type TUsuarioUpdate = Omit<IUsuarioRequest, 'confirmPassword' | 'password'>
+
+
 export interface IUsuarioResponse {
   id: number;
   name: string;

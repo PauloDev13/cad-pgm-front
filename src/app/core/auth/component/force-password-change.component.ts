@@ -2,14 +2,14 @@ import { Component, inject, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { form, FormField, minLength, required, validate } from '@angular/forms/signals';
-import { ToastService } from '../../../shared/service/toast.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
-import { HeaderLoginComponent } from '../component/header-login.component';
+import { HeaderLoginComponent } from './header-login.component';
+import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 
 
 @Component({
@@ -114,9 +114,10 @@ import { HeaderLoginComponent } from '../component/header-login.component';
     </div>
   `
 })
-export class ForcePasswordChangePage {
+export class ForcePasswordChangeComponent {
   private readonly authService = inject(AuthService);
-  private readonly toastService = inject(ToastService);
+  private readonly notificationService = inject(NotificationService);
+  // private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
 
   isLoading = signal(false);
@@ -177,7 +178,11 @@ export class ForcePasswordChangePage {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.toastService.errorLogin('Senha', err.message);
+        this.notificationService.error(
+          err.message,
+          'Senha'
+        );
+        // this.toastService.errorLogin('Senha', err.message);
       }
     });
   }

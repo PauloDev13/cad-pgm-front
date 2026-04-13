@@ -2,12 +2,11 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { catchError, Observable, of, throwError } from 'rxjs';
-import { IRoles, IUsuarioRequest, IUsuarioResponse, roles } from '../models/usuario.model';
+import { IRoles, IUsuarioRequest, IUsuarioResponse, roles, TUsuarioUpdate } from '../models/usuario.model';
 import { PageResponse } from '../../../shared/model/pagination.model';
-import { UsuarioResponse } from '../../../shared/model/auth-login.model';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class UsuarioService {
   private API_URL = `${environment.apiUrl}/api/v1`;
@@ -19,16 +18,16 @@ export class UsuarioService {
         console.error('Erro ao cadastrar usuário:', error);
         const msg = error.error?.message || 'Erro ao cadastrar usuário';
         return throwError(() => new Error(msg));
-      }),
+      })
     );
   }
 
-  create(data: IUsuarioRequest): Observable<IUsuarioResponse> {
-    return this.http.post<IUsuarioResponse>(`${this.API_URL}/usuarios`, data);
+  create(payload: IUsuarioRequest): Observable<IUsuarioResponse> {
+    return this.http.post<IUsuarioResponse>(`${this.API_URL}/usuarios`, payload);
   }
 
-  update(id: number, data: IUsuarioRequest): Observable<IUsuarioResponse> {
-    return this.http.put<IUsuarioResponse>(`${this.API_URL}/usuarios/${id}`, data);
+  update(id: number, payload: TUsuarioUpdate): Observable<IUsuarioResponse> {
+    return this.http.patch<IUsuarioResponse>(`${this.API_URL}/usuarios/${id}`, payload);
   }
 
   searchFilter(
@@ -36,8 +35,8 @@ export class UsuarioService {
     size: number,
     name?: string,
     userName?: string,
-    email?: string,
-  ): Observable<PageResponse<UsuarioResponse[]>> {
+    email?: string
+  ): Observable<PageResponse<IUsuarioResponse[]>> {
     let params = new HttpParams().set('page', page).set('size', size);
 
     if (name !== null && name !== undefined) {
@@ -52,8 +51,8 @@ export class UsuarioService {
       params = params.set('email', email.trim());
     }
 
-    return this.http.get<PageResponse<UsuarioResponse[]>>(`${this.API_URL}/usuarios/searchFilter`, {
-      params,
+    return this.http.get<PageResponse<IUsuarioResponse[]>>(`${this.API_URL}/usuarios/searchFilter`, {
+      params
     });
   }
 
