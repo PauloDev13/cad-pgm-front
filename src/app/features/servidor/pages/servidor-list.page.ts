@@ -39,6 +39,7 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
           Novo
         </button>
       </div>
+      
       <!-- Chama o componente de pesquisa-->
       <app-servidor-filter
         [statusList]="statusList()"
@@ -68,8 +69,8 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
     MatIconModule,
     MatButtonModule,
     ServidorFilterComponent,
-    ServidorTableComponent
-  ]
+    ServidorTableComponent,
+  ],
 })
 export default class ServidorListPage implements OnInit {
   // Injeções
@@ -100,6 +101,7 @@ export default class ServidorListPage implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
+    // inicializa os filtro da pesquisa
     this.carregarFiltrosIniciais();
     this.configurarDebounceDePesquisa(); // Inicializa o nosso escutador
   }
@@ -108,6 +110,7 @@ export default class ServidorListPage implements OnInit {
   loadData() {
     this.isLoading.set(true);
 
+    // Captura os valores atuais dos signals de paginação
     const page = this.currentPage();
     const size = this.pageSize();
 
@@ -134,10 +137,7 @@ export default class ServidorListPage implements OnInit {
             this.setPageData(pageData);
             // this.totalElements.set(pageData.page.totalElements);
           },
-          error: () => this.notificationService.error(
-            'Erro ao pesquisar dados',
-            'Pesquisar'
-          )
+          error: () => this.notificationService.error('Erro ao pesquisar dados', 'Pesquisar'),
         });
     } else {
       // Chama o ENDPOINT ORIGINAL (findAll) - Listagem limpa
@@ -147,24 +147,22 @@ export default class ServidorListPage implements OnInit {
         .subscribe({
           next: (pageData) => this.setPageData(pageData),
           error: (err) => {
-            this.notificationService.error(
-              'Erro ao carregar dados',
-              'Load'
-            );
+            this.notificationService.error('Erro ao carregar dados', 'Load');
             console.error('Erro ao carregar dados ' + err.message);
           },
-          complete: () => this.isLoading.set(false)
+          complete: () => this.isLoading.set(false),
         });
     }
   }
 
+  // abre o modal com formulário de cadastro
   openForm(servidor?: ServidorResponseDTO) {
     const dialogRef = this.dialog.open(ServidorFormComponent, {
       width: '1000px',
       maxWidth: '95vw',
       maxHeight: '90vw',
       data: servidor,
-      disableClose: true
+      disableClose: true,
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -174,16 +172,21 @@ export default class ServidorListPage implements OnInit {
     });
   }
 
-  delete(id: number) {
+  // exclui registro
+  delete(payload: ServidorResponseDTO) {
     this.customDeleteService.execute(
-      () => this.servidorService.delete(id),
+      () => this.servidorService.delete(payload),
       () => this.loadData(),
       {
-        successMsg: 'Servidor removido com sucesso!'
-      }
+        title: 'Servidor',
+        message: `Esta ação não poderá ser desfeita.
+                  Excluir o perfil de: ${payload.nome.toUpperCase()}?`,
+        successMsg: `Perfil de: ${payload.nome.toUpperCase()} removido`,
+      },
     );
   }
 
+  // controla a paginação
   onPageChange(event: PageEvent) {
     this.currentPage.set(event.pageIndex);
     this.pageSize.set(event.pageSize);
@@ -233,7 +236,7 @@ export default class ServidorListPage implements OnInit {
       .pipe(
         debounceTime(500), // Espera o usuário parar de digitar por 500ms
         distinctUntilChanged(), // Só continua se a palavra final for diferente da última busca
-        takeUntilDestroyed(this.destroyRef) // Dizemos pro fluxo morrer com o componente
+        takeUntilDestroyed(this.destroyRef), // Dizemos pro fluxo morrer com o componente
       )
       .subscribe((termoDigitado) => {
         // Se o usuário apagou tudo (Cenário 1)
@@ -278,12 +281,9 @@ export default class ServidorListPage implements OnInit {
         this.loadData();
       },
       error: (err) => {
-        this.notificationService.error(
-          'Erro ao carregar lista de status',
-          'Loading'
-        );
+        this.notificationService.error('Erro ao carregar lista de status', 'Loading');
         console.error('Erro ao carregar lista  ' + err.message);
-      }
+      },
     });
   }
 }

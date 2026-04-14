@@ -6,10 +6,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { form, FormField, minLength, required, submit, validate } from '@angular/forms/signals';
-import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
 import { AuthService } from '../services/auth.service';
 import { HeaderLoginComponent } from './header-login.component';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
+import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper.component';
 
 @Component({
   selector: 'app-reset-password',
@@ -22,68 +22,71 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
     MatIconModule,
     MatProgressSpinnerModule,
     FormField,
-    FormErrorComponent,
-    HeaderLoginComponent
+    HeaderLoginComponent,
+    FieldWrapperComponent,
   ],
   template: `
     <div class="w-full max-w-md flex flex-col bg-white rounded-xl shadow-lg p-8">
       <!-- Chama o componente header login-->
       <app-header-login
         title="Criar Nova Senha"
-        subtitle="Digite e confirme sua nova senha de acesso." />
+        subtitle="Digite e confirme sua nova senha de acesso."
+      />
 
       <!-- formulário-->
       <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col gap-2">
         <div class="flex flex-col relative pb-5">
-          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-            <mat-label>Nova Senha</mat-label>
-            <input
-              autocomplete="new-password"
-              [type]="hidePassword() ? 'password' : 'text'"
-              matInput
-              [formField]="resetForm.password"
-            />
+          <app-field-wrapper [field]="resetForm.password()">
+            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+              <mat-label>Nova Senha</mat-label>
+              <input
+                autocomplete="new-password"
+                [type]="hidePassword() ? 'password' : 'text'"
+                matInput
+                [formField]="resetForm.password"
+              />
 
-            <button
-              tabindex="-1"
-              mat-icon-button
-              matSuffix
-              class="!mr-1 text-gray-500 hover:text-gray-700 group"
-              (click)="togglePassword($event)"
-              type="button"
-            >
-              <mat-icon class="transition-transform duration-200 hover:scale-110">
-                {{ hidePassword() ? 'visibility_off' : 'visibility' }}
-              </mat-icon>
-            </button>
-          </mat-form-field>
-          <app-form-error [field]="resetForm.password()" />
+              <button
+                tabindex="-1"
+                mat-icon-button
+                matSuffix
+                class="!mr-1 text-gray-500 hover:text-gray-700 group"
+                (click)="togglePassword($event)"
+                type="button"
+              >
+                <mat-icon class="transition-transform duration-200 hover:scale-110">
+                  {{ hidePassword() ? 'visibility_off' : 'visibility' }}
+                </mat-icon>
+              </button>
+            </mat-form-field>
+          </app-field-wrapper>
         </div>
 
         <div class="flex flex-col relative pb-5">
-          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-            <mat-label>Confirmar Nova Senha</mat-label>
-            <input
-              autocomplete="new-password"
-              [type]="hideConfirm() ? 'password' : 'text'"
-              matInput
-              [formField]="resetForm.confirmPassword"
-            />
+          <app-field-wrapper [field]="resetForm.confirmPassword()">
+            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+              <mat-label>Confirmar Nova Senha</mat-label>
+              <input
+                autocomplete="new-password"
+                [type]="hideConfirm() ? 'password' : 'text'"
+                matInput
+                [formField]="resetForm.confirmPassword"
+              />
 
-            <button
-              tabindex="-1"
-              mat-icon-button
-              matSuffix
-              class="!mr-1 text-gray-500 hover:text-gray-700 group"
-              (click)="toggleConfirm($event)"
-              type="button"
-            >
-              <mat-icon class="transition-transform duration-200 hover:scale-110">
-                {{ hideConfirm() ? 'visibility_off' : 'visibility' }}
-              </mat-icon>
-            </button>
-          </mat-form-field>
-          <app-form-error [field]="resetForm.confirmPassword()" />
+              <button
+                tabindex="-1"
+                mat-icon-button
+                matSuffix
+                class="!mr-1 text-gray-500 hover:text-gray-700 group"
+                (click)="toggleConfirm($event)"
+                type="button"
+              >
+                <mat-icon class="transition-transform duration-200 hover:scale-110">
+                  {{ hideConfirm() ? 'visibility_off' : 'visibility' }}
+                </mat-icon>
+              </button>
+            </mat-form-field>
+          </app-field-wrapper>
         </div>
         <div class="flex flex-col gap-1.5">
           <div class="flex justify-end items-center">
@@ -92,7 +95,8 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
               href="#"
               routerLink="/auth/login"
               class="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
-            > Voltar para o Login</a
+            >
+              Voltar para o Login</a
             >
           </div>
         </div>
@@ -101,8 +105,9 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
           type="submit"
           [disabled]="resetForm().invalid() || isLoading()"
           class="mt-4 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg
-                    hover:bg-blue-700 transition-all disabled:opacity-70 flex justify-center
-                    items-center gap-2 h-12"
+                hover:bg-blue-700 transition-all flex justify-center
+                 items-center gap-2 h-12 disabled:bg-gray-300 disabled:cursor-not-allowed
+                disabled:text-gray-400"
         >
           @if (resetForm().invalid() || isLoading()) {
             <mat-spinner diameter="20" color="accent"></mat-spinner>
@@ -113,7 +118,7 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
         </button>
       </form>
     </div>
-  `
+  `,
 })
 export class ResetPasswordComponent {
   //Injeção de dependência
@@ -132,7 +137,7 @@ export class ResetPasswordComponent {
   // Modelo do Formulário
   resetModel = signal({
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
 
   // Configuração e Validação (A mesma arquitetura de Ouro que usamos no Cadastro!)
@@ -171,12 +176,14 @@ export class ResetPasswordComponent {
     if (!this.token()) {
       this.notificationService.error(
         `Token de segurança ausente. Por favor, acesse através do link
-                  enviado para o seu e-mail.`, 'Token'
+                  enviado para o seu e-mail.`,
+        'Token',
       );
 
       this.notificationService.error(
         `Token de segurança ausente. Por favor, acesse através do link
-                  enviado para o seu e-mail.`, 'Token'
+                  enviado para o seu e-mail.`,
+        'Token',
       );
 
       // this.toastService.errorLogin('Token',
@@ -203,22 +210,19 @@ export class ResetPasswordComponent {
 
           this.notificationService.success(
             `Senha atualizada com sucesso! Você já pode acessar o sistema.
-              `, 'Senha'
+              `,
+            'Senha',
           );
 
           // this.toastService.successLogin('Senha',
           //   'Senha atualizada com sucesso! Você já pode acessar o sistema.'
           // );
-
         },
         error: (err) => {
           this.isLoading.set(false);
-          this.notificationService.error(
-            err.message,
-            'Link'
-          );
+          this.notificationService.error(err.message, 'Link');
           // this.toastService.errorLogin('Link', err.message);
-        }
+        },
       });
     });
   }

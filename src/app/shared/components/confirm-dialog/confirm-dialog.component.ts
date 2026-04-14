@@ -8,7 +8,7 @@ import { ConfirmDialogData } from '../../model/confirm-dialog-data.model';
   imports: [MatDialogModule, MatButtonModule],
   standalone: true,
   template: `
-    <h2 mat-dialog-title class="!text-2xl !font-bold text-blue-800">
+    <h2 mat-dialog-title class="!text-2xl !font-bold !text-blue-800">
       {{ data.title }}
     </h2>
 
@@ -43,7 +43,7 @@ import { ConfirmDialogData } from '../../model/confirm-dialog-data.model';
         SIM
       </button>
     </mat-dialog-actions>
-  `
+  `,
 })
 export class ConfirmDialogComponent {
   // Injeções

@@ -21,7 +21,7 @@ import { AuthService } from '../../../../core/auth/services/auth.service';
     MatButtonModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
-    LoadingComponent
+    LoadingComponent,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -92,16 +92,16 @@ import { AuthService } from '../../../../core/auth/services/auth.service';
           >
             Ações
           </th>
-          <td mat-cell *matCellDef="let s" class="!text-sm !px-3 text-gray-600 whitespace-nowrap">
+          <td mat-cell *matCellDef="let s" class="!text-sm !px-3 text-gray-600  whitespace-nowrap">
             <button
               mat-icon-button
-              (click)="visualizarServidor(s.id)"
+              (click)="viewDetail(s.id)"
               matTooltip="Exibir detalhes"
               class="group !w-8 !h-8 !leading-none mr-2"
             >
               <mat-icon
-                class="!text-gray-600 transition-transform duration-200
-                group-hover:!text-gray-900 group-hover:!scale-125 !text-[20px]"
+                class="!text-green-800 transition-transform duration-200
+                group-hover:!text-green-600 group-hover:!scale-125 !text-[20px]"
               >
                 visibility
               </mat-icon>
@@ -114,7 +114,7 @@ import { AuthService } from '../../../../core/auth/services/auth.service';
             >
               <mat-icon
                 class="!text-blue-600 transition-transform duration-200
-                group-hover:!text-blue-900 group-hover:!scale-125 !text-[20px]"
+                group-hover:!text-blue-400 group-hover:!scale-125 !text-[20px]"
               >
                 edit
               </mat-icon>
@@ -122,13 +122,17 @@ import { AuthService } from '../../../../core/auth/services/auth.service';
             <button
               [disabled]="!isButtonsDisabled()"
               mat-icon-button
-              (click)="delete.emit(s.id)"
+              (click)="delete.emit(s)"
               matTooltip="Excluir"
-              class="group !w-8 !h-8 !leading-none"
+              class="group inline-flex items-center justify-center
+                     !p-0 !pt-2 !w-8 !h-8 !leading-none disabled:!bg-gray-300
+                     disabled:!cursor-not-allowed disabled:!pointer-events-auto"
             >
               <mat-icon
-                class="!text-red-600 transition-transform duration-200
-                group-hover:!text-red-900 group-hover:!scale-125 !text-[20px]"
+                class="!w-[20px] !h-[20px] !text-[20px]
+                      !text-red-600 transition-transform duration-200
+                      group-hover:!text-red-900 group-hover:!scale-125
+                      group-disabled:!text-gray-400 group-disabled:!scale-100"
               >
                 delete
               </mat-icon>
@@ -144,7 +148,8 @@ import { AuthService } from '../../../../core/auth/services/auth.service';
         <tr
           mat-row
           *matRowDef="let row; columns: displayedColumns"
-          class="!min-h-[40px] !h-[40px] odd:!bg-white even:!bg-gray-50 hover:!bg-blue-50 transition-colors cursor-pointer border-gray-100"
+          class="!min-h-[40px] !h-[40px] odd:!bg-white even:!bg-gray-50 hover:!bg-blue-50
+                 transition-colors cursor-pointer border-gray-100"
         ></tr>
 
         <tr class="mat-row" *matNoDataRow>
@@ -167,7 +172,7 @@ import { AuthService } from '../../../../core/auth/services/auth.service';
       >
       </mat-paginator>
     </div>
-  `
+  `,
 })
 export class ServidorTableComponent {
   // injete o router no ServidorListComponent ou ServidorTableComponent
@@ -183,19 +188,21 @@ export class ServidorTableComponent {
 
   // OUTPUTS (Eventos que avisam o Pai)
   edit = output<ServidorResponseDTO>();
-  delete = output<number>();
+  delete = output<ServidorResponseDTO>();
   pageChange = output<PageEvent>();
 
   // Estado interno (Só pertence à tabela, o Pai não precisa saber disso)
   displayedColumns: string[] = ['matricula', 'nome', 'email', 'setor', 'cargo', 'acoes'];
 
+  // Desabilita botões se o usuário não for admin
   isButtonsDisabled = computed(() => {
     const user = this.authService.currentUser();
     if (!user) return;
     return user.roles.find((p) => p === 'admin');
   });
 
-  visualizarServidor(id: number) {
+  // navega para a página que exibe relatório de detalhes
+  viewDetail(id: number) {
     this.router.navigate(['/servidores/detalhes', id]).then();
   }
 }

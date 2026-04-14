@@ -24,13 +24,16 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
     MatIconButton,
     RouterLink,
     HeaderLoginComponent,
-    FieldWrapperComponent
+    FieldWrapperComponent,
   ],
   standalone: true,
   template: `
     <div class="w-full max-w-md flex flex-col bg-white rounded-xl shadow-lg p-8">
       <!-- Permite a injeção do componente HeaderLogin neste ponto-->
-      <app-header-login title="Bem-vindo de volta" subtitle="Insira suas credenciais para acessar o painel." />
+      <app-header-login
+        title="Bem-vindo de volta"
+        subtitle="Insira suas credenciais para acessar o painel."
+      />
 
       <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col w-full gap-2">
         <div class="flex flex-col gap-1.5">
@@ -81,14 +84,14 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
               tabindex="-1"
               routerLink="/auth/esqueci-senha"
               class="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
-            >Esqueceu a senha?</a
+              >Esqueceu a senha?</a
             >
             <a
               routerLink="/auth/register"
               tabIndex="-1"
               href="#"
               class="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
-            >Não é cadastrado?</a
+              >Não é cadastrado?</a
             >
           </div>
         </div>
@@ -97,11 +100,11 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
           type="submit"
           [disabled]="loginForm().invalid() || isLoading()"
           class="mt-4 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg
-                 hover:bg-blue-700 transition-all disabled:opacity-70 flex
-                 justify-center items-center gap-2 h-12"
+                 hover:bg-blue-700 transition-all flex justify-center items-center gap-2 h-12
+                 disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
         >
           @if (isLoading()) {
-            <mat-spinner diameter="20" color="accent"></mat-spinner>
+            <mat-spinner diameter="20" class="custom-spinner"></mat-spinner>
             <span>Autenticando...</span>
           } @else {
             <span>Entrar no Sistema</span>
@@ -109,7 +112,7 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
         </button>
       </form>
     </div>
-  `
+  `,
 })
 export class FormMainLoginComponent {
   // Injeções de dependências
@@ -127,7 +130,7 @@ export class FormMainLoginComponent {
   // Modelo do formulário
   formLoginModel = signal<IAuthRequest>({
     login: this.loginStateService.newUserName(),
-    password: ''
+    password: '',
   });
 
   // Formulário de login com validações
@@ -159,20 +162,15 @@ export class FormMainLoginComponent {
           if (user.forcePasswordChange) {
             this.router.navigate(['/auth/troca-obrigatoria']);
           } else {
-
             // Se o login foi bem-sucedido, vai para a página home
             this.router.navigate(['home']);
-
           }
           this.isLoading.set(false);
         },
         error: (err) => {
           this.isLoading.set(false);
-          this.notificationService.error(
-            err.message,
-            'Login'
-          );
-        }
+          this.notificationService.error(err.message, 'Login');
+        },
       });
     });
   }

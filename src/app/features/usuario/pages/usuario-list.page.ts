@@ -16,10 +16,9 @@ import { UsuarioFormComponent } from '../components/usuario-form.component/usuar
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { AuthService } from '../../../core/auth/services/auth.service';
-import {
-  TemporaryPasswordDialogComponent
-} from '../../../core/auth/component/temporary -password-dialog/temporary-password-dialog.component';
+import { TemporaryPasswordDialogComponent } from '../../../core/auth/component/temporary -password-dialog/temporary-password-dialog.component';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
+import { CustomDeleteService } from '../../../shared/service/custom-delete.service';
 
 @Component({
   selector: 'app-servidor-list',
@@ -46,6 +45,7 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
           Novo
         </button>
       </div>
+
       <!-- Chama o componente de pesquisa-->
       <app-usuario-filter
         [searchType]="searchType()"
@@ -74,31 +74,33 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
     MatIconModule,
     MatButtonModule,
     UsuarioTableComponent,
-    UsuarioFilterComponent
-  ]
+    UsuarioFilterComponent,
+  ],
 })
 export default class UsuarioListPage implements OnInit {
+  // Injeções
+  private readonly usuarioService = inject(UsuarioService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly authService = inject(AuthService);
+  private readonly customDeleteService = inject(CustomDeleteService);
+  private readonly dialog = inject(MatDialog);
+
   //Signals para Estado
   usuarios = signal<IUsuarioResponse[]>([]);
   totalElements = signal<number>(0);
   pageSize = signal<number>(10);
   currentPage = signal<number>(0);
   isLoading = signal<boolean>(false);
+
   // Estado do formulário de busca no HTML
   selectedNameId = signal<number | null>(null);
   searchType = signal<'NOME' | 'LOGIN' | 'EMAIL'>('NOME');
   searchTerm = signal<string>('');
-  // Injeções
-  private readonly usuarioService = inject(UsuarioService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly authService = inject(AuthService);
-  private readonly dialog = inject(MatDialog);
+
   //O funil de eventos de digitação
   private searchSubject = new Subject<string>();
   // O Angular nos dá uma referência da destruição deste componente
   private destroyRef = inject(DestroyRef);
-
-  // private readonly customDeleteService = inject(CustomDeleteService);
 
   ngOnInit(): void {
     this.loadData();
@@ -132,10 +134,11 @@ export default class UsuarioListPage implements OnInit {
           this.notificationService.error('Erro ao pesquisar', 'Pesquisa');
 
           console.error('Erro ao pesquisar ' + err.message);
-        }
+        },
       });
   }
 
+  // abre o modal com o formulário de cadastro de usuário
   openForm(usuario?: IUsuarioResponse) {
     const dialogRef = this.dialog.open(UsuarioFormComponent, {
       width: '700px',
@@ -143,7 +146,7 @@ export default class UsuarioListPage implements OnInit {
       maxWidth: '95vw',
       maxHeight: '90vw',
       data: usuario,
-      disableClose: true
+      disableClose: true,
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -153,12 +156,13 @@ export default class UsuarioListPage implements OnInit {
     });
   }
 
+  // abre o modal com as informações para gerar senha temporária
   onResetPassword(usuario?: IUsuarioResponse) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
-        title: 'Resetar Senha',
-        message: `Deseja gerar uma nova senha para ${usuario?.userName}`
-      }
+        title: 'Senha',
+        message: `Gerar nova senha para ${usuario?.name.toUpperCase()}?`,
+      },
     });
     dialogRef.afterClosed().subscribe((confirm) => {
       if (confirm) {
@@ -171,32 +175,35 @@ export default class UsuarioListPage implements OnInit {
                   Copie e informe esta senha ao usuário.
                   Ele será obrigado a trocá-la no próximo login
                 `,
-                password: response.temporaryPassword
+                password: response.temporaryPassword,
               },
-              disableClose: true
+              disableClose: true,
             });
           },
           error: (err) => {
             this.notificationService.error('Erro ao gerar senha temporária!', 'Senha');
 
             console.error('Erro ao gerar senha temporária: ' + err.message);
-          }
+          },
         });
       }
     });
   }
 
-  delete(id: number) {
-    // TODO: Implementar chamada para o método excluir
-    // this.customDeleteService.execute(
-    //   () => this.servidorService.delete(id),
-    //   () => this.loadData(),
-    //   {
-    //     successMsg: 'Servidor removido com sucesso!',
-    //   },
-    // );
+  delete(payload: IUsuarioResponse) {
+    this.customDeleteService.execute(
+      () => this.usuarioService.delete(payload),
+      () => this.loadData(),
+      {
+        title: 'Usuário',
+        message: `Esta ação não poderá ser desfeita.
+                  Excluir o perfil de: ${payload.name.toUpperCase()}?`,
+        successMsg: `Perfil de: ${payload.name.toUpperCase()} removido`,
+      },
+    );
   }
 
+  // controla a paginação
   onPageChange(event: PageEvent) {
     this.currentPage.set(event.pageIndex);
     this.pageSize.set(event.pageSize);
@@ -239,7 +246,7 @@ export default class UsuarioListPage implements OnInit {
       .pipe(
         debounceTime(500), // Espera o usuário parar de digitar por 500ms
         distinctUntilChanged(), // Só continua se a palavra final for diferente da última busca
-        takeUntilDestroyed(this.destroyRef) // Dizemos pro fluxo morrer com o componente
+        takeUntilDestroyed(this.destroyRef), // Dizemos pro fluxo morrer com o componente
       )
       .subscribe((termoDigitado) => {
         // Se o usuário apagou tudo (Cenário 1)

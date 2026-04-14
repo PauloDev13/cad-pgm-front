@@ -74,22 +74,24 @@ import { AuthService } from '../../../core/auth/services/auth.service';
           [class.max-h-0]="!openMenus()['gerenciamento']"
           [class.max-h-40]="openMenus()['gerenciamento']"
         >
-          <a
-            routerLink="/usuarios"
-            routerLinkActive="bg-blue-50 text-blue-600"
-            class="menu-subitem group"
-            [class.pl-12]="isOpen()"
-            [class.pl-10]="!isOpen()"
-            matTooltip="Cadastro de Usuários"
-            matTooltipPosition="right"
-            [matTooltipDisabled]="isOpen()"
-            matTooltipClass="tooltip-blue"
-          >
-            <mat-icon> people</mat-icon>
-            @if (isOpen()) {
-              <span>Usuários</span>
-            }
-          </a>
+          @if (isLinkMenuHidden()) {
+            <a
+              routerLink="/usuarios"
+              routerLinkActive="bg-blue-50 text-blue-600"
+              class="menu-subitem group"
+              [class.pl-12]="isOpen()"
+              [class.pl-10]="!isOpen()"
+              matTooltip="Cadastro de Usuários"
+              matTooltipPosition="right"
+              [matTooltipDisabled]="isOpen()"
+              matTooltipClass="tooltip-blue"
+            >
+              <mat-icon> people</mat-icon>
+              @if (isOpen()) {
+                <span>Usuários</span>
+              }
+            </a>
+          }
           <a
             routerLink="/servidores"
             routerLinkActive="bg-blue-50 text-blue-600"
@@ -317,15 +319,19 @@ import { AuthService } from '../../../core/auth/services/auth.service';
   `,
 })
 export class SidebarComponent {
+  private readonly authService = inject(AuthService);
+
   // Recebe o estado do layout pai
   isOpen = input.required<boolean>();
-  // ✨ Signal que mapeia qual submenu está aberto
+
+  // Signal que mapeia qual submenu está aberto
   openMenus = signal<Record<string, boolean>>({
     gerenciamento: false,
     cadastros: false,
     permissoes: false,
   });
-  private readonly authService = inject(AuthService);
+
+  // Verifica se o usuário logado é admin
   isLinkMenuHidden = computed(() => {
     const user = this.authService.currentUser();
     if (!user) return;

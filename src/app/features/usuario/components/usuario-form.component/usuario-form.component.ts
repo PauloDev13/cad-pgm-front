@@ -9,10 +9,9 @@ import {
   minLength,
   required,
   submit,
-  validate
+  validate,
 } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
-import { HttpErrorResponse } from '@angular/common/http';
 import { IUsuarioRequest, IUsuarioResponse } from '../../models/usuario.model';
 import { UsuarioService } from '../../services/usuario.service';
 import { MatIconModule } from '@angular/material/icon';
@@ -23,7 +22,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper.component';
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 import { MatCheckbox } from '@angular/material/checkbox';
-import { AuthService } from '../../../../core/auth/services/auth.service';
+import { customHttpError } from '../../../../shared/utils/custom-http-response-error';
 
 @Component({
   selector: 'app-usuario-form.component',
@@ -36,7 +35,7 @@ import { AuthService } from '../../../../core/auth/services/auth.service';
     MatButtonModule,
     MatSelectModule,
     FieldWrapperComponent,
-    MatCheckbox
+    MatCheckbox,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -77,7 +76,7 @@ import { AuthService } from '../../../../core/auth/services/auth.service';
                 <input matInput [formField]="usuarioForm.userName" />
               </mat-form-field>
             </app-field-wrapper>
-            <app-field-wrapper [field]="usuarioForm.userName()">
+            <app-field-wrapper [field]="usuarioForm.email()">
               <!--Campo E-mail-->
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                 <mat-label>E-Mail</mat-label>
@@ -184,9 +183,14 @@ import { AuthService } from '../../../../core/auth/services/auth.service';
         {{ isEdit ? 'Atualizar' : 'Salvar' }}
       </button>
     </mat-dialog-actions>
-  `
+  `,
 })
 export class UsuarioFormComponent implements OnInit {
+  // Injeções de dependência
+  private readonly usuarioService = inject(UsuarioService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly dialogRef = inject(MatDialogRef<UsuarioFormComponent>);
+
   isEdit: boolean = false;
   readonly data = inject<IUsuarioResponse>(MAT_DIALOG_DATA, { optional: true });
   // Signals para armazenar os dados que virão da API
@@ -204,7 +208,7 @@ export class UsuarioFormComponent implements OnInit {
     email: '',
     activated: true,
     permissions: ['guest'],
-    forcePasswordChange: false
+    forcePasswordChange: false,
   });
   // Formulário de cadastro com validações
   usuarioForm = form(this.userFormModel, (path: any) => {
@@ -249,11 +253,6 @@ export class UsuarioFormComponent implements OnInit {
     required(path.email, { message: 'E-mail é obrigatório' });
     email(path.email, { message: 'E-mail inválido' });
   });
-  // protected readonly form = form;
-  private readonly usuarioService = inject(UsuarioService);
-  private readonly authService = inject(AuthService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly dialogRef = inject(MatDialogRef<UsuarioFormComponent>);
 
   ngOnInit() {
     this.loadRoles();
@@ -263,7 +262,7 @@ export class UsuarioFormComponent implements OnInit {
     if (this.isEdit && this.data) {
       this.userFormModel.update((u) => ({
         ...u,
-        ...this.data
+        ...this.data,
       }));
     }
   }
@@ -278,53 +277,40 @@ export class UsuarioFormComponent implements OnInit {
 
         // Transformamos as chamadas Observable em Promise com firstValueFrom
         if (this.isEdit) {
-          const { password, confirmPassword, ...payload } = requestData;
-          // se for edição e a opção trocar senha estiver marcada, salva a senha padrão
-          if (requestData.forcePasswordChange) {
-            this.authService.forcePasswordChange(payload.userName, 'pgm@1234')
-              .subscribe();
-          }
           // se é edição, retira os campos senha e confirme senha
-          await firstValueFrom(this.usuarioService.update(this.data!.id, payload));
+          const { password, confirmPassword, ...payload } = requestData;
 
-
+          // se for edição e a opção trocar senha estiver MARCADA,
+          if (requestData.forcePasswordChange) {
+            // cria uma senha padrão
+            requestData.password = 'pgm@1234';
+            // usa o endpoint de atualização com PUT
+            await firstValueFrom(this.usuarioService.updatePut(this.data!.id, requestData));
+          } else {
+            // se for edição e a opção trocar senha estiver DESMARCADA,
+            // usa o endpoint de atualização com PATCH
+            await firstValueFrom(this.usuarioService.updatePatch(this.data!.id, payload));
+          }
         } else {
+          // se não é edição, cria uma senha padrão para um novo usuário
+          requestData.password = 'pgm@1234';
           await firstValueFrom(this.usuarioService.create(requestData));
         }
 
         this.notificationService.success(
           `Usuário ${this.isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`,
-          `${this.isEdit ? 'Atualização' : 'Cadastro'}`
+          `${this.isEdit ? 'Atualização' : 'Cadastro'}`,
         );
 
         this.dialogRef.close(true);
       } catch (error: any) {
-        // Mensagem padrão caso seja erro de rede (backend fora do ar) ou algo não mapeado
-        let messageDefaultErro = 'Erro inesperado ao conectar a API';
-
-        // Verificamos se o erro veio da requisição HTTP
-        if (error instanceof HttpErrorResponse) {
-          // Tratamento 1: O Spring devolveu um JSON com a propriedade "message"
-          if (error.error && typeof error.error.message === 'string') {
-            messageDefaultErro = error.error.message;
-            // Tratamento 2: O Spring devolveu apenas uma String simples no corpo da resposta
-          } else if (error.error && Array.isArray(error.error.errors)) {
-            messageDefaultErro =
-              error.error.errors[0].defaultMessage || 'Erro de validação nos dados enviados.';
-          }
-            // Tratamento 3: Erro de Validação de Múltiplos Campos (@Valid do Spring)
-          // (Às vezes o Spring mapeia os erros em um array chamado "errors")
-          else if (error.error && Array.isArray(error.error.errors)) {
-            messageDefaultErro =
-              error.error.errors[0].defaultMessage || 'Erro de validação nos dados enviados.';
-          }
-        }
-        this.notificationService.error(messageDefaultErro, 'Register');
+        // chama a função customizada de tratamento de erro passando o erro
+        customHttpError(error);
       }
     });
   }
 
-  // Métodos para alternar a visualização
+  // Métodos para alternar a visualização do ícone do "olhinho" nos inputs senha e confirme senha
   togglePassword(event: MouseEvent) {
     event.preventDefault(); // Evita que o formulário submeta ao clicar no botão do ícone
     this.hidePassword.set(!this.hidePassword());
@@ -335,6 +321,7 @@ export class UsuarioFormComponent implements OnInit {
     this.hideConfirm.set(!this.hideConfirm());
   }
 
+  // lê as permissões e seta o signal com o array
   loadRoles() {
     this.usuarioService.getRoles().subscribe((res) => this.roles.set(res.roles));
   }

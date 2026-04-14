@@ -60,7 +60,7 @@ export class ServidorService {
     return this.http.put<ServidorResponseDTO>(`${this.apiUrl}/${id}`, data);
   }
 
-  delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  delete(payload: ServidorResponseDTO): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${payload.id}`);
   }
 }

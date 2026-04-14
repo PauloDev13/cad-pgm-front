@@ -69,4 +69,9 @@
     box-shadow: none !important;
     padding: 0 !important;
   }
+
+  .custom-spinner circle {
+    stroke: #ffffff;
+  }
+
 }

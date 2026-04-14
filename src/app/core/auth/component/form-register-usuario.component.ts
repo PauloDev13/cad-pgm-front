@@ -70,9 +70,7 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
               />
             </mat-form-field>
           </app-field-wrapper>
-          <!--        </div>-->
 
-          <!--        <div class="flex flex-col gap-1.5">-->
           <app-field-wrapper [field]="registerFormLogin.email()">
             <!--Campo userName-->
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
@@ -157,11 +155,11 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
           type="submit"
           [disabled]="registerFormLogin().invalid()"
           class="mt-4 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg
-                hover:bg-blue-700 transition-all disabled:opacity-70 flex
-                justify-center items-center gap-2 h-12"
+                hover:bg-blue-700 transition-all flex justify-center items-center gap-2 h-12
+                disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
         >
           @if (isLoading()) {
-            <mat-spinner diameter="20" color="accent"></mat-spinner>
+            <mat-spinner diameter="20" class="custom-spinner"></mat-spinner>
             <span>Cadastrando...</span>
           } @else {
             <span>Confirmar Cadastro</span>
@@ -187,7 +185,6 @@ export class FormRegisterUsuarioComponent {
     activated: true,
     permissions: ['guest'],
   });
-  // errorMessage = signal<string>('');
   // Formulário de cadastro com validações
   registerFormLogin = form(this.registerFormModel, (path: any) => {
     // Nome completo
@@ -215,21 +212,7 @@ export class FormRegisterUsuarioComponent {
       }
       return null;
     });
-    // validate(path.confirmPassword!, (fieldContext: any) => {
-    //   // Pegamos o valor que está no campo 'password' original
-    //   const currentValue = fieldContext.value();
-    //   const originalPassword = this.registerFormModel().password;
-    //
-    //   // Se a confirmação for diferente da original, retornamos o erro
-    //   if (currentValue !== originalPassword) {
-    //     return {
-    //       kind: 'passwordMismatch', // Um identificador único para o erro
-    //       message: 'As senhas não conferem'
-    //     };
-    //   }
-    //   // Se forem iguais, retornamos null (significa que passou na validação!)
-    //   return null;
-    // });
+
     // E-mail
     required(path.email, { message: 'E-mail é obrigatório' });
     email(path.email, { message: 'E-mail inválido' });
@@ -273,13 +256,11 @@ export class FormRegisterUsuarioComponent {
             `Usuário <strong>${response.userName}<strong> cadastrado.`,
             'Register',
           );
-          // this.toastService.successLogin('Register',
-          //   `Usuário <strong>${response.userName}<strong> cadastrado.`);
         },
         error: (err) => {
           this.isLoading.set(false);
           this.notificationService.error(err.message, 'Register');
-          // console.error(err.message);
+          console.error(err.message);
         },
       });
     });
