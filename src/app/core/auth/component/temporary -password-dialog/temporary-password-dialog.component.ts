@@ -53,8 +53,6 @@ export class TemporaryPasswordDialogComponent {
   private clipboard = inject(Clipboard);
   private notificationService = inject(NotificationService);
 
-  // private toastService = inject(ToastService);
-
   onYesClick(): void {
     this.dialogRef.close(true);
   }
@@ -64,12 +62,7 @@ export class TemporaryPasswordDialogComponent {
 
     this.notificationService.success(
       'Senha copiada para a área de transferência!',
-      'Copiar Senha'
+      'Senha'
     );
-
-    // this.toastService.successLogin(
-    //   'Copiar Senha',
-    //   'Senha copiada para a área de transferência!'
-    // );
   }
 }

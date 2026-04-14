@@ -1,18 +1,14 @@
 import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-
-export interface ConfirmDialogData {
-  title: string;
-  message: string;
-}
+import { ConfirmDialogData } from '../../model/confirm-dialog-data.model';
 
 @Component({
   selector: 'app-confirm-dialog',
   imports: [MatDialogModule, MatButtonModule],
   standalone: true,
   template: `
-    <h2 mat-dialog-title class="!text-2xl !font-bold text-blue-800 border-b">
+    <h2 mat-dialog-title class="!text-2xl !font-bold text-blue-800">
       {{ data.title }}
     </h2>
 

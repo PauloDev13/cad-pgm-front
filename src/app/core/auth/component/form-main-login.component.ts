@@ -132,8 +132,8 @@ export class FormMainLoginComponent {
 
   // Formulário de login com validações
   loginForm = form(this.formLoginModel, (path: any) => {
-    required(path.login, { message: 'Nome do usuário é obrigatório' });
-    required(path.password!, { message: 'A senha é obrigatório' });
+    required(path.login, { message: 'Login é obrigatório' });
+    required(path.password!, { message: 'Senha é obrigatória' });
   });
 
   constructor() {

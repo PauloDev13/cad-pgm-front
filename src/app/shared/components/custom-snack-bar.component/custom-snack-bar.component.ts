@@ -4,11 +4,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { SnackbarData } from '../../model/snackbar-data.model';
 import { MAT_SNACK_BAR_DATA, MatSnackBarRef } from '@angular/material/snack-bar';
 
-export interface ConfirmDialogData {
-  title: string;
-  message: string;
-}
-
 @Component({
   selector: 'app-custom-snack-bar',
   imports: [MatIconModule, MatButtonModule],
@@ -18,7 +13,7 @@ export interface ConfirmDialogData {
       class="flex items-start gap-3 p-4 rounded-md shadow-lg text-white w-full max-w-sm"
       [class]="getBackgroundClass()"
     >
-      <mat-icon class="!w-6 !h-6 !text-2xl mt-0.5">{{ getIcon() }}</mat-icon>
+      <mat-icon class="!w-6 !h-8 !text-2xl mt-0.5">{{ getIcon() }}</mat-icon>
 
       <div class="flex-1 flex flex-col">
         @if (data.title) {

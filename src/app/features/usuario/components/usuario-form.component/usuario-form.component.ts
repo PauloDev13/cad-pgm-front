@@ -9,7 +9,7 @@ import {
   minLength,
   required,
   submit,
-  validate,
+  validate
 } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -23,6 +23,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper.component';
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 import { MatCheckbox } from '@angular/material/checkbox';
+import { AuthService } from '../../../../core/auth/services/auth.service';
 
 @Component({
   selector: 'app-usuario-form.component',
@@ -35,7 +36,7 @@ import { MatCheckbox } from '@angular/material/checkbox';
     MatButtonModule,
     MatSelectModule,
     FieldWrapperComponent,
-    MatCheckbox,
+    MatCheckbox
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -183,7 +184,7 @@ import { MatCheckbox } from '@angular/material/checkbox';
         {{ isEdit ? 'Atualizar' : 'Salvar' }}
       </button>
     </mat-dialog-actions>
-  `,
+  `
 })
 export class UsuarioFormComponent implements OnInit {
   isEdit: boolean = false;
@@ -203,7 +204,7 @@ export class UsuarioFormComponent implements OnInit {
     email: '',
     activated: true,
     permissions: ['guest'],
-    forcePasswordChange: false,
+    forcePasswordChange: false
   });
   // Formulário de cadastro com validações
   usuarioForm = form(this.userFormModel, (path: any) => {
@@ -217,42 +218,31 @@ export class UsuarioFormComponent implements OnInit {
 
     disabled(path.password, () => this.isEdit);
     disabled(path.confirmPassword, () => this.isEdit);
-    // Validação dinâmica do Password
-    validate(path.password!, ({ value }) => {
-      // 1. Se for edição, a senha é sempre válida (retorna null para ignorar erros)
-      // Nota: Se isEdit for um Signal no seu código, use this.isEdit()
-      if (this.isEdit) return null;
 
-      const pass = String(value() || '');
-
-      // 2. Regras de criação:
-      if (!pass) {
-        return { kind: 'required', message: 'Senha é obrigatória' };
-      }
-      if (pass.length < 6) {
-        return { kind: 'minLength', message: 'Senha deve ter no mínimo 6 caracteres' };
-      }
-
-      return null; // Tudo certo
-    });
+    required(path.password, { message: 'Senha é obrigatória' });
+    minLength(path.password, 6, { message: 'Senha deve ter no mínimo 6 caracteres' });
 
     // Validação dinâmica do confirmar senha
     validate(path.confirmPassword!, ({ value, valueOf }) => {
       // Se for edição, passa direto
       if (this.isEdit) return null;
 
+      // captura o valor que está no input confirmPassword
       const confirm = value();
+      // captura o valor que está no input password
       const password = valueOf(path.password);
 
-      // Regras de criação:
+      // se o input estiver vazio, retorna o erro required com a mensagem
       if (!confirm) {
         return { kind: 'required', message: 'Confirme a Senha' };
       }
+      // se os inputs tiverem valores diferente,retorna o erro passwordMismatch com a mensagem
       if (confirm !== password) {
         return { kind: 'passwordMismatch', message: 'As senhas não conferem' };
       }
 
-      return null; // Tudo certo
+      // se tudo está certo, retorna null
+      return null;
     });
 
     // E-mail
@@ -261,6 +251,7 @@ export class UsuarioFormComponent implements OnInit {
   });
   // protected readonly form = form;
   private readonly usuarioService = inject(UsuarioService);
+  private readonly authService = inject(AuthService);
   private readonly notificationService = inject(NotificationService);
   private readonly dialogRef = inject(MatDialogRef<UsuarioFormComponent>);
 
@@ -272,7 +263,7 @@ export class UsuarioFormComponent implements OnInit {
     if (this.isEdit && this.data) {
       this.userFormModel.update((u) => ({
         ...u,
-        ...this.data,
+        ...this.data
       }));
     }
   }
@@ -288,14 +279,22 @@ export class UsuarioFormComponent implements OnInit {
         // Transformamos as chamadas Observable em Promise com firstValueFrom
         if (this.isEdit) {
           const { password, confirmPassword, ...payload } = requestData;
+          // se for edição e a opção trocar senha estiver marcada, salva a senha padrão
+          if (requestData.forcePasswordChange) {
+            this.authService.forcePasswordChange(payload.userName, 'pgm@1234')
+              .subscribe();
+          }
+          // se é edição, retira os campos senha e confirme senha
           await firstValueFrom(this.usuarioService.update(this.data!.id, payload));
+
+
         } else {
           await firstValueFrom(this.usuarioService.create(requestData));
         }
 
         this.notificationService.success(
           `Usuário ${this.isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`,
-          `${this.isEdit ? 'Atualização' : 'Cadastro'}`,
+          `${this.isEdit ? 'Atualização' : 'Cadastro'}`
         );
 
         this.dialogRef.close(true);
@@ -313,7 +312,7 @@ export class UsuarioFormComponent implements OnInit {
             messageDefaultErro =
               error.error.errors[0].defaultMessage || 'Erro de validação nos dados enviados.';
           }
-          // Tratamento 3: Erro de Validação de Múltiplos Campos (@Valid do Spring)
+            // Tratamento 3: Erro de Validação de Múltiplos Campos (@Valid do Spring)
           // (Às vezes o Spring mapeia os erros em um array chamado "errors")
           else if (error.error && Array.isArray(error.error.errors)) {
             messageDefaultErro =

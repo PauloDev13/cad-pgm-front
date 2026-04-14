@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { form, FormField, maxLength, minLength, required, submit } from '@angular/forms/signals';
+import { email, form, FormField, maxLength, minLength, required, submit } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -28,7 +28,7 @@ import { FieldWrapperComponent } from '../../layout/component/field-wrapper.comp
 
     <mat-dialog-content class="!pt-4 !pb-2">
       <div class="flex flex-col w-full min-w-[300px] md:min-w-[400px]">
-        <app-field-wrapper [field]="customForm.fieldValue()">
+        <app-field-wrapper class="!-mb-2" [field]="customForm.fieldValue()">
           <mat-form-field appearance="outline" class="w-full mt-2" subscriptSizing="dynamic">
             <mat-label>{{ data.inputLabel }}</mat-label>
             <input matInput [formField]="customForm.fieldValue" placeholder="Campo obtigtório.." />
@@ -37,7 +37,7 @@ import { FieldWrapperComponent } from '../../layout/component/field-wrapper.comp
       </div>
     </mat-dialog-content>
 
-    <mat-dialog-actions align="end" class="!px-6 !pb-6 !pt-2">
+    <mat-dialog-actions align="end" class="!px-6 !pb-6 !pt-0">
       <button
         mat-stroked-button
         color="warn"
@@ -82,6 +82,10 @@ export class CustomCadModalComponent implements OnInit {
     maxLength(path.fieldValue, 150, {
       message: `O campo ${this.data.inputLabel} deve ter no máximo 150 caracteres`
     });
+
+    if (this.data.inputLabel.trim().toLowerCase() === 'email') {
+      email(path.fieldValue, { message: 'E-mail inválido' });
+    }
   });
 
   ngOnInit() {
