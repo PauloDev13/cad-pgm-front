@@ -10,6 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HeaderLoginComponent } from './header-login.component';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper.component';
+import { LoginStateService } from '../services/login-state.service';
 
 @Component({
   selector: 'app-force-password-change',
@@ -22,7 +23,7 @@ import { FieldWrapperComponent } from '../../../shared/layout/component/field-wr
     MatProgressSpinnerModule,
     FormField,
     HeaderLoginComponent,
-    FieldWrapperComponent
+    FieldWrapperComponent,
   ],
   standalone: true,
   template: `
@@ -115,12 +116,12 @@ import { FieldWrapperComponent } from '../../../shared/layout/component/field-wr
         </button>
       </form>
     </div>
-  `
+  `,
 })
 export class ForcePasswordChangeComponent {
   private readonly authService = inject(AuthService);
+  private readonly loginStateService = inject(LoginStateService);
   private readonly notificationService = inject(NotificationService);
-  // private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
 
   isLoading = signal(false);
@@ -131,7 +132,7 @@ export class ForcePasswordChangeComponent {
   // Modelo do Formulário
   resetModel = signal({
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
 
   // Aqui você instancia o seu formulário de troca (igual ao que usamos no reset)
@@ -163,28 +164,32 @@ export class ForcePasswordChangeComponent {
     this.authService.forcePasswordChange(userName!, newPassword).subscribe({
       next: () => {
         this.isLoading.set(false);
-        // Atualizamos o frontend antes de navegar
-        const currentUser = this.authService.currentUser();
 
-        if (currentUser) {
-          // Criamos um clone do usuário mudando a flag para false
-          const updatedUser = { ...currentUser, isForcePasswordChange: false };
+        // Pega o nome do usuário logado do Signal currentUser
+        const userLogged: string | undefined = this.authService.currentUser()?.userName;
 
-          // Atualiza o Signal para o app inteiro saber
-          this.authService.currentUser.set(updatedUser);
-
-          // Atualiza o Storage para ele não ficar preso se der F5
-          localStorage.setItem(this.authService.TOKEN_KEY, JSON.stringify(updatedUser));
-
-          // Agora sim! O Angular sabe que a flag é falsa, e a navegação será permitida!
-          this.router.navigate(['home']).then();
+        // Se houver usuário logado
+        if (userLogged) {
+          // Seta o Signal newUserName usado para exibir o nome do usuário na tela de login
+          this.loginStateService.newUserName.set(userLogged);
         }
+
+        // Realiza o logout para limpar o localstorage
+        this.authService.logout();
+
+        // Avisamos o usuário que deu tudo certo
+        this.notificationService.success(
+          'Senha atualizada com sucesso! Por favor, faça login com a nova senha.',
+          'Senha',
+        );
+
+        // Agora sim! O Angular sabe que a flag é falsa, e a navegação será permitida!
+        this.router.navigate(['/auth/home']).then();
       },
       error: (err) => {
         this.isLoading.set(false);
         this.notificationService.error(err.message, 'Senha');
-        // this.toastService.errorLogin('Senha', err.message);
-      }
+      },
     });
   }
 

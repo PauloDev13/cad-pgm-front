@@ -11,6 +11,10 @@ export interface IUsuarioRequest {
 
 export type TUsuarioUpdate = Omit<IUsuarioRequest, 'confirmPassword' | 'password'>;
 export type TUsuarioUpdatePut = Omit<IUsuarioRequest, 'password'>;
+export type TRegisterNewUser = Omit<
+  IUsuarioRequest,
+  'activated' | 'permissions' | 'forcePasswordChange'
+>;
 
 export interface IUsuarioResponse {
   id: number;

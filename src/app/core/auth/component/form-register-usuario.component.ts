@@ -14,13 +14,13 @@ import {
 } from '@angular/forms/signals';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { IUsuarioRequest } from '../../../features/usuario/models/usuario.model';
-import { UsuarioService } from '../../../features/usuario/services/usuario.service';
+import { TRegisterNewUser } from '../../../features/usuario/models/usuario.model';
 import { LoginStateService } from '../services/login-state.service';
 import { HeaderLoginComponent } from './header-login.component';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper.component';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-form-register-login',
@@ -170,20 +170,22 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
   `,
 })
 export class FormRegisterUsuarioComponent {
+  private readonly notificationService = inject(NotificationService);
+  private readonly authService = inject(AuthService);
+  private readonly loginStateService = inject(LoginStateService);
+  private readonly router = inject(Router);
   //Signals
   isLoading = signal<boolean>(false);
   // Signals para exibir/ocultar senha/confirmar senha
   hidePassword = signal<boolean>(true);
   hideConfirm = signal<boolean>(true);
   // Modelo do formulário para cadastro
-  registerFormModel = signal<IUsuarioRequest>({
+  registerFormModel = signal<TRegisterNewUser>({
     name: '',
     userName: '',
+    email: '',
     password: '',
     confirmPassword: '',
-    email: '',
-    activated: true,
-    permissions: ['guest'],
   });
   // Formulário de cadastro com validações
   registerFormLogin = form(this.registerFormModel, (path: any) => {
@@ -217,10 +219,6 @@ export class FormRegisterUsuarioComponent {
     required(path.email, { message: 'E-mail é obrigatório' });
     email(path.email, { message: 'E-mail inválido' });
   });
-  private readonly notificationService = inject(NotificationService);
-  // private readonly toastService = inject(ToastService);
-  private readonly usuarioService = inject(UsuarioService);
-  private readonly loginStateService = inject(LoginStateService);
 
   // Métodos para alternar a visualização
   togglePassword(event: MouseEvent) {
@@ -245,17 +243,22 @@ export class FormRegisterUsuarioComponent {
       const { confirmPassword, ...payload } = dataRegister;
 
       // Chama o service para realizar enviar os dados de cadastro
-      this.usuarioService.register(payload).subscribe({
+      this.authService.registerNewUserPublic(payload).subscribe({
         next: (response) => {
           this.isLoading.set(false);
+
+          console.log('RESPONSE NO REGISTER ' + JSON.stringify(response));
 
           // Atualiza o signal do service com o nome do usuário recém-cadastrado
           this.loginStateService.newUserName.set(response.userName);
 
           this.notificationService.success(
-            `Usuário <strong>${response.userName}<strong> cadastrado.`,
+            `Usuário <strong>${response.userName}</strong> cadastrado.`,
             'Register',
           );
+
+          // Redireciona o novo usuário para a tela de login
+          this.router.navigate(['/auth/login']).then();
         },
         error: (err) => {
           this.isLoading.set(false);

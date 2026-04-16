@@ -1,24 +1,25 @@
 import { inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {
   IAuthRequest,
   IAuthResponse,
   IDecodedToken,
   IForgotPasswordRequest,
   ILoggedUser,
-  IResetPasswordRequest
+  IRegisterUserRequest,
+  IRegisterUserResponse,
+  IResetPasswordRequest,
 } from '../models/auth.model';
 import { isPlatformBrowser } from '@angular/common';
 import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   readonly TOKEN_KEY = 'jwt-token';
-  // readonly AUTH_KEY = 'sistema_logged_user';
   private readonly API_URL = `${environment.apiUrl}/api/v1`;
   private readonly plataformId = inject(PLATFORM_ID);
   private readonly http = inject(HttpClient);
@@ -30,11 +31,10 @@ export class AuthService {
     this.currentUser.set(this.getStoredLoggedUser());
   }
 
-  // Método de Login simulando uma requisição HTTP
+  // Méthod de Login simulando uma requisição HTTP
   login(payload: IAuthRequest): Observable<IAuthResponse> {
     return this.http.post<IAuthResponse>(`${this.API_URL}/auth/login`, payload).pipe(
-      tap((response) => {
-
+      tap((response: IAuthResponse) => {
         // Decodifica o token retornado da API
         const decoded = jwtDecode<IDecodedToken>(response.token);
 
@@ -43,7 +43,7 @@ export class AuthService {
           userName: decoded.sub,
           roles: decoded.roles || [],
           token: response.token,
-          isForcePasswordChange: decoded.isForcePasswordChange
+          isForcePasswordChange: decoded.isForcePasswordChange,
         };
 
         // Atualiza o Signal para o restante do app reagir
@@ -58,7 +58,7 @@ export class AuthService {
         console.error('Erro na autenticação:', error);
         const msg = error.error?.message || 'Credenciais inválidas';
         return throwError(() => new Error(msg));
-      })
+      }),
     );
   }
 
@@ -73,6 +73,17 @@ export class AuthService {
     }
   }
 
+  registerNewUserPublic(newUser: IRegisterUserRequest): Observable<IRegisterUserResponse> {
+    const url = `${this.API_URL}/auth/register`;
+    return this.http.post<IRegisterUserResponse>(url, newUser).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Erro no cadastro', error);
+        const msg = error.error.message || error.error || 'Erro ao realizar cadastro';
+        return throwError(() => new Error(msg));
+      }),
+    );
+  }
+
   // Solicita o envio do e-mail de recuperação
   forgotPassword(email: string): Observable<any> {
     const url = `${environment.apiUrl}/api/v1/auth/forgot-password`;
@@ -83,7 +94,7 @@ export class AuthService {
       catchError((error) => {
         console.error('Erro ao solicitar redefinição:', error);
         return throwError(() => new Error('Falha ao processar a solicitação.'));
-      })
+      }),
     );
   }
 
@@ -96,20 +107,21 @@ export class AuthService {
         console.error('Erro ao redefinir senha:', error);
         // Pode ser token expirado ou inválido
         return throwError(() => new Error('O link é inválido ou expirou. Solicite novamente.'));
-      })
+      }),
     );
   }
 
   resetPasswordByAdmin(userId: number | undefined): Observable<{ temporaryPassword: string }> {
     return this.http.post<{ temporaryPassword: string }>(
-      `${environment.apiUrl}/api/v1/usuarios/${userId}/reset-password`, {});
+      `${environment.apiUrl}/api/v1/usuarios/${userId}/reset-password`,
+      {},
+    );
   }
 
   forcePasswordChange(userName: string, newPassword: string): Observable<void> {
     const payload = { userName, newPassword };
 
-    return this.http.post<void>(
-      `${environment.apiUrl}/api/v1/auth/force-password-change`, payload);
+    return this.http.post<void>(`${environment.apiUrl}/api/v1/auth/force-password-change`, payload);
   }
 
   // MÉTHOD PARA BUSCAR O USUÁRIO LOGADO NO LOCALSTORAGE
@@ -125,9 +137,8 @@ export class AuthService {
             userName: decoded.sub,
             roles: decoded.roles || [],
             token: token,
-            isForcePasswordChange: decoded.isForcePasswordChange
+            isForcePasswordChange: decoded.isForcePasswordChange,
           };
-
         } catch (e) {
           return null;
         }

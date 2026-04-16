@@ -25,7 +25,7 @@ import { jwtDecode } from 'jwt-decode';
     MatIconButton,
     RouterLink,
     HeaderLoginComponent,
-    FieldWrapperComponent
+    FieldWrapperComponent,
   ],
   standalone: true,
   template: `
@@ -85,14 +85,14 @@ import { jwtDecode } from 'jwt-decode';
               tabindex="-1"
               routerLink="/auth/esqueci-senha"
               class="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
-            >Esqueceu a senha?</a
+              >Esqueceu a senha?</a
             >
             <a
               routerLink="/auth/register"
               tabIndex="-1"
               href="#"
               class="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
-            >Não é cadastrado?</a
+              >Não é cadastrado?</a
             >
           </div>
         </div>
@@ -113,7 +113,7 @@ import { jwtDecode } from 'jwt-decode';
         </button>
       </form>
     </div>
-  `
+  `,
 })
 export class FormMainLoginComponent {
   // Injeções de dependências
@@ -131,7 +131,7 @@ export class FormMainLoginComponent {
   // Modelo do formulário
   formLoginModel = signal<IAuthRequest>({
     userName: this.loginStateService.newUserName(),
-    password: ''
+    password: '',
   });
 
   // Formulário de login com validações
@@ -174,8 +174,10 @@ export class FormMainLoginComponent {
         error: (err) => {
           this.isLoading.set(false);
           this.notificationService.error(err.message, 'Login');
-        }
+        },
       });
     });
   }
+
+  protected readonly focus = focus;
 }
