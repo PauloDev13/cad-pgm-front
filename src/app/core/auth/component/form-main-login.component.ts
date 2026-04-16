@@ -4,7 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { form, FormField, required, submit } from '@angular/forms/signals';
 import { MatInputModule } from '@angular/material/input';
-import { IAuthRequest, IAuthResponse } from '../models/auth.model';
+import { IAuthRequest, IDecodedToken } from '../models/auth.model';
 import { AuthService } from '../services/auth.service';
 import { Router, RouterLink } from '@angular/router';
 import { MatIconButton } from '@angular/material/button';
@@ -12,6 +12,7 @@ import { LoginStateService } from '../services/login-state.service';
 import { HeaderLoginComponent } from './header-login.component';
 import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper.component';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
+import { jwtDecode } from 'jwt-decode';
 
 @Component({
   selector: 'app-form-main-login',
@@ -24,7 +25,7 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
     MatIconButton,
     RouterLink,
     HeaderLoginComponent,
-    FieldWrapperComponent,
+    FieldWrapperComponent
   ],
   standalone: true,
   template: `
@@ -37,13 +38,13 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
 
       <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col w-full gap-2">
         <div class="flex flex-col gap-1.5">
-          <app-field-wrapper [field]="loginForm.login()">
+          <app-field-wrapper [field]="loginForm.userName()">
             <!--Campo userName-->
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
               <mat-label>Login do Usuário</mat-label>
               <input
                 matInput
-                [formField]="loginForm.login"
+                [formField]="loginForm.userName"
                 autocomplete="off"
                 placeholder="Ex: jonh.river"
               />
@@ -84,14 +85,14 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
               tabindex="-1"
               routerLink="/auth/esqueci-senha"
               class="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
-              >Esqueceu a senha?</a
+            >Esqueceu a senha?</a
             >
             <a
               routerLink="/auth/register"
               tabIndex="-1"
               href="#"
               class="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
-              >Não é cadastrado?</a
+            >Não é cadastrado?</a
             >
           </div>
         </div>
@@ -112,7 +113,7 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
         </button>
       </form>
     </div>
-  `,
+  `
 })
 export class FormMainLoginComponent {
   // Injeções de dependências
@@ -129,8 +130,8 @@ export class FormMainLoginComponent {
 
   // Modelo do formulário
   formLoginModel = signal<IAuthRequest>({
-    login: this.loginStateService.newUserName(),
-    password: '',
+    userName: this.loginStateService.newUserName(),
+    password: ''
   });
 
   // Formulário de login com validações
@@ -158,8 +159,11 @@ export class FormMainLoginComponent {
 
       // Chama o service para realizar enviar os dados de login
       this.authService.login(dataLogin).subscribe({
-        next: (user: IAuthResponse) => {
-          if (user.forcePasswordChange) {
+        next: (response) => {
+          // Decodifica o token retornado da API
+          const decoded = jwtDecode<IDecodedToken>(response.token);
+
+          if (decoded.isForcePasswordChange) {
             this.router.navigate(['/auth/troca-obrigatoria']);
           } else {
             // Se o login foi bem-sucedido, vai para a página home
@@ -170,7 +174,7 @@ export class FormMainLoginComponent {
         error: (err) => {
           this.isLoading.set(false);
           this.notificationService.error(err.message, 'Login');
-        },
+        }
       });
     });
   }

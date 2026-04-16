@@ -8,12 +8,12 @@ import {
   IUsuarioResponse,
   roles,
   TUsuarioUpdate,
-  TUsuarioUpdatePut,
+  TUsuarioUpdatePut
 } from '../models/usuario.model';
 import { PageResponse } from '../../../shared/model/pagination.model';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class UsuarioService {
   private API_URL = `${environment.apiUrl}/api/v1/usuarios`;
@@ -26,11 +26,11 @@ export class UsuarioService {
         console.error('Erro ao cadastrar usuário:', error);
         const msg = error.error?.message || 'Erro ao cadastrar usuário';
         return throwError(() => new Error(msg));
-      }),
+      })
     );
   }
 
-  // Usado no cadastro de novo usuário pelo Adminsitrador
+  // Usado no cadastro de novo usuário pelo Administrador
   create(payload: IUsuarioRequest): Observable<IUsuarioResponse> {
     return this.http.post<IUsuarioResponse>(`${this.API_URL}`, payload);
   }
@@ -55,7 +55,7 @@ export class UsuarioService {
     size: number,
     name?: string,
     userName?: string,
-    email?: string,
+    email?: string
   ): Observable<PageResponse<IUsuarioResponse[]>> {
     let params = new HttpParams().set('page', page).set('size', size);
 
@@ -72,7 +72,7 @@ export class UsuarioService {
     }
 
     return this.http.get<PageResponse<IUsuarioResponse[]>>(`${this.API_URL}/searchFilter`, {
-      params,
+      params
     });
   }
 

@@ -9,7 +9,7 @@ import {
   minLength,
   required,
   submit,
-  validate,
+  validate
 } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
 import { IUsuarioRequest, IUsuarioResponse } from '../../models/usuario.model';
@@ -35,7 +35,7 @@ import { customHttpError } from '../../../../shared/utils/custom-http-response-e
     MatButtonModule,
     MatSelectModule,
     FieldWrapperComponent,
-    MatCheckbox,
+    MatCheckbox
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -69,15 +69,16 @@ import { customHttpError } from '../../../../shared/utils/custom-http-response-e
           </app-field-wrapper>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <!--Campo Login-->
             <app-field-wrapper [field]="usuarioForm.userName()">
-              <!--Campo Login-->
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                 <mat-label>Login (User Name)</mat-label>
                 <input matInput [formField]="usuarioForm.userName" />
               </mat-form-field>
             </app-field-wrapper>
+
+            <!--Campo E-mail-->
             <app-field-wrapper [field]="usuarioForm.email()">
-              <!--Campo E-mail-->
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                 <mat-label>E-Mail</mat-label>
                 <input matInput [formField]="usuarioForm.email" />
@@ -183,7 +184,7 @@ import { customHttpError } from '../../../../shared/utils/custom-http-response-e
         {{ isEdit ? 'Atualizar' : 'Salvar' }}
       </button>
     </mat-dialog-actions>
-  `,
+  `
 })
 export class UsuarioFormComponent implements OnInit {
   // Injeções de dependência
@@ -208,7 +209,7 @@ export class UsuarioFormComponent implements OnInit {
     email: '',
     activated: true,
     permissions: ['guest'],
-    forcePasswordChange: false,
+    forcePasswordChange: false
   });
   // Formulário de cadastro com validações
   usuarioForm = form(this.userFormModel, (path: any) => {
@@ -260,9 +261,9 @@ export class UsuarioFormComponent implements OnInit {
     this.isEdit = !!this.data;
 
     if (this.isEdit && this.data) {
-      this.userFormModel.update((u) => ({
+      this.userFormModel.update((u: IUsuarioRequest) => ({
         ...u,
-        ...this.data,
+        ...this.data
       }));
     }
   }
@@ -299,7 +300,7 @@ export class UsuarioFormComponent implements OnInit {
 
         this.notificationService.success(
           `Usuário ${this.isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`,
-          `${this.isEdit ? 'Atualização' : 'Cadastro'}`,
+          `${this.isEdit ? 'Atualização' : 'Cadastro'}`
         );
 
         this.dialogRef.close(true);

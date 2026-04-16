@@ -2,20 +2,29 @@ import { inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { IAuthRequest, IAuthResponse, IForgotPasswordRequest, IResetPasswordRequest } from '../models/auth.model';
+import {
+  IAuthRequest,
+  IAuthResponse,
+  IDecodedToken,
+  IForgotPasswordRequest,
+  ILoggedUser,
+  IResetPasswordRequest
+} from '../models/auth.model';
 import { isPlatformBrowser } from '@angular/common';
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  readonly AUTH_KEY = 'sistema_logged_user';
+  readonly TOKEN_KEY = 'jwt-token';
+  // readonly AUTH_KEY = 'sistema_logged_user';
   private readonly API_URL = `${environment.apiUrl}/api/v1`;
   private readonly plataformId = inject(PLATFORM_ID);
   private readonly http = inject(HttpClient);
 
   // A chave que usaremos para guardar o usuário logado no localstorage
-  currentUser = signal<IAuthResponse | null>(null);
+  currentUser = signal<ILoggedUser | null>(null);
 
   constructor() {
     this.currentUser.set(this.getStoredLoggedUser());
@@ -26,12 +35,23 @@ export class AuthService {
     return this.http.post<IAuthResponse>(`${this.API_URL}/auth/login`, payload).pipe(
       tap((response) => {
 
+        // Decodifica o token retornado da API
+        const decoded = jwtDecode<IDecodedToken>(response.token);
+
+        // Monta um usuário com os dados do token decodificado
+        const loggedUser: ILoggedUser = {
+          userName: decoded.sub,
+          roles: decoded.roles || [],
+          token: response.token,
+          isForcePasswordChange: decoded.isForcePasswordChange
+        };
+
         // Atualiza o Signal para o restante do app reagir
-        this.currentUser.set(response);
+        this.currentUser.set(loggedUser);
 
         // Persiste no Storage para manter a sessão ao dar F5
         if (isPlatformBrowser(this.plataformId)) {
-          localStorage.setItem(this.AUTH_KEY, JSON.stringify(response));
+          localStorage.setItem(this.TOKEN_KEY, response.token);
         }
       }),
       catchError((error) => {
@@ -49,12 +69,11 @@ export class AuthService {
 
     if (isPlatformBrowser(this.plataformId)) {
       // Remove o usuário logado do localstorage
-      localStorage.removeItem(this.AUTH_KEY);
+      localStorage.removeItem(this.TOKEN_KEY);
     }
   }
 
   // Solicita o envio do e-mail de recuperação
-
   forgotPassword(email: string): Observable<any> {
     const url = `${environment.apiUrl}/api/v1/auth/forgot-password`;
     const payload: IForgotPasswordRequest = { email };
@@ -94,12 +113,21 @@ export class AuthService {
   }
 
   // MÉTHOD PARA BUSCAR O USUÁRIO LOGADO NO LOCALSTORAGE
-  getStoredLoggedUser(): IAuthResponse | null {
+  getStoredLoggedUser(): ILoggedUser | null {
     if (isPlatformBrowser(this.plataformId)) {
-      const stored = localStorage.getItem(this.AUTH_KEY);
-      if (stored) {
+      const token = localStorage.getItem(this.TOKEN_KEY);
+      if (token) {
         try {
-          return JSON.parse(stored);
+          // Lê a mente do token toda vez que damos F5!
+          const decoded = jwtDecode<IDecodedToken>(token);
+
+          return {
+            userName: decoded.sub,
+            roles: decoded.roles || [],
+            token: token,
+            isForcePasswordChange: decoded.isForcePasswordChange
+          };
+
         } catch (e) {
           return null;
         }

@@ -22,7 +22,7 @@ import { FieldWrapperComponent } from '../../../shared/layout/component/field-wr
     MatProgressSpinnerModule,
     FormField,
     HeaderLoginComponent,
-    FieldWrapperComponent,
+    FieldWrapperComponent
   ],
   standalone: true,
   template: `
@@ -115,7 +115,7 @@ import { FieldWrapperComponent } from '../../../shared/layout/component/field-wr
         </button>
       </form>
     </div>
-  `,
+  `
 })
 export class ForcePasswordChangeComponent {
   private readonly authService = inject(AuthService);
@@ -131,7 +131,7 @@ export class ForcePasswordChangeComponent {
   // Modelo do Formulário
   resetModel = signal({
     password: '',
-    confirmPassword: '',
+    confirmPassword: ''
   });
 
   // Aqui você instancia o seu formulário de troca (igual ao que usamos no reset)
@@ -162,18 +162,19 @@ export class ForcePasswordChangeComponent {
 
     this.authService.forcePasswordChange(userName!, newPassword).subscribe({
       next: () => {
+        this.isLoading.set(false);
         // Atualizamos o frontend antes de navegar
         const currentUser = this.authService.currentUser();
 
         if (currentUser) {
           // Criamos um clone do usuário mudando a flag para false
-          const updatedUser = { ...currentUser, forcePasswordChange: false };
+          const updatedUser = { ...currentUser, isForcePasswordChange: false };
 
           // Atualiza o Signal para o app inteiro saber
           this.authService.currentUser.set(updatedUser);
 
           // Atualiza o Storage para ele não ficar preso se der F5
-          localStorage.setItem(this.authService.AUTH_KEY, JSON.stringify(updatedUser));
+          localStorage.setItem(this.authService.TOKEN_KEY, JSON.stringify(updatedUser));
 
           // Agora sim! O Angular sabe que a flag é falsa, e a navegação será permitida!
           this.router.navigate(['home']).then();
@@ -183,7 +184,7 @@ export class ForcePasswordChangeComponent {
         this.isLoading.set(false);
         this.notificationService.error(err.message, 'Senha');
         // this.toastService.errorLogin('Senha', err.message);
-      },
+      }
     });
   }
 
