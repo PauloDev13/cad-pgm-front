@@ -7,7 +7,7 @@ import { CustomSnackBarComponent } from '../components/custom-snack-bar.componen
   providedIn: 'root'
 })
 export class NotificationService {
-  private snackBar = inject(MatSnackBar);
+  private snackBar: MatSnackBar = inject(MatSnackBar);
 
   // Configuração padrão, caso não passem nada
   private defaultConfig: MatSnackBarConfig = {
@@ -34,13 +34,15 @@ export class NotificationService {
     this.show('warning', message, title, config);
   }
 
-  // Método privado que faz o trabalho sujo
+  // Método privado que exibe as mensagens e as configurações do snakbar
   private show(
     type: 'success' | 'error' | 'warning',
     message: string,
     title?: string,
     config?: MatSnackBarConfig
   ): void {
+
+    // Dados recebidos pelo snackbar
     const data: SnackbarData = { type, message, title };
 
     // Mescla a configuração padrão com a configuração passada pelo usuário

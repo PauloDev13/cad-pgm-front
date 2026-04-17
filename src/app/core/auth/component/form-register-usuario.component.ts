@@ -2,16 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import {
-  email,
-  form,
-  FormField,
-  maxLength,
-  minLength,
-  required,
-  submit,
-  validate,
-} from '@angular/forms/signals';
+import { email, form, FormField, maxLength, minLength, required, submit, validate } from '@angular/forms/signals';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { TRegisterNewUser } from '../../../features/usuario/models/usuario.model';
@@ -33,7 +24,7 @@ import { AuthService } from '../services/auth.service';
     FormField,
     HeaderLoginComponent,
     RouterLink,
-    FieldWrapperComponent,
+    FieldWrapperComponent
   ],
   standalone: true,
   template: `
@@ -146,7 +137,7 @@ import { AuthService } from '../services/auth.service';
               tabindex="-1"
               routerLink="/auth/login"
               class="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
-              >Já é cadastrado?</a
+            >Já é cadastrado?</a
             >
           </div>
         </div>
@@ -167,7 +158,7 @@ import { AuthService } from '../services/auth.service';
         </button>
       </form>
     </div>
-  `,
+  `
 })
 export class FormRegisterUsuarioComponent {
   private readonly notificationService = inject(NotificationService);
@@ -185,7 +176,7 @@ export class FormRegisterUsuarioComponent {
     userName: '',
     email: '',
     password: '',
-    confirmPassword: '',
+    confirmPassword: ''
   });
   // Formulário de cadastro com validações
   registerFormLogin = form(this.registerFormModel, (path: any) => {
@@ -209,7 +200,7 @@ export class FormRegisterUsuarioComponent {
       if (confirm !== password) {
         return {
           kind: 'passwordMismatch', // Um identificador único para o erro
-          message: 'As senhas não conferem',
+          message: 'As senhas não conferem'
         };
       }
       return null;
@@ -247,14 +238,12 @@ export class FormRegisterUsuarioComponent {
         next: (response) => {
           this.isLoading.set(false);
 
-          console.log('RESPONSE NO REGISTER ' + JSON.stringify(response));
-
           // Atualiza o signal do service com o nome do usuário recém-cadastrado
           this.loginStateService.newUserName.set(response.userName);
 
           this.notificationService.success(
             `Usuário <strong>${response.userName}</strong> cadastrado.`,
-            'Register',
+            'Register'
           );
 
           // Redireciona o novo usuário para a tela de login
@@ -264,7 +253,7 @@ export class FormRegisterUsuarioComponent {
           this.isLoading.set(false);
           this.notificationService.error(err.message, 'Register');
           console.error(err.message);
-        },
+        }
       });
     });
   }

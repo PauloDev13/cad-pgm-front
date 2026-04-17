@@ -16,7 +16,9 @@ import { UsuarioFormComponent } from '../components/usuario-form.component/usuar
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { AuthService } from '../../../core/auth/services/auth.service';
-import { TemporaryPasswordDialogComponent } from '../../../core/auth/component/temporary -password-dialog/temporary-password-dialog.component';
+import {
+  TemporaryPasswordDialogComponent
+} from '../../../core/auth/component/temporary -password-dialog/temporary-password-dialog.component';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 import { CustomDeleteService } from '../../../shared/service/custom-delete.service';
 
@@ -74,8 +76,8 @@ import { CustomDeleteService } from '../../../shared/service/custom-delete.servi
     MatIconModule,
     MatButtonModule,
     UsuarioTableComponent,
-    UsuarioFilterComponent,
-  ],
+    UsuarioFilterComponent
+  ]
 })
 export default class UsuarioListPage implements OnInit {
   // Injeções
@@ -134,7 +136,7 @@ export default class UsuarioListPage implements OnInit {
           this.notificationService.error('Erro ao pesquisar', 'Pesquisa');
 
           console.error('Erro ao pesquisar ' + err.message);
-        },
+        }
       });
   }
 
@@ -146,7 +148,7 @@ export default class UsuarioListPage implements OnInit {
       maxWidth: '95vw',
       maxHeight: '90vw',
       data: usuario,
-      disableClose: true,
+      disableClose: true
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -161,8 +163,8 @@ export default class UsuarioListPage implements OnInit {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         title: 'Senha',
-        message: `Gerar nova senha para ${usuario?.name.toUpperCase()}?`,
-      },
+        message: `Gerar nova senha para ${usuario?.name.toUpperCase()}?`
+      }
     });
     dialogRef.afterClosed().subscribe((confirm) => {
       if (confirm) {
@@ -175,16 +177,16 @@ export default class UsuarioListPage implements OnInit {
                   Copie e informe esta senha ao usuário.
                   Ele será obrigado a trocá-la no próximo login
                 `,
-                password: response.temporaryPassword,
+                password: response.temporaryPassword
               },
-              disableClose: true,
+              disableClose: true
             });
           },
           error: (err) => {
             this.notificationService.error('Erro ao gerar senha temporária!', 'Senha');
 
             console.error('Erro ao gerar senha temporária: ' + err.message);
-          },
+          }
         });
       }
     });
@@ -197,9 +199,9 @@ export default class UsuarioListPage implements OnInit {
       {
         title: 'Usuário',
         message: `Esta ação não poderá ser desfeita.
-                  Excluir o perfil de: ${payload.name.toUpperCase()}?`,
-        successMsg: `Perfil de: ${payload.name.toUpperCase()} removido`,
-      },
+                  Excluir o perfil de: <strong class="text-red-600">${payload.name.toUpperCase()}</strong>?`,
+        successMsg: `Perfil de: <strong>${payload.name.toUpperCase()}</strong> foi removido`
+      }
     );
   }
 
@@ -246,7 +248,7 @@ export default class UsuarioListPage implements OnInit {
       .pipe(
         debounceTime(500), // Espera o usuário parar de digitar por 500ms
         distinctUntilChanged(), // Só continua se a palavra final for diferente da última busca
-        takeUntilDestroyed(this.destroyRef), // Dizemos pro fluxo morrer com o componente
+        takeUntilDestroyed(this.destroyRef) // Dizemos pro fluxo morrer com o componente
       )
       .subscribe((termoDigitado) => {
         // Se o usuário apagou tudo (Cenário 1)

@@ -19,7 +19,7 @@ import { MAT_SNACK_BAR_DATA, MatSnackBarRef } from '@angular/material/snack-bar'
         @if (data.title) {
           <span class="font-bold text-base mb-1">{{ data.title }}</span>
         }
-        <span class="text-[16px] leading-tight text-white/90">{{ data.message }}</span>
+        <span [innerHTML]="data.message" class="text-[16px] leading-tight text-white/90"></span>
       </div>
 
       <button

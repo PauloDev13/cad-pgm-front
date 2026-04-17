@@ -13,7 +13,7 @@ import { ConfirmDialogData } from '../../model/confirm-dialog-data.model';
     </h2>
 
     <mat-dialog-content>
-      <p class="text-gray-600 text-base pt-2">{{ data.message }}</p>
+      <p [innerHTML]="data.message" class="text-gray-600 text-base pt-2"></p>
     </mat-dialog-content>
 
     <mat-dialog-actions align="end" class="!pb-4 !pr-4">
@@ -43,7 +43,7 @@ import { ConfirmDialogData } from '../../model/confirm-dialog-data.model';
         SIM
       </button>
     </mat-dialog-actions>
-  `,
+  `
 })
 export class ConfirmDialogComponent {
   // Injeções

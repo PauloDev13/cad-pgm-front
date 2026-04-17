@@ -39,7 +39,7 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
           Novo
         </button>
       </div>
-      
+
       <!-- Chama o componente de pesquisa-->
       <app-servidor-filter
         [statusList]="statusList()"
@@ -69,8 +69,8 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
     MatIconModule,
     MatButtonModule,
     ServidorFilterComponent,
-    ServidorTableComponent,
-  ],
+    ServidorTableComponent
+  ]
 })
 export default class ServidorListPage implements OnInit {
   // Injeções
@@ -137,7 +137,7 @@ export default class ServidorListPage implements OnInit {
             this.setPageData(pageData);
             // this.totalElements.set(pageData.page.totalElements);
           },
-          error: () => this.notificationService.error('Erro ao pesquisar dados', 'Pesquisar'),
+          error: () => this.notificationService.error('Erro ao pesquisar dados', 'Pesquisar')
         });
     } else {
       // Chama o ENDPOINT ORIGINAL (findAll) - Listagem limpa
@@ -150,7 +150,7 @@ export default class ServidorListPage implements OnInit {
             this.notificationService.error('Erro ao carregar dados', 'Load');
             console.error('Erro ao carregar dados ' + err.message);
           },
-          complete: () => this.isLoading.set(false),
+          complete: () => this.isLoading.set(false)
         });
     }
   }
@@ -162,7 +162,7 @@ export default class ServidorListPage implements OnInit {
       maxWidth: '95vw',
       maxHeight: '90vw',
       data: servidor,
-      disableClose: true,
+      disableClose: true
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -180,9 +180,10 @@ export default class ServidorListPage implements OnInit {
       {
         title: 'Servidor',
         message: `Esta ação não poderá ser desfeita.
-                  Excluir o perfil de: ${payload.nome.toUpperCase()}?`,
-        successMsg: `Perfil de: ${payload.nome.toUpperCase()} removido`,
-      },
+                  Excluir o perfil de:
+                  <strong class="text-red-600">${payload.nome.toUpperCase()}</strong>?`,
+        successMsg: `Perfil de: <strong>${payload.nome.toUpperCase()}</strong> removido`
+      }
     );
   }
 
@@ -236,7 +237,7 @@ export default class ServidorListPage implements OnInit {
       .pipe(
         debounceTime(500), // Espera o usuário parar de digitar por 500ms
         distinctUntilChanged(), // Só continua se a palavra final for diferente da última busca
-        takeUntilDestroyed(this.destroyRef), // Dizemos pro fluxo morrer com o componente
+        takeUntilDestroyed(this.destroyRef) // Dizemos pro fluxo morrer com o componente
       )
       .subscribe((termoDigitado) => {
         // Se o usuário apagou tudo (Cenário 1)
@@ -283,7 +284,7 @@ export default class ServidorListPage implements OnInit {
       error: (err) => {
         this.notificationService.error('Erro ao carregar lista de status', 'Loading');
         console.error('Erro ao carregar lista  ' + err.message);
-      },
+      }
     });
   }
 }
