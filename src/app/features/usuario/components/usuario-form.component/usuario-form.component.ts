@@ -306,7 +306,7 @@ export class UsuarioFormComponent implements OnInit {
         this.dialogRef.close(true);
       } catch (error: any) {
         // chama a função customizada de tratamento de erro passando o erro
-        customHttpError(error);
+        customHttpError(error, this.notificationService);
       }
     });
   }

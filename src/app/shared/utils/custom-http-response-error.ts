@@ -1,9 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { inject } from '@angular/core';
 import { NotificationService } from '../service/NotificationSnackbar.service';
 
-export function customHttpError(error: any) {
-  const notificationService = inject(NotificationService);
+export function customHttpError(error: any, notificationService: NotificationService) {
 
   // Mensagem padrão caso seja erro de rede (backend fora do ar) ou algo não mapeado
   let messageDefaultErro = 'Erro inesperado ao conectar a API';

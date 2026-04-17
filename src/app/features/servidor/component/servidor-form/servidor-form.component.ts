@@ -1,23 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ServidorService } from '../../services/servidor.service';
-import {
-  MAT_DIALOG_DATA,
-  MatDialog,
-  MatDialogModule,
-  MatDialogRef,
-} from '@angular/material/dialog';
-import {
-  BaseEntityDTO,
-  ServidorRequestDTO,
-  ServidorResponseDTO,
-} from '../../models/servidor.model';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { BaseEntityDTO, ServidorRequestDTO, ServidorResponseDTO } from '../../models/servidor.model';
 import {
   email,
   form,
@@ -27,7 +11,7 @@ import {
   pattern,
   required,
   submit,
-  validate,
+  validate
 } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
 import { DominioService } from '../../services/dominio.service';
@@ -41,7 +25,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { CustomSelectComponent } from '../../../../shared/components/custom-select/custom-select.component';
 import {
   PermissoesDialogComponent,
-  PermissoesDialogData,
+  PermissoesDialogData
 } from '../../../../shared/components/permissoes-dialog/permissoes-dialog.component';
 import { MatIconModule } from '@angular/material/icon';
 import { CustomValidators } from '../../../../shared/utils/custom-validators';
@@ -68,7 +52,7 @@ export type FormModel = Required<ServidorRequestDTO>;
     AutocompleteComponent,
     CustomSelectComponent,
     NgxMaskDirective,
-    FieldWrapperComponent,
+    FieldWrapperComponent
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -270,7 +254,7 @@ export type FormModel = Required<ServidorRequestDTO>;
         {{ isEdit ? 'Atualizar' : 'Salvar' }}
       </button>
     </mat-dialog-actions>
-  `,
+  `
 })
 export class ServidorFormComponent implements OnInit {
   private readonly servidorService = inject(ServidorService);
@@ -312,7 +296,7 @@ export class ServidorFormComponent implements OnInit {
 
     procuradorIds: [],
     aliasIds: [],
-    sistemaIds: [],
+    sistemaIds: []
   });
   // validações dos campos do formulário
   servidorForm = form(this.servidorModel, (path) => {
@@ -320,13 +304,13 @@ export class ServidorFormComponent implements OnInit {
     required(path.nome, { message: 'O nome é obrigatório' });
     minLength(path.nome, 5, { message: 'O Nome deve ter no mínimo 5 caracteres' });
     maxLength(path.nome, 150, {
-      message: 'O nome deve ter no máximo 150 caracteres',
+      message: 'O nome deve ter no máximo 150 caracteres'
     });
 
     // validações para o campo Matrícula
     required(path.matricula, { message: 'A matrícula é obrigatório' });
     maxLength(path.matricula, 20, {
-      message: 'A matrícula deve ter no máximo 20 caracteres',
+      message: 'A matrícula deve ter no máximo 20 caracteres'
     });
 
     // validações para o campo CPF
@@ -340,19 +324,19 @@ export class ServidorFormComponent implements OnInit {
 
     // validações para o campo Telefone
     maxLength(path.telefone, 20, {
-      message: 'O telefone deve ter no máximo 20 dígitos',
+      message: 'O telefone deve ter no máximo 20 dígitos'
     });
 
     // validações para o campo Email Pessoal
     required(path.emailPessoal, { message: 'O Email é obrigatório' });
     email(path.emailPessoal, { message: 'E-mail inválido' });
     maxLength(path.emailPessoal, 100, {
-      message: 'O Email deve ter no máximo 100 caracteres',
+      message: 'O Email deve ter no máximo 100 caracteres'
     });
 
     // validações para o campo Email Institucional
     maxLength(path.emailInstitucional, 100, {
-      message: 'O Email deve ter no máximo 100 caracteres',
+      message: 'O Email deve ter no máximo 100 caracteres'
     });
     email(path.emailInstitucional, { message: 'E-mail inválido' });
 
@@ -375,7 +359,7 @@ export class ServidorFormComponent implements OnInit {
   onCargoChange(id: number | null) {
     this.servidorModel.update((m) => ({
       ...m,
-      cargoId: id as number,
+      cargoId: id as number
     }));
   }
 
@@ -406,7 +390,7 @@ export class ServidorFormComponent implements OnInit {
         // O map() extrai só os IDs para o DTO de envio: [1]. Se for nulo, devolve [] vazio.
         sistemaIds: this.data?.sistemas?.map((s) => s.id) || [],
         procuradorIds: this.data?.procuradores?.map((p) => p.id) || [],
-        aliasIds: this.data?.aliases?.map((a) => a.id) || [],
+        aliasIds: this.data?.aliases?.map((a) => a.id) || []
       }));
     }
   }
@@ -428,13 +412,13 @@ export class ServidorFormComponent implements OnInit {
 
         this.notificationService.success(
           `Servidor ${this.isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`,
-          `${this.isEdit ? 'Atualização' : 'Cadastro'}`,
+          `${this.isEdit ? 'Atualização' : 'Cadastro'}`
         );
 
         this.dialogRef.close(true);
       } catch (error: any) {
         // chama a função customizada de tratamento de erro passando o erro
-        customHttpError(error);
+        customHttpError(error, this.notificationService);
       }
     });
   }
@@ -446,8 +430,8 @@ export class ServidorFormComponent implements OnInit {
       data: {
         sistemaIds: this.servidorModel().sistemaIds || [],
         procuradorIds: this.servidorModel().procuradorIds || [],
-        aliasIds: this.servidorModel().aliasIds || [],
-      },
+        aliasIds: this.servidorModel().aliasIds || []
+      }
     });
     dialogRef.afterClosed().subscribe((result: PermissoesDialogData | undefined) => {
       if (result) {
@@ -456,7 +440,7 @@ export class ServidorFormComponent implements OnInit {
           ...model,
           sistemaIds: result.sistemaIds,
           procuradorIds: result.procuradorIds,
-          aliasIds: result.aliasIds,
+          aliasIds: result.aliasIds
         }));
       }
     });
