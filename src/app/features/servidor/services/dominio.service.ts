@@ -1,59 +1,101 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
-import { delay, Observable, of } from 'rxjs';
+import { catchError, delay, Observable, of, throwError } from 'rxjs';
 import { BaseEntityDTO } from '../models/servidor.model';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class DominioService {
   readonly lotacaoList: BaseEntityDTO[] = [
     { id: 1, nome: 'PGM' },
-    { id: 2, nome: 'Cedido' },
+    { id: 2, nome: 'Cedido' }
   ];
 
   readonly generos: BaseEntityDTO[] = [
     { id: 1, nome: 'Masculino' },
     { id: 2, nome: 'Feminino' },
-    { id: 3, nome: 'Outros' },
+    { id: 3, nome: 'Outros' }
   ];
 
   readonly vinclos: BaseEntityDTO[] = [
     { id: 1, nome: 'Efetivo' },
     { id: 2, nome: 'Comissionado' },
-    { id: 3, nome: 'Terceirizado' },
+    { id: 3, nome: 'Terceirizado' }
   ];
 
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/api/v1`;
 
   getCargos(): Observable<BaseEntityDTO[]> {
-    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/cargos/select`);
+    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/cargos/select`)
+      .pipe(
+        catchError((err: HttpErrorResponse) => {
+          const msg = err.error.message || err.error || 'Erro ao buscar Cargos';
+          return throwError(() => new Error(msg));
+        })
+      );
   }
 
   getSetores(): Observable<BaseEntityDTO[]> {
-    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/setores/select`);
+    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/setores/select`)
+      .pipe(
+        catchError((err: HttpErrorResponse) => {
+          const msg = err.error.message || err.error || 'Erro ao buscar Setores';
+          return throwError(() => new Error(msg));
+        })
+      );
   }
 
   getVinculos(): Observable<BaseEntityDTO[]> {
-    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/vinculos/select`);
+    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/vinculos/select`)
+      .pipe(
+        catchError((err: HttpErrorResponse) => {
+          const msg = err.error.message || err.error || 'Erro ao buscar Vínculos';
+          return throwError(() => new Error(msg));
+        })
+      );
   }
 
   getSistemas(): Observable<BaseEntityDTO[]> {
-    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/sistemas/select`);
+    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/sistemas/select`)
+      .pipe(
+        catchError((err: HttpErrorResponse) => {
+          const msg = err.error.message || err.error || 'Erro ao buscar Sistemas';
+          return throwError(() => new Error(msg));
+        })
+      );
   }
 
   getProcuradores(): Observable<BaseEntityDTO[]> {
-    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/procuradores/select`);
+    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/procuradores/select`)
+      .pipe(
+        catchError((err: HttpErrorResponse) => {
+          const msg = err.error.message || err.error || 'Erro ao buscar procuradores';
+          return throwError(() => new Error(msg));
+        })
+      );
   }
 
   getStatus(): Observable<BaseEntityDTO[]> {
-    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/status/select`);
+    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/status/select`)
+      .pipe(
+        catchError((err: HttpErrorResponse) => {
+          const msg = err.error.message || err.error || 'Erro buscar Status';
+          return throwError(() => new Error(msg));
+        })
+      );
   }
 
   getAliases(): Observable<BaseEntityDTO[]> {
-    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/alias/select`);
+    return this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/alias/select`)
+      .pipe(
+        catchError((err: HttpErrorResponse) => {
+          const msg = err.error.message || err.error || 'Erro ao buscar Aliases';
+          return throwError(() => new Error(msg));
+        })
+      );
   }
 
   // Arrays fixos

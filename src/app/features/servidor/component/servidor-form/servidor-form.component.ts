@@ -257,6 +257,7 @@ export type FormModel = Required<ServidorRequestDTO>;
   `
 })
 export class ServidorFormComponent implements OnInit {
+  // Injeções de dependência
   private readonly servidorService = inject(ServidorService);
   private readonly dominioService = inject(DominioService);
   private readonly notificationService = inject(NotificationService);
@@ -416,9 +417,9 @@ export class ServidorFormComponent implements OnInit {
         );
 
         this.dialogRef.close(true);
-      } catch (error: any) {
+      } catch (err: any) {
         // chama a função customizada de tratamento de erro passando o erro
-        customHttpError(error, this.notificationService);
+        customHttpError(err, this.notificationService);
       }
     });
   }

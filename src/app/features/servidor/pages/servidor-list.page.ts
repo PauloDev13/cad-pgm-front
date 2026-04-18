@@ -73,7 +73,7 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
   ]
 })
 export default class ServidorListPage implements OnInit {
-  // Injeções
+  // Injeções de dependências
   private readonly servidorService = inject(ServidorService);
   private readonly dominioService = inject(DominioService);
   private readonly notificationService = inject(NotificationService);
@@ -137,7 +137,7 @@ export default class ServidorListPage implements OnInit {
             this.setPageData(pageData);
             // this.totalElements.set(pageData.page.totalElements);
           },
-          error: () => this.notificationService.error('Erro ao pesquisar dados', 'Pesquisar')
+          error: (err: Error) => this.notificationService.error(err.message, 'Pesquisar')
         });
     } else {
       // Chama o ENDPOINT ORIGINAL (findAll) - Listagem limpa
@@ -146,8 +146,8 @@ export default class ServidorListPage implements OnInit {
         .pipe(finalize(() => this.isLoading.set(false)))
         .subscribe({
           next: (pageData) => this.setPageData(pageData),
-          error: (err) => {
-            this.notificationService.error('Erro ao carregar dados', 'Load');
+          error: (err: Error) => {
+            this.notificationService.error(err.message, 'Load');
             console.error('Erro ao carregar dados ' + err.message);
           },
           complete: () => this.isLoading.set(false)
@@ -281,9 +281,9 @@ export default class ServidorListPage implements OnInit {
         // Após configurar o status padrão, chamamos a listagem inicial
         this.loadData();
       },
-      error: (err) => {
+      error: () => {
         this.notificationService.error('Erro ao carregar lista de status', 'Loading');
-        console.error('Erro ao carregar lista  ' + err.message);
+        console.error('Erro ao carregar lista');
       }
     });
   }

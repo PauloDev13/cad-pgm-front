@@ -1,5 +1,4 @@
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
-// import { MatDialog } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { PageEvent } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
@@ -80,7 +79,7 @@ import { CustomDeleteService } from '../../../shared/service/custom-delete.servi
   ]
 })
 export default class UsuarioListPage implements OnInit {
-  // Injeções
+  // Injeções de dependências
   private readonly usuarioService = inject(UsuarioService);
   private readonly notificationService = inject(NotificationService);
   private readonly authService = inject(AuthService);
@@ -132,10 +131,10 @@ export default class UsuarioListPage implements OnInit {
         next: (pageData) => {
           this.setPageData(pageData);
         },
-        error: (err) => {
-          this.notificationService.error('Erro ao pesquisar', 'Pesquisa');
+        error: (err: Error) => {
+          console.error(err.message);
+          this.notificationService.error(err.message, 'Pesquisa');
 
-          console.error('Erro ao pesquisar ' + err.message);
         }
       });
   }
@@ -152,6 +151,7 @@ export default class UsuarioListPage implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
+      
       if (result) {
         this.loadData(); // Recarrega se houve alteração
       }
@@ -182,10 +182,9 @@ export default class UsuarioListPage implements OnInit {
               disableClose: true
             });
           },
-          error: (err) => {
-            this.notificationService.error('Erro ao gerar senha temporária!', 'Senha');
-
-            console.error('Erro ao gerar senha temporária: ' + err.message);
+          error: (err: Error) => {
+            this.notificationService.error(err.message, 'Senha');
+            console.error(err.message);
           }
         });
       }
