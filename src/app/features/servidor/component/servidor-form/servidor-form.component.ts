@@ -33,7 +33,6 @@ import { NgxMaskDirective } from 'ngx-mask';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper.component';
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
-import { customHttpError } from '../../../../shared/utils/custom-http-response-error';
 
 export type FormModel = Required<ServidorRequestDTO>;
 
@@ -418,8 +417,7 @@ export class ServidorFormComponent implements OnInit {
 
         this.dialogRef.close(true);
       } catch (err: any) {
-        // chama a função customizada de tratamento de erro passando o erro
-        customHttpError(err, this.notificationService);
+        console.error('Erro inesperado', err.message);
       }
     });
   }

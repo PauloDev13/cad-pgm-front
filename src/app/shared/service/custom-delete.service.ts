@@ -2,7 +2,6 @@ import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
-import { ApiErrorHandlerService } from './api-error-handler.service';
 import { NotificationService } from './NotificationSnackbar.service';
 
 type Messages = {
@@ -17,7 +16,6 @@ type Messages = {
 export class CustomDeleteService {
   private dialog = inject(MatDialog);
   private readonly notificationService = inject(NotificationService);
-  private readonly errorHandlerService = inject(ApiErrorHandlerService);
 
   execute(deleteActions: () => Observable<any>, onSuccess: () => void, options?: Messages) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
@@ -42,9 +40,9 @@ export class CustomDeleteService {
             );
             onSuccess();
           },
-          error: (err) => {
-            console.log('Erro ao remover registro');
-            this.errorHandlerService.errorHandler(err);
+          error: (err: any) => {
+            console.log('Erro ao remover registro', err);
+            this.notificationService.error(err.message);
           }
         });
       }
