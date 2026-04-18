@@ -138,10 +138,10 @@ export class ResetPasswordComponent {
   private readonly notificationService = inject(NotificationService);
   private readonly router = inject(Router);
 
-  // O Angular ler ?token=XYZ da URL e joga aqui dentro automaticamente.
-  token = input<string>('');
   // Estado da tela
   isLoading = signal(<boolean>false);
+  // O Angular ler ?token=XYZ da URL e joga aqui dentro automaticamente.
+  token = input<string>('');
   // Controle dos ícones visuais
   hidePassword = signal(true);
   hideConfirm = signal(true);
@@ -237,7 +237,7 @@ export class ResetPasswordComponent {
           this.router.navigate(['auth/login']);
 
         },
-        error: (err) => {
+        error: (err: Error) => {
           this.isLoading.set(false);
           this.notificationService.error(err.message, 'Link');
         }
@@ -251,7 +251,8 @@ export class ResetPasswordComponent {
         // Token OK! Esconde o spinner e deixa o formulário habilitado
         this.isValidatingToken.set(false);
       },
-      error: (err) => {
+      error: (err: Error) => {
+        this.isLoading.set(false);
         // Token Ruim!
         this.handleInvalidToken(err.message);
       }
@@ -263,6 +264,6 @@ export class ResetPasswordComponent {
     this.isTokenInvalid.set(true); // ✨ Isso vai desabilitar a UI
 
     // Dispara o nosso Snackbar personalizado com a mensagem de erro
-    this.notificationService.error(message, 'Link Inválido');
+    this.notificationService.error(message, 'Link');
   }
 }

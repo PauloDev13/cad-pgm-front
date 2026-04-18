@@ -57,8 +57,8 @@ export class AuthService {
           localStorage.setItem(this.TOKEN_KEY, response.token);
         }
       }),
-      catchError((error) => {
-        console.error('Erro na autenticação:', error);
+      catchError((error: HttpErrorResponse) => {
+        console.error('Erro na autenticação:', error.error);
         const msg = error.error?.message || 'Credenciais inválidas';
         return throwError(() => new Error(msg));
       })
@@ -79,9 +79,9 @@ export class AuthService {
   registerNewUserPublic(newUser: IRegisterUserRequest): Observable<IRegisterUserResponse> {
     const url = `${this.API_URL}/auth/register`;
     return this.http.post<IRegisterUserResponse>(url, newUser).pipe(
-      catchError((error: HttpErrorResponse) => {
-        console.error('Erro no cadastro', error);
-        const msg = error.error.message || error.error || 'Erro ao realizar cadastro';
+      catchError((err: HttpErrorResponse) => {
+        console.error('Erro no cadastro', err.error);
+        const msg = err.error.message || err.error || 'Erro ao realizar cadastro';
         return throwError(() => new Error(msg));
       })
     );
@@ -94,9 +94,19 @@ export class AuthService {
 
     // Como o retorno provavelmente é apenas um 200 OK genérico, tipamos como 'any' ou 'void'
     return this.http.post(url, payload, { responseType: 'text' }).pipe(
-      catchError((error) => {
-        console.error('Erro ao solicitar redefinição:', error);
-        return throwError(() => new Error('Falha ao processar a solicitação.'));
+      catchError((err: HttpErrorResponse) => {
+        let msg = 'Falha ao processar a solicitação.';
+
+        if (err.error) {
+          try {
+            const errorObj = JSON.parse(err.error);
+            msg = errorObj.message || msg;
+          } catch (e) {
+            console.error('Erro ao confirmar e-mail:', err.error);
+            msg = err.error.message || err.error || msg;
+          }
+        }
+        return throwError(() => new Error(msg));
       })
     );
   }
@@ -124,13 +134,24 @@ export class AuthService {
     return this.http.post<{ temporaryPassword: string }>(
       `${environment.apiUrl}/api/v1/usuarios/${userId}/reset-password`,
       {}
+    ).pipe(
+      catchError((err: HttpErrorResponse) => {
+        console.error('Erro ao resetar a senha', err.error);
+        const msg = err.error?.message || 'Falha ao processar solcitação';
+        return throwError(() => new Error(msg));
+      })
     );
   }
 
   forcePasswordChange(userName: string, newPassword: string): Observable<void> {
     const payload = { userName, newPassword };
 
-    return this.http.post<void>(`${environment.apiUrl}/api/v1/auth/force-password-change`, payload);
+    return this.http.post<void>(`${environment.apiUrl}/api/v1/auth/force-password-change`, payload)
+      .pipe(catchError((err: HttpErrorResponse) => {
+        console.error('Erro ao forçar mudança de senha', err.error);
+        const msg = err.error?.message || 'Erro ao processar solicitação';
+        return throwError(() => new Error(msg));
+      }));
   }
 
   // MÉTHOD PARA BUSCAR O USUÁRIO LOGADO NO LOCALSTORAGE
@@ -162,9 +183,10 @@ export class AuthService {
 
     // Passamos o token como Query Param (?token=...)
     return this.http.get(url, { params: { token } }).pipe(
-      catchError((error) => {
+      catchError((err: HttpErrorResponse) => {
+        console.error('Erro ao validar token', err.error);
         // Se o backend retornar erro, capturamos a mensagem para o Snackbar
-        const msg = error.error?.message || 'Link expirado ou inválido. Solicite uma nova redefinição.';
+        const msg = err.error?.message || 'Link expirado ou inválido.';
         return throwError(() => new Error(msg));
       })
     );

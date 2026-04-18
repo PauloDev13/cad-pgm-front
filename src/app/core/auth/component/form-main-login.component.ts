@@ -170,7 +170,7 @@ export class FormMainLoginComponent {
           }
           this.isLoading.set(false);
         },
-        error: (err) => {
+        error: (err: Error) => {
           this.isLoading.set(false);
           this.notificationService.error(err.message, 'Login');
         }

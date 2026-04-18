@@ -161,10 +161,12 @@ import { AuthService } from '../services/auth.service';
   `
 })
 export class FormRegisterUsuarioComponent {
+  // Injeções
   private readonly notificationService = inject(NotificationService);
   private readonly authService = inject(AuthService);
   private readonly loginStateService = inject(LoginStateService);
   private readonly router = inject(Router);
+
   //Signals
   isLoading = signal<boolean>(false);
   // Signals para exibir/ocultar senha/confirmar senha
@@ -249,10 +251,9 @@ export class FormRegisterUsuarioComponent {
           // Redireciona o novo usuário para a tela de login
           this.router.navigate(['/auth/login']).then();
         },
-        error: (err) => {
+        error: (err: Error) => {
           this.isLoading.set(false);
           this.notificationService.error(err.message, 'Register');
-          console.error(err.message);
         }
       });
     });

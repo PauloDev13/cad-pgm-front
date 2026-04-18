@@ -46,12 +46,12 @@ import { NotificationService } from '../../../../shared/service/NotificationSnac
 })
 export class TemporaryPasswordDialogComponent {
   // Injeções
-  readonly dialogRef = inject(MatDialogRef<TemporaryPasswordDialogComponent>);
   readonly data = inject<ResetPasswordDialogData>(MAT_DIALOG_DATA);
+  readonly dialogRef = inject(MatDialogRef<TemporaryPasswordDialogComponent>);
+  private notificationService = inject(NotificationService);
 
   // Injeta os serviços utilitários
   private clipboard = inject(Clipboard);
-  private notificationService = inject(NotificationService);
 
   onYesClick(): void {
     this.dialogRef.close(true);

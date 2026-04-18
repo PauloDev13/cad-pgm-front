@@ -23,7 +23,7 @@ import { LoginStateService } from '../services/login-state.service';
     MatProgressSpinnerModule,
     FormField,
     HeaderLoginComponent,
-    FieldWrapperComponent,
+    FieldWrapperComponent
   ],
   standalone: true,
   template: `
@@ -116,7 +116,7 @@ import { LoginStateService } from '../services/login-state.service';
         </button>
       </form>
     </div>
-  `,
+  `
 })
 export class ForcePasswordChangeComponent {
   private readonly authService = inject(AuthService);
@@ -132,7 +132,7 @@ export class ForcePasswordChangeComponent {
   // Modelo do Formulário
   resetModel = signal({
     password: '',
-    confirmPassword: '',
+    confirmPassword: ''
   });
 
   // Aqui você instancia o seu formulário de troca (igual ao que usamos no reset)
@@ -180,16 +180,16 @@ export class ForcePasswordChangeComponent {
         // Avisamos o usuário que deu tudo certo
         this.notificationService.success(
           'Senha atualizada com sucesso! Por favor, faça login com a nova senha.',
-          'Senha',
+          'Senha'
         );
 
         // Agora sim! O Angular sabe que a flag é falsa, e a navegação será permitida!
         this.router.navigate(['/auth/home']).then();
       },
-      error: (err) => {
+      error: (err: Error) => {
         this.isLoading.set(false);
         this.notificationService.error(err.message, 'Senha');
-      },
+      }
     });
   }
 

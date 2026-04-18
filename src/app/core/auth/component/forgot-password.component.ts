@@ -84,7 +84,6 @@ export class ForgotPasswordComponent {
 
   // Signals de estado
   isLoading = signal(false);
-  mensagemSucesso = signal('');
   mensagemErro = signal('');
 
   // Modelo do formulário
@@ -112,15 +111,14 @@ export class ForgotPasswordComponent {
             `
               Se o e-mail estiver cadastrado, você receberá um link de redefinição em instantes.
             `,
-            'Email'
+            'E-mail'
           );
 
           this.router.navigate(['auth/login']);
         },
-        error: (err) => {
+        error: (err: Error) => {
           this.isLoading.set(false);
-          this.mensagemErro.set(err.message);
-          this.notificationService.error(err.message, 'Erro');
+          this.notificationService.error(err.message, 'E-mail');
         }
       });
     });
