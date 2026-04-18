@@ -6,23 +6,26 @@ import {
   IAuthRequest,
   IAuthResponse,
   IDecodedToken,
+  IDecodedTokenUsername,
   IForgotPasswordRequest,
   ILoggedUser,
   IRegisterUserRequest,
   IRegisterUserResponse,
-  IResetPasswordRequest,
+  IResetPasswordRequest
 } from '../models/auth.model';
 import { isPlatformBrowser } from '@angular/common';
 import { jwtDecode } from 'jwt-decode';
+import { LoginStateService } from './login-state.service';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class AuthService {
   readonly TOKEN_KEY = 'jwt-token';
   private readonly API_URL = `${environment.apiUrl}/api/v1`;
   private readonly plataformId = inject(PLATFORM_ID);
   private readonly http = inject(HttpClient);
+  private readonly loginStateService = inject(LoginStateService);
 
   // A chave que usaremos para guardar o usuário logado no localstorage
   currentUser = signal<ILoggedUser | null>(null);
@@ -31,7 +34,7 @@ export class AuthService {
     this.currentUser.set(this.getStoredLoggedUser());
   }
 
-  // Méthod de Login simulando uma requisição HTTP
+  // Méthod de Login
   login(payload: IAuthRequest): Observable<IAuthResponse> {
     return this.http.post<IAuthResponse>(`${this.API_URL}/auth/login`, payload).pipe(
       tap((response: IAuthResponse) => {
@@ -43,7 +46,7 @@ export class AuthService {
           userName: decoded.sub,
           roles: decoded.roles || [],
           token: response.token,
-          isForcePasswordChange: decoded.isForcePasswordChange,
+          isForcePasswordChange: decoded.isForcePasswordChange
         };
 
         // Atualiza o Signal para o restante do app reagir
@@ -58,7 +61,7 @@ export class AuthService {
         console.error('Erro na autenticação:', error);
         const msg = error.error?.message || 'Credenciais inválidas';
         return throwError(() => new Error(msg));
-      }),
+      })
     );
   }
 
@@ -80,7 +83,7 @@ export class AuthService {
         console.error('Erro no cadastro', error);
         const msg = error.error.message || error.error || 'Erro ao realizar cadastro';
         return throwError(() => new Error(msg));
-      }),
+      })
     );
   }
 
@@ -94,7 +97,7 @@ export class AuthService {
       catchError((error) => {
         console.error('Erro ao solicitar redefinição:', error);
         return throwError(() => new Error('Falha ao processar a solicitação.'));
-      }),
+      })
     );
   }
 
@@ -102,19 +105,25 @@ export class AuthService {
     const url = `${environment.apiUrl}/api/v1/auth/reset-password`;
     const payload: IResetPasswordRequest = { token, newPassword };
 
+    // Decodifica o token para extrair o claim username
+    const decoded = jwtDecode<IDecodedTokenUsername>(token);
+
     return this.http.post(url, payload, { responseType: 'text' }).pipe(
+      // seta o Signal global newUserName com o login do usuário que resetou a senha
+      // Essa informação aparece na tela de login. O usuário só vai digitar a SENHA
+      tap(() => this.loginStateService.newUserName.set(decoded.username)),
       catchError((error) => {
         console.error('Erro ao redefinir senha:', error);
         // Pode ser token expirado ou inválido
-        return throwError(() => new Error('O link é inválido ou expirou. Solicite novamente.'));
-      }),
+        return throwError(() => new Error('Link inválido ou expirou. Solicite novamente.'));
+      })
     );
   }
 
   resetPasswordByAdmin(userId: number | undefined): Observable<{ temporaryPassword: string }> {
     return this.http.post<{ temporaryPassword: string }>(
       `${environment.apiUrl}/api/v1/usuarios/${userId}/reset-password`,
-      {},
+      {}
     );
   }
 
@@ -137,7 +146,7 @@ export class AuthService {
             userName: decoded.sub,
             roles: decoded.roles || [],
             token: token,
-            isForcePasswordChange: decoded.isForcePasswordChange,
+            isForcePasswordChange: decoded.isForcePasswordChange
           };
         } catch (e) {
           return null;
@@ -145,5 +154,19 @@ export class AuthService {
       }
     }
     return null;
+  }
+
+  // ✨ NOVO MÉTODO: Valida o token sem tentar trocar a senha
+  validateResetToken(token: string): Observable<any> {
+    const url = `${this.API_URL}/auth/validate-reset-token`;
+
+    // Passamos o token como Query Param (?token=...)
+    return this.http.get(url, { params: { token } }).pipe(
+      catchError((error) => {
+        // Se o backend retornar erro, capturamos a mensagem para o Snackbar
+        const msg = error.error?.message || 'Link expirado ou inválido. Solicite uma nova redefinição.';
+        return throwError(() => new Error(msg));
+      })
+    );
   }
 }

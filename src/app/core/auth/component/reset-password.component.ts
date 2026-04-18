@@ -1,5 +1,5 @@
-import { Component, inject, input, signal } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Component, effect, inject, input, signal } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -23,7 +23,7 @@ import { FieldWrapperComponent } from '../../../shared/layout/component/field-wr
     MatProgressSpinnerModule,
     FormField,
     HeaderLoginComponent,
-    FieldWrapperComponent,
+    FieldWrapperComponent
   ],
   template: `
     <div class="w-full max-w-md flex flex-col bg-white rounded-xl shadow-lg p-8">
@@ -33,61 +33,89 @@ import { FieldWrapperComponent } from '../../../shared/layout/component/field-wr
         subtitle="Digite e confirme sua nova senha de acesso."
       />
 
+      @if (isValidatingToken()) {
+        <div class="flex items-center justify-center gap-3 mb-4 p-3 bg-blue-50 text-blue-700 rounded-lg">
+          <mat-spinner diameter="20"></mat-spinner>
+          <span class="text-sm font-medium">Analisando segurança do link...</span>
+        </div>
+      }
+
       <!-- formulário-->
       <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col gap-2">
-        <div class="flex flex-col relative pb-5">
-          <app-field-wrapper [field]="resetForm.password()">
-            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>Nova Senha</mat-label>
-              <input
-                autocomplete="new-password"
-                [type]="hidePassword() ? 'password' : 'text'"
-                matInput
-                [formField]="resetForm.password"
-              />
 
-              <button
-                tabindex="-1"
-                mat-icon-button
-                matSuffix
-                class="!mr-1 text-gray-500 hover:text-gray-700 group"
-                (click)="togglePassword($event)"
-                type="button"
-              >
-                <mat-icon class="transition-transform duration-200 hover:scale-110">
-                  {{ hidePassword() ? 'visibility_off' : 'visibility' }}
-                </mat-icon>
-              </button>
-            </mat-form-field>
-          </app-field-wrapper>
-        </div>
+        <!-- Fieldset desabilita todos os componentes que estiver dentro da tag-->
+        <fieldset [disabled]="isValidatingToken() || isTokenInvalid()" class="border-none p-0 m-0">
+          <div class="flex flex-col relative">
+            <app-field-wrapper [field]="resetForm.password()">
+              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                <mat-label>Nova Senha</mat-label>
+                <input
+                  autocomplete="new-password"
+                  [type]="hidePassword() ? 'password' : 'text'"
+                  matInput
+                  [formField]="resetForm.password"
+                />
 
-        <div class="flex flex-col relative pb-5">
-          <app-field-wrapper [field]="resetForm.confirmPassword()">
-            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>Confirmar Nova Senha</mat-label>
-              <input
-                autocomplete="new-password"
-                [type]="hideConfirm() ? 'password' : 'text'"
-                matInput
-                [formField]="resetForm.confirmPassword"
-              />
+                <button
+                  tabindex="-1"
+                  mat-icon-button
+                  matSuffix
+                  class="!mr-1 text-gray-500 hover:text-gray-700 group"
+                  (click)="togglePassword($event)"
+                  type="button"
+                >
+                  <mat-icon class="transition-transform duration-200 hover:scale-110">
+                    {{ hidePassword() ? 'visibility_off' : 'visibility' }}
+                  </mat-icon>
+                </button>
+              </mat-form-field>
+            </app-field-wrapper>
+          </div>
 
-              <button
-                tabindex="-1"
-                mat-icon-button
-                matSuffix
-                class="!mr-1 text-gray-500 hover:text-gray-700 group"
-                (click)="toggleConfirm($event)"
-                type="button"
-              >
-                <mat-icon class="transition-transform duration-200 hover:scale-110">
-                  {{ hideConfirm() ? 'visibility_off' : 'visibility' }}
-                </mat-icon>
-              </button>
-            </mat-form-field>
-          </app-field-wrapper>
-        </div>
+          <div class="flex flex-col relative">
+            <app-field-wrapper [field]="resetForm.confirmPassword()">
+              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                <mat-label>Confirmar Nova Senha</mat-label>
+                <input
+                  autocomplete="new-password"
+                  [type]="hideConfirm() ? 'password' : 'text'"
+                  matInput
+                  [formField]="resetForm.confirmPassword"
+                />
+
+                <button
+                  tabindex="-1"
+                  mat-icon-button
+                  matSuffix
+                  class="!mr-1 text-gray-500 hover:text-gray-700 group"
+                  (click)="toggleConfirm($event)"
+                  type="button"
+                >
+                  <mat-icon class="transition-transform duration-200 hover:scale-110">
+                    {{ hideConfirm() ? 'visibility_off' : 'visibility' }}
+                  </mat-icon>
+                </button>
+              </mat-form-field>
+            </app-field-wrapper>
+          </div>
+
+          <button
+            type="submit"
+            [disabled]="resetForm().invalid() || isLoading()"
+            class="mt-4 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg
+                hover:bg-blue-700 transition-all flex justify-center
+                 items-center gap-2 h-12 disabled:bg-gray-300 disabled:cursor-not-allowed
+                disabled:text-gray-400"
+          >
+            @if (isLoading()) {
+              <mat-spinner diameter="20" color="accent"></mat-spinner>
+              <span>Salvando...</span>
+            } @else {
+              <span>Redefinir Senha</span>
+            }
+          </button>
+        </fieldset>
+
         <div class="flex flex-col gap-1.5">
           <div class="flex justify-end items-center">
             <a
@@ -100,44 +128,33 @@ import { FieldWrapperComponent } from '../../../shared/layout/component/field-wr
             >
           </div>
         </div>
-
-        <button
-          type="submit"
-          [disabled]="resetForm().invalid() || isLoading()"
-          class="mt-4 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg
-                hover:bg-blue-700 transition-all flex justify-center
-                 items-center gap-2 h-12 disabled:bg-gray-300 disabled:cursor-not-allowed
-                disabled:text-gray-400"
-        >
-          @if (resetForm().invalid() || isLoading()) {
-            <mat-spinner diameter="20" color="accent"></mat-spinner>
-            <span>Salvando...</span>
-          } @else {
-            <span>Redefinir Senha</span>
-          }
-        </button>
       </form>
     </div>
-  `,
+  `
 })
 export class ResetPasswordComponent {
   //Injeção de dependência
   private readonly authService = inject(AuthService);
   private readonly notificationService = inject(NotificationService);
+  private readonly router = inject(Router);
 
   // O Angular ler ?token=XYZ da URL e joga aqui dentro automaticamente.
   token = input<string>('');
   // Estado da tela
   isLoading = signal(<boolean>false);
-  mensagemErro = signal<string>('');
   // Controle dos ícones visuais
   hidePassword = signal(true);
   hideConfirm = signal(true);
 
+  // Exibe um spinner inicial
+  isValidatingToken = signal(true);
+  // Bloqueia o formulário se o token for ruim
+  isTokenInvalid = signal(false);
+
   // Modelo do Formulário
   resetModel = signal({
     password: '',
-    confirmPassword: '',
+    confirmPassword: ''
   });
 
   // Configuração e Validação (A mesma arquitetura de Ouro que usamos no Cadastro!)
@@ -156,6 +173,18 @@ export class ResetPasswordComponent {
     });
   });
 
+  constructor() {
+    effect(() => {
+      const tokenValue = this.token();
+
+      if (tokenValue) {
+        this.checkToken(tokenValue);
+      } else {
+        this.handleInvalidToken('Token de segurança não encontrado.');
+      }
+    });
+  }
+
   // Métodos de UX
   togglePassword(event: MouseEvent) {
     event.preventDefault();
@@ -170,31 +199,22 @@ export class ResetPasswordComponent {
   // Submissão ao Backend Real
   async onSubmit(event: Event) {
     event.preventDefault();
-    this.mensagemErro.set('');
+    if (this.isTokenInvalid()) return; // Travamento extra
 
     // Prevenção extra caso o usuário chegue na tela sem token na URL
     if (!this.token()) {
       this.notificationService.error(
         `Token de segurança ausente. Por favor, acesse através do link
                   enviado para o seu e-mail.`,
-        'Token',
+        'Token'
       );
 
       this.notificationService.error(
         `Token de segurança ausente. Por favor, acesse através do link
                   enviado para o seu e-mail.`,
-        'Token',
+        'Token'
       );
 
-      // this.toastService.errorLogin('Token',
-      //   'Token de segurança ausente. Por favor, acesse através do link ' +
-      //   'enviado para o seu e-mail.'
-      // );
-
-      // this.toastService.errorLogin('Token',
-      //   'Token de segurança ausente. Por favor, acesse através do link ' +
-      //   'enviado para o seu e-mail.'
-      // );
       return;
     }
 
@@ -211,19 +231,38 @@ export class ResetPasswordComponent {
           this.notificationService.success(
             `Senha atualizada com sucesso! Você já pode acessar o sistema.
               `,
-            'Senha',
+            'Senha'
           );
 
-          // this.toastService.successLogin('Senha',
-          //   'Senha atualizada com sucesso! Você já pode acessar o sistema.'
-          // );
+          this.router.navigate(['auth/login']);
+
         },
         error: (err) => {
           this.isLoading.set(false);
           this.notificationService.error(err.message, 'Link');
-          // this.toastService.errorLogin('Link', err.message);
-        },
+        }
       });
     });
+  }
+
+  private checkToken(token: string) {
+    this.authService.validateResetToken(token).subscribe({
+      next: () => {
+        // Token OK! Esconde o spinner e deixa o formulário habilitado
+        this.isValidatingToken.set(false);
+      },
+      error: (err) => {
+        // Token Ruim!
+        this.handleInvalidToken(err.message);
+      }
+    });
+  }
+
+  private handleInvalidToken(message: string) {
+    this.isValidatingToken.set(false);
+    this.isTokenInvalid.set(true); // ✨ Isso vai desabilitar a UI
+
+    // Dispara o nosso Snackbar personalizado com a mensagem de erro
+    this.notificationService.error(message, 'Link Inválido');
   }
 }

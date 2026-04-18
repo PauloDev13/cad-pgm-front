@@ -31,6 +31,11 @@ export interface IDecodedToken {
   exp: number; // Data de expiração
 }
 
+// Só interessa o Claim username dentro do Token (Payload do JWT)
+export interface IDecodedTokenUsername {
+  username: string;
+}
+
 // O estado do usuário que ficará disponível no Signal para o nosso Frontend inteiro
 export interface ILoggedUser {
   userName: string;

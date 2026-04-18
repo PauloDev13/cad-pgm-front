@@ -276,26 +276,30 @@ export class UsuarioFormComponent implements OnInit {
         // Obtemos os valores diretos do Signal de Modelo Atualizado
         const requestData = this.userFormModel() as IUsuarioRequest;
 
+        // Cria o objeto payload sem o atributo confirmPassword
+        const { confirmPassword, ...payload } = requestData;
+
         // Transformamos as chamadas Observable em Promise com firstValueFrom
         if (this.isEdit) {
           // se é edição, retira os campos senha e confirme senha
-          const { password, confirmPassword, ...payload } = requestData;
 
           // se for edição e a opção trocar senha estiver MARCADA,
-          if (requestData.forcePasswordChange) {
+          if (payload.forcePasswordChange) {
             // cria uma senha padrão
-            requestData.password = 'pgm@1234';
+            payload.password = 'pgm@1234';
             // usa o endpoint de atualização com PUT
-            await firstValueFrom(this.usuarioService.updatePut(this.data!.id, requestData));
+            await firstValueFrom(this.usuarioService.updatePut(this.data!.id, payload));
           } else {
             // se for edição e a opção trocar senha estiver DESMARCADA,
+            // Cria o objeto payloadPatch sem o atributo senha, pois ela não deve ser alterada
+            const { password, ...payloadPatch } = payload;
             // usa o endpoint de atualização com PATCH
-            await firstValueFrom(this.usuarioService.updatePatch(this.data!.id, payload));
+            await firstValueFrom(this.usuarioService.updatePatch(this.data!.id, payloadPatch));
           }
         } else {
           // se não é edição, cria uma senha padrão para um novo usuário
-          requestData.password = 'pgm@1234';
-          await firstValueFrom(this.usuarioService.create(requestData));
+          payload.password = 'pgm@1234';
+          await firstValueFrom(this.usuarioService.create(payload));
         }
 
         this.notificationService.success(
