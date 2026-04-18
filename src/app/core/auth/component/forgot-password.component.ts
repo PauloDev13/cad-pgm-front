@@ -9,6 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HeaderLoginComponent } from './header-login.component';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper.component';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-forgot-password',
@@ -103,7 +104,9 @@ export class ForgotPasswordComponent {
       this.isLoading.set(true);
       const payload = this.forgotForm().value();
 
-      this.authService.forgotPassword(payload.email).subscribe({
+      this.authService.forgotPassword(payload.email).pipe(
+        finalize(() => this.isLoading.set(false))
+      ).subscribe({
         next: () => {
           this.isLoading.set(false);
           // Mensagem enviamos que mesmo se o email não existir para não vazar dados)
@@ -117,7 +120,7 @@ export class ForgotPasswordComponent {
           this.router.navigate(['auth/login']);
         },
         error: (err: Error) => {
-          this.isLoading.set(false);
+          // this.isLoading.set(false);
           this.notificationService.error(err.message, 'E-mail');
         }
       });

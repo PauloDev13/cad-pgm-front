@@ -10,6 +10,7 @@ import { AuthService } from '../services/auth.service';
 import { HeaderLoginComponent } from './header-login.component';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper.component';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-reset-password',
@@ -246,7 +247,9 @@ export class ResetPasswordComponent {
   }
 
   private checkToken(token: string) {
-    this.authService.validateResetToken(token).subscribe({
+    this.authService.validateResetToken(token).pipe(
+      finalize(() => this.isLoading.set(false))
+    ).subscribe({
       next: () => {
         // Token OK! Esconde o spinner e deixa o formulário habilitado
         this.isValidatingToken.set(false);
@@ -260,7 +263,7 @@ export class ResetPasswordComponent {
   }
 
   private handleInvalidToken(message: string) {
-    this.isValidatingToken.set(false);
+    // this.isValidatingToken.set(false);
     this.isTokenInvalid.set(true); // ✨ Isso vai desabilitar a UI
 
     // Dispara o nosso Snackbar personalizado com a mensagem de erro

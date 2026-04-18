@@ -11,6 +11,7 @@ import { HeaderLoginComponent } from './header-login.component';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper.component';
 import { LoginStateService } from '../services/login-state.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-force-password-change',
@@ -161,7 +162,9 @@ export class ForcePasswordChangeComponent {
     const userName = this.authService.getStoredLoggedUser()?.userName;
     const newPassword = this.form.password().value();
 
-    this.authService.forcePasswordChange(userName!, newPassword).subscribe({
+    this.authService.forcePasswordChange(userName!, newPassword).pipe(
+      finalize(() => this.isLoading.set(false))
+    ).subscribe({
       next: () => {
         this.isLoading.set(false);
 
@@ -187,7 +190,7 @@ export class ForcePasswordChangeComponent {
         this.router.navigate(['/auth/home']).then();
       },
       error: (err: Error) => {
-        this.isLoading.set(false);
+        // this.isLoading.set(false);
         this.notificationService.error(err.message, 'Senha');
       }
     });

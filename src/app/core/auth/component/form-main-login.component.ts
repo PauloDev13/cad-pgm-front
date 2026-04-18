@@ -13,6 +13,7 @@ import { HeaderLoginComponent } from './header-login.component';
 import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper.component';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 import { jwtDecode } from 'jwt-decode';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-form-main-login',
@@ -157,24 +158,26 @@ export class FormMainLoginComponent {
       const dataLogin = this.loginForm().value();
 
       // Chama o service para realizar enviar os dados de login
-      this.authService.login(dataLogin).subscribe({
-        next: (response) => {
-          // Decodifica o token retornado da API
-          const decoded = jwtDecode<IDecodedToken>(response.token);
+      this.authService.login(dataLogin)
+        .pipe(finalize(() => this.isLoading.set(false)))
+        .subscribe({
+          next: (response) => {
+            // Decodifica o token retornado da API
+            const decoded = jwtDecode<IDecodedToken>(response.token);
 
-          if (decoded.isForcePasswordChange) {
-            this.router.navigate(['/auth/troca-obrigatoria']);
-          } else {
-            // Se o login foi bem-sucedido, vai para a página home
-            this.router.navigate(['home']);
+            if (decoded.isForcePasswordChange) {
+              this.router.navigate(['/auth/troca-obrigatoria']);
+            } else {
+              // Se o login foi bem-sucedido, vai para a página home
+              this.router.navigate(['home']);
+            }
+            this.isLoading.set(false);
+          },
+          error: (err: Error) => {
+            // this.isLoading.set(false);
+            this.notificationService.error(err.message, 'Login');
           }
-          this.isLoading.set(false);
-        },
-        error: (err: Error) => {
-          this.isLoading.set(false);
-          this.notificationService.error(err.message, 'Login');
-        }
-      });
+        });
     });
   }
 }

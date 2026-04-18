@@ -12,6 +12,7 @@ import { Router, RouterLink } from '@angular/router';
 import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper.component';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 import { AuthService } from '../services/auth.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-form-register-login',
@@ -236,7 +237,9 @@ export class FormRegisterUsuarioComponent {
       const { confirmPassword, ...payload } = dataRegister;
 
       // Chama o service para realizar enviar os dados de cadastro
-      this.authService.registerNewUserPublic(payload).subscribe({
+      this.authService.registerNewUserPublic(payload).pipe(
+        finalize(() => this.isLoading.set(false))
+      ).subscribe({
         next: (response) => {
           this.isLoading.set(false);
 
@@ -252,7 +255,7 @@ export class FormRegisterUsuarioComponent {
           this.router.navigate(['/auth/login']).then();
         },
         error: (err: Error) => {
-          this.isLoading.set(false);
+          // this.isLoading.set(false);
           this.notificationService.error(err.message, 'Register');
         }
       });

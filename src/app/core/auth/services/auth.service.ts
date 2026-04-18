@@ -57,9 +57,10 @@ export class AuthService {
           localStorage.setItem(this.TOKEN_KEY, response.token);
         }
       }),
-      catchError((error: HttpErrorResponse) => {
-        console.error('Erro na autenticação:', error.error);
-        const msg = error.error?.message || 'Credenciais inválidas';
+      catchError((err: HttpErrorResponse) => {
+        console.error('Erro na autenticação:', err.error);
+        // Exibe apenas os erros tratados no banckend (400, 404, 409...)
+        const msg = err.error?.message || 'Erro ao processar requisição';
         return throwError(() => new Error(msg));
       })
     );
