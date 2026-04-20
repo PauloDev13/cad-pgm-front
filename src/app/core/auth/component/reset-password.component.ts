@@ -45,7 +45,8 @@ import { finalize } from 'rxjs';
       <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col gap-2">
 
         <!-- Fieldset desabilita todos os componentes que estiver dentro da tag-->
-        <fieldset [disabled]="isValidatingToken() || isTokenInvalid()" class="border-none p-0 m-0">
+        <fieldset [disabled]="isValidatingToken() || isTokenInvalid()"
+                  class="border-none p-0 m-0 disabled:cursor-not-allowed">
           <div class="flex flex-col relative">
             <app-field-wrapper [field]="resetForm.password()">
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
@@ -121,7 +122,6 @@ import { finalize } from 'rxjs';
           <div class="flex justify-end items-center">
             <a
               tabindex="-1"
-              href="#"
               routerLink="/auth/login"
               class="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
             >
@@ -255,7 +255,6 @@ export class ResetPasswordComponent {
         this.isValidatingToken.set(false);
       },
       error: (err: Error) => {
-        this.isLoading.set(false);
         // Token Ruim!
         this.handleInvalidToken(err.message);
       }
@@ -263,8 +262,8 @@ export class ResetPasswordComponent {
   }
 
   private handleInvalidToken(message: string) {
-    // this.isValidatingToken.set(false);
-    this.isTokenInvalid.set(true); // ✨ Isso vai desabilitar a UI
+    this.isValidatingToken.set(false);
+    this.isTokenInvalid.set(true); // Isso vai desabilitar a UI
 
     // Dispara o nosso Snackbar personalizado com a mensagem de erro
     this.notificationService.error(message, 'Link');
