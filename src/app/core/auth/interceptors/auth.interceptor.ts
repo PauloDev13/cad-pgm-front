@@ -30,10 +30,18 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 0) {
+      if (error.status === 0 || error.status === 502) {
         notificationService.warning(
           'Não foi possível conectar ao servidor. Verifique sua ' +
           'conexão com a internet</br> ou tente novamente.', 'Conexão');
+        // Retornando EMPTY, o fluxo do erro é cortado não repassando o erro para frente
+        return EMPTY;
+      }
+
+      if (error.status === 500) {
+        notificationService.warning(
+          'Erro interno no servidor. Catate o administrador' +
+          '</br>ou tente novamente.', 'Conexão');
         // Retornando EMPTY, o fluxo do erro é cortado não repassando o erro para frente
         return EMPTY;
       }
