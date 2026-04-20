@@ -95,7 +95,7 @@ export class CustomCadModalComponent implements OnInit {
       // Atualiza o valor do Signal Form com os dados de element
       this.customModel.update((m) => ({
         ...m,
-        value: this.data.inputValue
+        fieldValue: this.data.inputValue
       }));
     }
   }
