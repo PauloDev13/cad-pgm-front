@@ -21,6 +21,9 @@ RUN rm -rf /usr/share/nginx/html/*
 # Copia os arquivos da subpasta 'browser' gerada pelo Angular
 COPY --from=builder /app/dist/cad-pgm-front/browser /usr/share/nginx/html
 
+# NOVO: Embutindo o nginx.conf definitivamente na imagem!
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 # Expõe a porta 8080 do container
 EXPOSE 8080
 
