@@ -1,5 +1,4 @@
 import { Directive, inject, OnInit, signal } from '@angular/core';
-import { ApiErrorHandlerService } from '../../service/api-error-handler.service';
 import { CustomDeleteService } from '../../service/custom-delete.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ICrudGeneric } from '../../model/generic/crud-generic.model';
@@ -25,7 +24,7 @@ export abstract class BaseGenericComponent<T> implements OnInit {
   // Injeções
   // protected readonly toastService = inject(ToastService);
   protected readonly notificationService = inject(NotificationService);
-  protected readonly errorHandlerService = inject(ApiErrorHandlerService);
+  // protected readonly errorHandlerService = inject(ApiErrorHandlerService);
   protected readonly customDeleteService = inject(CustomDeleteService);
   protected readonly dialog = inject(MatDialog);
 
@@ -113,7 +112,8 @@ export abstract class BaseGenericComponent<T> implements OnInit {
 
       this.loadData();
     } catch (error: any) {
-      this.errorHandlerService.errorHandler(error);
+      this.notificationService.error(error.message, 'Cadastro');
+      // this.errorHandlerService.errorHandler(error);
     }
   }
 

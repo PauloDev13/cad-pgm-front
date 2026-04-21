@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { CustomSearchFilterService } from '../custom-search-filter.service';
-import { environment } from '../../../../environments/environment.development';
+import { environment } from '../../../../environments/environment';
 import { catchError, Observable, throwError } from 'rxjs';
 import { PageResponse } from '../../model/pagination.model';
 

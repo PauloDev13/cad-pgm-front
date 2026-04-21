@@ -30,6 +30,17 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
+      if (error.status === 401 || error.status === 403) {
+        // Sai da aplicação
+        authService.logout();
+
+        // Exibe mensagem na tela
+        notificationService.warning('Sua sessão expirou. Faça login novamente');
+
+        // Direciona para a tela de login
+        router.navigate(['/auth/login']).then();
+      }
+
       if (error.status === 0 || error.status === 502) {
         notificationService.warning(
           'Não foi possível conectar ao servidor. Verifique sua ' +
@@ -44,17 +55,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           '</br>ou tente novamente.', 'Conexão');
         // Retornando EMPTY, o fluxo do erro é cortado não repassando o erro para frente
         return EMPTY;
-      }
-
-      if (error.status === 401 || error.status === 403) {
-        // Sai da aplicação
-        authService.logout();
-
-        // Exibe mensagem na tela
-        notificationService.warning('Sua sessão expirou. Faça login novamente');
-
-        // Direciona para a tela de login
-        router.navigate(['/auth/login']).then();
       }
 
       // Não importa se o Interceptor mostrou a mensagem ou não,
