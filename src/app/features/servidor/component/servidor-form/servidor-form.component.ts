@@ -418,6 +418,7 @@ export class ServidorFormComponent implements OnInit {
         this.dialogRef.close(true);
       } catch (err: any) {
         console.error('Erro inesperado', err.message);
+        this.notificationService.error(err.message, 'Exclusão');
       }
     });
   }

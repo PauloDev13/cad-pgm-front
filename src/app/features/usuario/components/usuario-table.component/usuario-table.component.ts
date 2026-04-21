@@ -81,41 +81,52 @@ import { IUsuarioResponse } from '../../models/usuario.model';
           </th>
           <td mat-cell *matCellDef="let u" class="!text-sm !px-3 text-gray-600 whitespace-nowrap">
             <button
+              [disabled]="isActionDisabled(u)"
               mat-icon-button
               matTooltip="Gerar senha temporária"
-              class="group !w-8 !h-8 !leading-none mr-2"
+              class="group !w-8 !h-8 !leading-none mr-2 disabled:!cursor-not-allowed
+                     disabled:!pointer-events-auto"
               (click)="confirmResetPassword.emit(u)"
             >
               <mat-icon
                 class="!text-gray-600 transition-transform duration-200
-                group-hover:!text-gray-900 group-hover:!scale-125 !text-[20px]"
+                       group-hover:!text-gray-900 group-hover:!scale-125
+                       group-disabled:!scale-100
+                       !text-[20px] group-disabled:!text-gray-500"
               >
                 lock_reset
               </mat-icon>
             </button>
             <button
+              [disabled]="isActionDisabled(u)"
               (click)="edit.emit(u)"
               mat-icon-button
               matTooltip="Editar"
-              class="group !w-8 !h-8 !leading-none mr-2"
+              class="group !w-8 !h-8 !leading-none mr-2 disabled:!cursor-not-allowed
+                     disabled:!pointer-events-auto"
             >
               <mat-icon
                 class="!text-blue-600 transition-transform duration-200
-                group-hover:!text-blue-900 group-hover:!scale-125 !text-[20px]"
+                       group-hover:!text-blue-900 group-hover:!scale-125
+                       group-disabled:!scale-100
+                       !text-[20px] group-disabled:!text-gray-500"
               >
                 edit
               </mat-icon>
             </button>
             <button
-              [disabled]="!isButtonsDisabled()"
+              [disabled]="isActionDisabled(u)"
               mat-icon-button
               matTooltip="Excluir"
-              class="group !w-8 !h-8 !leading-none"
+              class="group !w-8 !h-8 !leading-none disabled:!cursor-not-allowed
+                     disabled:!pointer-events-auto"
               (click)="delete.emit(u)"
             >
               <mat-icon
                 class="!text-red-600 transition-transform duration-200
-                group-hover:!text-red-900 group-hover:!scale-125 !text-[20px]"
+                        group-hover:!text-red-900 group-hover:!scale-125
+                        group-disabled:!scale-100
+                        !text-[20px] group-disabled:!text-gray-500"
               >
                 delete
               </mat-icon>
@@ -154,8 +165,7 @@ import { IUsuarioResponse } from '../../models/usuario.model';
         aria-label="Selecione a página"
       >
       </mat-paginator>
-    </div>`,
-  styles: ``
+    </div>`
 })
 export class UsuarioTableComponent {
   private readonly authService = inject(AuthService);
@@ -182,6 +192,27 @@ export class UsuarioTableComponent {
     if (!user) return;
     return user.roles.find((p) => p === 'admin');
   });
+
+  // Avalia linha por linha se os botões devem estar desabilitados
+  isActionDisabled(rowUser: IUsuarioResponse): boolean {
+    const loggedUser = this.authService.currentUser();
+
+    // Fail-safe: Se não houver usuário logado no storage, bloqueia tudo.
+    if (!loggedUser) return true;
+
+    // REGRA DE OURO (Proteção do Procurador Geral):
+    // Se a linha desenhada for do 'procurador.geral' E o usuário logado NÃO for ele mesmo, bloqueia!
+    if (rowUser.userName === 'procurador.geral' && loggedUser.userName !== 'procurador.geral') {
+      return true;
+    }
+
+    // REGRA ORIGINAL (Proteção de Papel):
+    // Se passou da regra acima, avalia se o usuário logado é 'admin'
+    const isAdmin = loggedUser.roles.includes('admin');
+
+    // Se NÃO for admin, retorna true (desabilita).
+    return !isAdmin;
+  }
 
   // visualizarServidor(id: number) {
   //   this.router.navigate(['/servidores/detalhes', id]).then();

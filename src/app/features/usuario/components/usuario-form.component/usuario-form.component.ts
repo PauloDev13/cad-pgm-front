@@ -309,6 +309,7 @@ export class UsuarioFormComponent implements OnInit {
         this.dialogRef.close(true);
       } catch (err: any) {
         console.error('Erro inesperado', err.message);
+        this.notificationService.error(err.message, 'Exclusão');
         // chama a função customizada de tratamento de erro passando o erro
         // this.apiErrorHandlerService.errorHandler(err);
       }
