@@ -2,8 +2,12 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
+# NOVO: Instala o Angular CLI globalmente dentro do container!
+RUN npm install -g @angular/cli --verbose
+
 # Copia os arquivos de dependência
 COPY package*.json ./
+
 RUN npm ci
 
 # Copia o restante do código
@@ -24,8 +28,17 @@ COPY --from=builder /app/dist/cad-pgm-front/browser /usr/share/nginx/html
 # NOVO: Embutindo o nginx.conf definitivamente na imagem!
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expõe a porta 8080 do container
+# --- INÍCIO DAS ALTERAÇÕES PARA VARIÁVEIS DINÂMICAS ---
+
+# 1. Copia o script entrypoint.sh para a raiz do container
+COPY entrypoint.sh /entrypoint.sh
+
+# 2. Dá permissão de execução para o script
+RUN chmod +x /entrypoint.sh
+
+# Expõe a porta 8080 (mantido conforme original)
 EXPOSE 8080
 
-# Inicia o Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# 3. Substituímos o CMD pelo ENTRYPOINT.
+# O contêiner agora "nasce" executando o script, que injeta o .env e depois inicia o Nginx.
+ENTRYPOINT ["/entrypoint.sh"]
