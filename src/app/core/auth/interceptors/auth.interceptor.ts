@@ -1,7 +1,6 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
-import { Router } from '@angular/router';
 import { ILoggedUser } from '../models/auth.model';
 import { catchError, EMPTY, throwError } from 'rxjs';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
@@ -10,7 +9,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // Injeções de dependência
   const authService = inject(AuthService);
   const notificationService = inject(NotificationService);
-  const router = inject(Router);
+  // const router = inject(Router);
 
   // Pega o usuário logado
   const user: ILoggedUser | null = authService.currentUser();
@@ -30,16 +29,16 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 || error.status === 403) {
-        // Sai da aplicação
-        authService.logout();
-
-        // Exibe mensagem na tela
-        notificationService.warning('Sua sessão expirou. Faça login novamente');
-
-        // Direciona para a tela de login
-        router.navigate(['/auth/login']).then();
-      }
+      // if (error.status === 401 || error.status === 403) {
+      //   // Sai da aplicação
+      //   authService.logout();
+      //
+      //   // Exibe mensagem na tela
+      //   notificationService.warning('Sua sessão expirou. Faça login novamente');
+      //
+      //   // Direciona para a tela de login
+      //   router.navigate(['/auth/login']).then();
+      // }
 
       if (error.status === 0 || error.status === 502) {
         notificationService.warning(
