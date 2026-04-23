@@ -203,7 +203,7 @@ export class UsuarioTableComponent {
 
     // REGRA DE OURO (Proteção do Procurador Geral):
     // Se a linha desenhada for do 'procurador.geral' E o usuário logado NÃO for ele mesmo, bloqueia!
-    if (rowUser.userName === 'procurador.geral' && loggedUser.userName !== 'procurador.geral') {
+    if (rowUser.userName === 'root' && loggedUser.userName !== 'root') {
       return true;
     }
 
