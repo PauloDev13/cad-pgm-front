@@ -143,7 +143,7 @@ export default class UsuarioListPage implements OnInit {
   openForm(usuario?: IUsuarioResponse) {
     const dialogRef = this.dialog.open(UsuarioFormComponent, {
       width: '700px',
-      height: '450px',
+      height: '350px',
       maxWidth: '95vw',
       maxHeight: '90vw',
       data: usuario,
@@ -151,7 +151,7 @@ export default class UsuarioListPage implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      
+
       if (result) {
         this.loadData(); // Recarrega se houve alteração
       }

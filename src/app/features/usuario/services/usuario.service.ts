@@ -20,15 +20,15 @@ export class UsuarioService {
   private API_URL = `${environment.apiUrl}/api/v1/usuarios`;
 
   // Usado no cadastro realizado pelo próprio usuário
-  register(newUser: IUsuarioRequest): Observable<IUsuarioResponse> {
-    return this.http.post<IUsuarioResponse>(`${this.API_URL}`, newUser).pipe(
-      catchError((err: HttpErrorResponse) => {
-        console.error('Erro ao processar solicitação:', err.error);
-        const msg = err.error?.message || 'Erro ao processar solicitação';
-        return throwError(() => new Error(msg));
-      })
-    );
-  }
+  // register(newUser: IUsuarioRequest): Observable<IUsuarioResponse> {
+  //   return this.http.post<IUsuarioResponse>(`${this.API_URL}`, newUser).pipe(
+  //     catchError((err: HttpErrorResponse) => {
+  //       console.error('Erro ao processar solicitação:', err.error);
+  //       const msg = err.error?.message || 'Erro ao processar solicitação';
+  //       return throwError(() => new Error(msg));
+  //     })
+  //   );
+  // }
 
   // Usado no cadastro de novo usuário pelo Administrador
   create(payload: IUsuarioRequest): Observable<IUsuarioResponse> {

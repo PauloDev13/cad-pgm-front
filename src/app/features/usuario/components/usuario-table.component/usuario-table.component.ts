@@ -57,7 +57,8 @@ import { IUsuarioResponse } from '../../models/usuario.model';
           <th mat-header-cell *matHeaderCellDef class="!font-semibold !text-gray-800 !text-sm !px-3">
             E-mail
           </th>
-          <td mat-cell *matCellDef="let u" class="!text-sm !px-3 text-gray-600">
+          <td mat-cell *matCellDef="let u"
+              class="!text-sm !px-3 text-gray-600">
             {{ u.email }}
           </td>
         </ng-container>
