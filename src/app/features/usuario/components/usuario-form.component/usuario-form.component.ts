@@ -12,6 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper.component';
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 import { MatCheckbox } from '@angular/material/checkbox';
+import { customHttpError } from '../../../../shared/utils/custom-http-response-error';
 
 @Component({
   selector: 'app-usuario-form.component',
@@ -206,7 +207,9 @@ export class UsuarioFormComponent implements OnInit {
         this.dialogRef.close(true);
       } catch (err: any) {
         console.error('Erro inesperado', err.message);
-        this.notificationService.error(err.message, 'Exclusão');
+        customHttpError(
+          err, this.notificationService, `${this.isEdit ? 'Atualização' : 'Cadastro'}`
+        );
       }
     });
   }

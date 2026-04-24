@@ -6,10 +6,11 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { ResetPasswordDialogData } from '../../models/auth.model';
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-temporary-password-dialog',
-  imports: [MatDialogModule, MatButtonModule, MatIconModule, MatSnackBarModule],
+  imports: [MatDialogModule, MatButtonModule, MatIconModule, MatSnackBarModule, MatTooltipModule],
   standalone: true,
   template: `
     <div mat-dialog-title
