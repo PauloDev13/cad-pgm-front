@@ -7,7 +7,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
   standalone: true,
   template: `
     @if (field().invalid() && field().touched() && field().errors().length > 0) {
-      <mat-error class="text-[13px] leading-tight text-red-500 block w-full">
+      <mat-error
+        class="!text-[12px] sm:!text-[13px] !leading-tight !text-red-600 block w-full line-clamp-1">
         {{ field().errors()[0].message }}
       </mat-error>
     }

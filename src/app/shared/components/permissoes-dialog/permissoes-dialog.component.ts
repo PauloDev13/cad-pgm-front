@@ -23,15 +23,25 @@ export interface PermissoesDialogData {
     MatFormFieldModule,
     MatSelectModule,
     MatIconModule,
-    CustomSelectComponent,
+    CustomSelectComponent
   ],
   standalone: true,
   template: `
-    <h2 mat-dialog-title class="!text-2xl font-bold text-blue-800 border-b pb-2">
-      Gerenciar Permissões e Vínculos
-    </h2>
+    <div class="flex justify-between items-center px-6 pt-4 pb-2 border-b border-gray-200 mb-2">
+      <h2 mat-dialog-title class="!font-bold !text-lg sm:!text-xl !text-blue-700 !m-0 !p-0">
+        Gerenciar Permissões e Vínculos
+      </h2>
+      <button
+        mat-icon-button
+        mat-dialog-close
+        aria-label="Fechar"
+        class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500 !transition-colors !duration-300"
+      >
+        <mat-icon class="!text-white !scale-90 !leading-none !m-0 !p-0">close</mat-icon>
+      </button>
+    </div>
 
-    <mat-dialog-content class="!pt-6 !pb-4 flex flex-col gap-6">
+    <mat-dialog-content class="!px-6 !pb-2 !pt-2 flex flex-col gap-4">
       <app-custom-select
         label="Sistemas de Acesso"
         [multiple]="true"
@@ -53,13 +63,14 @@ export interface PermissoesDialogData {
       />
     </mat-dialog-content>
 
-    <mat-dialog-actions align="end" class="!pr-6 !pb-6">
+    <mat-dialog-actions
+      class="!px-6 !pb-6 !pt-2 flex flex-col sm:flex-row sm:justify-end items-center gap-3">
       <button
         mat-stroked-button
         type="button"
         (click)="cancelar()"
-        class="!border-blue-600 !text-blue-600 !transition-transform
-               duration-300 !ease-in-out hover:!scale-105"
+        class="w-full sm:w-auto !border-blue-600 !text-blue-600 !transition-transform duration-300
+               !ease-in-out hover:!scale-105 !h-12 sm:!h-10 order-2 sm:order-1"
       >
         <mat-icon>close</mat-icon>
         Cancelar
@@ -68,17 +79,17 @@ export interface PermissoesDialogData {
         type="button"
         mat-flat-button
         [disabled]="!onDisabledButtonConfirm()"
-        class="!bg-blue-500 text-white ml-2 !transition-transform
-               duration-300 !ease-in-out hover:!scale-105
-               disabled:!bg-gray-200 disabled:!cursor-not-allowed disabled:hover:!scale-100
-               disabled:!text-gray-400 disabled:!border-gray-400"
+        class="w-full sm:w-auto !bg-blue-600 !text-white !transition-transform duration-300
+              !ease-in-out hover:!scale-105 disabled:!bg-gray-200 disabled:!cursor-not-allowed
+               disabled:hover:!scale-100 disabled:!text-gray-400 disabled:!border-transparent
+               !h-12 sm:!h-10 order-1 sm:order-2"
         (click)="confirmar()"
       >
         <mat-icon>checked</mat-icon>
         Confirmar Seleção
       </button>
     </mat-dialog-actions>
-  `,
+  `
 })
 export class PermissoesDialogComponent implements OnInit {
   readonly dialogRef = inject(MatDialogRef<PermissoesDialogComponent>);
@@ -89,7 +100,7 @@ export class PermissoesDialogComponent implements OnInit {
   listas = {
     sistemas: signal<BaseEntityDTO[]>([]),
     procuradores: signal<BaseEntityDTO[]>([]),
-    aliases: signal<BaseEntityDTO[]>([]),
+    aliases: signal<BaseEntityDTO[]>([])
   };
 
   // Arrays locais para o two-way binding do MatSelect
@@ -122,7 +133,7 @@ export class PermissoesDialogComponent implements OnInit {
     this.dialogRef.close({
       sistemaIds: this.selectedSistemas,
       procuradorIds: this.selectedProcuradores,
-      aliasIds: this.selectedAliases,
+      aliasIds: this.selectedAliases
     } as PermissoesDialogData);
   }
 

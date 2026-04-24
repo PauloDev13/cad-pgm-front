@@ -6,11 +6,15 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex flex-col print:break-inside-avoid">
-      <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">{{ label() }}</span>
-      <span class="text-base text-gray-800 font-medium">{{ fieldData() || 'Não informado' }}</span>
+    <div class="flex flex-col w-full print:break-inside-avoid">
+  <span class="text-[11px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider mb-0.5 print:text-gray-700">
+    {{ label() }}
+  </span>
+      <span class="text-sm sm:text-base text-gray-800 font-medium break-words print:text-black">
+    {{ fieldData() || 'Não informado' }}
+  </span>
     </div>
-  `,
+  `
 })
 export class DataDisplayComponent {
   label = input.required<string>();

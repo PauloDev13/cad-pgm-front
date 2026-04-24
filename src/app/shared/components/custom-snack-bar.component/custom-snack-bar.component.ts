@@ -10,23 +10,28 @@ import { MAT_SNACK_BAR_DATA, MatSnackBarRef } from '@angular/material/snack-bar'
   standalone: true,
   template: `
     <div
-      class="flex items-start gap-3 p-4 rounded-md shadow-lg text-white w-full max-w-sm"
+      class="flex items-start gap-3 p-4 rounded-xl shadow-xl text-white w-full max-w-sm sm:max-w-md pointer-events-auto"
       [class]="getBackgroundClass()"
+      role="alert"
     >
-      <mat-icon class="!w-6 !h-8 !text-2xl mt-0.5">{{ getIcon() }}</mat-icon>
+      <mat-icon class="!w-6 !h-6 !text-[24px] !leading-none shrink-0 mt-0.5">
+        {{ getIcon() }}
+      </mat-icon>
 
       <div class="flex-1 flex flex-col">
         @if (data.title) {
-          <span class="font-bold text-base mb-1">{{ data.title }}</span>
+          <span class="font-bold text-base mb-1 tracking-wide">{{ data.title }}</span>
         }
-        <span [innerHTML]="data.message" class="text-[16px] leading-tight text-white/95"></span>
+        <span [innerHTML]="data.message" class="text-sm sm:text-base leading-snug text-white/95"></span>
       </div>
 
       <button
-        mat-icon-button class="!w-6 !h-6 !p-0 -mt-1 -mr-1 opacity-80 hover:opacity-100"
+        mat-icon-button
+        aria-label="Fechar notificação"
+        class="!w-8 !h-8 !flex !items-center !justify-center shrink-0 -mt-2 -mr-2 opacity-80 hover:opacity-100 !transition-opacity"
         (click)="fechar()"
       >
-        <mat-icon class="!text-white !scale-75">close</mat-icon>
+        <mat-icon class="!text-white !text-[20px] !w-[20px] !h-[20px] !leading-[20px] !m-0 !p-0">close</mat-icon>
       </button>
     </div>
   `,

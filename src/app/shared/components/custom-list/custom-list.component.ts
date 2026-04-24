@@ -30,20 +30,20 @@ import { LoadingComponent } from '../loading.component/loading.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="bg-gray-50 shadow rounded-2xl border border-gray-200 p-4 md:p-6 max-w-5xl mx-auto mt-4"
+      class="bg-gray-50 shadow-md rounded-2xl border border-gray-200 p-4 md:p-6 max-w-5xl mx-auto mt-4 w-full"
     >
       <div class="mb-6">
-        <h2 class="text-2xl font-bold text-blue-800 leading-tight">Gestão de {{ title() }}</h2>
-        <p class="text-sm text-gray-500">Gerencie os {{ title() }}s do sistema</p>
+        <h2 class="text-xl md:text-2xl font-bold text-blue-800 leading-tight">Gestão de {{ title() }}</h2>
+        <p class="text-sm text-gray-500 mt-1">Gerencie os {{ title() }}s do sistema</p>
       </div>
 
       <div
-        class="flex md:flex-row justify-between items-end gap-4 mb-4
-        bg-gray-100 p-3 rounded-lg shadow-sm shadow-gray-300 border border-gray-300"
+        class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mb-4
+              bg-white sm:bg-gray-100 p-3 sm:p-4 rounded-xl shadow-sm border border-gray-200"
       >
         <mat-form-field
           appearance="outline"
-          class="bg-white w-full md:w-96"
+          class="w-full sm:flex-1 md:max-w-md"
           subscriptSizing="dynamic"
         >
           <mat-icon matPrefix class="text-gray-400 mr-2">search</mat-icon>
@@ -56,123 +56,126 @@ import { LoadingComponent } from '../loading.component/loading.component';
         </mat-form-field>
         <button
           mat-flat-button
-          class="!bg-blue-500
-          !transition-transform
-          duration-300
-          !ease-in-out
-          hover:!scale-105"
+          class="w-full sm:w-auto !bg-blue-600 !text-white !transition-transform duration-300
+                !ease-in-out hover:!scale-105 flex justify-center items-center !h-12 sm:!h-10"
           (click)="onAdd.emit()"
         >
-          <mat-icon class="text-gray-500">add</mat-icon>
+          <mat-icon class="mr-1">add</mat-icon>
           Novo
         </button>
       </div>
 
       <div
-        class="relative overflow-y-auto shadow-sm shadow-gray-300 rounded-xl border border-gray-200"
-        style="max-height: 500px;"
+        class="shadow-sm rounded-xl border border-gray-200 overflow-hidden bg-white relative
+              flex flex-col w-full"
       >
         <!-- Chama o componente de loading-->
         <app-loading [isLoading]="isLoading()" />
 
-        <table mat-table [dataSource]="data()" class="w-full">
-          <ng-container matColumnDef="id">
-            <th
-              mat-header-cell
-              *matHeaderCellDef
-              class="!font-semibold text-gray-800 !text-sm !px-3 !w-[1%] whitespace-nowrap"
-            >
-              ID
-            </th>
-            <td
-              mat-cell
-              *matCellDef="let element"
-              class="!text-sm !px-3 whitespace-nowrap text-gray-600"
-            >
-              {{ element.id }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="main">
-            <th
-              mat-header-cell
-              *matHeaderCellDef
-              class="!font-semibold text-gray-800 !text-sm !px-3"
-            >
-              {{ mainColumnLabel() }}
-            </th>
-            <td
-              mat-cell
-              *matCellDef="let element"
-              class="!font-medium !text-sm !px-3 text-gray-600"
-            >
-              {{ element[mainColumnKey()] }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="acoes">
-            <th
-              mat-header-cell
-              *matHeaderCellDef
-              class="!text-center !font-semibold !text-sm !px-3 !w-[1%] whitespace-nowrap"
-            >
-              Ações
-            </th>
-            <td
-              mat-cell
-              *matCellDef="let element"
-              class="!text-sm !px-3 text-gray-600 whitespace-nowrap"
-            >
-              <button
-                mat-icon-button
-                class="group !w-8 !h-8 !leading-none mr-2"
-                matTooltip="Editar"
-                (click)="onEdit.emit(element)"
+        <div class="overflow-auto w-full" style="max-height: 500px;">
+          <table mat-table [dataSource]="data()" class="w-full min-w-full">
+            <ng-container matColumnDef="id">
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                class="hidden sm:table-cell !font-semibold text-gray-800 !text-sm !px-3 !w-[1%]
+                      whitespace-nowrap"
               >
-                <mat-icon
-                  class="!text-blue-600 transition-transform duration-200
-                        group-hover:!scale-125 !text-[20px]"
-                >
-                  edit
-                </mat-icon>
-              </button>
-
-              <button
-                mat-icon-button
-                class="group !w-8 !h-8 !leading-none"
-                matTooltip="Excluir"
-                (click)="onDelete.emit(element.id)"
+                ID
+              </th>
+              <td
+                mat-cell
+                *matCellDef="let element"
+                class="hidden sm:table-cell !text-sm !px-3 whitespace-nowrap text-gray-600"
               >
-                <mat-icon
-                  class="!text-red-600 transition-transform duration-200
-                         group-hover:!scale-125 !text-[20px]"
+                {{ element.id }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="main">
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                class="!font-semibold text-gray-800 !text-sm !px-3"
+              >
+                {{ mainColumnLabel() }}
+              </th>
+              <td
+                mat-cell
+                *matCellDef="let element"
+                class="!font-medium !text-sm !px-3 text-gray-600 truncate max-w-[150px] sm:max-w-none"
+              >
+                {{ element[mainColumnKey()] }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="acoes">
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                class="!text-center !font-semibold !text-sm !px-2 sm:!px-3 !w-[1%] whitespace-nowrap"
+              >
+                Ações
+              </th>
+              <td
+                mat-cell
+                *matCellDef="let element"
+                class="!text-sm !px-2 sm:!px-3 text-gray-600 whitespace-nowrap text-right"
+              >
+                <button
+                  mat-icon-button
+                  class="group !w-10 !h-10 sm:!w-8 sm:!h-8 !leading-none mr-1 sm:mr-2 flex
+                        justify-center items-center"
+                  matTooltip="Editar"
+                  (click)="onEdit.emit(element)"
                 >
-                  delete
-                </mat-icon>
-              </button>
-            </td>
-          </ng-container>
+                  <mat-icon
+                    class="!text-blue-600 transition-transform duration-200 group-hover:!scale-125
+                          !text-[20px]"
+                  >
+                    edit
+                  </mat-icon>
+                </button>
 
-          <tr
-            mat-header-row
-            *matHeaderRowDef="displayedColumns; sticky: true"
-            class="!min-h-[40px] !h-[40px] !bg-gray-100 border-b-2 border-gray-300 !z-10"
-          ></tr>
-          <tr
-            mat-row
-            *matRowDef="let row; columns: displayedColumns"
-            class="!min-h-[40px] !h-[40px] odd:!bg-white even:!bg-gray-50 hover:!bg-blue-50 transition-colors border-gray-100"
-          ></tr>
+                <button
+                  mat-icon-button
+                  class="group !w-10 !h-10 sm:!w-8 sm:!h-8 !leading-none flex justify-center
+                        items-center"
+                  matTooltip="Excluir"
+                  (click)="onDelete.emit(element.id)"
+                >
+                  <mat-icon
+                    class="!text-red-600 transition-transform duration-200 group-hover:!scale-125
+                          !text-[20px]"
+                  >
+                    delete
+                  </mat-icon>
+                </button>
+              </td>
+            </ng-container>
 
-          <tr class="mat-row" *matNoDataRow>
-            <td
-              class="mat-cell p-4 text-center text-red-800 text-xl"
-              [colSpan]="displayedColumns.length"
-            >
-              Nenhum registro encontrado.
-            </td>
-          </tr>
-        </table>
+            <tr
+              mat-header-row
+              *matHeaderRowDef="displayedColumns; sticky: true"
+              class="!min-h-[40px] !h-[40px] !bg-gray-100 border-b-2 border-gray-300 !z-10"
+            ></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: displayedColumns"
+              class="!min-h-[40px] !h-[40px] odd:!bg-white even:!bg-gray-50 hover:!bg-blue-50
+                    transition-colors border-gray-100"
+            ></tr>
+
+            <tr class="mat-row" *matNoDataRow>
+              <td
+                class="mat-cell p-4 text-center text-red-800 text-base md:text-xl"
+                [colSpan]="displayedColumns.length"
+              >
+                Nenhum registro encontrado.
+              </td>
+            </tr>
+          </table>
+        </div>
         <mat-paginator
           class="!bg-gray-100"
           [length]="totalElements()"

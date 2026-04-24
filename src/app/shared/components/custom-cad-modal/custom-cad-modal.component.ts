@@ -22,12 +22,22 @@ import { FieldWrapperComponent } from '../../layout/component/field-wrapper.comp
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <h2 mat-dialog-title class="!text-xl !font-bold !text-blue-800 !pb-2">
-      {{ isEdit() ? 'Editar' : 'Novo' }} {{ data.title }}
-    </h2>
+    <div class="flex justify-between items-center px-6 pt-4 pb-2">
+      <h2 mat-dialog-title class="!font-bold !text-lg sm:!text-xl !text-blue-700 !m-0 !p-0">
+        {{ isEdit() ? 'Editar' : 'Novo' }} {{ data.title }}
+      </h2>
+      <button
+        mat-icon-button
+        mat-dialog-close
+        aria-label="Fechar"
+        class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500 !transition-colors !duration-300"
+      >
+        <mat-icon class="!text-white !scale-90 !leading-none !m-0 !p-0">close</mat-icon>
+      </button>
+    </div>
 
-    <mat-dialog-content class="!pt-4 !pb-2">
-      <div class="flex flex-col w-full min-w-[300px] md:min-w-[400px]">
+    <mat-dialog-content class="!px-6 !pb-2 !pt-2">
+      <div class="flex flex-col w-full sm:min-w-[350px]">
         <app-field-wrapper class="!-mb-2" [field]="customForm.fieldValue()">
           <mat-form-field appearance="outline" class="w-full mt-2" subscriptSizing="dynamic">
             <mat-label>{{ data.inputLabel }}</mat-label>
@@ -37,24 +47,26 @@ import { FieldWrapperComponent } from '../../layout/component/field-wrapper.comp
       </div>
     </mat-dialog-content>
 
-    <mat-dialog-actions align="end" class="!px-6 !pb-6 !pt-0">
+    <mat-dialog-actions class="!px-6 !pb-6 !pt-4 flex flex-col sm:flex-row sm:justify-end gap-3">
       <button
         mat-stroked-button
-        color="warn"
-        class="!transition-transform duration-300 !ease-in-out hover:!scale-105"
+        class="w-full sm:w-auto !transition-transform duration-300 !ease-in-out hover:!scale-105
+              !h-12 sm:!h-10 order-2 sm:order-1"
         (click)="close()"
       >
-        <mat-icon>close</mat-icon>
+        <mat-icon class="mr-1">close</mat-icon>
         Cancelar
       </button>
 
       <button
         mat-flat-button
-        class="!transition-transform duration-300 !ease-in-out hover:!scale-105"
+        class="w-full sm:w-auto !bg-blue-600 !text-white !transition-transform duration-300 !
+               ease-in-out hover:!scale-105 disabled:!bg-gray-200 disabled:!text-gray-400 !h-12
+               sm:!h-10 order-1 sm:order-2"
         [disabled]="customForm().invalid()"
         (click)="save()"
       >
-        <mat-icon class="!mr-0.5">save</mat-icon>
+        <mat-icon class="mr-1">save</mat-icon>
         {{ isEdit() ? 'Atualizar' : 'Salvar' }}
       </button>
     </mat-dialog-actions>

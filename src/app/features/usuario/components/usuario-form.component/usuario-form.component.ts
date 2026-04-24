@@ -29,7 +29,7 @@ import { MatCheckbox } from '@angular/material/checkbox';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex justify-between items-center px-6 pt-6 pb-2">
+    <div class="flex justify-between items-center px-6 pt-4 pb-1">
       <h2 mat-dialog-title class="!font-bold !text-xl !text-blue-700 !m-0 !p-0">
         {{ isEdit ? 'Editar Usuário' : 'Novo Usuário' }}
       </h2>
@@ -43,14 +43,14 @@ import { MatCheckbox } from '@angular/material/checkbox';
       </button>
     </div>
 
-    <mat-dialog-content class="!px-6 !pb-2">
-      <form autocomplete="off" class="flex flex-col gap-3">
+    <mat-dialog-content class="!px-6 !pb-1 !pt-1">
+      <form autocomplete="off" class="flex flex-col gap-6">
         <div>
-          <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 border-b pb-1">
+          <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 border-b pb-1 mt-0">
             Dados do cadastro
           </h3>
 
-          <div class="flex flex-col gap-3">
+          <div class="flex flex-col gap-y-3">
             <app-field-wrapper [field]="usuarioForm.name()">
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                 <mat-label>Nome Completo</mat-label>
@@ -58,7 +58,7 @@ import { MatCheckbox } from '@angular/material/checkbox';
               </mat-form-field>
             </app-field-wrapper>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-3">
               <app-field-wrapper [field]="usuarioForm.userName()">
                 <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                   <mat-label>Login (User Name)</mat-label>
@@ -74,8 +74,9 @@ import { MatCheckbox } from '@angular/material/checkbox';
               </app-field-wrapper>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
-              <div class="sm:col-span-7">
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-x-3 items-center">
+
+              <div class="sm:col-span-7 pb-5">
                 <mat-form-field appearance="outline" class="w-full" floatLabel="always" subscriptSizing="dynamic">
                   <mat-label>Roles</mat-label>
                   <mat-select multiple="true" placeholder="Adicione permissões" [formField]="usuarioForm.permissions">
@@ -86,20 +87,21 @@ import { MatCheckbox } from '@angular/material/checkbox';
                 </mat-form-field>
               </div>
 
-              <div class="sm:col-span-5 flex flex-row gap-4 sm:justify-end whitespace-nowrap">
+              <div class="sm:col-span-5 flex flex-row gap-4 sm:justify-end whitespace-nowrap pb-5">
                 <mat-checkbox [formField]="usuarioForm.activated">Ativo</mat-checkbox>
                 <mat-checkbox [formField]="usuarioForm.forcePasswordChange!">Trocar Senha</mat-checkbox>
               </div>
+
             </div>
           </div>
         </div>
       </form>
     </mat-dialog-content>
 
-    <mat-dialog-actions class="!px-6 !pb-6 !pt-4 flex flex-col sm:flex-row justify-end gap-3">
+    <mat-dialog-actions class="!px-6 !pb-4 !pt-4 flex flex-col sm:flex-row sm:justify-end items-center gap-3">
       <button
         mat-flat-button
-        class="w-full sm:w-auto !transition-transform duration-300 !ease-in-out hover:!scale-105 !h-12 sm:!h-10"
+        class="w-full sm:w-auto !bg-blue-600 !text-white !transition-transform duration-300 !ease-in-out hover:!scale-105 !h-12 sm:!h-10"
         (click)="salvar()"
         [disabled]="usuarioForm().invalid()"
       >

@@ -2,43 +2,54 @@ import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { ConfirmDialogData } from '../../model/confirm-dialog-data.model';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-confirm-dialog',
-  imports: [MatDialogModule, MatButtonModule],
+  imports: [MatDialogModule, MatButtonModule, MatIcon],
   standalone: true,
   template: `
-    <h2 mat-dialog-title class="!text-2xl !font-bold !text-blue-800">
-      {{ data.title }}
-    </h2>
+    <div mat-dialog-title class="!flex !justify-between !items-center !px-6 !pt-4 !pb-2 !m-0">
+      <h2 mat-dialog-title
+          class="!font-bold !text-lg sm:!text-xl !text-blue-800 !m-0 !p-0 !text-left flex-1">
+        {{ data.title }}
+      </h2>
 
-    <mat-dialog-content>
-      <p [innerHTML]="data.message" class="text-gray-600 text-base pt-2"></p>
+      <button
+        mat-icon-button
+        mat-dialog-close
+        aria-label="Fechar"
+        class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500
+              !transition-colors !duration-300"
+      >
+        <mat-icon class="!text-white !scale-90 !leading-none !m-0 !p-0">close</mat-icon>
+      </button>
+    </div>
+
+    <mat-dialog-content class="!px-6 !pb-2 !pt-2">
+      <div class="flex flex-col w-full sm:min-w-[350px]">
+        <p [innerHTML]="data.message" class="text-gray-600 text-base m-0 leading-relaxed"></p>
+      </div>
     </mat-dialog-content>
 
-    <mat-dialog-actions align="end" class="!pb-4 !pr-4">
+    <mat-dialog-actions class="!px-6 !pb-6 !pt-4 flex flex-col sm:flex-row sm:justify-end gap-3">
       <button
-        mat-stroked-button
+        mat-flat-button
         type="button"
         (click)="onNoClick()"
-        class="hover:!text-white
-        hover:!bg-blue-500
-        !text-blue-500
-        !border-blue-500
-        !transition duration-400 !ease-in-out"
+        class="w-full sm:w-auto !border-blue-600 !text-white hover:!bg-blue-600
+              hover:!text-white !transition-all !duration-300 !ease-in-out
+              hover:!scale-105 !h-12 sm:!h-10 order-2 sm:order-1"
       >
         NÃO
       </button>
 
       <button
-        mat-stroked-button
+        mat-flat-button
         type="button"
         (click)="onYesClick()"
-        class="hover:!bg-red-600
-        hover:!text-white
-        !border-red-600
-        !text-red-600
-        !transition duration-400 !ease-in-out"
+        class="w-full sm:w-auto !bg-red-600 !text-white hover:!bg-red-700 !transition-transform
+              !duration-300 !ease-in-out hover:!scale-105 !h-12 sm:!h-10 order-1 sm:order-2"
       >
         SIM
       </button>

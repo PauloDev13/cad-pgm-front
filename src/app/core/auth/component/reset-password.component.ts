@@ -27,108 +27,72 @@ import { finalize } from 'rxjs';
     FieldWrapperComponent
   ],
   template: `
-    <div class="w-full max-w-md flex flex-col bg-white rounded-xl shadow-lg p-8">
-      <!-- Chama o componente header login-->
+    <div
+      class="w-full flex flex-col bg-white rounded-xl shadow-xl p-6 sm:p-8 border border-gray-100 lg:border-none lg:shadow-lg">
       <app-header-login
         title="Criar Nova Senha"
         subtitle="Digite e confirme sua nova senha de acesso."
       />
 
       @if (isValidatingToken()) {
-        <div class="flex items-center justify-center gap-3 mb-4 p-3 bg-blue-50 text-blue-700 rounded-lg">
+        <div
+          class="flex items-center justify-center gap-3 mb-6 p-4 bg-blue-50 text-blue-700 rounded-lg border border-blue-100">
           <mat-spinner diameter="20"></mat-spinner>
           <span class="text-sm font-medium">Analisando segurança do link...</span>
         </div>
       }
 
-      <!-- formulário-->
-      <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col gap-2">
-
-        <!-- Fieldset desabilita todos os componentes que estiver dentro da tag-->
+      <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col w-full">
         <fieldset [disabled]="isValidatingToken() || isTokenInvalid()"
                   class="border-none p-0 m-0 disabled:cursor-not-allowed">
-          <div class="flex flex-col relative">
-            <app-field-wrapper [field]="resetForm.password()">
-              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                <mat-label>Nova Senha</mat-label>
-                <input
-                  autocomplete="new-password"
-                  [type]="hidePassword() ? 'password' : 'text'"
-                  matInput
-                  [formField]="resetForm.password"
-                />
 
-                <button
-                  tabindex="-1"
-                  mat-icon-button
-                  matSuffix
-                  class="!mr-1 text-gray-500 hover:text-gray-700 group"
-                  (click)="togglePassword($event)"
-                  type="button"
-                >
-                  <mat-icon class="transition-transform duration-200 hover:scale-110">
-                    {{ hidePassword() ? 'visibility_off' : 'visibility' }}
-                  </mat-icon>
-                </button>
-              </mat-form-field>
-            </app-field-wrapper>
-          </div>
+          <app-field-wrapper [field]="resetForm.password()">
+            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+              <mat-label>Nova Senha</mat-label>
+              <input autocomplete="new-password" [type]="hidePassword() ? 'password' : 'text'" matInput
+                     [formField]="resetForm.password" />
+              <button tabindex="-1" mat-icon-button matSuffix class="!mr-1 text-gray-500 hover:text-gray-700"
+                      (click)="togglePassword($event)" type="button">
+                <mat-icon class="transition-transform duration-200 hover:scale-110">
+                  {{ hidePassword() ? 'visibility_off' : 'visibility' }}
+                </mat-icon>
+              </button>
+            </mat-form-field>
+          </app-field-wrapper>
 
-          <div class="flex flex-col relative">
-            <app-field-wrapper [field]="resetForm.confirmPassword()">
-              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                <mat-label>Confirmar Nova Senha</mat-label>
-                <input
-                  autocomplete="new-password"
-                  [type]="hideConfirm() ? 'password' : 'text'"
-                  matInput
-                  [formField]="resetForm.confirmPassword"
-                />
+          <app-field-wrapper [field]="resetForm.confirmPassword()">
+            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+              <mat-label>Confirmar Nova Senha</mat-label>
+              <input autocomplete="new-password" [type]="hideConfirm() ? 'password' : 'text'" matInput
+                     [formField]="resetForm.confirmPassword" />
+              <button tabindex="-1" mat-icon-button matSuffix class="!mr-1 text-gray-500 hover:text-gray-700"
+                      (click)="toggleConfirm($event)" type="button">
+                <mat-icon class="transition-transform duration-200 hover:scale-110">
+                  {{ hideConfirm() ? 'visibility_off' : 'visibility' }}
+                </mat-icon>
+              </button>
+            </mat-form-field>
+          </app-field-wrapper>
 
-                <button
-                  tabindex="-1"
-                  mat-icon-button
-                  matSuffix
-                  class="!mr-1 text-gray-500 hover:text-gray-700 group"
-                  (click)="toggleConfirm($event)"
-                  type="button"
-                >
-                  <mat-icon class="transition-transform duration-200 hover:scale-110">
-                    {{ hideConfirm() ? 'visibility_off' : 'visibility' }}
-                  </mat-icon>
-                </button>
-              </mat-form-field>
-            </app-field-wrapper>
+          <div class="flex justify-end items-center mb-4 px-1 mt-1">
+            <a tabindex="-1" routerLink="/auth/login"
+               class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">Voltar para o Login</a>
           </div>
 
           <button
             type="submit"
             [disabled]="resetForm().invalid() || isLoading()"
-            class="mt-4 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg
-                hover:bg-blue-700 transition-all flex justify-center
-                 items-center gap-2 h-12 disabled:bg-gray-300 disabled:cursor-not-allowed
-                disabled:text-gray-400"
+            class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all flex justify-center items-center gap-2 h-12 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:text-gray-500"
           >
             @if (isLoading()) {
-              <mat-spinner diameter="20" color="accent"></mat-spinner>
+              <mat-spinner diameter="20" class="custom-spinner"></mat-spinner>
               <span>Salvando...</span>
             } @else {
               <span>Redefinir Senha</span>
             }
           </button>
-        </fieldset>
 
-        <div class="flex flex-col gap-1.5">
-          <div class="flex justify-end items-center">
-            <a
-              tabindex="-1"
-              routerLink="/auth/login"
-              class="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
-            >
-              Voltar para o Login</a
-            >
-          </div>
-        </div>
+        </fieldset>
       </form>
     </div>
   `

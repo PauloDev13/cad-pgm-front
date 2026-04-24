@@ -21,19 +21,22 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
   standalone: true,
   template: `
     <div
-      class="bg-gray-50 shadow-md rounded-2xl border border-gray-200 p-4
-             md:p-6 mx-auto mt-4 w-full max-w-7xl">
-      <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
+      class="bg-gray-50 shadow-md rounded-2xl border border-gray-200 p-4 md:p-6 mx-auto mt-4 w-full max-w-7xl
+         print:bg-white print:shadow-none print:border-none print:p-0 print:m-0 print:max-w-full"
+    >
+      <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6 print:mb-4">
         <div>
-          <h1 class="text-xl md:text-2xl font-bold text-blue-800 leading-tight">
+          <h1 class="text-xl md:text-2xl font-bold text-blue-800 leading-tight print:text-black print:text-2xl">
             Gestão de Servidores
           </h1>
-          <p class="text-sm text-gray-500 mt-1">Gerencie os servidores do sistema</p>
+          <p class="text-sm text-gray-500 mt-1 print:hidden">Gerencie os servidores do sistema</p>
         </div>
+
         <button
           mat-flat-button
           class="!bg-blue-600 !text-white w-full sm:w-auto !transition-transform duration-300
-                 !ease-in-out hover:!scale-105 flex justify-center items-center !h-12 sm:!h-10"
+             !ease-in-out hover:!scale-105 flex justify-center items-center !h-12 sm:!h-10
+             print:hidden"
           (click)="openForm()"
         >
           <mat-icon class="mr-1">add</mat-icon>
@@ -41,28 +44,30 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
         </button>
       </div>
 
-      <!-- Chama o componente de pesquisa-->
-      <app-servidor-filter
-        [statusList]="statusList()"
-        [selectedStatusId]="selectedStatusId()"
-        [searchType]="searchType()"
-        [searchTerm]="searchTerm()"
-        (statusChange)="onStatusChange($event)"
-        (searchTypeChange)="onSearchTypeChange($event)"
-        (searchInput)="onSearchInput($event)"
-      />
+      <div class="print:hidden">
+        <app-servidor-filter
+          [statusList]="statusList()"
+          [selectedStatusId]="selectedStatusId()"
+          [searchType]="searchType()"
+          [searchTerm]="searchTerm()"
+          (statusChange)="onStatusChange($event)"
+          (searchTypeChange)="onSearchTypeChange($event)"
+          (searchInput)="onSearchInput($event)"
+        />
+      </div>
 
-      <!-- Chama o componente que tem a tabela para listar de servidores-->
-      <app-servidor-table
-        [data]="servidores()"
-        [isLoading]="isLoading()"
-        [totalElements]="totalElements()"
-        [pageSize]="pageSize()"
-        [currentPage]="currentPage()"
-        (edit)="openForm($event)"
-        (delete)="delete($event)"
-        (pageChange)="onPageChange($event)"
-      />
+      <div class="w-full">
+        <app-servidor-table
+          [data]="servidores()"
+          [isLoading]="isLoading()"
+          [totalElements]="totalElements()"
+          [pageSize]="pageSize()"
+          [currentPage]="currentPage()"
+          (edit)="openForm($event)"
+          (delete)="delete($event)"
+          (pageChange)="onPageChange($event)"
+        />
+      </div>
     </div>
   `,
   imports: [

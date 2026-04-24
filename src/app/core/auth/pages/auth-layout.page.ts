@@ -11,17 +11,14 @@ import { RouterOutlet } from '@angular/router';
   standalone: true,
   template: `
     <div class="min-h-screen flex w-full bg-white">
-      <!-- coluna da imagem-->
-      <div
-        class="hidden lg:flex w-1/2 bg-blue-50 flex-col items-center justify-center
-               relative overflow-hidden"
-      >
+      <div class="hidden lg:flex w-1/2 bg-blue-50 flex-col items-center justify-center relative overflow-hidden">
         <app-form-info-login />
       </div>
 
-      <!-- coluna do formulário-->
-      <div class="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 md:p-24">
-        <router-outlet></router-outlet>
+      <div class="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 md:p-12 lg:p-24 bg-gray-50 lg:bg-white">
+        <div class="w-full max-w-md">
+          <router-outlet></router-outlet>
+        </div>
       </div>
     </div>
   `

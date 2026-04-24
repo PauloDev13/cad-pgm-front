@@ -29,75 +29,45 @@ import { finalize } from 'rxjs';
   ],
   standalone: true,
   template: `
-    <div class="w-full max-w-xl flex flex-col bg-white rounded-xl shadow-lg p-8 ">
-      <!-- Permite a injeção do componente HeaderLogin neste ponto-->
-      <app-header-login title="Bem vindo" subtitle="Insira as informações e confirme o cadastro." />
+    <div
+      class="w-full flex flex-col bg-white rounded-xl shadow-xl p-6 sm:p-8 border border-gray-100 lg:border-none lg:shadow-lg">
+      <app-header-login title="Bem-vindo" subtitle="Insira as informações e confirme o cadastro." />
 
-      <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col gap-2 w-full">
-        <div class="flex flex-col gap-1.5">
-          <app-field-wrapper [field]="registerFormLogin.name()">
-            <!--Campo Name-->
-            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>Nome Completo</mat-label>
-              <input
-                matInput
-                [formField]="registerFormLogin.name"
-                autocomplete="off"
-                placeholder="Ex: Jonh River"
-              />
-            </mat-form-field>
-          </app-field-wrapper>
-        </div>
+      <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col w-full gap-y-3">
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <app-field-wrapper [field]="registerFormLogin.name()">
+          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+            <mat-label>Nome Completo</mat-label>
+            <input matInput [formField]="registerFormLogin.name" autocomplete="off" placeholder="Ex: Jonh River" />
+          </mat-form-field>
+        </app-field-wrapper>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-3">
           <app-field-wrapper [field]="registerFormLogin.userName()">
-            <!--Campo userName-->
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
               <mat-label>Login</mat-label>
-              <input
-                matInput
-                [formField]="registerFormLogin.userName"
-                autocomplete="off"
-                placeholder="Ex: jonh.river"
-              />
+              <input matInput [formField]="registerFormLogin.userName" autocomplete="off"
+                     placeholder="Ex: jonh.river" />
             </mat-form-field>
           </app-field-wrapper>
 
           <app-field-wrapper [field]="registerFormLogin.email()">
-            <!--Campo userName-->
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
               <mat-label>E-mail</mat-label>
-              <input
-                type="text"
-                matInput
-                [formField]="registerFormLogin.email"
-                autocomplete="off"
-                placeholder="Ex: jonhriver@gmail.com"
-              />
+              <input type="text" matInput [formField]="registerFormLogin.email" autocomplete="off"
+                     placeholder="Ex: jonhriver@gmail.com" />
             </mat-form-field>
           </app-field-wrapper>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-3">
           <app-field-wrapper [field]="registerFormLogin.password()">
-            <!--Campo password-->
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
               <mat-label>Senha</mat-label>
-              <input
-                [type]="hidePassword() ? 'password' : 'text'"
-                matInput
-                [formField]="registerFormLogin.password"
-                autocomplete="new-password"
-              />
-              <button
-                class="!mr-2 text-gray-500 hover:text-gray-700"
-                mat-icon-button
-                matSuffix
-                tabIndex="-1"
-                type="button"
-                aria-label="Ocultar/Exibir senha"
-                (click)="togglePassword($event)"
-              >
+              <input [type]="hidePassword() ? 'password' : 'text'" matInput [formField]="registerFormLogin.password"
+                     autocomplete="new-password" />
+              <button class="!mr-1 text-gray-500 hover:text-gray-700" mat-icon-button matSuffix tabIndex="-1"
+                      type="button" aria-label="Ocultar/Exibir senha" (click)="togglePassword($event)">
                 <mat-icon class="transition-transform duration-200 hover:scale-110">
                   {{ hidePassword() ? 'visibility_off' : 'visibility' }}
                 </mat-icon>
@@ -106,24 +76,12 @@ import { finalize } from 'rxjs';
           </app-field-wrapper>
 
           <app-field-wrapper [field]="registerFormLogin.confirmPassword!()">
-            <!--Campo confirm password-->
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
               <mat-label>Confirmar Senha</mat-label>
-              <input
-                [type]="hideConfirm() ? 'password' : 'text'"
-                matInput
-                [formField]="registerFormLogin.confirmPassword!"
-                autocomplete="new-password"
-              />
-              <button
-                class="!mr-2 text-gray-500 hover:text-gray-700"
-                mat-icon-button
-                matSuffix
-                tabIndex="-1"
-                type="button"
-                aria-label="Ocultar/Exibir senha"
-                (click)="toggleConfirm($event)"
-              >
+              <input [type]="hideConfirm() ? 'password' : 'text'" matInput
+                     [formField]="registerFormLogin.confirmPassword!" autocomplete="new-password" />
+              <button class="!mr-1 text-gray-500 hover:text-gray-700" mat-icon-button matSuffix tabIndex="-1"
+                      type="button" aria-label="Ocultar/Exibir senha" (click)="toggleConfirm($event)">
                 <mat-icon class="transition-transform duration-200 hover:scale-110">
                   {{ hideConfirm() ? 'visibility_off' : 'visibility' }}
                 </mat-icon>
@@ -132,23 +90,17 @@ import { finalize } from 'rxjs';
           </app-field-wrapper>
         </div>
 
-        <div class="flex flex-col gap-1.5">
-          <div class="flex justify-end items-center">
-            <a
-              tabindex="-1"
-              routerLink="/auth/login"
-              class="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
-            >Já é cadastrado?</a
-            >
-          </div>
+        <div class="flex justify-end items-center mb-4 px-1 mt-1">
+          <a tabindex="-1" routerLink="/auth/login"
+             class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
+            Já é cadastrado?
+          </a>
         </div>
 
         <button
           type="submit"
-          [disabled]="registerFormLogin().invalid()"
-          class="mt-4 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg
-                hover:bg-blue-700 transition-all flex justify-center items-center gap-2 h-12
-                disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
+          [disabled]="registerFormLogin().invalid() || isLoading()"
+          class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all flex justify-center items-center gap-2 h-12 disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
         >
           @if (isLoading()) {
             <mat-spinner diameter="20" class="custom-spinner"></mat-spinner>

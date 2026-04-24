@@ -143,7 +143,7 @@ export default class UsuarioListPage implements OnInit {
   openForm(usuario?: IUsuarioResponse) {
     const dialogRef = this.dialog.open(UsuarioFormComponent, {
       width: '700px',
-      height: '450px',
+      height: '400px',
       maxWidth: '95vw',
       maxHeight: '90vw',
       data: usuario,

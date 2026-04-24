@@ -15,11 +15,11 @@ import { ErrorStateMatcher } from '@angular/material/core';
     MatAutocomplete,
     MatOption,
     MatError,
-    MatLabel,
+    MatLabel
   ],
   standalone: true,
   template: `
-    <div class="flex flex-col relative pb-5 w-full">
+    <div class="flex flex-col w-full">
       <mat-form-field
         appearance="outline"
         subscriptSizing="dynamic"
@@ -51,13 +51,19 @@ import { ErrorStateMatcher } from '@angular/material/core';
         </mat-autocomplete>
       </mat-form-field>
 
-      @if (showError()) {
-        <mat-error class="!text-[12px] pl-3 absolute bottom-0 left-0 w-full">{{
-          showError()
-        }}</mat-error>
-      }
+      <div class="min-h-[20px] w-full pt-1 px-4">
+        @if (showError()) {
+          <mat-error
+            class="!text-[12px] sm:!text-[13px] !leading-tight !text-red-600 block w-full
+                    line-clamp-1"
+            [title]="showError()"
+          >
+            {{ showError() }}
+          </mat-error>
+        }
+      </div>
     </div>
-  `,
+  `
 })
 export class AutocompleteComponent {
   // Recebe a lista pronta do pai (ex: cargos())
@@ -112,7 +118,7 @@ export class AutocompleteComponent {
   });
   // O "Fofoqueiro" que pinta a borda de vermelho
   errorMatcher: ErrorStateMatcher = {
-    isErrorState: () => this.showError() !== null,
+    isErrorState: () => this.showError() !== null
   };
 
   constructor() {

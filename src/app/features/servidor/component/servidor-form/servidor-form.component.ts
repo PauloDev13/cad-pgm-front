@@ -64,21 +64,24 @@ export type FormModel = Required<ServidorRequestDTO>;
         mat-icon-button
         mat-dialog-close
         aria-label="Fechar"
-        class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500 !transition-colors !duration-300"
+        class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500
+              !transition-colors !duration-300"
       >
         <mat-icon class="!text-white !scale-90 !leading-none !m-0 !p-0">close</mat-icon>
       </button>
     </div>
 
     <mat-dialog-content class="!px-6 !pb-1 !pt-1">
-      <form autocomplete="off" class="flex flex-col gap-4">
+      <form autocomplete="off" class="flex flex-col gap-6">
 
         <div>
-          <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2 border-b pb-1 mt-0">
+          <h3
+            class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 border-b
+                  pb-1 mt-0">
             Dados Pessoais
           </h3>
 
-          <div class="flex flex-col gap-2">
+          <div class="flex flex-col gap-y-3">
             <app-field-wrapper [field]="servidorForm.nome()">
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                 <mat-label>Nome Completo</mat-label>
@@ -91,7 +94,7 @@ export type FormModel = Required<ServidorRequestDTO>;
               <input matInput [formField]="servidorForm.filiacao" />
             </mat-form-field>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-3">
               <app-field-wrapper [field]="servidorForm.matricula()">
                 <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                   <mat-label>Matrícula</mat-label>
@@ -102,25 +105,35 @@ export type FormModel = Required<ServidorRequestDTO>;
               <app-field-wrapper [field]="servidorForm.cpf()">
                 <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                   <mat-label>CPF</mat-label>
-                  <input matInput [formField]="servidorForm.cpf" placeholder="Somente números" mask="000.000.000-00" />
+                  <input
+                    matInput
+                    [formField]="servidorForm.cpf"
+                    placeholder="Somente números"
+                    mask="000.000.000-00" />
                 </mat-form-field>
               </app-field-wrapper>
 
               <app-field-wrapper [field]="servidorForm.dataNascimento()">
                 <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                   <mat-label>Data de Nascimento</mat-label>
-                  <input matInput [matDatepicker]="pickerNascimento" [formField]="servidorForm.dataNascimento"
-                         placeholder="DD/MM/AAAA" />
-                  <mat-datepicker-toggle matIconSuffix [for]="pickerNascimento"></mat-datepicker-toggle>
+                  <input
+                    matInput [matDatepicker]="pickerNascimento"
+                    [formField]="servidorForm.dataNascimento"
+                    placeholder="DD/MM/AAAA" />
+                  <mat-datepicker-toggle
+                    matIconSuffix [for]="pickerNascimento"></mat-datepicker-toggle>
                   <mat-datepicker #pickerNascimento></mat-datepicker>
                 </mat-form-field>
               </app-field-wrapper>
 
-              <app-custom-select label="Gênero" placeholder="Selecione..." [field]="servidorForm.genero()"
-                                 [options]="generos()" />
+              <app-custom-select
+                label="Gênero"
+                placeholder="Selecione..."
+                [field]="servidorForm.genero()"
+                [options]="generos()" />
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-x-3">
               <app-field-wrapper [field]="servidorForm.telefone()">
                 <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                   <mat-label>Celular</mat-label>
@@ -145,45 +158,73 @@ export type FormModel = Required<ServidorRequestDTO>;
 
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
               <mat-label>Endereço Completo</mat-label>
-              <input matInput [formField]="servidorForm.endereco" placeholder="Rua, Número, Bairro, Cidade - UF" />
+              <input
+                matInput
+                [formField]="servidorForm.endereco"
+                placeholder="Rua, Número, Bairro, Cidade - UF" />
             </mat-form-field>
           </div>
         </div>
 
         <div>
-          <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2 border-b pb-1">
+          <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 border-b
+                    pb-1 mt-0">
             Vínculo Funcional
           </h3>
 
-          <div class="flex flex-col gap-2">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-              <app-list-autocomplete [data]="cargos()" label="Cargo" placeholder="Pesquisar..."
-                                     [selectedId]="servidorModel().cargoId" (selectedIdChange)="onCargoChange($event)"
-                                     [hasExternalError]="servidorForm.cargoId().invalid()"
-                                     [errorMessage]="servidorForm.cargoId().invalid() ? servidorForm.cargoId().errors()[0]?.message : ''"
-                                     [externalTouched]="servidorForm.cargoId().touched()" />
-              <app-custom-select label="Setor" placeholder="Selecione..." [field]="servidorForm.setorId()"
-                                 [options]="setores()" />
-              <app-custom-select label="Lotação" placeholder="Selecione..." [field]="servidorForm.lotacaoId()"
-                                 [options]="lotacaoList()" />
+          <div class="flex flex-col gap-y-3">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-x-3">
+              <app-list-autocomplete
+                [data]="cargos()"
+                label="Cargo"
+                placeholder="Pesquisar..."
+                [selectedId]="servidorModel().cargoId"
+                (selectedIdChange)="onCargoChange($event)"
+                [hasExternalError]="servidorForm.cargoId().invalid()"
+                [errorMessage]="servidorForm.cargoId().invalid()
+                  ? servidorForm.cargoId().errors()[0]?.message
+                  : ''"
+                [externalTouched]="servidorForm.cargoId().touched()" />
+
+              <app-custom-select
+                label="Setor"
+                placeholder="Selecione..."
+                [field]="servidorForm.setorId()"
+                [options]="setores()" />
+
+              <app-custom-select
+                label="Lotação"
+                placeholder="Selecione..."
+                [field]="servidorForm.lotacaoId()"
+                [options]="lotacaoList()" />
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-              <app-custom-select label="Status" placeholder="Selecione..." [field]="servidorForm.statusId()"
-                                 [options]="statusList()" />
-              <app-custom-select label="Vínculo" placeholder="Selecione..." [field]="servidorForm.vinculoId()"
-                                 [options]="vinculos()" />
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-3">
+              <app-custom-select
+                label="Status"
+                placeholder="Selecione..."
+                [field]="servidorForm.statusId()"
+                [options]="statusList()" />
+
+              <app-custom-select
+                label="Vínculo"
+                placeholder="Selecione..."
+                [field]="servidorForm.vinculoId()"
+                [options]="vinculos()" />
             </div>
           </div>
         </div>
       </form>
     </mat-dialog-content>
 
-    <mat-dialog-actions class="!px-6 !pb-4 !pt-2 flex flex-col sm:flex-row sm:justify-between items-center gap-3">
+    <mat-dialog-actions
+      class="!px-6 !pb-4 !pt-4 flex flex-col sm:flex-row sm:justify-between items-center gap-3">
       <button
         mat-stroked-button
         type="button"
-        class="w-full sm:w-auto !border-blue-600 !text-blue-600 !transition-transform duration-300 hover:!scale-105 disabled:!border-gray-300 disabled:!text-gray-400 !h-12 sm:!h-10 order-2 sm:order-1"
+        class="w-full sm:w-auto !border-blue-600 !text-blue-600 !transition-transform duration-300
+              hover:!scale-105 disabled:!border-gray-300 disabled:!text-gray-400 !h-12 sm:!h-10
+              order-2 sm:order-1"
         [disabled]="servidorForm().invalid() || !isPermissionsButtonHidden()"
         (click)="openPermissions()"
       >
@@ -193,7 +234,8 @@ export type FormModel = Required<ServidorRequestDTO>;
 
       <button
         mat-flat-button
-        class="w-full sm:w-auto !transition-transform duration-300 hover:!scale-105 !h-12 sm:!h-10 order-1 sm:order-2"
+        class="w-full sm:w-auto !transition-transform duration-300 hover:!scale-105 !h-12 sm:!h-10
+              order-1 sm:order-2"
         (click)="salvar()"
         [disabled]="servidorForm().invalid()"
       >

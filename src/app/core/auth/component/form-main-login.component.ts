@@ -30,80 +30,47 @@ import { finalize } from 'rxjs';
   ],
   standalone: true,
   template: `
-    <div class="w-full max-w-md flex flex-col bg-white rounded-xl shadow-lg p-8">
-      <!-- Permite a injeção do componente HeaderLogin neste ponto-->
+    <div
+      class="w-full flex flex-col bg-white rounded-xl shadow-xl p-6 sm:p-8 border border-gray-100 lg:border-none lg:shadow-lg">
       <app-header-login
         title="Bem-vindo de volta"
         subtitle="Insira suas credenciais para acessar o painel."
       />
 
-      <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col w-full gap-2">
-        <div class="flex flex-col gap-1.5">
-          <app-field-wrapper [field]="loginForm.userName()">
-            <!--Campo userName-->
-            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>Login do Usuário</mat-label>
-              <input
-                matInput
-                [formField]="loginForm.userName"
-                autocomplete="off"
-                placeholder="Ex: jonh.river"
-              />
-            </mat-form-field>
-          </app-field-wrapper>
-        </div>
+      <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col w-full">
 
-        <div class="flex flex-col gap-1.5">
-          <app-field-wrapper [field]="loginForm.password!()">
-            <!--Campo password-->
-            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>Senha</mat-label>
-              <input
-                [type]="hidePassword() ? 'password' : 'text'"
-                matInput
-                [formField]="loginForm.password!"
-                autocomplete="new_password"
-              />
-              <button
-                tabIndex="-1"
-                class="!mr-2 text-gray-500 hover:text-gray-700"
-                mat-icon-button
-                matSuffix
-                type="button"
-                aria-label="Ocultar/Exibir senha"
-                (click)="togglePassword($event)"
-              >
-                <mat-icon class="transition-transform duration-200 hover:scale-110">
-                  {{ hidePassword() ? 'visibility_off' : 'visibility' }}
-                </mat-icon>
-              </button>
-            </mat-form-field>
-          </app-field-wrapper>
-        </div>
-        <div class="flex flex-col gap-1.5">
-          <div class="flex justify-between items-center">
-            <a
-              tabindex="-1"
-              routerLink="/auth/esqueci-senha"
-              class="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
-            >Esqueceu a senha?</a
-            >
-            <a
-              routerLink="/auth/register"
-              tabIndex="-1"
-              href="#"
-              class="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
-            >Não é cadastrado?</a
-            >
-          </div>
+        <app-field-wrapper [field]="loginForm.userName()">
+          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+            <mat-label>Login do Usuário</mat-label>
+            <input matInput [formField]="loginForm.userName" autocomplete="off" placeholder="Ex: jonh.river" />
+          </mat-form-field>
+        </app-field-wrapper>
+
+        <app-field-wrapper [field]="loginForm.password!()">
+          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+            <mat-label>Senha</mat-label>
+            <input [type]="hidePassword() ? 'password' : 'text'" matInput [formField]="loginForm.password!"
+                   autocomplete="new_password" />
+            <button tabIndex="-1" class="!mr-1 text-gray-500 hover:text-gray-700" mat-icon-button matSuffix
+                    type="button" aria-label="Ocultar/Exibir senha" (click)="togglePassword($event)">
+              <mat-icon class="transition-transform duration-200 hover:scale-110">
+                {{ hidePassword() ? 'visibility_off' : 'visibility' }}
+              </mat-icon>
+            </button>
+          </mat-form-field>
+        </app-field-wrapper>
+
+        <div class="flex justify-between items-center mb-4 px-1 mt-1">
+          <a tabindex="-1" routerLink="/auth/esqueci-senha"
+             class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">Esqueceu a senha?</a>
+          <a tabindex="-1" routerLink="/auth/register"
+             class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">Não é cadastrado?</a>
         </div>
 
         <button
           type="submit"
           [disabled]="loginForm().invalid() || isLoading()"
-          class="mt-4 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg
-                 hover:bg-blue-700 transition-all flex justify-center items-center gap-2 h-12
-                 disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
+          class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all flex justify-center items-center gap-2 h-12 disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
         >
           @if (isLoading()) {
             <mat-spinner diameter="20" class="custom-spinner"></mat-spinner>

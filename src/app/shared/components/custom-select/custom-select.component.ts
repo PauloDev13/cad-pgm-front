@@ -12,7 +12,7 @@ import { BaseEntityDTO } from '../../../features/servidor/models/servidor.model'
   standalone: true,
   template: `
     @if (field()) {
-      <div class="flex flex-col relative pb-5">
+      <div class="flex flex-col w-full">
         <mat-form-field
           appearance="outline"
           class="w-full"
@@ -29,10 +29,12 @@ import { BaseEntityDTO } from '../../../features/servidor/models/servidor.model'
           </mat-select>
         </mat-form-field>
 
-        <app-form-error class="absolute bottom-0 left-0 w-full" [field]="field()" />
+        <div class="min-h-[20px] w-full pt-1 px-4">
+          <app-form-error [field]="field()" />
+        </div>
       </div>
     } @else {
-      <div class="flex flex-col relative pb-5">
+      <div class="flex flex-col w-full">
         <mat-form-field
           appearance="outline"
           class="w-full"
@@ -48,10 +50,11 @@ import { BaseEntityDTO } from '../../../features/servidor/models/servidor.model'
             }
           </mat-select>
         </mat-form-field>
+        <div class="min-h-[20px] w-full pt-1 px-4"></div>
       </div>
     }
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CustomSelectComponent {
   // INPUTS obrigatórios

@@ -25,49 +25,34 @@ import { finalize } from 'rxjs';
     FieldWrapperComponent
   ],
   template: `
-    <div class="w-full max-w-md flex flex-col bg-white rounded-xl shadow-lg p-8">
+    <div
+      class="w-full flex flex-col bg-white rounded-xl shadow-xl p-6 sm:p-8 border border-gray-100 lg:border-none lg:shadow-lg">
       <app-header-login
         title="Recuperar Senha"
         subtitle="Digite seu e-mail cadastrado e enviaremos um link para redefinir sua senha."
       />
 
-      <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col gap-5 w-full">
-        <div class="flex flex-col gap-1.5">
-          <app-field-wrapper [field]="forgotForm.email()">
-            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>E-mail</mat-label>
-              <input
-                matInput
-                type="email"
-                [formField]="forgotForm.email"
-                placeholder="exemplo@email.com"
-              />
-            </mat-form-field>
-          </app-field-wrapper>
-        </div>
+      <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col w-full">
 
-        <div class="flex flex-col gap-1.5">
-          <div class="flex justify-end items-center">
-            <a
-              tabindex="-1"
-              href="#"
-              routerLink="/auth/login"
-              class="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
-            >
-              Voltar para o Login</a
-            >
-          </div>
+        <app-field-wrapper [field]="forgotForm.email()">
+          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+            <mat-label>E-mail</mat-label>
+            <input matInput type="email" [formField]="forgotForm.email" placeholder="exemplo@email.com" />
+          </mat-form-field>
+        </app-field-wrapper>
+
+        <div class="flex justify-end items-center mb-4 px-1 mt-1">
+          <a tabindex="-1" routerLink="/auth/login"
+             class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">Voltar para o Login</a>
         </div>
 
         <button
           type="submit"
           [disabled]="forgotForm().invalid() || isLoading()"
-          class="mt-2 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg
-                    hover:bg-blue-700 transition-all flex justify-center items-center gap-2 h-12
-                    disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
+          class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all flex justify-center items-center gap-2 h-12 disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
         >
           @if (isLoading()) {
-            <mat-spinner diameter="20" color="custom-spinner"></mat-spinner>
+            <mat-spinner diameter="20" class="custom-spinner"></mat-spinner>
             <span>Enviando...</span>
           } @else {
             <span>Enviar Link</span>

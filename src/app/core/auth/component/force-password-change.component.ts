@@ -28,85 +28,83 @@ import { finalize } from 'rxjs';
   ],
   standalone: true,
   template: `
-    <div class="w-full max-w-md flex flex-col bg-white rounded-xl shadow-lg p-8">
+    <div
+      class="w-full flex flex-col bg-white rounded-xl shadow-xl p-6 sm:p-8 border border-gray-100 lg:border-none lg:shadow-lg">
       <app-header-login
         title="Troca obrigatória"
         subtitle="Sua senha foi resetada. Por segorança, defina uma nova senha agora"
       />
 
-      <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col gap-2">
-        <div class="flex flex-col">
-          <app-field-wrapper [field]="form.password()">
-            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>Nova Senha</mat-label>
-              <input
-                autocomplete="new-password"
-                [type]="hidePassword() ? 'password' : 'text'"
-                matInput
-                [formField]="form.password"
-              />
+      <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col w-full">
+        <!--        <div class="flex flex-col">-->
+        <app-field-wrapper [field]="form.password()">
+          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+            <mat-label>Nova Senha</mat-label>
+            <input
+              autocomplete="new-password"
+              [type]="hidePassword() ? 'password' : 'text'"
+              matInput
+              [formField]="form.password"
+            />
 
-              <button
-                tabindex="-1"
-                mat-icon-button
-                matSuffix
-                class="!mr-1 text-gray-500 hover:text-gray-700 group"
-                (click)="togglePassword($event)"
-                type="button"
-              >
-                <mat-icon class="transition-transform duration-200 hover:scale-110">
-                  {{ hidePassword() ? 'visibility_off' : 'visibility' }}
-                </mat-icon>
-              </button>
-            </mat-form-field>
-          </app-field-wrapper>
-        </div>
-
-        <div class="flex flex-col">
-          <app-field-wrapper [field]="form.confirmPassword()">
-            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>Confirmar Nova Senha</mat-label>
-              <input
-                autocomplete="new-password"
-                [type]="hideConfirm() ? 'password' : 'text'"
-                matInput
-                [formField]="form.confirmPassword"
-              />
-              <button
-                tabindex="-1"
-                mat-icon-button
-                matSuffix
-                class="!mr-1 text-gray-500 hover:text-gray-700 group"
-                (click)="toggleConfirm($event)"
-                type="button"
-              >
-                <mat-icon class="transition-transform duration-200 hover:scale-110">
-                  {{ hideConfirm() ? 'visibility_off' : 'visibility' }}
-                </mat-icon>
-              </button>
-            </mat-form-field>
-          </app-field-wrapper>
-        </div>
-        <div class="flex flex-col gap-1.5">
-          <div class="flex justify-end items-center">
-            <a
+            <button
               tabindex="-1"
-              href="#"
-              routerLink="/auth/login"
-              class="text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
+              mat-icon-button
+              matSuffix
+              class="!mr-1 text-gray-500 hover:text-gray-700"
+              (click)="togglePassword($event)"
+              type="button"
             >
-              Voltar para o Login</a
+              <mat-icon class="transition-transform duration-200 hover:scale-110">
+                {{ hidePassword() ? 'visibility_off' : 'visibility' }}
+              </mat-icon>
+            </button>
+          </mat-form-field>
+        </app-field-wrapper>
+        <!--        </div>-->
+
+        <!--        <div class="flex flex-col">-->
+        <app-field-wrapper [field]="form.confirmPassword()">
+          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+            <mat-label>Confirmar Nova Senha</mat-label>
+            <input
+              autocomplete="new-password"
+              [type]="hideConfirm() ? 'password' : 'text'"
+              matInput
+              [formField]="form.confirmPassword"
+            />
+            <button
+              tabindex="-1"
+              mat-icon-button
+              matSuffix
+              class="!mr-1 text-gray-500 hover:text-gray-700"
+              (click)="toggleConfirm($event)"
+              type="button"
             >
-          </div>
+              <mat-icon class="transition-transform duration-200 hover:scale-110">
+                {{ hideConfirm() ? 'visibility_off' : 'visibility' }}
+              </mat-icon>
+            </button>
+          </mat-form-field>
+        </app-field-wrapper>
+        <!--        </div>-->
+        <div class="flex justify-end items-center mb-4 px-1 mt-1">
+          <a
+            tabindex="-1"
+            href="#"
+            routerLink="/auth/login"
+            class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+          >
+            Voltar para o Login</a
+          >
         </div>
 
         <button
           type="submit"
           [disabled]="form().invalid() || isLoading()"
-          class="mt-4 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg
-                    hover:bg-blue-700 transition-all flex justify-center
-                    disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed
-                     items-center gap-2 h-12"
+          class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700
+                transition-all flex justify-center items-center gap-2 h-12 disabled:bg-gray-300
+                disabled:cursor-not-allowed disabled:text-gray-500"
         >
           @if (isLoading()) {
             <mat-spinner diameter="20" class="custom-spinner"></mat-spinner>

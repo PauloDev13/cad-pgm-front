@@ -6,12 +6,12 @@ import { FormErrorComponent } from '../../components/form-error/form-error.compo
   standalone: true,
   imports: [FormErrorComponent],
   template: `
-    <div class="flex flex-col relative mb-8">
+    <div class="flex flex-col w-full relative">
 
       <ng-content></ng-content>
 
       <!--Chama o componente customizado para exibir os erros-->
-      <div class="absolute top-full left-0 w-full pt-1 z-10">
+      <div class="min-h-[20px] w-full pt-1 px-4">
         <app-form-error [field]="field()" />
       </div>
 
