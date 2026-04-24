@@ -20,22 +20,23 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
   selector: 'app-servidor-list',
   standalone: true,
   template: `
-    <div class="bg-gray-50 shadow rounded-2xl border border-gray-200 p-4 md:p-6  mx-auto mt-4">
-      <div class="flex justify-between items-center mb-6">
+    <div
+      class="bg-gray-50 shadow-md rounded-2xl border border-gray-200 p-4
+             md:p-6 mx-auto mt-4 w-full max-w-7xl">
+      <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-blue-800">Gestão de Servidores</h1>
-          <p class="text-sm text-gray-500">Gerencie os servidores do sistema</p>
+          <h1 class="text-xl md:text-2xl font-bold text-blue-800 leading-tight">
+            Gestão de Servidores
+          </h1>
+          <p class="text-sm text-gray-500 mt-1">Gerencie os servidores do sistema</p>
         </div>
         <button
           mat-flat-button
-          class="!bg-blue-500
-          !transition-transform
-          duration-300
-          !ease-in-out
-          hover:!scale-105"
+          class="!bg-blue-600 !text-white w-full sm:w-auto !transition-transform duration-300
+                 !ease-in-out hover:!scale-105 flex justify-center items-center !h-12 sm:!h-10"
           (click)="openForm()"
         >
-          <mat-icon class="!scale-105 right-1">add</mat-icon>
+          <mat-icon class="mr-1">add</mat-icon>
           Novo
         </button>
       </div>

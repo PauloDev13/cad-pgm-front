@@ -9,6 +9,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { LoadingComponent } from '../../../../shared/components/loading.component/loading.component';
 import { IUsuarioResponse } from '../../models/usuario.model';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 
 @Component({
   selector: 'app-usuario-table',
@@ -25,138 +28,149 @@ import { IUsuarioResponse } from '../../models/usuario.model';
   standalone: true,
   template: `
     <div
-      class="border border-gray-300 rounded-lg drop-shadow-md overflow-hidden relative"
-    >
+      class="border border-gray-300 rounded-lg drop-shadow-md overflow-hidden
+      relative flex flex-col w-full">
       <!-- Chama o componente de loading-->
       <app-loading [isLoading]="isLoading()" />
 
-      <table mat-table [dataSource]="data()" class="w-full">
-        <ng-container matColumnDef="ID">
-          <th
-            mat-header-cell
-            *matHeaderCellDef
-            class="!font-semibold text-gray-800 !text-sm !px-3 !w-[1%] whitespace-nowrap"
-          >
-            ID
-          </th>
-          <td mat-cell *matCellDef="let u" class="!text-sm !px-3 whitespace-nowrap text-gray-600">
-            {{ u.id }}
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="nome">
-          <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-800 !text-sm !px-3">
-            Nome
-          </th>
-          <td mat-cell *matCellDef="let u" class="!font-medium !text-sm !px-3 text-gray-600">
-            {{ u.name }}
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="email">
-          <th mat-header-cell *matHeaderCellDef class="!font-semibold !text-gray-800 !text-sm !px-3">
-            E-mail
-          </th>
-          <td mat-cell *matCellDef="let u"
-              class="!text-sm !px-3 text-gray-600">
-            {{ u.email }}
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="login">
-          <th mat-header-cell *matHeaderCellDef class="font-semibold text-gray-800 !text-sm !px-3">
-            Login
-          </th>
-          <td mat-cell *matCellDef="let u" class="!text-sm !px-3 text-gray-600">
-            {{ u.userName }}
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="acoes">
-          <th
-            mat-header-cell
-            *matHeaderCellDef
-            class="!text-center !text-sm !px-3 !w-[1%] whitespace-nowrap"
-          >
-            Ações
-          </th>
-          <td mat-cell *matCellDef="let u" class="!text-sm !px-3 text-gray-600 whitespace-nowrap">
-            <button
-              [disabled]="isActionDisabled(u)"
-              mat-icon-button
-              matTooltip="Gerar senha temporária"
-              class="group !w-8 !h-8 !leading-none mr-2 disabled:!cursor-not-allowed
-                     disabled:!pointer-events-auto"
-              (click)="confirmResetPassword.emit(u)"
+      <div class="overflow-x-auto w-full">
+        <table mat-table [dataSource]="data()" class="w-full min-w-full">
+          <ng-container matColumnDef="ID">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!font-semibold text-gray-800 !text-sm !px-3 !w-[1%] whitespace-nowrap"
             >
-              <mat-icon
-                class="!text-gray-600 transition-transform duration-200
+              ID
+            </th>
+            <td mat-cell *matCellDef="let u"
+                class="!text-sm !px-3 whitespace-nowrap text-gray-600">
+              {{ u.id }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="nome">
+            <th mat-header-cell *matHeaderCellDef
+                class="!font-semibold text-gray-800 !text-sm !px-3">
+              Nome
+            </th>
+            <td mat-cell *matCellDef="let u"
+                class="!font-medium !text-sm !px-3 text-gray-600
+                        truncate max-w-[150px] md:max-w-none">
+              {{ u.name }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef
+                class="!font-semibold !text-gray-800 !text-sm !px-3">
+              E-mail
+            </th>
+            <td mat-cell *matCellDef="let u"
+                class="!text-sm !px-3 text-gray-600">
+              {{ u.email }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="login">
+            <th mat-header-cell *matHeaderCellDef
+                class="font-semibold text-gray-800 !text-sm !px-3">
+              Login
+            </th>
+            <td mat-cell *matCellDef="let u" class="!text-sm !px-3 text-gray-600">
+              {{ u.userName }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="acoes">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!text-center !text-sm !px-3 !w-[1%] whitespace-nowrap"
+            >
+              Ações
+            </th>
+            <td mat-cell *matCellDef="let u"
+                class="!text-sm !px-2 md:!px-3 text-gray-600 whitespace-nowrap text-right">
+
+              @if (!isMobile()) {
+                <button
+                  [disabled]="isActionDisabled(u)"
+                  mat-icon-button
+                  matTooltip="Gerar senha temporária"
+                  class="group !w-8 !h-8 !leading-none mr-2 disabled:!cursor-not-allowed
+                     disabled:!pointer-events-auto"
+                  (click)="confirmResetPassword.emit(u)"
+                >
+                  <mat-icon
+                    class="!text-gray-600 transition-transform duration-200
                        group-hover:!text-gray-900 group-hover:!scale-125
                        group-disabled:!scale-100
                        !text-[20px] group-disabled:!text-gray-500"
-              >
-                lock_reset
-              </mat-icon>
-            </button>
-            <button
-              [disabled]="isActionDisabled(u)"
-              (click)="edit.emit(u)"
-              mat-icon-button
-              matTooltip="Editar"
-              class="group !w-8 !h-8 !leading-none mr-2 disabled:!cursor-not-allowed
+                  >
+                    lock_reset
+                  </mat-icon>
+                </button>
+              }
+              <button
+                [disabled]="isActionDisabled(u)"
+                (click)="edit.emit(u)"
+                mat-icon-button
+                matTooltip="Editar"
+                class="group !w-8 !h-8 !leading-none mr-2 disabled:!cursor-not-allowed
                      disabled:!pointer-events-auto"
-            >
-              <mat-icon
-                class="!text-blue-600 transition-transform duration-200
+              >
+                <mat-icon
+                  class="!text-blue-600 transition-transform duration-200
                        group-hover:!text-blue-900 group-hover:!scale-125
                        group-disabled:!scale-100
                        !text-[20px] group-disabled:!text-gray-500"
-              >
-                edit
-              </mat-icon>
-            </button>
-            <button
-              [disabled]="isActionDisabled(u)"
-              mat-icon-button
-              matTooltip="Excluir"
-              class="group !w-8 !h-8 !leading-none disabled:!cursor-not-allowed
+                >
+                  edit
+                </mat-icon>
+              </button>
+              <button
+                [disabled]="isActionDisabled(u)"
+                mat-icon-button
+                matTooltip="Excluir"
+                class="group !w-8 !h-8 !leading-none disabled:!cursor-not-allowed
                      disabled:!pointer-events-auto"
-              (click)="delete.emit(u)"
-            >
-              <mat-icon
-                class="!text-red-600 transition-transform duration-200
+                (click)="delete.emit(u)"
+              >
+                <mat-icon
+                  class="!text-red-600 transition-transform duration-200
                         group-hover:!text-red-900 group-hover:!scale-125
                         group-disabled:!scale-100
                         !text-[20px] group-disabled:!text-gray-500"
-              >
-                delete
-              </mat-icon>
-            </button>
-          </td>
-        </ng-container>
+                >
+                  delete
+                </mat-icon>
+              </button>
+            </td>
+          </ng-container>
 
-        <tr
-          mat-header-row
-          *matHeaderRowDef="displayedColumns"
-          class="!min-h-[40px] !h-[40px] !bg-gray-50 border-b-2 border-gray-300"
-        ></tr>
-        <tr
-          mat-row
-          *matRowDef="let row; columns: displayedColumns"
-          class="!min-h-[40px] !h-[40px] odd:!bg-white even:!bg-gray-50 hover:!bg-blue-50
+          <tr
+            mat-header-row
+            *matHeaderRowDef="displayedColumns()"
+            class="!min-h-[40px] !h-[40px] !bg-gray-50 border-b-2 border-gray-300"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumns()"
+            class="!min-h-[40px] !h-[40px] odd:!bg-white even:!bg-gray-50 hover:!bg-blue-50
               transition-colors cursor-pointer border-gray-100"
-        ></tr>
+          ></tr>
 
-        <tr class="mat-row" *matNoDataRow>
-          <td
-            class="mat-cell p-4 text-center text-red-800 text-xl"
-            [colSpan]="displayedColumns.length"
-          >
-            Nenhum Usuário encontrado.
-          </td>
-        </tr>
-      </table>
-
+          <tr class="mat-row" *matNoDataRow>
+            <td
+              class="mat-cell p-4 text-center text-red-800 text-base md:text-xl"
+              [colSpan]="displayedColumns().length"
+            >
+              Nenhum Usuário encontrado.
+            </td>
+          </tr>
+        </table>
+      </div>
       <mat-paginator
         [length]="totalElements()"
         [pageSize]="pageSize()"
@@ -170,6 +184,24 @@ import { IUsuarioResponse } from '../../models/usuario.model';
 })
 export class UsuarioTableComponent {
   private readonly authService = inject(AuthService);
+  private readonly breakpointObserver = inject(BreakpointObserver);
+
+  // Cria um Signal reativo que será true em telas menores que 768px
+  // (equivalente ao 'md' do Tailwind)
+  isMobile = toSignal(
+    this.breakpointObserver.observe('(max-width: 767px)').pipe(
+      map(result => result.matches)
+    ),
+    { initialValue: false }
+  );
+
+  // Computa as colunas a serem exibidas com base no Signal isMobile
+  displayedColumns = computed(() => {
+    if (this.isMobile()) {
+      return ['nome', 'acoes']; // Array para Mobile
+    }
+    return ['ID', 'nome', 'email', 'login', 'acoes']; // Array para Desktop
+  });
 
   // INPUTS (Dados que vêm do Pai)
   data = input.required<IUsuarioResponse[]>();
@@ -185,7 +217,7 @@ export class UsuarioTableComponent {
   pageChange = output<PageEvent>();
 
   // Estado interno (Só pertence à tabela, o Pai não precisa saber disso)
-  displayedColumns: string[] = ['ID', 'nome', 'login', 'email', 'acoes'];
+  // displayedColumns: string[] = ['ID', 'nome', 'login', 'email', 'acoes'];
 
   // desabilita botões se o usuário logado não for Administrador
   isButtonsDisabled = computed(() => {

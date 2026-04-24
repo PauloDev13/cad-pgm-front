@@ -29,145 +29,81 @@ import { MatCheckbox } from '@angular/material/checkbox';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <h2 mat-dialog-title class="!font-bold !text-xl !pb-0 !text-blue-700">
-      {{ isEdit ? 'Editar Usuário' : 'Novo Usuário' }}
-    </h2>
-    <button
-      mat-icon-button
-      mat-dialog-close
-      aria-label="Fechar"
-      class="!absolute !top-3 !right-3 !w-8 !h-8 !flex !items-center !justify-center
-            !bg-blue-600 hover:!bg-blue-500 !transition-transform !duration-300
-             !ease-in-out hover:!scale-105"
-    >
-      <mat-icon class="!text-white !scale-75">close</mat-icon>
-    </button>
-    <mat-dialog-content class="!pt-2 !pb-0">
-      <form autocomplete="off" class="flex flex-col gap-2">
+    <div class="flex justify-between items-center px-6 pt-6 pb-2">
+      <h2 mat-dialog-title class="!font-bold !text-xl !text-blue-700 !m-0 !p-0">
+        {{ isEdit ? 'Editar Usuário' : 'Novo Usuário' }}
+      </h2>
+      <button
+        mat-icon-button
+        mat-dialog-close
+        aria-label="Fechar"
+        class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500 !transition-colors !duration-300"
+      >
+        <mat-icon class="!text-white !scale-90 !leading-none !m-0 !p-0">close</mat-icon>
+      </button>
+    </div>
+
+    <mat-dialog-content class="!px-6 !pb-2">
+      <form autocomplete="off" class="flex flex-col gap-3">
         <div>
-          <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
+          <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 border-b pb-1">
             Dados do cadastro
           </h3>
 
-          <app-field-wrapper [field]="usuarioForm.name()">
-            <!--Campo nome-->
-            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>Nome Completo</mat-label>
-              <input matInput [formField]="usuarioForm.name" placeholder="Ex: João da Silva" />
-            </mat-form-field>
-          </app-field-wrapper>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <!--Campo Login-->
-            <app-field-wrapper [field]="usuarioForm.userName()">
+          <div class="flex flex-col gap-3">
+            <app-field-wrapper [field]="usuarioForm.name()">
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                <mat-label>Login (User Name)</mat-label>
-                <input matInput [formField]="usuarioForm.userName" />
+                <mat-label>Nome Completo</mat-label>
+                <input matInput [formField]="usuarioForm.name" placeholder="Ex: João da Silva" />
               </mat-form-field>
             </app-field-wrapper>
 
-            <!--Campo E-mail-->
-            <app-field-wrapper [field]="usuarioForm.email()">
-              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                <mat-label>E-Mail</mat-label>
-                <input matInput [formField]="usuarioForm.email" />
-              </mat-form-field>
-            </app-field-wrapper>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <app-field-wrapper [field]="usuarioForm.userName()">
+                <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                  <mat-label>Login (User Name)</mat-label>
+                  <input matInput [formField]="usuarioForm.userName" />
+                </mat-form-field>
+              </app-field-wrapper>
+
+              <app-field-wrapper [field]="usuarioForm.email()">
+                <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                  <mat-label>E-Mail</mat-label>
+                  <input matInput [formField]="usuarioForm.email" />
+                </mat-form-field>
+              </app-field-wrapper>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+              <div class="sm:col-span-7">
+                <mat-form-field appearance="outline" class="w-full" floatLabel="always" subscriptSizing="dynamic">
+                  <mat-label>Roles</mat-label>
+                  <mat-select multiple="true" placeholder="Adicione permissões" [formField]="usuarioForm.permissions">
+                    @for (role of roles(); track role) {
+                      <mat-option [value]="role">{{ role }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div class="sm:col-span-5 flex flex-row gap-4 sm:justify-end whitespace-nowrap">
+                <mat-checkbox [formField]="usuarioForm.activated">Ativo</mat-checkbox>
+                <mat-checkbox [formField]="usuarioForm.forcePasswordChange!">Trocar Senha</mat-checkbox>
+              </div>
+            </div>
           </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-[60%_10%_30%] gap-3">
-            <!--Campo Permissões-->
-            <mat-form-field
-              appearance="outline"
-              class="w-full"
-              floatLabel="always"
-              subscriptSizing="dynamic"
-            >
-              <mat-label>Roles</mat-label>
-              <mat-select
-                multiple="true"
-                placeholder="Adicione permissões de acesso"
-                [formField]="usuarioForm.permissions"
-              >
-                @for (role of roles(); track role) {
-                  <mat-option [value]="role">{{ role }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-
-            <!--Campo Ativo-->
-            <mat-checkbox [formField]="usuarioForm.activated">
-              <span class="-ml-2">Ativo</span>
-            </mat-checkbox>
-
-            <mat-checkbox [formField]="usuarioForm.forcePasswordChange!">
-              <span class="-ml-2">Trocar Senha</span>
-            </mat-checkbox>
-          </div>
-          <!--          <div class="grid grid-cols-1 md:grid-cols-2 mt-6 gap-3">-->
-          <!--            <app-field-wrapper class="mb-1" [field]="usuarioForm.password()">-->
-          <!--              &lt;!&ndash;Campo Senha&ndash;&gt;-->
-          <!--              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">-->
-          <!--                <mat-label>Senha</mat-label>-->
-          <!--                <input-->
-          <!--                  autocomplete="new-password"-->
-          <!--                  [type]="hidePassword() ? 'password' : 'text'"-->
-          <!--                  matInput-->
-          <!--                  [formField]="usuarioForm.password"-->
-          <!--                />-->
-          <!--                <button-->
-          <!--                  class="!mr-2 text-gray-500 hover:text-gray-700"-->
-          <!--                  mat-icon-button-->
-          <!--                  matSuffix-->
-          <!--                  tabIndex="-1"-->
-          <!--                  type="button"-->
-          <!--                  aria-label="Ocultar/Exibir senha"-->
-          <!--                  (click)="togglePassword($event)"-->
-          <!--                >-->
-          <!--                  <mat-icon class="transition-transform duration-200 hover:scale-110">-->
-          <!--                    {{ hidePassword() ? 'visibility_off' : 'visibility' }}-->
-          <!--                  </mat-icon>-->
-          <!--                </button>-->
-          <!--              </mat-form-field>-->
-          <!--            </app-field-wrapper>-->
-
-          <!--            <app-field-wrapper [field]="usuarioForm.confirmPassword!()">-->
-          <!--              &lt;!&ndash;Campo Senha&ndash;&gt;-->
-          <!--              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">-->
-          <!--                <mat-label>Confirmar Senha</mat-label>-->
-          <!--                <input-->
-          <!--                  autocomplete="new-password"-->
-          <!--                  [type]="hideConfirm() ? 'password' : 'text'"-->
-          <!--                  matInput-->
-          <!--                  [formField]="usuarioForm.confirmPassword!"-->
-          <!--                />-->
-          <!--                <button-->
-          <!--                  class="!mr-2 text-gray-500 hover:text-gray-700"-->
-          <!--                  mat-icon-button-->
-          <!--                  matSuffix-->
-          <!--                  tabIndex="-1"-->
-          <!--                  type="button"-->
-          <!--                  aria-label="Ocultar/Exibir senha"-->
-          <!--                  (click)="toggleConfirm($event)"-->
-          <!--                >-->
-          <!--                  <mat-icon class="transition-transform duration-200 hover:scale-110">-->
-          <!--                    {{ hideConfirm() ? 'visibility_off' : 'visibility' }}-->
-          <!--                  </mat-icon>-->
-          <!--                </button>-->
-          <!--              </mat-form-field>-->
-          <!--            </app-field-wrapper>-->
-          <!--          </div>-->
         </div>
       </form>
     </mat-dialog-content>
-    <mat-dialog-actions align="end" class="!pt-0 !pb-6 !pr-6">
+
+    <mat-dialog-actions class="!px-6 !pb-6 !pt-4 flex flex-col sm:flex-row justify-end gap-3">
       <button
         mat-flat-button
-        class="!transition-transform duration-300 !ease-in-out hover:!scale-105"
+        class="w-full sm:w-auto !transition-transform duration-300 !ease-in-out hover:!scale-105 !h-12 sm:!h-10"
         (click)="salvar()"
         [disabled]="usuarioForm().invalid()"
       >
-        <mat-icon class="!mr-0.5">save</mat-icon>
+        <mat-icon class="mr-2">save</mat-icon>
         {{ isEdit ? 'Atualizar' : 'Salvar' }}
       </button>
     </mat-dialog-actions>

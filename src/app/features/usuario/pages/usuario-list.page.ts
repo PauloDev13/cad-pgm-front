@@ -26,23 +26,23 @@ import { CustomDeleteService } from '../../../shared/service/custom-delete.servi
   standalone: true,
   template: `
     <div
-      class="bg-gray-50 shadow rounded-2xl border border-gray-200 p-4 md:p-6 max-w-7xl mx-auto mt-4"
+      class="bg-gray-50 shadow-md rounded-2xl border border-gray-200 p-4 md:p-6
+             max-w-7xl mx-auto mt-4 w-full"
     >
-      <div class="flex justify-between items-center mb-6">
+      <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-blue-800">Gestão de Usuários</h1>
-          <p class="text-sm text-gray-500">Gerencie os usuários do sistema</p>
+          <h1 class="text-xl md:text-2xl font-bold text-blue-800 leading-tight">
+            Gestão de Usuários
+          </h1>
+          <p class="text-sm text-gray-500 mt-1">Gerencie os usuários do sistema</p>
         </div>
         <button
           mat-flat-button
-          class="!bg-blue-600 hover:!bg-blue-600
-          !transition-transform
-          !duration-300
-          !ease-in-out
-          hover:!scale-105"
+          class="!bg-blue-600 !text-white w-full sm:w-auto !transition-transform !duration-300
+                 !ease-in-out hover:!scale-105 flex justify-center items-center !h-12 sm:!h-10"
           (click)="openForm()"
         >
-          <mat-icon class="!scale-105 right-1">add</mat-icon>
+          <mat-icon class="mr-1">add</mat-icon>
           Novo
         </button>
       </div>
@@ -143,7 +143,7 @@ export default class UsuarioListPage implements OnInit {
   openForm(usuario?: IUsuarioResponse) {
     const dialogRef = this.dialog.open(UsuarioFormComponent, {
       width: '700px',
-      height: '350px',
+      height: '450px',
       maxWidth: '95vw',
       maxHeight: '90vw',
       data: usuario,

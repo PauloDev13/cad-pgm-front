@@ -10,6 +10,9 @@ import { ServidorResponseDTO } from '../../models/servidor.model';
 import { LoadingComponent } from '../../../../shared/components/loading.component/loading.component';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../../core/auth/services/auth.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { map } from 'rxjs';
 
 @Component({
   selector: 'app-servidor-table',
@@ -21,147 +24,160 @@ import { AuthService } from '../../../../core/auth/services/auth.service';
     MatButtonModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
-    LoadingComponent,
+    LoadingComponent
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="border border-gray-300 rounded-lg drop-shadow-md overflow-hidden relative">
+    <div
+      class="flex flex-col w-full border border-gray-300 rounded-lg
+             drop-shadow-md overflow-hidden relative">
       <!-- Chama o componente de loading-->
       <app-loading [isLoading]="isLoading()" />
 
-      <table mat-table [dataSource]="data()" class="w-full">
-        <ng-container matColumnDef="matricula">
-          <th
-            mat-header-cell
-            *matHeaderCellDef
-            class="!font-semibold text-gray-800 !text-sm !px-3 !w-[1%] whitespace-nowrap"
-          >
-            Matrícula
-          </th>
-          <td mat-cell *matCellDef="let s" class="!text-sm !px-3 whitespace-nowrap text-gray-600">
-            {{ s.matricula }}
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="nome">
-          <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-800 !text-sm !px-3">
-            Nome
-          </th>
-          <td mat-cell *matCellDef="let s" class="!font-medium !text-sm !px-3 text-gray-600">
-            {{ s.nome }}
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="email">
-          <th
-            mat-header-cell
-            *matHeaderCellDef
-            class="!font-semibold !text-gray-800 !text-sm !px-3"
-          >
-            Email
-          </th>
-          <td mat-cell *matCellDef="let s" class="!text-sm !px-3 text-gray-600">
-            {{ s.emailPessoal }}
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="cargo">
-          <th mat-header-cell *matHeaderCellDef class="font-semibold text-gray-800 !text-sm !px-3">
-            Cargo
-          </th>
-          <td mat-cell *matCellDef="let s" class="!text-sm !px-3 text-gray-600">
-            {{ s.cargo?.nome || '-' }}
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="setor">
-          <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-800 !text-sm !px-3">
-            Setor
-          </th>
-          <td mat-cell *matCellDef="let s" class="!text-sm !px-3 text-gray-600">
-            {{ s.setor?.nome || '-' }}
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="acoes">
-          <th
-            mat-header-cell
-            *matHeaderCellDef
-            class="!text-center !text-sm !px-3 !w-[1%] whitespace-nowrap"
-          >
-            Ações
-          </th>
-          <td mat-cell *matCellDef="let s" class="!text-sm !px-3 text-gray-600  whitespace-nowrap">
-            <button
-              mat-icon-button
-              (click)="viewDetail(s.id)"
-              matTooltip="Exibir detalhes"
-              class="group !w-8 !h-8 !leading-none mr-2"
+      <div class="overflow-x-auto w-full">
+        <table mat-table [dataSource]="data()" class="w-full min-w-full">
+          <ng-container matColumnDef="matricula">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!font-semibold text-gray-800 !text-sm !px-3 !w-[1%] whitespace-nowrap"
             >
-              <mat-icon
-                class="!text-green-800 transition-transform duration-200
+              Matrícula
+            </th>
+            <td mat-cell *matCellDef="let s"
+                class="!text-sm !px-3 whitespace-nowrap text-gray-600">
+              {{ s.matricula }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="nome">
+            <th mat-header-cell *matHeaderCellDef
+                class="!font-semibold text-gray-800 !text-sm !px-3">
+              Nome
+            </th>
+            <td mat-cell *matCellDef="let s"
+                class="!font-medium !text-sm !px-3 text-gray-600 truncate
+                        max-w-[150px] md:max-w-none">
+              {{ s.nome }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="email">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!font-semibold !text-gray-800 !text-sm !px-3"
+            >
+              Email
+            </th>
+            <td mat-cell *matCellDef="let s" class="!text-sm !px-3 text-gray-600">
+              {{ s.emailPessoal }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="cargo">
+            <th mat-header-cell *matHeaderCellDef
+                class="font-semibold text-gray-800 !text-sm !px-3">
+              Cargo
+            </th>
+            <td mat-cell *matCellDef="let s" class="!text-sm !px-3 text-gray-600">
+              {{ s.cargo?.nome || '-' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="setor">
+            <th mat-header-cell *matHeaderCellDef
+                class="!font-semibold text-gray-800 !text-sm !px-3">
+              Setor
+            </th>
+            <td mat-cell *matCellDef="let s" class="!text-sm !px-3 text-gray-600">
+              {{ s.setor?.nome || '-' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="acoes">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!text-center !text-sm !px-3 !w-[1%] whitespace-nowrap"
+            >
+              Ações
+            </th>
+            <td mat-cell *matCellDef="let s"
+                class="!text-sm !px-2 md:!px-3 text-gray-600 whitespace-nowrap text-right">
+
+              <div class="flex items-center justify-end">
+                <button
+                  mat-icon-button
+                  (click)="viewDetail(s.id)"
+                  matTooltip="Exibir detalhes"
+                  class="group !w-10 !h-10 md:!w-8 md:!h-8 !leading-none mr-1
+                        md:mr-2 flex justify-center items-center"
+                >
+                  <mat-icon
+                    class="!text-green-800 transition-transform duration-200
                 group-hover:!text-green-600 group-hover:!scale-125 !text-[20px]"
-              >
-                visibility
-              </mat-icon>
-            </button>
-            <button
-              mat-icon-button
-              (click)="edit.emit(s)"
-              matTooltip="Editar"
-              class="group !w-8 !h-8 !leading-none mr-2"
+                  >
+                    visibility
+                  </mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  (click)="edit.emit(s)"
+                  matTooltip="Editar"
+                  class="group !w-10 !h-10 md:!w-8 md:!h-8 !leading-none mr-1 md:mr-2
+                        flex justify-center items-center"
+                >
+                  <mat-icon
+                    class="!text-blue-600 transition-transform duration-200
+                          group-hover:!text-blue-400 group-hover:!scale-125 !text-[20px]"
+                  >
+                    edit
+                  </mat-icon>
+                </button>
+                <button
+                  [disabled]="!isButtonsDisabled()"
+                  mat-icon-button
+                  (click)="delete.emit(s)"
+                  matTooltip="Excluir"
+                  class="group !w-10 !h-10 md:!w-8 md:!h-8 !leading-none disabled:!cursor-not-allowed
+                         disabled:!pointer-events-auto flex justify-center items-center"
+                >
+                  <mat-icon
+                    class="!text-red-600 transition-transform duration-200 group-hover:!text-red-900
+                            group-hover:!scale-125 group-disabled:!text-gray-400
+                            group-disabled:!scale-100 !text-[20px]"
+                  >
+                    delete
+                  </mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr
+            mat-header-row
+            *matHeaderRowDef="displayedColumns()"
+            class="!min-h-[40px] !h-[40px] !bg-gray-50 border-b-2 border-gray-300"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumns()"
+            class="!min-h-[40px] !h-[40px] odd:!bg-white even:!bg-gray-50 hover:!bg-blue-50
+                    transition-colors cursor-pointer border-gray-100"
+          ></tr>
+
+          <tr class="mat-row" *matNoDataRow>
+            <td
+              class="mat-cell p-4 text-center text-red-800 text-base md:text-xl"
+              [colSpan]="displayedColumns().length"
             >
-              <mat-icon
-                class="!text-blue-600 transition-transform duration-200
-                group-hover:!text-blue-400 group-hover:!scale-125 !text-[20px]"
-              >
-                edit
-              </mat-icon>
-            </button>
-            <button
-              [disabled]="!isButtonsDisabled()"
-              mat-icon-button
-              (click)="delete.emit(s)"
-              matTooltip="Excluir"
-              class="group inline-flex items-center justify-center
-                     !p-0 !pt-2 !w-8 !h-8 !leading-none disabled:!bg-gray-300
-                     disabled:!cursor-not-allowed disabled:!pointer-events-auto"
-            >
-              <mat-icon
-                class="!w-[20px] !h-[20px] !text-[20px]
-                      !text-red-600 transition-transform duration-200
-                      group-hover:!text-red-900 group-hover:!scale-125
-                      group-disabled:!text-gray-400 group-disabled:!scale-100"
-              >
-                delete
-              </mat-icon>
-            </button>
-          </td>
-        </ng-container>
-
-        <tr
-          mat-header-row
-          *matHeaderRowDef="displayedColumns"
-          class="!min-h-[40px] !h-[40px] !bg-gray-50 border-b-2 border-gray-300"
-        ></tr>
-        <tr
-          mat-row
-          *matRowDef="let row; columns: displayedColumns"
-          class="!min-h-[40px] !h-[40px] odd:!bg-white even:!bg-gray-50 hover:!bg-blue-50
-                 transition-colors cursor-pointer border-gray-100"
-        ></tr>
-
-        <tr class="mat-row" *matNoDataRow>
-          <td
-            class="mat-cell p-4 text-center text-red-800 text-xl"
-            [colSpan]="displayedColumns.length"
-          >
-            Nenhum servidor encontrado.
-          </td>
-        </tr>
-      </table>
-
+              Nenhum servidor encontrado.
+            </td>
+          </tr>
+        </table>
+      </div>
       <mat-paginator
         [length]="totalElements()"
         [pageSize]="pageSize()"
@@ -172,12 +188,13 @@ import { AuthService } from '../../../../core/auth/services/auth.service';
       >
       </mat-paginator>
     </div>
-  `,
+  `
 })
 export class ServidorTableComponent {
   // injete o router no ServidorListComponent ou ServidorTableComponent
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly breakpointObserver = inject(BreakpointObserver);
 
   // INPUTS (Dados que vêm do Pai)
   data = input.required<ServidorResponseDTO[]>();
@@ -192,7 +209,24 @@ export class ServidorTableComponent {
   pageChange = output<PageEvent>();
 
   // Estado interno (Só pertence à tabela, o Pai não precisa saber disso)
-  displayedColumns: string[] = ['matricula', 'nome', 'email', 'setor', 'cargo', 'acoes'];
+  // displayedColumns: string[] = ['matricula', 'nome', 'email', 'setor', 'cargo', 'acoes'];
+
+  // Cria um Signal reativo que será true em telas menores que 768px
+  // (equivalente ao 'md' do Tailwind)
+  isMobile = toSignal(
+    this.breakpointObserver.observe('(max-width: 767px)').pipe(
+      map(result => result.matches)
+    ),
+    { initialValue: false }
+  );
+
+  // Computa as colunas a serem exibidas com base no Signal isMobile
+  displayedColumns = computed(() => {
+    if (this.isMobile()) {
+      return ['nome', 'acoes']; // Array para Mobile
+    }
+    return ['matricula', 'nome', 'email', 'setor', 'cargo', 'acoes']; // Array para Desktop
+  });
 
   // Desabilita botões se o usuário não for admin
   isButtonsDisabled = computed(() => {

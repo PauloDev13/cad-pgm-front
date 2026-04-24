@@ -9,49 +9,45 @@ import { MatSelect } from '@angular/material/select';
   imports: [MatFormField, MatIcon, MatInput, MatLabel, MatOption, MatPrefix, MatSelect],
   template: `
     <div
-      class="flex flex-col md:flex-row justify-between items-end gap-4 mb-6
-      bg-gray-50 p-4 rounded-lg shadow-sm shadow-gray-300 border border-gray-300"
+      class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 bg-white md:bg-gray-50 p-4 md:p-5
+             rounded-xl shadow-sm border border-gray-200"
     >
-      <div class="w-full md:w-64 bg-white">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-32">
-          <mat-label>Filtrar por</mat-label>
-          <mat-select
-            [value]="searchType()"
-            (selectionChange)="searchTypeChange.emit($event.value)"
-          >
-            <mat-option value="NOME">NOME</mat-option>
-            <mat-option value="LOGIN">LOGIN</mat-option>
-            <mat-option value="EMAIL">EMAIL</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-
-      <div class="flex flex-col md:flex-row gap-2 flex-1 w-full md:justify-end bg-white">
-        <mat-form-field
-          appearance="outline"
-          subscriptSizing="dynamic"
-          class="w-full md:w-96 lg:w-[450px]"
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-label>Filtrar por</mat-label>
+        <mat-select
+          [value]="searchType()"
+          (selectionChange)="searchTypeChange.emit($event.value)"
         >
-          <mat-label>Digite para buscar...</mat-label>
-          <input
-            matInput
-            [value]="searchTerm()"
-            (input)="searchInput.emit($event)"
-            [placeholder]="
+          <mat-option value="NOME">NOME</mat-option>
+          <mat-option value="LOGIN">LOGIN</mat-option>
+          <mat-option value="EMAIL">EMAIL</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field
+        appearance="outline"
+        subscriptSizing="dynamic"
+        class="w-full md:col-span-2"
+      >
+        <mat-label>Digite para buscar...</mat-label>
+        <input
+          matInput
+          [value]="searchTerm()"
+          (input)="searchInput.emit($event)"
+          [placeholder]="
               searchType() === 'NOME'
                 ? 'Ex: John Davis'
                 : searchType() === 'LOGIN'
                   ? 'Ex: john.davis'
                   : 'Ex: john@gmail.com'
             "
-          />
-          <mat-icon matIconPrefix class="text-gray-500">search</mat-icon>
-        </mat-form-field>
-      </div>
+        />
+        <mat-icon matIconPrefix class="text-gray-500">search</mat-icon>
+      </mat-form-field>
     </div>
   `,
   styles: ``,
-  standalone: true,
+  standalone: true
 })
 export class UsuarioFilterComponent {
   // INPUTS: O que o Pai vai mandar para cá
