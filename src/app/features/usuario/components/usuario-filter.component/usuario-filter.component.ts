@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { MatFormField, MatInput, MatLabel, MatPrefix } from '@angular/material/input';
 import { MatIcon } from '@angular/material/icon';
 import { MatOption } from '@angular/material/core';
@@ -7,6 +7,8 @@ import { MatSelect } from '@angular/material/select';
 @Component({
   selector: 'app-usuario-filter',
   imports: [MatFormField, MatIcon, MatInput, MatLabel, MatOption, MatPrefix, MatSelect],
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
       class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 bg-white md:bg-gray-50 p-4 md:p-5
@@ -46,8 +48,7 @@ import { MatSelect } from '@angular/material/select';
       </mat-form-field>
     </div>
   `,
-  styles: ``,
-  standalone: true
+  styles: ``
 })
 export class UsuarioFilterComponent {
   // INPUTS: O que o Pai vai mandar para cá

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { HeaderComponent } from './header.component';
@@ -8,6 +8,7 @@ import { FooterComponent } from './footer.component';
 @Component({
   selector: 'app-main-layout',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterModule, HeaderComponent, SidebarComponent, FooterComponent, NgClass],
   template: `
     <div class="h-screen print:h-auto flex flex-col overflow-hidden print:overflow-visible

@@ -1,4 +1,4 @@
-import { Component, computed, effect, input, model, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, input, model, signal, viewChild } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
@@ -18,6 +18,7 @@ import { ErrorStateMatcher } from '@angular/material/core';
     MatLabel
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col w-full">
       <mat-form-field

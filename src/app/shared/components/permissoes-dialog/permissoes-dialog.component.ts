@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -26,6 +26,7 @@ export interface PermissoesDialogData {
     CustomSelectComponent
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex justify-between items-center px-6 pt-4 pb-2 border-b border-gray-200 mb-2">
       <h2 mat-dialog-title class="!font-bold !text-lg sm:!text-xl !text-blue-700 !m-0 !p-0">

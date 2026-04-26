@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -29,6 +29,7 @@ import { finalize } from 'rxjs';
     FieldWrapperComponent
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
       class="w-full flex flex-col bg-white rounded-xl shadow-xl p-6 sm:p-8 border border-gray-100 lg:border-none lg:shadow-lg">
@@ -39,7 +40,7 @@ import { finalize } from 'rxjs';
 
       <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col w-full">
 
-        <app-field-wrapper [field]="loginForm.userName()">
+        <app-field-wrapper class="py-2" [field]="loginForm.userName()">
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
             <mat-label>Login do Usuário</mat-label>
             <input matInput [formField]="loginForm.userName" autocomplete="off" placeholder="Ex: jonh.river" />
@@ -103,7 +104,7 @@ export class FormMainLoginComponent {
 
   // Formulário de login com validações
   loginForm = form(this.formLoginModel, (path: any) => {
-    required(path.login, { message: 'Login é obrigatório' });
+    required(path.userName, { message: 'Login é obrigatório' });
     required(path.password!, { message: 'Senha é obrigatória' });
   });
 

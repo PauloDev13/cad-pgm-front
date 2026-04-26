@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormInfoLoginComponent } from '../component/form-info-login.component';
 import { RouterOutlet } from '@angular/router';
 
@@ -9,6 +9,7 @@ import { RouterOutlet } from '@angular/router';
     RouterOutlet
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="min-h-screen flex w-full bg-white">
       <div class="hidden lg:flex w-1/2 bg-blue-50 flex-col items-center justify-center relative overflow-hidden">

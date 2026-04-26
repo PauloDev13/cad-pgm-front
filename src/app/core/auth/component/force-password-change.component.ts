@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { form, FormField, minLength, required, validate } from '@angular/forms/signals';
@@ -27,6 +27,7 @@ import { finalize } from 'rxjs';
     FieldWrapperComponent
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
       class="w-full flex flex-col bg-white rounded-xl shadow-xl p-6 sm:p-8 border border-gray-100 lg:border-none lg:shadow-lg">
@@ -37,7 +38,7 @@ import { finalize } from 'rxjs';
 
       <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col w-full">
         <!--        <div class="flex flex-col">-->
-        <app-field-wrapper [field]="form.password()">
+        <app-field-wrapper class="py-3" [field]="form.password()">
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
             <mat-label>Nova Senha</mat-label>
             <input

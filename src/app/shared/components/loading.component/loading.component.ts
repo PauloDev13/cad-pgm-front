@@ -1,10 +1,11 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-loading',
   imports: [MatProgressSpinner],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   // Adicione o host para garantir que a tag do Angular não ocupe espaço:
   host: {
     class: 'contents'

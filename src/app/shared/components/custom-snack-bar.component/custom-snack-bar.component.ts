@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { SnackbarData } from '../../model/snackbar-data.model';
@@ -8,6 +8,7 @@ import { MAT_SNACK_BAR_DATA, MatSnackBarRef } from '@angular/material/snack-bar'
   selector: 'app-custom-snack-bar',
   imports: [MatIconModule, MatButtonModule],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
       class="flex items-start gap-3 p-4 rounded-xl shadow-xl text-white w-full max-w-sm sm:max-w-md pointer-events-auto"

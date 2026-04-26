@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, signal, untracked } from '@angular/core';
 import { ServidorService } from '../../services/servidor.service';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { BaseEntityDTO, ServidorRequestDTO, ServidorResponseDTO } from '../../models/servidor.model';
@@ -213,7 +213,8 @@ export type FormModel = Required<ServidorRequestDTO>;
                 label="Vínculo"
                 placeholder="Selecione..."
                 [field]="servidorForm.vinculoId()"
-                [options]="vinculos()" />
+                [options]="vinculos()"
+              />
             </div>
           </div>
         </div>
@@ -256,6 +257,38 @@ export class ServidorFormComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<ServidorFormComponent>);
   private readonly dialog = inject(MatDialog);
   private readonly authService = inject(AuthService);
+
+  constructor() {
+    effect(() => {
+      const selectedId = this.servidorForm.vinculoId().value();
+      const vinculoList = this.vinculos();
+
+      untracked(() => {
+        if (selectedId) {
+          const selectedVinculo = vinculoList
+            .find(opt => opt.id === selectedId);
+          const vinculoName = (selectedVinculo?.nome || '').toLowerCase();
+          const currentMatricula = this.servidorForm.matricula().value();
+
+          if (vinculoName === 'terceirizado') {
+            // PROTEÇÃO DE UX: Só gera uma nova matrícula se o campo estiver vazio.
+            // Isso evita que o sistema gere um novo código se o usuário estiver
+            // apenas abrindo a tela para EDITAR um Terceirizado que já existe.
+            if (!currentMatricula) {
+              this.servidorForm.matricula().value.set(this.gerarMatriculaTerceirizado());
+            }
+          } else {
+            // (Opcional) Limpar o campo se mudar de Terceirizado para outro,
+            // mas apenas se a matrícula atual começar com 'T' para não apagar
+            // matrículas reais sem querer.
+            if (currentMatricula && currentMatricula.startsWith('T')) {
+              this.servidorForm.matricula().value.set('');
+            }
+          }
+        }
+      });
+    });
+  }
 
   // Variáveis diversas
   isEdit: boolean = false;
@@ -419,10 +452,6 @@ export class ServidorFormComponent implements OnInit {
     });
   }
 
-  // onSetMatriculaTerceirizado(value: string) {
-  //   console.log('MATRICULA', value);
-  // }
-
   openPermissions() {
     const dialogRef = this.dialog.open(PermissoesDialogComponent, {
       width: '500px',
@@ -456,5 +485,12 @@ export class ServidorFormComponent implements OnInit {
     // Busca dados estáticos e simula uma requisição a API
     this.dominioService.getLotacaoList().subscribe((res) => this.lotacaoList.set(res));
     this.dominioService.getGeneros().subscribe((res) => this.generos.set(res));
+  }
+
+  // MÉTODO AUXILIAR: Gera um código no formato "T" + 4 ou 5 dígitos aleatórios
+  private gerarMatriculaTerceirizado(): string {
+    // Gera um número entre 10000 e 99999
+    const numeroAleatorio = Math.floor(100 + Math.random() * 900);
+    return `T${numeroAleatorio}`;
   }
 }

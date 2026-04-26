@@ -1,10 +1,11 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
   selector: 'app-form-error',
   imports: [MatFormFieldModule],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (field().invalid() && field().touched() && field().errors().length > 0) {
       <mat-error

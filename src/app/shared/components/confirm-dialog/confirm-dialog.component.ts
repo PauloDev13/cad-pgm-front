@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { ConfirmDialogData } from '../../model/confirm-dialog-data.model';
@@ -8,6 +8,7 @@ import { MatIcon } from '@angular/material/icon';
   selector: 'app-confirm-dialog',
   imports: [MatDialogModule, MatButtonModule, MatIcon],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div mat-dialog-title class="!flex !justify-between !items-center !px-6 !pt-4 !pb-2 !m-0">
       <h2 mat-dialog-title

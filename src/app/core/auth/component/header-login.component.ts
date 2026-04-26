@@ -1,10 +1,11 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-header-login',
   imports: [MatIconModule],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex items-center gap-3 mb-6 sm:mb-8">
       <mat-icon class="text-blue-600 !h-8 !w-8 !text-[32px] !leading-none shrink-0">

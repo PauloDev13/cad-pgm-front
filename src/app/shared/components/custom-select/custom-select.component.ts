@@ -10,6 +10,7 @@ import { BaseEntityDTO } from '../../../features/servidor/models/servidor.model'
   selector: 'app-custom-select',
   imports: [MatFormFieldModule, MatSelectModule, MatOptionModule, FormField, FormErrorComponent],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (field()) {
       <div class="flex flex-col w-full">
@@ -42,7 +43,11 @@ import { BaseEntityDTO } from '../../../features/servidor/models/servidor.model'
           subscriptSizing="dynamic"
         >
           <mat-label>{{ label() }}</mat-label>
-          <mat-select [(value)]="value" [placeholder]="placeholder()" [multiple]="multiple()">
+          <mat-select
+            [(value)]="value"
+            [placeholder]="placeholder()"
+            [multiple]="multiple()"
+          >
             @for (option of options(); track option.id) {
               <mat-option [value]="option.id">
                 {{ option.nome || option.descricao || option.email }}
@@ -53,8 +58,7 @@ import { BaseEntityDTO } from '../../../features/servidor/models/servidor.model'
         <div class="min-h-[20px] w-full pt-0 px-4"></div>
       </div>
     }
-  `,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  `
 })
 export class CustomSelectComponent {
   // INPUTS obrigatórios
@@ -72,10 +76,4 @@ export class CustomSelectComponent {
 
   // Cria um sinal bidirecional para quando usarmos variável livre (Modo 2)
   value = model<any>();
-
-  // setMatriculaTerceirizado = output<string>();
-  //
-  // onSetMatriculaTerceirizado() {
-  //   this.setMatriculaTerceirizado.emit('Terceirizado');
-  // }
 }

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,6 +12,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   selector: 'app-temporary-password-dialog',
   imports: [MatDialogModule, MatButtonModule, MatIconModule, MatSnackBarModule, MatTooltipModule],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div mat-dialog-title
          class="!flex !flex-row !justify-between !items-center !w-full !px-6 !pt-5 !pb-3 !m-0 border-b border-gray-200">

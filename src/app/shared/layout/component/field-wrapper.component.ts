@@ -1,9 +1,10 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { FormErrorComponent } from '../../components/form-error/form-error.component'; // Ajuste o path
 
 @Component({
   selector: 'app-field-wrapper',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormErrorComponent],
   template: `
     <div class="flex flex-col w-full relative">
