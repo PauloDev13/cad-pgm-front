@@ -29,7 +29,7 @@ import { BaseEntityDTO } from '../../../features/servidor/models/servidor.model'
           </mat-select>
         </mat-form-field>
 
-        <div class="min-h-[20px] w-full pt-1 px-4">
+        <div class="min-h-[20px] w-full pt-0 px-3">
           <app-form-error [field]="field()" />
         </div>
       </div>
@@ -50,7 +50,7 @@ import { BaseEntityDTO } from '../../../features/servidor/models/servidor.model'
             }
           </mat-select>
         </mat-form-field>
-        <div class="min-h-[20px] w-full pt-1 px-4"></div>
+        <div class="min-h-[20px] w-full pt-0 px-4"></div>
       </div>
     }
   `,
@@ -72,4 +72,10 @@ export class CustomSelectComponent {
 
   // Cria um sinal bidirecional para quando usarmos variável livre (Modo 2)
   value = model<any>();
+
+  // setMatriculaTerceirizado = output<string>();
+  //
+  // onSetMatriculaTerceirizado() {
+  //   this.setMatriculaTerceirizado.emit('Terceirizado');
+  // }
 }

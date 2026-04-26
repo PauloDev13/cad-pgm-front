@@ -11,7 +11,7 @@ import { FormErrorComponent } from '../../components/form-error/form-error.compo
       <ng-content></ng-content>
 
       <!--Chama o componente customizado para exibir os erros-->
-      <div class="min-h-[20px] w-full pt-1 px-4">
+      <div class="min-h-[20px] w-full pt-0 px-3">
         <app-form-error [field]="field()" />
       </div>
 

@@ -51,7 +51,7 @@ import { ErrorStateMatcher } from '@angular/material/core';
         </mat-autocomplete>
       </mat-form-field>
 
-      <div class="min-h-[20px] w-full pt-1 px-4">
+      <div class="min-h-[20px] w-full pt-0 px-3">
         @if (showError()) {
           <mat-error
             class="!text-[12px] sm:!text-[13px] !leading-tight !text-red-600 block w-full

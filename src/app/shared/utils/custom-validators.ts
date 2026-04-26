@@ -16,62 +16,71 @@ export class CustomValidators {
     if (age < minAge) {
       return {
         kind: 'minimumAge',
-        message: `Idade mínima: ${minAge} anos. A informada: ${age} anos. `,
+        message: `Idade mínima: ${minAge} anos. A informada: ${age} anos. `
       };
     }
 
     return null; // Válido!
   }
 
-  // Verifica se a data é real no calendário
-  // static dataValida(value: any): { kind: string; message: string } | null {
-  //   // O Pulo do Gato: O valor chegou nulo, MAS o alarme disparou no Adapter?
-  //   // Então sabemos que não está vazio, o usuário digitou lixo!
-  //
-  //   // Se está vazio e o alarme NÃO tocou, é porque está vazio mesmo. Deixa pro Required.
-  //
-  //   if (!value && DateValidationState.isInvalid) {
-  //     return { kind: 'dataInvalida', message: 'A data informada é inválida 1' };
-  //   }
-  //
-  //   if (!value) return null;
-  //   // Se chegou a instância do erro diretamente
-  //   if (value instanceof Date && isNaN(value.getTime())) {
-  //     return { kind: 'dataInvalida', message: 'A data informada é inválida 2' };
-  //   }
-  //
-  //   // Se o Angular Material já converteu para Date e percebeu que é inválido (Invalid Date)
-  //   if (value instanceof Date && isNaN(value.getTime())) {
-  //     return { kind: 'dataInvalida', message: 'Data inválida 1' };
-  //   }
-  //
-  //   // Se o valor for a string digitada "DD/MM/YYYY"
-  //   if (typeof value === 'string') {
-  //     const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
-  //     const match = value.match(regex);
-  //
-  //     if (!match) {
-  //       return { kind: 'dataInvalida', message: 'Formato inválido. Use DD/MM/AAAA.' };
-  //     }
-  //
-  //     const dia = parseInt(match[1], 10);
-  //     const mes = parseInt(match[2], 10);
-  //     const ano = parseInt(match[3], 10);
-  //
-  //     // O JS começa o mês no 0 (Janeiro = 0). Instanciamos a data exata.
-  //     const dataTeste = new Date(ano, mes - 1, dia);
-  //
-  //     // Se ao instanciar o JS "empurrar" o dia (ex: 31 de Fev vira 02 de Mar),
-  //     // os valores não vão bater
-  //     if (
-  //       dataTeste.getFullYear() !== ano ||
-  //       dataTeste.getMonth() + 1 !== mes ||
-  //       dataTeste.getDate() !== dia
-  //     ) {
-  //       return { kind: 'dataInvalida', message: 'Data inválida 2' };
-  //     }
-  //   }
-  //
-  //   return null; // A data é real e válida!
-  // }
+
+  static cpfValidator(value: string): { kind: string; message: string } | null {
+    // Se o campo estiver vazio, não validamos o CPF.
+    // Deixe que o validador 'Validators.required' cuide disso se for um campo obrigatório.
+    if (!value) {
+      return null;
+    }
+
+    // Limpa a formatação: remove pontos, traços e qualquer caractere não numérico
+    const cpf = value.replace(/\D/g, '');
+
+    // Verifica o tamanho correto
+    if (cpf.length !== 11) {
+      return {
+        kind: 'invalidCpf',
+        message: `CPF: ${value} inválido `
+      };
+    }
+
+    // Bloqueia CPFs com sequências de números repetidos (ex: 111.111.111-11),
+    // que passam na fórmula matemática mas são inválidos na vida real.
+    if (/^(\d)\1{10}$/.test(cpf)) {
+      return {
+        kind: 'invalidCpf',
+        message: `CPF: ${value} inválido `
+      };
+    }
+
+    // Cálculo do primeiro dígito verificador
+    let soma = 0;
+    let resto;
+    for (let i = 1; i <= 9; i++) {
+      soma += parseInt(cpf.substring(i - 1, i)) * (11 - i);
+    }
+    resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) resto = 0;
+    if (resto !== parseInt(cpf.substring(9, 10))) {
+      return {
+        kind: 'invalidCpf',
+        message: `CPF: ${value} inválido `
+      };
+    }
+
+    // Cálculo do segundo dígito verificador
+    soma = 0;
+    for (let i = 1; i <= 10; i++) {
+      soma += parseInt(cpf.substring(i - 1, i)) * (12 - i);
+    }
+    resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) resto = 0;
+    if (resto !== parseInt(cpf.substring(10, 11))) {
+      return {
+        kind: 'invalidCpf',
+        message: `CPF: ${value} inválido `
+      };
+    }
+
+    // Se passou por todas as barreiras, o CPF é válido!
+    return null;
+  }
 }

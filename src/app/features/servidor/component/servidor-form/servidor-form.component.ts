@@ -90,10 +90,12 @@ export type FormModel = Required<ServidorRequestDTO>;
               </mat-form-field>
             </app-field-wrapper>
 
-            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>Filiação (Nome da Mãe/Pai)</mat-label>
-              <input matInput [formField]="servidorForm.filiacao" />
-            </mat-form-field>
+            <app-field-wrapper [field]="servidorForm.filiacao()">
+              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                <mat-label>Filiação (Nome da Mãe/Pai)</mat-label>
+                <input matInput [formField]="servidorForm.filiacao" />
+              </mat-form-field>
+            </app-field-wrapper>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-3">
               <app-field-wrapper [field]="servidorForm.matricula()">
@@ -307,11 +309,12 @@ export class ServidorFormComponent implements OnInit {
     // validações para o campo CPF
     required(path.cpf, { message: 'O CPF é obrigatório' });
     pattern(path.cpf, /^\d{11}$/, { message: 'O CPF deve ter 11 dígitos' });
+    validate(path.cpf, ({ value }) => CustomValidators.cpfValidator(value()));
 
     // validações para o campo Data de Nascimento
     required(path.dataNascimento, { message: 'A data é obrigatório' });
-    validate(path.dataNascimento, ({ value }) => CustomValidators.minimunAge(value(), 16));
-    // validate(path.dataNascimento, ({ value }) => CustomValidators.dataValida(value()));
+    validate(path.dataNascimento, ({ value }) =>
+      CustomValidators.minimunAge(value(), 16));
 
     // validações para o campo Telefone
     maxLength(path.telefone, 20, {
@@ -415,6 +418,10 @@ export class ServidorFormComponent implements OnInit {
       }
     });
   }
+
+  // onSetMatriculaTerceirizado(value: string) {
+  //   console.log('MATRICULA', value);
+  // }
 
   openPermissions() {
     const dialogRef = this.dialog.open(PermissoesDialogComponent, {
