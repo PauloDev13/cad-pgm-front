@@ -221,11 +221,11 @@ export class UsuarioTableComponent {
   // displayedColumns: string[] = ['ID', 'nome', 'login', 'email', 'acoes'];
 
   // desabilita botões se o usuário logado não for Administrador
-  isButtonsDisabled = computed(() => {
-    const user = this.authService.currentUser();
-    if (!user) return;
-    return user.roles.find((p) => p === 'admin');
-  });
+  // isButtonsDisabled = computed(() => {
+  //   const user = this.authService.currentUser();
+  //   if (!user) return;
+  //   return user.roles.find((p) => p === 'admin');
+  // });
 
   // Avalia linha por linha se os botões devem estar desabilitados
   isActionDisabled(rowUser: IUsuarioResponse): boolean {
@@ -236,7 +236,7 @@ export class UsuarioTableComponent {
 
     // REGRA DE OURO (Proteção do Procurador Geral):
     // Se a linha desenhada for do 'procurador.geral' E o usuário logado NÃO for ele mesmo, bloqueia!
-    if (rowUser.userName === 'root' && loggedUser.userName !== 'root') {
+    if (rowUser.userName === 'pgmnet' && loggedUser.userName !== 'pgmnet') {
       return true;
     }
 

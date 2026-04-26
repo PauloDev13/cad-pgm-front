@@ -260,30 +260,49 @@ export class ServidorFormComponent implements OnInit {
 
   constructor() {
     effect(() => {
+      // Atribui valores as variáveis locais effect
       const selectedId = this.servidorForm.vinculoId().value();
       const vinculoList = this.vinculos();
 
       untracked(() => {
-        if (selectedId) {
-          const selectedVinculo = vinculoList
-            .find(opt => opt.id === selectedId);
-          const vinculoName = (selectedVinculo?.nome || '').toLowerCase();
-          const currentMatricula = this.servidorForm.matricula().value();
+        if (!selectedId) return;
+        // atribui valores as variáveis locais do untracked
+        const selectedVinculo = vinculoList.find(opt => opt.id === selectedId);
+        const vinculoName = (selectedVinculo?.nome || '').toLowerCase();
+        const currentMatricula = this.servidorForm.matricula().value();
 
-          if (vinculoName === 'terceirizado') {
-            // PROTEÇÃO DE UX: Só gera uma nova matrícula se o campo estiver vazio.
-            // Isso evita que o sistema gere um novo código se o usuário estiver
-            // apenas abrindo a tela para EDITAR um Terceirizado que já existe.
-            if (!currentMatricula) {
-              this.servidorForm.matricula().value.set(this.gerarMatriculaTerceirizado());
-            }
-          } else {
-            // (Opcional) Limpar o campo se mudar de Terceirizado para outro,
-            // mas apenas se a matrícula atual começar com 'T' para não apagar
-            // matrículas reais sem querer.
-            if (currentMatricula && currentMatricula.startsWith('T')) {
-              this.servidorForm.matricula().value.set('');
-            }
+        // --- CENÁRIO: MUDOU PARA TERCEIRIZADO ---
+        if (vinculoName === 'terceirizado') {
+
+          // Se a matrícula atual ainda não é "T", guardamos ela como original caso não tenha sido salva
+          if (currentMatricula && !currentMatricula.startsWith('T') && !this.originMatricula) {
+            this.originMatricula = currentMatricula;
+            this.originVinculoId = this.servidorForm.vinculoId().value();
+          }
+
+          // Se já temos um "T" no cache, restauramos. Senão, geramos um novo.
+          if (this.cacheMatriculaTerceirizado) {
+            this.servidorForm.matricula().value.set(this.cacheMatriculaTerceirizado);
+          } else if (!currentMatricula?.startsWith('T')) {
+            const newMatricula = this.gerarMatriculaTerceirizado();
+            this.cacheMatriculaTerceirizado = newMatricula;
+            this.servidorForm.matricula().value.set(newMatricula);
+          }
+
+          // --- CENÁRIO: MUDOU PARA QUALQUER OUTRO VÍNCULO ---
+        } else {
+          // 1. Se ele voltou para o vínculo que tinha no início (Ex: Efetivo)
+          if (selectedId === this.originVinculoId) {
+            this.servidorForm.matricula().value.set(this.originMatricula || '');
+          }
+          // 2. Se é um vínculo novo (nem o original, nem terceirizado), limpamos conforme sua regra
+          else {
+            this.servidorForm.matricula().value.set('');
+          }
+
+          // Se a matrícula que estava antes era um "T", salvamos no cache para não perder
+          if (currentMatricula && currentMatricula.startsWith('T')) {
+            this.cacheMatriculaTerceirizado = currentMatricula;
           }
         }
       });
@@ -293,6 +312,11 @@ export class ServidorFormComponent implements OnInit {
   // Variáveis diversas
   isEdit: boolean = false;
   readonly data = inject<ServidorResponseDTO>(MAT_DIALOG_DATA, { optional: true });
+  // variáveis para o controle e geração de matrícula para o vínculo terceirizado
+  private originMatricula: string | undefined = this.data?.matricula;
+  private originVinculoId: number | undefined = this.data?.vinculo?.id;
+  private cacheMatriculaTerceirizado: string | null = null;
+
   // Signals para armazenar os dados que virão da API
   cargos = signal<BaseEntityDTO[]>([]);
   setores = signal<BaseEntityDTO[]>([]);
@@ -487,7 +511,7 @@ export class ServidorFormComponent implements OnInit {
     this.dominioService.getGeneros().subscribe((res) => this.generos.set(res));
   }
 
-  // MÉTODO AUXILIAR: Gera um código no formato "T" + 4 ou 5 dígitos aleatórios
+  // MÉTODO AUXILIAR: Gera um código no formato "T" + 3 ou 4 dígitos aleatórios
   private gerarMatriculaTerceirizado(): string {
     // Gera um número entre 10000 e 99999
     const numeroAleatorio = Math.floor(100 + Math.random() * 900);

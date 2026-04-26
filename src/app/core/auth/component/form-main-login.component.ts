@@ -40,27 +40,28 @@ import { finalize } from 'rxjs';
 
       <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col w-full">
 
-        <app-field-wrapper class="py-2" [field]="loginForm.userName()">
-          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-            <mat-label>Login do Usuário</mat-label>
-            <input matInput [formField]="loginForm.userName" autocomplete="off" placeholder="Ex: jonh.river" />
-          </mat-form-field>
-        </app-field-wrapper>
+        <div class="flex flex-col gap-y-3">
+          <app-field-wrapper [field]="loginForm.userName()">
+            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+              <mat-label>Login do Usuário</mat-label>
+              <input matInput [formField]="loginForm.userName" autocomplete="off" placeholder="Ex: jonh.river" />
+            </mat-form-field>
+          </app-field-wrapper>
 
-        <app-field-wrapper [field]="loginForm.password!()">
-          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-            <mat-label>Senha</mat-label>
-            <input [type]="hidePassword() ? 'password' : 'text'" matInput [formField]="loginForm.password!"
-                   autocomplete="new_password" />
-            <button tabIndex="-1" class="!mr-1 text-gray-500 hover:text-gray-700" mat-icon-button matSuffix
-                    type="button" aria-label="Ocultar/Exibir senha" (click)="togglePassword($event)">
-              <mat-icon class="transition-transform duration-200 hover:scale-110">
-                {{ hidePassword() ? 'visibility_off' : 'visibility' }}
-              </mat-icon>
-            </button>
-          </mat-form-field>
-        </app-field-wrapper>
-
+          <app-field-wrapper [field]="loginForm.password!()">
+            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+              <mat-label>Senha</mat-label>
+              <input [type]="hidePassword() ? 'password' : 'text'" matInput [formField]="loginForm.password!"
+                     autocomplete="new_password" />
+              <button tabIndex="-1" class="!mr-1 text-gray-500 hover:text-gray-700" mat-icon-button matSuffix
+                      type="button" aria-label="Ocultar/Exibir senha" (click)="togglePassword($event)">
+                <mat-icon class="transition-transform duration-200 hover:scale-110">
+                  {{ hidePassword() ? 'visibility_off' : 'visibility' }}
+                </mat-icon>
+              </button>
+            </mat-form-field>
+          </app-field-wrapper>
+        </div>
         <div class="flex justify-between items-center mb-4 px-1 mt-1">
           <a tabindex="-1" routerLink="/auth/esqueci-senha"
              class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">Esqueceu a senha?</a>

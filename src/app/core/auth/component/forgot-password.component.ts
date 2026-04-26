@@ -35,13 +35,14 @@ import { finalize } from 'rxjs';
 
       <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col w-full">
 
-        <app-field-wrapper [field]="forgotForm.email()">
-          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-            <mat-label>E-mail</mat-label>
-            <input matInput type="email" [formField]="forgotForm.email" placeholder="exemplo@email.com" />
-          </mat-form-field>
-        </app-field-wrapper>
-
+        <div class="flex flex-col gap-y-3">
+          <app-field-wrapper [field]="forgotForm.email()">
+            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+              <mat-label>E-mail</mat-label>
+              <input matInput type="email" [formField]="forgotForm.email" placeholder="exemplo@email.com" />
+            </mat-form-field>
+          </app-field-wrapper>
+        </div>
         <div class="flex justify-end items-center mb-4 px-1 mt-1">
           <a tabindex="-1" routerLink="/auth/login"
              class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">Voltar para o Login</a>

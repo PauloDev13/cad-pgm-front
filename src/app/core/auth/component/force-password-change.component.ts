@@ -37,58 +37,56 @@ import { finalize } from 'rxjs';
       />
 
       <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col w-full">
-        <!--        <div class="flex flex-col">-->
-        <app-field-wrapper class="py-3" [field]="form.password()">
-          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-            <mat-label>Nova Senha</mat-label>
-            <input
-              autocomplete="new-password"
-              [type]="hidePassword() ? 'password' : 'text'"
-              matInput
-              [formField]="form.password"
-            />
+        <div class="flex flex-col gap-y-3">
+          <app-field-wrapper [field]="form.password()">
+            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+              <mat-label>Nova Senha</mat-label>
+              <input
+                autocomplete="new-password"
+                [type]="hidePassword() ? 'password' : 'text'"
+                matInput
+                [formField]="form.password"
+              />
 
-            <button
-              tabindex="-1"
-              mat-icon-button
-              matSuffix
-              class="!mr-1 text-gray-500 hover:text-gray-700"
-              (click)="togglePassword($event)"
-              type="button"
-            >
-              <mat-icon class="transition-transform duration-200 hover:scale-110">
-                {{ hidePassword() ? 'visibility_off' : 'visibility' }}
-              </mat-icon>
-            </button>
-          </mat-form-field>
-        </app-field-wrapper>
-        <!--        </div>-->
+              <button
+                tabindex="-1"
+                mat-icon-button
+                matSuffix
+                class="!mr-1 text-gray-500 hover:text-gray-700"
+                (click)="togglePassword($event)"
+                type="button"
+              >
+                <mat-icon class="transition-transform duration-200 hover:scale-110">
+                  {{ hidePassword() ? 'visibility_off' : 'visibility' }}
+                </mat-icon>
+              </button>
+            </mat-form-field>
+          </app-field-wrapper>
 
-        <!--        <div class="flex flex-col">-->
-        <app-field-wrapper [field]="form.confirmPassword()">
-          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-            <mat-label>Confirmar Nova Senha</mat-label>
-            <input
-              autocomplete="new-password"
-              [type]="hideConfirm() ? 'password' : 'text'"
-              matInput
-              [formField]="form.confirmPassword"
-            />
-            <button
-              tabindex="-1"
-              mat-icon-button
-              matSuffix
-              class="!mr-1 text-gray-500 hover:text-gray-700"
-              (click)="toggleConfirm($event)"
-              type="button"
-            >
-              <mat-icon class="transition-transform duration-200 hover:scale-110">
-                {{ hideConfirm() ? 'visibility_off' : 'visibility' }}
-              </mat-icon>
-            </button>
-          </mat-form-field>
-        </app-field-wrapper>
-        <!--        </div>-->
+          <app-field-wrapper [field]="form.confirmPassword()">
+            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+              <mat-label>Confirmar Nova Senha</mat-label>
+              <input
+                autocomplete="new-password"
+                [type]="hideConfirm() ? 'password' : 'text'"
+                matInput
+                [formField]="form.confirmPassword"
+              />
+              <button
+                tabindex="-1"
+                mat-icon-button
+                matSuffix
+                class="!mr-1 text-gray-500 hover:text-gray-700"
+                (click)="toggleConfirm($event)"
+                type="button"
+              >
+                <mat-icon class="transition-transform duration-200 hover:scale-110">
+                  {{ hideConfirm() ? 'visibility_off' : 'visibility' }}
+                </mat-icon>
+              </button>
+            </mat-form-field>
+          </app-field-wrapper>
+        </div>
         <div class="flex justify-end items-center mb-4 px-1 mt-1">
           <a
             tabindex="-1"
