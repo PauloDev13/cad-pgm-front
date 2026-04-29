@@ -101,7 +101,22 @@ export type FormModel = Required<ServidorRequestDTO>;
               <app-field-wrapper [field]="servidorForm.matricula()">
                 <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                   <mat-label>Matrícula</mat-label>
-                  <input matInput [formField]="servidorForm.matricula" />
+                  @if (isTerceirizado) {
+                    <input
+                      matInput
+                      [formField]="servidorForm.matricula"
+                      placeholder="Ex: T032"
+                    />
+
+                  } @else {
+                    <input
+                      matInput
+                      [formField]="servidorForm.matricula"
+                      [mask]="'0.000-0||00.000-0||000.000-0||0000.000-0'"
+                      [dropSpecialCharacters]="true"
+                    />
+
+                  }
                 </mat-form-field>
               </app-field-wrapper>
 
@@ -514,7 +529,14 @@ export class ServidorFormComponent implements OnInit {
   // MÉTODO AUXILIAR: Gera um código no formato "T" + 3 ou 4 dígitos aleatórios
   private gerarMatriculaTerceirizado(): string {
     // Gera um número entre 10000 e 99999
-    const numeroAleatorio = Math.floor(100 + Math.random() * 900);
-    return `T${numeroAleatorio}`;
+    const randomNumber = Math.floor(100 + Math.random() * 900);
+    return `T${randomNumber}`;
+  }
+
+  get isTerceirizado(): boolean {
+    const idSelecionado = this.servidorForm.vinculoId().value();
+    const vinculo = this.vinculos().find(v => v.id === idSelecionado);
+
+    return vinculo?.nome?.toLowerCase() === 'terceirizado';
   }
 }

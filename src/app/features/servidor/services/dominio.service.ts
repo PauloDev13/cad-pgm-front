@@ -13,16 +13,10 @@ export class DominioService {
     { id: 2, nome: 'Cedido' }
   ];
 
-  readonly generos: BaseEntityDTO[] = [
-    { id: 1, nome: 'Masculino' },
-    { id: 2, nome: 'Feminino' },
-    { id: 3, nome: 'Outros' }
-  ];
-
-  readonly vinclos: BaseEntityDTO[] = [
-    { id: 1, nome: 'Efetivo' },
-    { id: 2, nome: 'Comissionado' },
-    { id: 3, nome: 'Terceirizado' }
+  readonly generos: any[] = [
+    { id: 'Masculino', nome: 'Masculino' },
+    { id: 'Feminino', nome: 'Feminino' },
+    { id: 'Outros', nome: 'Outros' }
   ];
 
   private readonly http = inject(HttpClient);
