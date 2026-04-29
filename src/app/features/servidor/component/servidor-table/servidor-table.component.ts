@@ -13,6 +13,7 @@ import { AuthService } from '../../../../core/auth/services/auth.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { map } from 'rxjs';
+import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
 
 @Component({
   selector: 'app-servidor-table',
@@ -24,7 +25,8 @@ import { map } from 'rxjs';
     MatButtonModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
-    LoadingComponent
+    LoadingComponent,
+    MatriculaPipe
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,7 +49,7 @@ import { map } from 'rxjs';
             </th>
             <td mat-cell *matCellDef="let s"
                 class="!text-sm !px-3 whitespace-nowrap text-gray-600">
-              {{ s.matricula }}
+              {{ s.matricula | matricula }}
             </td>
           </ng-container>
 
