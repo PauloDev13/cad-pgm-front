@@ -177,6 +177,7 @@ import { map } from 'rxjs';
         [pageSize]="pageSize()"
         [pageIndex]="currentPage()"
         [pageSizeOptions]="[10, 15, 20]"
+        [showFirstLastButtons]="true"
         (page)="pageChange.emit($event)"
         aria-label="Selecione a página"
       >
@@ -216,16 +217,6 @@ export class UsuarioTableComponent {
   confirmResetPassword = output<IUsuarioResponse>();
   delete = output<IUsuarioResponse>();
   pageChange = output<PageEvent>();
-
-  // Estado interno (Só pertence à tabela, o Pai não precisa saber disso)
-  // displayedColumns: string[] = ['ID', 'nome', 'login', 'email', 'acoes'];
-
-  // desabilita botões se o usuário logado não for Administrador
-  // isButtonsDisabled = computed(() => {
-  //   const user = this.authService.currentUser();
-  //   if (!user) return;
-  //   return user.roles.find((p) => p === 'admin');
-  // });
 
   // Avalia linha por linha se os botões devem estar desabilitados
   isActionDisabled(rowUser: IUsuarioResponse): boolean {

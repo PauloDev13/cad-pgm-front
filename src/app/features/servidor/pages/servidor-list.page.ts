@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { ServidorService } from '../services/servidor.service';
 import { BaseEntityDTO, ServidorResponseDTO } from '../models/servidor.model';
 import { MatDialog } from '@angular/material/dialog';
@@ -19,6 +19,7 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
 @Component({
   selector: 'app-servidor-list',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
       class="bg-gray-50 shadow-md rounded-2xl border border-gray-200 p-4 md:p-6 mx-auto mt-4 w-full max-w-7xl

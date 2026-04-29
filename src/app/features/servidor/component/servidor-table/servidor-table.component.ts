@@ -185,6 +185,7 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
         [pageSize]="pageSize()"
         [pageIndex]="currentPage()"
         [pageSizeOptions]="[10, 15, 20]"
+        [showFirstLastButtons]="true"
         (page)="pageChange.emit($event)"
         aria-label="Selecione a página"
       >

@@ -182,6 +182,7 @@ import { LoadingComponent } from '../loading.component/loading.component';
           [pageSize]="pageSize()"
           [pageIndex]="currentPage()"
           [pageSizeOptions]="[10, 15, 20]"
+          [showFirstLastButtons]="true"
           (page)="pageChange($event)"
           aria-label="Selecione a página"
         >

@@ -526,7 +526,7 @@ export class ServidorFormComponent implements OnInit {
     this.dominioService.getGeneros().subscribe((res) => this.generos.set(res));
   }
 
-  // MÉTODO AUXILIAR: Gera um código no formato "T" + 3 ou 4 dígitos aleatórios
+  // MÉTHOD AUXILIAR: Gera um código no formato "T" + 3 ou 4 dígitos aleatórios
   private gerarMatriculaTerceirizado(): string {
     // Gera um número entre 10000 e 99999
     const randomNumber = Math.floor(100 + Math.random() * 900);
@@ -535,8 +535,13 @@ export class ServidorFormComponent implements OnInit {
 
   get isTerceirizado(): boolean {
     const idSelecionado = this.servidorForm.vinculoId().value();
-    const vinculo = this.vinculos().find(v => v.id === idSelecionado);
+    const vinculo = this.vinculos()
+      .find(v => v.id === idSelecionado);
 
-    return vinculo?.nome?.toLowerCase() === 'terceirizado';
+    const name = vinculo?.nome.toLowerCase();
+
+    return (
+      name === 'terceirizado' || name === 'terceirizado ferista' || name === 'temporário' || name === 'residência'
+    );
   }
 }

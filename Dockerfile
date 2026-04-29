@@ -3,7 +3,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # NOVO: Instala o Angular CLI globalmente dentro do container!
-RUN npm install -g @angular/cli --verbose
+# RUN npm install -g @angular/cli --verbose
 
 # Copia os arquivos de dependência
 COPY package*.json ./

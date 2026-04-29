@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -26,6 +26,7 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
     DataInfoComponent
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
       class="max-w-7xl mx-auto mt-4 print:t-0 p-4 md:p-4 print:p-0
@@ -99,7 +100,12 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
               />
               <!-- Campos Gênero, Telefone, Filiação e Endereço-->
               <app-data-display label="Gênero" [fieldData]="s.genero" />
-              <app-data-display label="Telefone" [fieldData]="s.telefone" />
+              <app-data-display
+                label="Telefone"
+                [fieldData]="s.telefone"
+                [maskPattern]="'(00) 0 0000-0000'"
+
+              />
               <app-data-display class="md:col-span-2" label="Filiação" [fieldData]="s.filiacao" />
               <app-data-display class="md:col-span-2" label="Endereço" [fieldData]="s.endereco" />
             </div>

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PageEvent } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
@@ -24,6 +24,7 @@ import { CustomDeleteService } from '../../../shared/service/custom-delete.servi
 @Component({
   selector: 'app-servidor-list',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
       class="bg-gray-50 shadow-md rounded-2xl border border-gray-200 p-4 md:p-6
