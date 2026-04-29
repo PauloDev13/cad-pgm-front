@@ -32,12 +32,20 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="flex flex-col w-full border border-gray-300 rounded-lg
-             drop-shadow-md overflow-hidden relative">
+      class="flex flex-col w-full border border-gray-300 rounded-lg drop-shadow-md overflow-hidden
+             relative max-h-[calc(100vh-406px)] min-h-[406px]"
+    >
       <!-- Chama o componente de loading-->
-      <app-loading [isLoading]="isLoading()" />
+      <div
+        class="absolute inset-0 z-50 bg-white/60 flex justify-center items-center backdrop-blur-sm
+              transition-opacity duration-300"
+        [class.opacity-0]="!isLoading()"
+        [class.opacity-100]="isLoading()"
+        [class.pointer-events-none]="!isLoading()">
+        <app-loading [isLoading]="true" />
+      </div>
 
-      <div class="overflow-x-auto w-full">
+      <div class="overflow-x-auto w-full flex-1 min-h-0">
         <table mat-table [dataSource]="data()" class="w-full min-w-full">
           <ng-container matColumnDef="matricula">
             <th
@@ -181,6 +189,7 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
         </table>
       </div>
       <mat-paginator
+        class="shrink-0 border-t border-gray-200 relative z-20"
         [length]="totalElements()"
         [pageSize]="pageSize()"
         [pageIndex]="currentPage()"
@@ -201,18 +210,15 @@ export class ServidorTableComponent {
 
   // INPUTS (Dados que vêm do Pai)
   data = input.required<ServidorResponseDTO[]>();
-  isLoading = input.required<boolean>();
   totalElements = input.required<number>();
   pageSize = input.required<number>();
   currentPage = input.required<number>();
+  isLoading = input.required<boolean>();
 
   // OUTPUTS (Eventos que avisam o Pai)
   edit = output<ServidorResponseDTO>();
   delete = output<ServidorResponseDTO>();
   pageChange = output<PageEvent>();
-
-  // Estado interno (Só pertence à tabela, o Pai não precisa saber disso)
-  // displayedColumns: string[] = ['matricula', 'nome', 'email', 'setor', 'cargo', 'acoes'];
 
   // Cria um Signal reativo que será true em telas menores que 768px
   // (equivalente ao 'md' do Tailwind)

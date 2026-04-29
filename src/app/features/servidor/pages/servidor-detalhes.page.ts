@@ -11,6 +11,8 @@ import { LoadingComponent } from '../../../shared/components/loading.component/l
 import { DataDisplayComponent } from '../component/data-display.component';
 import { DataInfoComponent } from '../component/data-info.component';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
+import { MatriculaPipe } from '../../../shared/pipes/matricula.pipe';
+import { TelefonePipe } from '../../../shared/pipes/telefone.pipe';
 
 @Component({
   selector: 'app-servidor-detalhes',
@@ -23,15 +25,17 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
     MatDividerModule,
     LoadingComponent,
     DataDisplayComponent,
-    DataInfoComponent
+    DataInfoComponent,
+    TelefonePipe,
+    MatriculaPipe
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
       class="max-w-7xl mx-auto mt-4 print:t-0 p-4 md:p-4 print:p-0
-      bg-gray-50 print:bg-white shadow print:shadow-none rounded-2xl
-      print:rounded-none border border-gray-200 print:border-none"
+            bg-gray-50 print:bg-white shadow print:shadow-none rounded-2xl
+            print:rounded-none border border-gray-200 print:border-none"
     >
       <div class="flex justify-between items-center mb-6">
         <div class="flex items-center gap-3">
@@ -102,9 +106,7 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
               <app-data-display label="Gênero" [fieldData]="s.genero" />
               <app-data-display
                 label="Telefone"
-                [fieldData]="s.telefone"
-                [maskPattern]="'(00) 0 0000-0000'"
-
+                [fieldData]="s.telefone | telefone"
               />
               <app-data-display class="md:col-span-2" label="Filiação" [fieldData]="s.filiacao" />
               <app-data-display class="md:col-span-2" label="Endereço" [fieldData]="s.endereco" />
@@ -122,7 +124,7 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
 
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
               <!-- Campo Matrícula-->
-              <app-data-display label="Matrícula" [fieldData]="s.matricula" />
+              <app-data-display label="Matrícula" [fieldData]="s.matricula | matricula" />
 
               <!-- Campo Status-->
               <div class="flex flex-col">

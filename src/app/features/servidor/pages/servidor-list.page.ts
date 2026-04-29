@@ -22,12 +22,15 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="bg-gray-50 shadow-md rounded-2xl border border-gray-200 p-4 md:p-6 mx-auto mt-4 w-full max-w-7xl
-         print:bg-white print:shadow-none print:border-none print:p-0 print:m-0 print:max-w-full"
+      class="bg-gray-50 shadow-md rounded-2xl border border-gray-200 p-4 md:p-6 mx-auto
+            mt-0 w-full max-w-7xl print:bg-white print:shadow-none print:border-none
+            print:p-0 print:m-0 print:max-w-full"
     >
       <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6 print:mb-4">
         <div>
-          <h1 class="text-xl md:text-2xl font-bold text-blue-800 leading-tight print:text-black print:text-2xl">
+          <h1
+            class="text-xl md:text-2xl font-bold text-blue-800 leading-tight print:text-black
+                  print:text-2xl">
             Gestão de Servidores
           </h1>
           <p class="text-sm text-gray-500 mt-1 print:hidden">Gerencie os servidores do sistema</p>
@@ -156,8 +159,7 @@ export default class ServidorListPage implements OnInit {
           error: (err: Error) => {
             this.notificationService.error(err.message, 'Load');
             console.error('Erro ao carregar dados ' + err.message);
-          },
-          complete: () => this.isLoading.set(false)
+          }
         });
     }
   }

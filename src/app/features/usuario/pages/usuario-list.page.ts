@@ -27,8 +27,8 @@ import { CustomDeleteService } from '../../../shared/service/custom-delete.servi
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="bg-gray-50 shadow-md rounded-2xl border border-gray-200 p-4 md:p-6
-             max-w-7xl mx-auto mt-4 w-full"
+      class="bg-gray-50 shadow-md rounded-2xl border border-gray-200 p-4 md:p-6 mx-auto
+             max-w-7xl mt-0 w-full"
     >
       <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
         <div>

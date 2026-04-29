@@ -1,11 +1,8 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { NgxMaskPipe } from 'ngx-mask';
 
 @Component({
   selector: 'app-data-display',
-  imports: [
-    NgxMaskPipe
-  ],
+  imports: [],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -14,11 +11,7 @@ import { NgxMaskPipe } from 'ngx-mask';
         {{ label() }}
       </span>
       <span class="text-sm sm:text-base text-gray-800 font-medium break-words print:text-black">
-        @if (maskPattern(); as maskPattern) {
-          {{ ((fieldData() ?? '') | mask: maskPattern) || 'Não informado' }}
-        } @else {
           {{ fieldData() || 'Não informado' }}
-        }
       </span>
     </div>
   `
@@ -26,5 +19,4 @@ import { NgxMaskPipe } from 'ngx-mask';
 export class DataDisplayComponent {
   label = input.required<string>();
   fieldData = input.required<string | number | null | undefined>();
-  maskPattern = input<string>();
 }

@@ -30,7 +30,8 @@ import { LoadingComponent } from '../loading.component/loading.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="bg-gray-50 shadow-md rounded-2xl border border-gray-200 p-4 md:p-6 max-w-5xl mx-auto mt-4 w-full"
+      class="bg-gray-50 shadow-md rounded-2xl border border-gray-200 p-4 md:p-6 max-w-5xl
+            mx-auto mt-0 w-full h-[calc(100vh-12rem)] min-h-[400px] flex flex-col"
     >
       <div class="mb-6">
         <h2 class="text-xl md:text-2xl font-bold text-blue-800 leading-tight">Gestão de {{ title() }}</h2>
@@ -67,12 +68,19 @@ import { LoadingComponent } from '../loading.component/loading.component';
 
       <div
         class="shadow-sm rounded-xl border border-gray-200 overflow-hidden bg-white relative
-              flex flex-col w-full"
+              flex flex-col w-full flex-1 min-h-0"
       >
         <!-- Chama o componente de loading-->
-        <app-loading [isLoading]="isLoading()" />
+        <div
+          class="absolute inset-0 z-50 bg-white/60 flex justify-center items-center backdrop-blur-sm transition-opacity duration-300"
+          [class.opacity-0]="!isLoading()"
+          [class.opacity-100]="isLoading()"
+          [class.pointer-events-none]="!isLoading()">
 
-        <div class="overflow-auto w-full" style="max-height: 500px;">
+          <app-loading [isLoading]="true" />
+        </div>
+
+        <div class="overflow-auto w-full flex-1">
           <table mat-table [dataSource]="data()" class="w-full min-w-full">
             <ng-container matColumnDef="id">
               <th
@@ -177,7 +185,7 @@ import { LoadingComponent } from '../loading.component/loading.component';
           </table>
         </div>
         <mat-paginator
-          class="!bg-gray-100"
+          class="!bg-gray-100 border-t border-gray-200 relative z-20"
           [length]="totalElements()"
           [pageSize]="pageSize()"
           [pageIndex]="currentPage()"

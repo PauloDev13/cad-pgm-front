@@ -29,12 +29,20 @@ import { map } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="border border-gray-300 rounded-lg drop-shadow-md overflow-hidden
-      relative flex flex-col w-full">
+      class="flex flex-col w-full border border-gray-300 rounded-lg drop-shadow-md overflow-hidden
+             relative max-h-[calc(100vh-426px)] min-h-[426px]"
+    >
       <!-- Chama o componente de loading-->
-      <app-loading [isLoading]="isLoading()" />
+      <div
+        class="absolute inset-0 z-50 bg-white/60 flex justify-center items-center backdrop-blur-sm
+              transition-opacity duration-300"
+        [class.opacity-0]="!isLoading()"
+        [class.opacity-100]="isLoading()"
+        [class.pointer-events-none]="!isLoading()">
+        <app-loading [isLoading]="true" />
+      </div>
 
-      <div class="overflow-x-auto w-full">
+      <div class="overflow-x-auto w-full flex-1 min-h-0">
         <table mat-table [dataSource]="data()" class="w-full min-w-full">
           <ng-container matColumnDef="ID">
             <th
@@ -173,6 +181,7 @@ import { map } from 'rxjs';
         </table>
       </div>
       <mat-paginator
+        class="shrink-0 border-t border-gray-200 relative z-20"
         [length]="totalElements()"
         [pageSize]="pageSize()"
         [pageIndex]="currentPage()"

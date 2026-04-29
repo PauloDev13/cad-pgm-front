@@ -13,8 +13,8 @@ import { Router } from '@angular/router';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <mat-toolbar color="primary"
-                 class="flex justify-between !bg-gray-50 items-center shadow-sm z-50 relative h-16 !px-2 md:!px-4">
+    <mat-toolbar
+      class="flex justify-between !bg-gray-50 items-center shadow-sm z-50 relative h-16 !px-2 md:!px-4">
 
       <div class="flex items-center">
         <button
@@ -68,8 +68,7 @@ import { Router } from '@angular/router';
         </mat-menu>
       </div>
     </mat-toolbar>
-  `,
-  styles: ``
+  `
 })
 export class HeaderComponent {
   private readonly authService = inject(AuthService);
