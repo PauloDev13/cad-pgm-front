@@ -30,7 +30,7 @@ import { map } from 'rxjs';
   template: `
     <div
       class="flex flex-col w-full border border-gray-300 rounded-lg drop-shadow-md overflow-hidden
-             relative max-h-[calc(100vh-426px)] min-h-[426px]"
+             relative max-h-[calc(100vh-426px)] min-h-[505px]"
     >
       <!-- Chama o componente de loading-->
       <div

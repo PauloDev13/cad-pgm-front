@@ -287,7 +287,7 @@ export class ServidorFormComponent implements OnInit {
         const currentMatricula = this.servidorForm.matricula().value();
 
         // --- CENÁRIO: MUDOU PARA TERCEIRIZADO ---
-        if (vinculoName === 'terceirizado') {
+        if (vinculoName !== 'comissionado' && vinculoName !== 'efetivo') {
 
           // Se a matrícula atual ainda não é "T", guardamos ela como original caso não tenha sido salva
           if (currentMatricula && !currentMatricula.startsWith('T') && !this.originMatricula) {
@@ -297,7 +297,8 @@ export class ServidorFormComponent implements OnInit {
 
           // Se já temos um "T" no cache, restauramos. Senão, geramos um novo.
           if (this.cacheMatriculaTerceirizado) {
-            this.servidorForm.matricula().value.set(this.cacheMatriculaTerceirizado);
+            this.servidorForm.matricula().controlValue.set(this.cacheMatriculaTerceirizado);
+            // this.servidorForm.matricula().value.set(this.cacheMatriculaTerceirizado);
           } else if (!currentMatricula?.startsWith('T')) {
             const newMatricula = this.gerarMatriculaTerceirizado();
             this.cacheMatriculaTerceirizado = newMatricula;
@@ -308,11 +309,13 @@ export class ServidorFormComponent implements OnInit {
         } else {
           // 1. Se ele voltou para o vínculo que tinha no início (Ex: Efetivo)
           if (selectedId === this.originVinculoId) {
-            this.servidorForm.matricula().value.set(this.originMatricula || '');
+            this.servidorForm.matricula().controlValue.set(this.originMatricula || '');
+            // this.servidorForm.matricula().value.set(this.originMatricula || '');
           }
           // 2. Se é um vínculo novo (nem o original, nem terceirizado), limpamos conforme sua regra
           else {
-            this.servidorForm.matricula().value.set('');
+            this.servidorForm.matricula().controlValue.set('');
+            // this.servidorForm.matricula().value.set('');
           }
 
           // Se a matrícula que estava antes era um "T", salvamos no cache para não perder
@@ -541,7 +544,7 @@ export class ServidorFormComponent implements OnInit {
     const name = vinculo?.nome.toLowerCase();
 
     return (
-      name === 'terceirizado' || name === 'terceirizado ferista' || name === 'temporário' || name === 'residência'
+      name !== 'comissionado' && name !== 'efetivo'
     );
   }
 }
