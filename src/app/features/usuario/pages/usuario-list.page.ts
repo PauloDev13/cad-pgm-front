@@ -30,7 +30,7 @@ import { CustomDeleteService } from '../../../shared/service/custom-delete.servi
       class="bg-gray-50 shadow-md rounded-2xl border border-gray-200 p-4 md:p-6 mx-auto
              max-w-7xl mt-0 w-full"
     >
-      <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
+      <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4">
         <div>
           <h1 class="text-xl md:text-2xl font-bold text-blue-800 leading-tight">
             Gestão de Usuários
