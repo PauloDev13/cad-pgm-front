@@ -59,7 +59,13 @@ export type FormModel = Required<ServidorRequestDTO>;
   template: `
     <div class="flex justify-between items-center px-6 pt-4 pb-1">
       <h2 mat-dialog-title class="!font-bold !text-xl !text-blue-700 !m-0 !p-0">
-        {{ isEdit ? 'Editar Servidor' : 'Novo Servidor' }}
+        @if (isReactivate) {
+          Readmitir: <span class="text-gray-600 font-medium">{{ payload?.nome }}</span>
+        } @else if (isEdit) {
+          Editar Servidor
+        } @else {
+          Novo Servidor
+        }
       </h2>
       <button
         mat-icon-button
@@ -258,8 +264,8 @@ export type FormModel = Required<ServidorRequestDTO>;
         (click)="salvar()"
         [disabled]="servidorForm().invalid()"
       >
-        <mat-icon class="mr-2">save</mat-icon>
-        {{ isEdit ? 'Atualizar' : 'Salvar' }}
+        <mat-icon class="mr-2">{{ isReactivate ? 'settings_backup_restore' : 'save' }}</mat-icon>
+        {{ isReactivate ? 'Confirmar Readmissão' : (isEdit ? 'Atualizar' : 'Salvar') }}
       </button>
     </mat-dialog-actions>
   `
@@ -327,12 +333,24 @@ export class ServidorFormComponent implements OnInit {
     });
   }
 
-  // Variáveis diversas
-  isEdit: boolean = false;
-  readonly data = inject<ServidorResponseDTO>(MAT_DIALOG_DATA, { optional: true });
-  // variáveis para o controle e geração de matrícula para o vínculo terceirizado
-  private originMatricula: string | undefined = this.data?.matricula;
-  private originVinculoId: number | undefined = this.data?.vinculo?.id;
+  // MÉTODOS PARA A READMISSÃO DE SERVIDOR
+  // Recebemos um "any" para suportar o DTO direto (legado) ou o novo wrapper
+  readonly dialogData = inject<any>(MAT_DIALOG_DATA, { optional: true });
+
+  isReactivate = this.dialogData?.action === 'REACTIVATE';
+
+
+  // Lógica de extração de dados e estado do formulário
+  payload: ServidorResponseDTO | undefined = this.isReactivate
+    ? this.dialogData?.payload
+    : this.dialogData;
+
+  // É edição se tem payload mas NÃO é readmissão
+  isEdit = !!this.payload && !this.isReactivate;
+
+  //  Atualizado para buscar do this.payload ao invés do this.data
+  private originMatricula: string | undefined = this.payload?.matricula;
+  private originVinculoId: number | undefined = this.payload?.vinculo?.id;
   private cacheMatriculaTerceirizado: string | null = null;
 
   // Signals para armazenar os dados que virão da API
@@ -433,34 +451,38 @@ export class ServidorFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.isEdit = !!this.data;
-
     this.loadDomains();
 
-    if (this.isEdit && this.data) {
-      this.servidorModel.update((m) => ({
-        ...m,
-        ...this.data,
-        // CONVERSÃO DA DATA
-        // Se existir a data no DTO, criamos o objeto Date. O 'T00:00:00' evita
-        // bugs de fuso horário que poderiam fazer o dia voltar 1 número.
-        // Usamos 'as any' temporariamente para o TypeScript não reclamar do tipo inicial 'string'.
-        dataNascimento: this.data?.dataNascimento
-          ? (new Date(this.data.dataNascimento + 'T00:00:00') as any)
-          : '',
-        cargoId: this.data?.cargo?.id as number,
-        setorId: this.data?.setor?.id as number,
-        lotacaoId: this.data?.lotacao?.id as number,
-        statusId: this.data?.status?.id as number,
-        vinculoId: this.data?.vinculo?.id as number,
+    if (this.payload) {
+      try {
+        this.servidorModel.update((m) => ({
+          ...m,
+          ...this.payload,
+          // CONVERSÃO DA DATA
+          // Se existir a data no DTO, criamos o objeto Date. O 'T00:00:00' evita
+          // bugs de fuso horário que poderiam fazer o dia voltar 1 número.
+          // Usamos 'as any' temporariamente para o TypeScript não reclamar do tipo inicial 'string'.
+          dataNascimento: this.payload?.dataNascimento
+            ? (new Date(this.payload.dataNascimento + 'T00:00:00') as any)
+            : '',
 
-        // NOVO: RELACIONAMENTOS MÚLTIPLOS (N para N) <---
-        // O backend manda um array de objetos [{id: 1, nome: 'X'}].
-        // O map() extrai só os IDs para o DTO de envio: [1]. Se for nulo, devolve [] vazio.
-        sistemaIds: this.data?.sistemas?.map((s) => s.id) || [],
-        procuradorIds: this.data?.procuradores?.map((p) => p.id) || [],
-        aliasIds: this.data?.aliases?.map((a) => a.id) || []
-      }));
+          // BLINDAGEM 3: O "|| null" impede que o modelo receba undefined e apague o controle
+          cargoId: this.payload?.cargo?.id || null as unknown as number,
+          setorId: this.payload?.setor?.id || null as unknown as number,
+          lotacaoId: this.payload?.lotacao?.id || null as unknown as number,
+          statusId: this.payload?.status?.id || null as unknown as number,
+          vinculoId: this.payload?.vinculo?.id || null as unknown as number,
+
+          // RELACIONAMENTOS MÚLTIPLOS (N para N) <---
+          // O backend manda um array de objetos [{id: 1, nome: 'X'}].
+          // O map() extrai só os IDs para o DTO de envio: [1]. Se for nulo, devolve [] vazio.
+          sistemaIds: this.payload?.sistemas?.map((s) => s.id) || [],
+          procuradorIds: this.payload?.procuradores?.map((p) => p.id) || [],
+          aliasIds: this.payload?.aliases?.map((a) => a.id) || []
+        }));
+      } catch (err) {
+        console.log('Dados problemáticos recebidos:', this.payload);
+      }
     }
   }
 
@@ -473,22 +495,28 @@ export class ServidorFormComponent implements OnInit {
         const requestData = this.servidorModel() as ServidorRequestDTO;
 
         // Transformamos as chamadas Observable em Promise com firstValueFrom
-        if (this.isEdit) {
-          await firstValueFrom(this.servidorService.update(this.data!.id, requestData));
+        if (this.isReactivate) {
+          await firstValueFrom(this.servidorService.reactivate(this.payload!.id, requestData));
+        } else if (this.isEdit) {
+          await firstValueFrom(this.servidorService.update(this.payload!.id, requestData));
         } else {
           await firstValueFrom(this.servidorService.create(requestData));
         }
 
+        const msgAction = this.isReactivate ? 'readmitido' : (this.isEdit ? 'atualizado' : 'cadastrado');
+        const msgTitle = this.isReactivate ? 'Readmissão' : (this.isEdit ? 'Atualização' : 'Cadastro');
+
         this.notificationService.success(
-          `Servidor ${this.isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`,
-          `${this.isEdit ? 'Atualização' : 'Cadastro'}`
+          `Servidor ${msgAction} com sucesso!`,
+          `${msgTitle}`
         );
 
         this.dialogRef.close(true);
       } catch (err: any) {
+        const msgTitle = this.isReactivate ? 'Readmissão' : (this.isEdit ? 'Atualização' : 'Cadastro');
         console.error('Erro inesperado', err.message);
         customHttpError(
-          err, this.notificationService, `${this.isEdit ? 'Atualização' : 'Cadastro'}`
+          err, this.notificationService, msgTitle
         );
       }
     });

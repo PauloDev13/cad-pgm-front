@@ -118,50 +118,65 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
                 class="!text-sm !px-2 md:!px-3 text-gray-600 whitespace-nowrap text-right">
 
               <div class="flex items-center justify-end">
-                <button
-                  mat-icon-button
-                  (click)="viewDetail(s.id)"
-                  matTooltip="Exibir detalhes"
-                  class="group !w-10 !h-10 md:!w-8 md:!h-8 !leading-none mr-1
+                @if (tableMode() === 'NORMAL') {
+                  <button
+                    mat-icon-button
+                    (click)="viewDetail(s.id)"
+                    matTooltip="Exibir detalhes"
+                    class="group !w-10 !h-10 md:!w-8 md:!h-8 !leading-none mr-1
                         md:mr-2 flex justify-center items-center"
-                >
-                  <mat-icon
-                    class="!text-green-800 transition-transform duration-200
+                  >
+                    <mat-icon
+                      class="!text-green-800 transition-transform duration-200
                 group-hover:!text-green-600 group-hover:!scale-125 !text-[20px]"
-                  >
-                    visibility
-                  </mat-icon>
-                </button>
-                <button
-                  mat-icon-button
-                  (click)="edit.emit(s)"
-                  matTooltip="Editar"
-                  class="group !w-10 !h-10 md:!w-8 md:!h-8 !leading-none mr-1 md:mr-2
+                    >
+                      visibility
+                    </mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    (click)="edit.emit(s)"
+                    matTooltip="Editar"
+                    class="group !w-10 !h-10 md:!w-8 md:!h-8 !leading-none mr-1 md:mr-2
                         flex justify-center items-center"
-                >
-                  <mat-icon
-                    class="!text-blue-600 transition-transform duration-200
-                          group-hover:!text-blue-400 group-hover:!scale-125 !text-[20px]"
                   >
-                    edit
-                  </mat-icon>
-                </button>
-                <button
-                  [disabled]="!isButtonsDisabled()"
-                  mat-icon-button
-                  (click)="delete.emit(s)"
-                  matTooltip="Excluir"
-                  class="group !w-10 !h-10 md:!w-8 md:!h-8 !leading-none disabled:!cursor-not-allowed
+                    <mat-icon
+                      class="!text-blue-600 transition-transform duration-200
+                          group-hover:!text-blue-400 group-hover:!scale-125 !text-[20px]"
+                    >
+                      edit
+                    </mat-icon>
+                  </button>
+                  <button
+                    [disabled]="!isButtonsDisabled()"
+                    mat-icon-button
+                    (click)="delete.emit(s)"
+                    matTooltip="Excluir"
+                    class="group !w-10 !h-10 md:!w-8 md:!h-8 !leading-none disabled:!cursor-not-allowed
                          disabled:!pointer-events-auto flex justify-center items-center"
-                >
-                  <mat-icon
-                    class="!text-red-600 transition-transform duration-200 group-hover:!text-red-900
+                  >
+                    <mat-icon
+                      class="!text-red-600 transition-transform duration-200 group-hover:!text-red-900
                             group-hover:!scale-125 group-disabled:!text-gray-400
                             group-disabled:!scale-100 !text-[20px]"
-                  >
-                    delete
-                  </mat-icon>
-                </button>
+                    >
+                      delete
+                    </mat-icon>
+                  </button>
+                } @else {
+                  <button
+                    mat-icon-button
+                    (click)="reactivate.emit(s)"
+                    matTooltip="Readmitir Servidor"
+                    class="group !w-10 !h-10 md:!w-8 md:!h-8 !leading-none flex justify-center
+                          items-center">
+                    <mat-icon
+                      class="!text-teal-600 transition-transform duration-200
+                            group-hover:!text-teal-400 group-hover:!scale-125 !text-[20px]">
+                      settings_backup_restore
+                    </mat-icon>
+                  </button>
+                }
               </div>
             </td>
           </ng-container>
@@ -214,6 +229,11 @@ export class ServidorTableComponent {
   pageSize = input.required<number>();
   currentPage = input.required<number>();
   isLoading = input.required<boolean>();
+
+  // NOVO: Define se a tabela é normal ou de lixeira (padrão é NORMAL)
+  tableMode = input<'NORMAL' | 'EXCLUDED'>('NORMAL');
+  // NOVO: Emissor de evento para o botão de readmitir
+  reactivate = output<ServidorResponseDTO>();
 
   // OUTPUTS (Eventos que avisam o Pai)
   edit = output<ServidorResponseDTO>();

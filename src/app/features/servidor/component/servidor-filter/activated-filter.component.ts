@@ -13,7 +13,7 @@ import { BaseEntityDTO } from '../../models/servidor.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 bg-white md:bg-gray-50 p-4 md:p-5
+      class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 bg-white md:bg-gray-50 p-2 md:p-4
              rounded-xl shadow-sm border border-gray-200"
     >
       <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -64,7 +64,7 @@ import { BaseEntityDTO } from '../../models/servidor.model';
     </div>
   `
 })
-export class ServidorFilterComponent {
+export class ActivatedFilterComponent {
   // INPUTS: O que o Pai vai mandar para cá
   statusList = input.required<BaseEntityDTO[]>();
   selectedStatusId = input<number | null>(null);
