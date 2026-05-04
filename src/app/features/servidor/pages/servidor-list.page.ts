@@ -14,9 +14,9 @@ import { debounceTime, distinctUntilChanged, finalize, Subject } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedFilterComponent } from '../component/servidor-filter/activated-filter.component';
 import { ServidorTableComponent } from '../component/servidor-table/servidor-table.component';
-import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 import { MatTabsModule } from '@angular/material/tabs';
 import { DeletedFilterComponent } from '../component/servidor-filter/deleted-filter.component';
+import { ErrorHandlerService } from '../../../shared/service/error-handler.service';
 
 @Component({
   selector: 'app-servidor-list',
@@ -55,7 +55,7 @@ import { DeletedFilterComponent } from '../component/servidor-filter/deleted-fil
       <mat-tab-group
         (selectedIndexChange)="activeTableIndex.set($event)"
         animationDuration="0ms"
-        class="w-full">
+        class="w-full custom-folder-tabs">
         <mat-tab label="Quadro Ativo">
           <div class="pt-0">
             <div class="print:hidden">
@@ -124,7 +124,7 @@ export default class ServidorListPage implements OnInit {
   // Injeções de dependências
   private readonly servidorService = inject(ServidorService);
   private readonly dominioService = inject(DominioService);
-  private readonly notificationService = inject(NotificationService);
+  private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly dialog = inject(MatDialog);
   private readonly customDeleteService = inject(CustomDeleteService);
 
@@ -201,7 +201,7 @@ export default class ServidorListPage implements OnInit {
             this.setPageData(pageData);
             // this.totalElements.set(pageData.page.totalElements);
           },
-          error: (err: Error) => this.notificationService.error(err.message, 'Pesquisar')
+          error: (err) => this.errorHandlerService.handle(err, 'Pesquisa Ativos')
         });
     } else {
       // Chama o ENDPOINT ORIGINAL (findAll) - Listagem limpa
@@ -211,8 +211,7 @@ export default class ServidorListPage implements OnInit {
         .subscribe({
           next: (pageData) => this.setPageData(pageData),
           error: (err: Error) => {
-            this.notificationService.error(err.message, 'Load');
-            console.error('Erro ao carregar dados ' + err.message);
+            this.errorHandlerService.handle(err, 'Loading Ativos');
           }
         });
     }
@@ -238,8 +237,8 @@ export default class ServidorListPage implements OnInit {
             this.excludedTotalElements.set(response.page.totalElements);
             this.excludedCurrentPage.set(response.page.number);
           },
-          error: (err: Error) => {
-            this.notificationService.error(err.message, 'Lixeira');
+          error: (err) => {
+            this.errorHandlerService.handle(err, 'Pesquisa Lixeira');
           }
         });
     } else {
@@ -251,8 +250,8 @@ export default class ServidorListPage implements OnInit {
             this.excludedTotalElements.set(response.page.totalElements);
             this.excludedCurrentPage.set(response.page.number);
           },
-          error: (err: Error) => {
-            this.notificationService.error(err.message, 'Erro na Lixeira');
+          error: (err) => {
+            this.errorHandlerService.handle(err, 'Loading Lixeira');
           }
         });
     }
@@ -470,9 +469,8 @@ export default class ServidorListPage implements OnInit {
         // Após configurar o status padrão, chamamos a listagem inicial
         this.loadData();
       },
-      error: () => {
-        this.notificationService.error('Erro ao carregar lista de status', 'Loading');
-        console.error('Erro ao carregar lista');
+      error: (err) => {
+        this.errorHandlerService.handle(err, 'Loading Status');
       }
     });
   }

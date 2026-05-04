@@ -81,6 +81,6 @@ export const roleGuard: CanActivateFn = (route) => {
   }
 
   // Se não tiver a permissão, dá um aviso e joga de volta para Home
-  alert('Acesso Negado: Você não tem permissão de Administrador para acessar esta tela.');
+  alert('Acesso Negado: Você não tem permissão para acessar esta tela.');
   return router.createUrlTree(['/home']);
 };

@@ -33,7 +33,7 @@ import { NgxMaskDirective } from 'ngx-mask';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper.component';
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
-import { customHttpError } from '../../../../shared/utils/custom-http-response-error';
+import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
 
 export type FormModel = Required<ServidorRequestDTO>;
 
@@ -275,6 +275,7 @@ export class ServidorFormComponent implements OnInit {
   private readonly servidorService = inject(ServidorService);
   private readonly dominioService = inject(DominioService);
   private readonly notificationService = inject(NotificationService);
+  private readonly errorHandleService = inject(ErrorHandlerService);
   private readonly dialogRef = inject(MatDialogRef<ServidorFormComponent>);
   private readonly dialog = inject(MatDialog);
   private readonly authService = inject(AuthService);
@@ -481,6 +482,7 @@ export class ServidorFormComponent implements OnInit {
           aliasIds: this.payload?.aliases?.map((a) => a.id) || []
         }));
       } catch (err) {
+        this.errorHandleService.handle(err, 'Dados');
         console.log('Dados problemáticos recebidos:', this.payload);
       }
     }
@@ -503,21 +505,20 @@ export class ServidorFormComponent implements OnInit {
           await firstValueFrom(this.servidorService.create(requestData));
         }
 
-        const msgAction = this.isReactivate ? 'readmitido' : (this.isEdit ? 'atualizado' : 'cadastrado');
-        const msgTitle = this.isReactivate ? 'Readmissão' : (this.isEdit ? 'Atualização' : 'Cadastro');
+        const msgAction =
+          this.isReactivate ? 'readmitido' : (this.isEdit ? 'atualizado' : 'cadastrado');
+        const msgTitle =
+          this.isReactivate ? 'Readmissão' : (this.isEdit ? 'Atualização' : 'Cadastro');
 
         this.notificationService.success(
-          `Servidor ${msgAction} com sucesso!`,
+          `Servidor <strong>${requestData.nome} ${msgAction}</strong>  com sucesso!`,
           `${msgTitle}`
         );
 
         this.dialogRef.close(true);
-      } catch (err: any) {
-        const msgTitle = this.isReactivate ? 'Readmissão' : (this.isEdit ? 'Atualização' : 'Cadastro');
-        console.error('Erro inesperado', err.message);
-        customHttpError(
-          err, this.notificationService, msgTitle
-        );
+      } catch (err) {
+        this.errorHandleService.handle(err, `${this.isReactivate
+          ? 'Readmissão' : (this.isEdit ? 'Atualização' : 'Cadastro')}`);
       }
     });
   }

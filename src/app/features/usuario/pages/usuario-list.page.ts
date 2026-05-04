@@ -20,6 +20,7 @@ import {
 } from '../../../core/auth/component/temporary -password-dialog/temporary-password-dialog.component';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 import { CustomDeleteService } from '../../../shared/service/custom-delete.service';
+import { ErrorHandlerService } from '../../../shared/service/error-handler.service';
 
 @Component({
   selector: 'app-servidor-list',
@@ -83,6 +84,7 @@ export default class UsuarioListPage implements OnInit {
   // Injeções de dependências
   private readonly usuarioService = inject(UsuarioService);
   private readonly notificationService = inject(NotificationService);
+  private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly authService = inject(AuthService);
   private readonly customDeleteService = inject(CustomDeleteService);
   private readonly dialog = inject(MatDialog);
@@ -132,10 +134,8 @@ export default class UsuarioListPage implements OnInit {
         next: (pageData) => {
           this.setPageData(pageData);
         },
-        error: (err: Error) => {
-          console.error(err.message);
-          this.notificationService.error(err.message, 'Pesquisa');
-
+        error: (err) => {
+          this.errorHandlerService.handle(err, 'Pesquisa Usuários');
         }
       });
   }
@@ -183,9 +183,8 @@ export default class UsuarioListPage implements OnInit {
               disableClose: true
             });
           },
-          error: (err: Error) => {
-            this.notificationService.error(err.message, 'Senha');
-            console.error(err.message);
+          error: (err) => {
+            this.errorHandlerService.handle(err, 'Senha');
           }
         });
       }

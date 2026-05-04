@@ -73,5 +73,74 @@
   .custom-spinner circle {
     stroke: #ffffff;
   }
+}
 
+/* =========================================================================
+   CUSTOM TABS - MODO PASTA/BOTÃO (Aplicado via classe delimitadora)
+========================================================================= */
+
+/* 1. Estrutura base das abas inativas */
+.custom-folder-tabs .mat-mdc-tab {
+  background-color: #e5e7eb !important; /* Fundo cinza claro */
+  border-top-left-radius: 0.5rem !important;
+  border-top-right-radius: 0.5rem !important;
+  transition: background-color 0.3s ease !important;
+}
+
+.custom-folder-tabs .mat-mdc-tab:hover {
+  background-color: #d1d5db !important; /* Fundo cinza ao passar o mouse */
+}
+
+/* Cor do texto inativo */
+.custom-folder-tabs .mdc-tab__text-label {
+  color: #4b5563 !important;
+  font-weight: 600 !important;
+}
+
+/* =========================================================================
+   2. ABA ATIVA (Azul com texto Branco)
+========================================================================= */
+.custom-folder-tabs .mdc-tab--active {
+  background-color: #2563eb !important;
+}
+
+.custom-folder-tabs .mdc-tab--active:hover {
+  background-color: #1d4ed8 !important;
+}
+
+/* Garante a cor branca no texto da aba ativa sobrescrevendo o Material */
+.custom-folder-tabs .mdc-tab--active .mdc-tab__text-label {
+  color: #ffffff !important;
+}
+
+/* =========================================================================
+   3. Esconde a linha sublinhada padrão
+========================================================================= */
+.custom-folder-tabs .mdc-tab-indicator__content {
+  display: none !important;
+}
+
+/* =========================================================================
+   4. RESPONSIVIDADE (Mobile First)
+========================================================================= */
+@media (max-width: 639px) {
+  .custom-folder-tabs .mat-mdc-tab-labels {
+    gap: 4px !important;
+  }
+
+  .custom-folder-tabs .mat-mdc-tab {
+    flex: 1 1 0 !important; /* Abas dividem a tela em 50% cada */
+    padding: 0 8px !important;
+  }
+}
+
+@media (min-width: 640px) {
+  .custom-folder-tabs .mat-mdc-tab-labels {
+    gap: 8px !important;
+  }
+
+  .custom-folder-tabs .mat-mdc-tab {
+    flex: none !important; /* Abas assumem o tamanho do texto */
+    padding: 0 24px !important;
+  }
 }

@@ -95,11 +95,11 @@ export class ForgotPasswordComponent {
         finalize(() => this.isLoading.set(false))
       ).subscribe({
         next: () => {
-          this.isLoading.set(false);
+          // this.isLoading.set(false);
           // Mensagem enviamos que mesmo se o email não existir para não vazar dados)
           this.notificationService.success(
             `
-              Se o e-mail estiver cadastrado, você receberá um link de redefinição em instantes.
+              Você receberá um <strong>link</strong> de redefinição no E-mail informado.
             `,
             'E-mail'
           );

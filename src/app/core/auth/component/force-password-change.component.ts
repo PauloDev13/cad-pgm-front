@@ -12,6 +12,7 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
 import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper.component';
 import { LoginStateService } from '../services/login-state.service';
 import { finalize } from 'rxjs';
+import { ErrorHandlerService } from '../../../shared/service/error-handler.service';
 
 @Component({
   selector: 'app-force-password-change',
@@ -120,6 +121,7 @@ export class ForcePasswordChangeComponent {
   private readonly authService = inject(AuthService);
   private readonly loginStateService = inject(LoginStateService);
   private readonly notificationService = inject(NotificationService);
+  private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly router = inject(Router);
 
   isLoading = signal(false);
@@ -163,8 +165,7 @@ export class ForcePasswordChangeComponent {
       finalize(() => this.isLoading.set(false))
     ).subscribe({
       next: () => {
-        this.isLoading.set(false);
-
+        // this.isLoading.set(false);
         // Pega o nome do usuário logado do Signal currentUser
         const userLogged: string | undefined = this.authService.currentUser()?.userName;
 
@@ -186,9 +187,10 @@ export class ForcePasswordChangeComponent {
         // Agora sim! O Angular sabe que a flag é falsa, e a navegação será permitida!
         this.router.navigate(['/auth/home']).then();
       },
-      error: (err: Error) => {
+      error: (err) => {
+        this.errorHandlerService.handle(err, 'Senha');
         // this.isLoading.set(false);
-        this.notificationService.error(err.message, 'Senha');
+        // this.notificationService.error(err.message, 'Senha');
       }
     });
   }

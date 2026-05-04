@@ -11,6 +11,7 @@ import { HeaderLoginComponent } from './header-login.component';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper.component';
 import { finalize } from 'rxjs';
+import { ErrorHandlerService } from '../../../shared/service/error-handler.service';
 
 @Component({
   selector: 'app-reset-password',
@@ -102,6 +103,7 @@ export class ResetPasswordComponent {
   //Injeção de dependência
   private readonly authService = inject(AuthService);
   private readonly notificationService = inject(NotificationService);
+  private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly router = inject(Router);
 
   // Estado da tela
@@ -146,7 +148,11 @@ export class ResetPasswordComponent {
       if (tokenValue) {
         this.checkToken(tokenValue);
       } else {
-        this.handleInvalidToken('Token de segurança não encontrado.');
+        this.isValidatingToken.set(false);
+        this.isTokenInvalid.set(true);
+        this.notificationService.warning(
+          'Token de segurança não encontrado.', 'Senha'
+        );
       }
     });
   }
@@ -165,16 +171,11 @@ export class ResetPasswordComponent {
   // Submissão ao Backend Real
   async onSubmit(event: Event) {
     event.preventDefault();
+
     if (this.isTokenInvalid()) return; // Travamento extra
 
     // Prevenção extra caso o usuário chegue na tela sem token na URL
     if (!this.token()) {
-      this.notificationService.error(
-        `Token de segurança ausente. Por favor, acesse através do link
-                  enviado para o seu e-mail.`,
-        'Token'
-      );
-
       this.notificationService.error(
         `Token de segurança ausente. Por favor, acesse através do link
                   enviado para o seu e-mail.`,
@@ -190,47 +191,50 @@ export class ResetPasswordComponent {
       // Extraímos apenas a senha final (o confirmPassword não vai pro backend)
       const { password } = this.resetForm().value();
 
-      this.authService.resetPassword(this.token(), password).subscribe({
-        next: () => {
-          this.isLoading.set(false);
+      this.authService.resetPassword(this.token(), password)
+        .pipe(finalize(() => this.isLoading.set(false)))
+        .subscribe({
+          next: () => {
+            this.isLoading.set(false);
 
-          this.notificationService.success(
-            `Senha atualizada com sucesso! Você já pode acessar o sistema.
+            this.notificationService.success(
+              `Senha atualizada com sucesso! Você já pode acessar o sistema.
               `,
-            'Senha'
-          );
+              'Senha'
+            );
 
-          this.router.navigate(['auth/login']);
+            this.router.navigate(['auth/login']);
 
-        },
-        error: (err: Error) => {
-          this.isLoading.set(false);
-          this.notificationService.error(err.message, 'Link');
-        }
-      });
+          },
+          error: (err) => {
+            this.errorHandlerService.handle(err, 'Link');
+          }
+        });
     });
   }
 
   private checkToken(token: string) {
     this.authService.validateResetToken(token).pipe(
-      finalize(() => this.isLoading.set(false))
-    ).subscribe({
-      next: () => {
-        // Token OK! Esconde o spinner e deixa o formulário habilitado
+      finalize(() => {
         this.isValidatingToken.set(false);
-      },
-      error: (err: Error) => {
-        // Token Ruim!
-        this.handleInvalidToken(err.message);
+        this.isLoading.set(false);
+      })
+    ).subscribe({
+      // next: () => {
+      //   // Token OK! Esconde o spinner e deixa o formulário habilitado
+      //   this.isValidatingToken.set(false);
+      // },
+      error: (err) => {
+        this.errorHandlerService.handle(err, 'Link');
       }
     });
   }
 
-  private handleInvalidToken(message: string) {
-    this.isValidatingToken.set(false);
-    this.isTokenInvalid.set(true); // Isso vai desabilitar a UI
-
-    // Dispara o nosso Snackbar personalizado com a mensagem de erro
-    this.notificationService.error(message, 'Link');
-  }
+  // private handleInvalidToken(message: string) {
+  //   this.isValidatingToken.set(false);
+  //   this.isTokenInvalid.set(true); // Isso vai desabilitar a UI
+  //
+  //   // Dispara o nosso Snackbar personalizado com a mensagem de erro
+  //   this.notificationService.error(message, 'Link');
+  // }
 }

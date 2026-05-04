@@ -12,7 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper.component';
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 import { MatCheckbox } from '@angular/material/checkbox';
-import { customHttpError } from '../../../../shared/utils/custom-http-response-error';
+import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
 
 @Component({
   selector: 'app-usuario-form.component',
@@ -116,6 +116,7 @@ export class UsuarioFormComponent implements OnInit {
   // Injeções de dependência
   private readonly usuarioService = inject(UsuarioService);
   private readonly notificationService = inject(NotificationService);
+  private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly dialogRef = inject(MatDialogRef<UsuarioFormComponent>);
 
   isEdit: boolean = false;
@@ -205,11 +206,8 @@ export class UsuarioFormComponent implements OnInit {
         );
 
         this.dialogRef.close(true);
-      } catch (err: any) {
-        console.error('Erro inesperado', err.message);
-        customHttpError(
-          err, this.notificationService, `${this.isEdit ? 'Atualização' : 'Cadastro'}`
-        );
+      } catch (err) {
+        this.errorHandlerService.handle(err, `${this.isEdit ? 'Atualização' : 'Cadastro'}`);
       }
     });
   }

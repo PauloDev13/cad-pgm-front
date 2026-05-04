@@ -16,6 +16,7 @@ import {
 import { isPlatformBrowser } from '@angular/common';
 import { jwtDecode } from 'jwt-decode';
 import { LoginStateService } from './login-state.service';
+import { customHandlerError } from '../../../shared/utils/custom-handler-error';
 
 @Injectable({
   providedIn: 'root'
@@ -30,6 +31,7 @@ export class AuthService {
   // A chave que usaremos para guardar o usuário logado no localstorage
   currentUser = signal<ILoggedUser | null>(null);
 
+  // Construtor
   constructor() {
     this.currentUser.set(this.getStoredLoggedUser());
   }
@@ -57,12 +59,7 @@ export class AuthService {
           localStorage.setItem(this.TOKEN_KEY, response.token);
         }
       }),
-      catchError((err: HttpErrorResponse) => {
-        console.error('Erro na autenticação:', err.error);
-        // Exibe apenas os erros tratados no banckend (400, 404, 409...)
-        const msg = err.error?.message || 'Erro ao processar requisição';
-        return throwError(() => new Error(msg));
-      })
+      catchError(customHandlerError)
     );
   }
 
@@ -77,14 +74,11 @@ export class AuthService {
     }
   }
 
+  // O próprio usuário pode criar seu cadastro
   registerNewUserPublic(newUser: IRegisterUserRequest): Observable<IRegisterUserResponse> {
     const url = `${this.API_URL}/auth/register`;
     return this.http.post<IRegisterUserResponse>(url, newUser).pipe(
-      catchError((err: HttpErrorResponse) => {
-        console.error('Erro no cadastro', err.error);
-        const msg = err.error.message || err.error || 'Erro ao realizar cadastro';
-        return throwError(() => new Error(msg));
-      })
+      catchError(customHandlerError)
     );
   }
 
@@ -112,6 +106,7 @@ export class AuthService {
     );
   }
 
+  // reseta a senha
   resetPassword(token: string, newPassword: string): Observable<any> {
     const url = `${environment.apiUrl}/api/v1/auth/reset-password`;
     const payload: IResetPasswordRequest = { token, newPassword };
@@ -123,11 +118,12 @@ export class AuthService {
       // seta o Signal global newUserName com o login do usuário que resetou a senha
       // Essa informação aparece na tela de login. O usuário só vai digitar a SENHA
       tap(() => this.loginStateService.newUserName.set(decoded.username)),
-      catchError((error) => {
-        console.error('Erro ao redefinir senha:', error);
-        // Pode ser token expirado ou inválido
-        return throwError(() => new Error('Link inválido ou expirou. Solicite novamente.'));
-      })
+      catchError(customHandlerError)
+      // catchError((error) => {
+      //   console.error('Erro ao redefinir senha:', error);
+      //   // Pode ser token expirado ou inválido
+      //   return throwError(() => new Error('Link inválido ou expirou. Solicite novamente.'));
+      // })
     );
   }
 
@@ -136,11 +132,7 @@ export class AuthService {
       `${environment.apiUrl}/api/v1/usuarios/${userId}/reset-password`,
       {}
     ).pipe(
-      catchError((err: HttpErrorResponse) => {
-        console.error('Erro ao resetar a senha', err.error);
-        const msg = err.error?.message || 'Falha ao processar solcitação';
-        return throwError(() => new Error(msg));
-      })
+      catchError(customHandlerError)
     );
   }
 
@@ -148,11 +140,7 @@ export class AuthService {
     const payload = { userName, newPassword };
 
     return this.http.post<void>(`${environment.apiUrl}/api/v1/auth/force-password-change`, payload)
-      .pipe(catchError((err: HttpErrorResponse) => {
-        console.error('Erro ao forçar mudança de senha', err.error);
-        const msg = err.error?.message || 'Erro ao processar solicitação';
-        return throwError(() => new Error(msg));
-      }));
+      .pipe(catchError(customHandlerError));
   }
 
   // MÉTHOD PARA BUSCAR O USUÁRIO LOGADO NO LOCALSTORAGE
@@ -164,14 +152,25 @@ export class AuthService {
           // Lê a mente do token toda vez que damos F5!
           const decoded = jwtDecode<IDecodedToken>(token);
 
+          if (decoded.exp) {
+            const expirationTime = decoded.exp * 1000;
+            const currentTime = new Date().getTime();
+
+            if (currentTime >= expirationTime) {
+              localStorage.removeItem(this.TOKEN_KEY);
+              throwError(() => new Error('Token expirado ou inválido!'));
+              return null;
+            }
+          }
           return {
             userName: decoded.sub,
             roles: decoded.roles || [],
             token: token,
             isForcePasswordChange: decoded.isForcePasswordChange
           };
-        } catch (e) {
-          return null;
+        } catch (err: any) {
+          customHandlerError(err);
+          // return null;
         }
       }
     }
@@ -184,12 +183,7 @@ export class AuthService {
 
     // Passamos o token como Query Param (?token=...)
     return this.http.get(url, { params: { token } }).pipe(
-      catchError((err: HttpErrorResponse) => {
-        console.error('Erro ao validar token', err.error);
-        // Se o backend retornar erro, capturamos a mensagem para o Snackbar
-        const msg = err.error?.message || 'Link expirado ou inválido.';
-        return throwError(() => new Error(msg));
-      })
+      catchError(customHandlerError)
     );
   }
 }

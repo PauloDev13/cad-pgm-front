@@ -8,6 +8,7 @@ import { CustomCadModalComponent } from '../custom-cad-modal/custom-cad-modal.co
 import { PageResponse } from '../../model/pagination.model';
 import { SingleInputDialogData, SingleInputModalResult } from '../../model/generic/base-generic.model';
 import { NotificationService } from '../../service/NotificationSnackbar.service';
+import { ErrorHandlerService } from '../../service/error-handler.service';
 
 @Directive()
 export abstract class BaseGenericComponent<T> implements OnInit {
@@ -24,7 +25,7 @@ export abstract class BaseGenericComponent<T> implements OnInit {
   // Injeções
   // protected readonly toastService = inject(ToastService);
   protected readonly notificationService = inject(NotificationService);
-  // protected readonly errorHandlerService = inject(ApiErrorHandlerService);
+  protected readonly errorHandlerService = inject(ErrorHandlerService);
   protected readonly customDeleteService = inject(CustomDeleteService);
   protected readonly dialog = inject(MatDialog);
 
@@ -56,10 +57,14 @@ export abstract class BaseGenericComponent<T> implements OnInit {
         .pipe(finalize(() => this.isLoading.set(false)))
         .subscribe({
           next: (pageData) => this.setPageData(pageData),
-          error: () => this.notificationService.error(
-            `Erro ao filtrar ${this.entityTitle}s`,
-            'Pesquisa'
-          )
+          error: (err) => {
+            this.errorHandlerService.handle(err, `Pesquisa ${this.entityTitle}s`);
+            // this.notificationService.error(
+            //   `Erro ao filtrar ${this.entityTitle}s`,
+            //   'Pesquisa'
+            // )
+          }
+
         });
     } else {
       this.entityService
@@ -68,11 +73,12 @@ export abstract class BaseGenericComponent<T> implements OnInit {
         .subscribe({
           next: (pageData) => this.setPageData(pageData),
           error: (err) => {
-            console.error(`Erro ao buscar ${this.entityTitle}s`, err);
-            this.notificationService.error(
-              `Erro ao buscar ${this.entityTitle}s`,
-              'Pesquisa'
-            );
+            this.errorHandlerService.handle(err, `Pesquisa ${this.entityTitle}s`);
+            // console.error(`Erro ao buscar ${this.entityTitle}s`, err);
+            // this.notificationService.error(
+            //   `Erro ao buscar ${this.entityTitle}s`,
+            //   'Pesquisa'
+            // );
           }
         });
     }
@@ -111,9 +117,9 @@ export abstract class BaseGenericComponent<T> implements OnInit {
       );
 
       this.loadData();
-    } catch (error: any) {
-      this.notificationService.error(error.message, 'Cadastro');
-      // this.errorHandlerService.errorHandler(error);
+    } catch (err: any) {
+      // this.notificationService.error(error.message, 'Cadastro');
+      this.errorHandlerService.handle(err, `${resultado.id ? 'atualizado' : 'cadastrado'}`);
     }
   }
 

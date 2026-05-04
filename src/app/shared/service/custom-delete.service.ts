@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
 import { NotificationService } from './NotificationSnackbar.service';
+import { customHandlerError } from '../utils/custom-handler-error';
 
 type Messages = {
   title?: string;
@@ -40,9 +41,8 @@ export class CustomDeleteService {
             );
             onSuccess();
           },
-          error: (err: any) => {
-            console.log('Erro ao remover registro', err);
-            this.notificationService.error(err.message);
+          error: (err) => {
+            customHandlerError(err);
           }
         });
       }

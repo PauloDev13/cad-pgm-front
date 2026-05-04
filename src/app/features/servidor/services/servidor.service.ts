@@ -1,9 +1,10 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
-import { catchError, Observable, throwError } from 'rxjs';
+import { catchError, Observable } from 'rxjs';
 import { PageResponse } from '../../../shared/model/pagination.model';
 import { ServidorRequestDTO, ServidorResponseDTO } from '../models/servidor.model';
+import { customHandlerError } from '../../../shared/utils/custom-handler-error';
 
 @Injectable({
   providedIn: 'root'
@@ -14,30 +15,17 @@ export class ServidorService {
   private readonly apiUrl = `${environment.apiUrl}/api/v1/servidores`;
 
 
-  // MÉTODOS PARA GERENCIAMENTO DE CADASTROS ATIVOS
-
+  // 1. MÉTODOS PARA GERENCIAMENTO DE CADASTROS ATIVOS
   // Cria um novo cadastro
   create(data: ServidorRequestDTO): Observable<ServidorResponseDTO> {
     return this.http.post<ServidorResponseDTO>(this.apiUrl, data)
-      .pipe(
-        catchError((err: HttpErrorResponse) => {
-          console.error('Erro ao processar solicitação', err.error);
-          const msg = err.error.message || err.error || 'Erro ao processar solicitação';
-          return throwError(() => new Error(msg));
-        })
-      );
+      .pipe(catchError(customHandlerError));
   }
 
   // Atualiza um cadastro existente
   update(id: number, data: ServidorRequestDTO): Observable<ServidorResponseDTO> {
     return this.http.put<ServidorResponseDTO>(`${this.apiUrl}/${id}`, data)
-      .pipe(
-        catchError((err: HttpErrorResponse) => {
-          console.error('Erro ao processar solicitação', err.error);
-          const msg = err.error.message || err.error || 'Erro ao processar solicitação';
-          return throwError(() => new Error(msg));
-        })
-      );
+      .pipe(catchError(customHandlerError));
   }
 
   // Pesquisa avançada paginada por CPF, Matrícula ou Nome
@@ -70,65 +58,33 @@ export class ServidorService {
     return this.http.get<PageResponse<ServidorResponseDTO[]>>(`${this.apiUrl}/searchFilter`, {
       params
     })
-      .pipe(
-        catchError((err: HttpErrorResponse) => {
-          console.error('Erro ao processar solicitação', err.error);
-          const msg = err.error.message || err.error || 'Erro ao processar solicitação';
-          return throwError(() => new Error(msg));
-        })
-      );
-
+      .pipe(catchError(customHandlerError));
   }
 
   // Busca todos os cadastros
   findAll(page: number = 0, size: number = 10): Observable<PageResponse<ServidorResponseDTO>> {
     const params = new HttpParams().set('page', page).set('size', size);
     return this.http.get<PageResponse<ServidorResponseDTO>>(this.apiUrl, { params })
-      .pipe(
-        catchError((err: HttpErrorResponse) => {
-          console.error('Erro ao processar solicitação', err.error);
-          const msg = err.error.message || err.error || 'Erro ao processar solicitação';
-          return throwError(() => new Error(msg));
-        })
-      );
+      .pipe(catchError(customHandlerError));
   }
 
   // Busca um cadastro por ID
   findById(id: number): Observable<ServidorResponseDTO> {
     return this.http.get<ServidorResponseDTO>(`${this.apiUrl}/${id}`)
-      .pipe(
-        catchError((err: HttpErrorResponse) => {
-          console.error('Erro ao processar solicitação', err.error);
-          const msg = err.error.message || err.error || 'Erro ao processar solicitação';
-          return throwError(() => new Error(msg));
-        })
-      );
+      .pipe(catchError(customHandlerError));
   }
 
   // Remove um cadastro
   delete(payload: ServidorResponseDTO): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${payload.id}`)
-      .pipe(
-        catchError((err: HttpErrorResponse) => {
-          console.error('Erro ao processar solicitação', err.error);
-          const msg = err.error.message || err.error || 'Erro ao processar solicitação';
-          return throwError(() => new Error(msg));
-        })
-      );
+      .pipe(catchError(customHandlerError));
   }
 
-  // MÉTODOS PARA GERENCIAMENTO DE CADASTROS EXCLUÍDOS
-
+  // 2. MÉTODOS PARA GERENCIAMENTO DE CADASTROS EXCLUÍDOS
   // Reativa um cadastro excluído
   reactivate(id: number, payload: ServidorRequestDTO): Observable<ServidorResponseDTO> {
     return this.http.patch<ServidorResponseDTO>(`${this.apiUrl}/${id}/reactivate`, payload)
-      .pipe(
-        catchError((err: HttpErrorResponse) => {
-          console.error('Erro ao processar solicitação', err.error);
-          const msg = err.error.message || err.error || 'Erro ao processar solicitação';
-          return throwError(() => new Error(msg));
-        })
-      );
+      .pipe(catchError(customHandlerError));
   }
 
   // Pesquisa avançada paginada por CPF ou Nome
@@ -138,13 +94,7 @@ export class ServidorService {
     return this.http.get<PageResponse<ServidorResponseDTO>>(
       `${this.apiUrl}/searchExcluded`, { params }
     )
-      .pipe(
-        catchError((err: HttpErrorResponse) => {
-          console.error('Erro ao processar solicitação', err.error);
-          const msg = err.error.message || err.error || 'Erro ao processar solicitação';
-          return throwError(() => new Error(msg));
-        })
-      );
+      .pipe(catchError(customHandlerError));
   }
 
   // Busca todos os cadastros excluídos
@@ -152,12 +102,6 @@ export class ServidorService {
     return this.http.get<PageResponse<ServidorResponseDTO>>(
       `${this.apiUrl}/excluded?page=${page}&size=${size}`
     )
-      .pipe(
-        catchError((err: HttpErrorResponse) => {
-          console.error('Erro ao processar solicitação', err.error);
-          const msg = err.error.message || err.error || 'Erro ao processar solicitação';
-          return throwError(() => new Error(msg));
-        })
-      );
+      .pipe(catchError(customHandlerError));
   }
 }
