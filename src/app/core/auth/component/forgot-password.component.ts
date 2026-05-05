@@ -10,6 +10,7 @@ import { HeaderLoginComponent } from './header-login.component';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper.component';
 import { finalize } from 'rxjs';
+import { ErrorHandlerService } from '../../../shared/service/error-handler.service';
 
 @Component({
   selector: 'app-forgot-password',
@@ -68,6 +69,7 @@ export class ForgotPasswordComponent {
   // Injeção de dependências
   private readonly authService = inject(AuthService);
   private readonly notificationService = inject(NotificationService);
+  private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly router = inject(Router);
 
   // Signals de estado
@@ -106,9 +108,8 @@ export class ForgotPasswordComponent {
 
           this.router.navigate(['auth/login']);
         },
-        error: (err: Error) => {
-          // this.isLoading.set(false);
-          this.notificationService.error(err.message, 'E-mail');
+        error: (err) => {
+          this.errorHandlerService.handle(err, 'E-mail');
         }
       });
     });

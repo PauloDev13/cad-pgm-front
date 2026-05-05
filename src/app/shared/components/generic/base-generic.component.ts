@@ -59,10 +59,6 @@ export abstract class BaseGenericComponent<T> implements OnInit {
           next: (pageData) => this.setPageData(pageData),
           error: (err) => {
             this.errorHandlerService.handle(err, `Pesquisa ${this.entityTitle}s`);
-            // this.notificationService.error(
-            //   `Erro ao filtrar ${this.entityTitle}s`,
-            //   'Pesquisa'
-            // )
           }
 
         });
@@ -74,11 +70,6 @@ export abstract class BaseGenericComponent<T> implements OnInit {
           next: (pageData) => this.setPageData(pageData),
           error: (err) => {
             this.errorHandlerService.handle(err, `Pesquisa ${this.entityTitle}s`);
-            // console.error(`Erro ao buscar ${this.entityTitle}s`, err);
-            // this.notificationService.error(
-            //   `Erro ao buscar ${this.entityTitle}s`,
-            //   'Pesquisa'
-            // );
           }
         });
     }
@@ -118,7 +109,6 @@ export abstract class BaseGenericComponent<T> implements OnInit {
 
       this.loadData();
     } catch (err: any) {
-      // this.notificationService.error(error.message, 'Cadastro');
       this.errorHandlerService.handle(err, `${resultado.id ? 'atualizado' : 'cadastrado'}`);
     }
   }

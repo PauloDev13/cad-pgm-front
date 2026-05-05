@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
 import { NotificationService } from './NotificationSnackbar.service';
-import { customHandlerError } from '../utils/custom-handler-error';
+import { ErrorHandlerService } from './error-handler.service';
 
 type Messages = {
   title?: string;
@@ -17,6 +17,7 @@ type Messages = {
 export class CustomDeleteService {
   private dialog = inject(MatDialog);
   private readonly notificationService = inject(NotificationService);
+  private readonly errorHandlerService = inject(ErrorHandlerService);
 
   execute(deleteActions: () => Observable<any>, onSuccess: () => void, options?: Messages) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
@@ -42,7 +43,7 @@ export class CustomDeleteService {
             onSuccess();
           },
           error: (err) => {
-            customHandlerError(err);
+            this.errorHandlerService.handle(err, 'Excluir');
           }
         });
       }

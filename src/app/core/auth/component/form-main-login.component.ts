@@ -11,9 +11,9 @@ import { MatIconButton } from '@angular/material/button';
 import { LoginStateService } from '../services/login-state.service';
 import { HeaderLoginComponent } from './header-login.component';
 import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper.component';
-import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 import { jwtDecode } from 'jwt-decode';
 import { finalize } from 'rxjs';
+import { ErrorHandlerService } from '../../../shared/service/error-handler.service';
 
 @Component({
   selector: 'app-form-main-login',
@@ -88,7 +88,7 @@ import { finalize } from 'rxjs';
 export class FormMainLoginComponent {
   // Injeções de dependências
   private readonly authService = inject(AuthService);
-  private readonly notificationService = inject(NotificationService);
+  private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly router = inject(Router);
   private readonly loginStateService = inject(LoginStateService);
 
@@ -142,9 +142,8 @@ export class FormMainLoginComponent {
             }
             this.isLoading.set(false);
           },
-          error: (err: Error) => {
-            // this.isLoading.set(false);
-            this.notificationService.error(err.message, 'Login');
+          error: (err) => {
+            this.errorHandlerService.handle(err, 'Login');
           }
         });
     });

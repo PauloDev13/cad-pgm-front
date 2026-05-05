@@ -10,9 +10,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { LoadingComponent } from '../../../shared/components/loading.component/loading.component';
 import { DataDisplayComponent } from '../component/data-display.component';
 import { DataInfoComponent } from '../component/data-info.component';
-import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 import { MatriculaPipe } from '../../../shared/pipes/matricula.pipe';
 import { TelefonePipe } from '../../../shared/pipes/telefone.pipe';
+import { ErrorHandlerService } from '../../../shared/service/error-handler.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-servidor-detalhes',
@@ -198,7 +199,7 @@ import { TelefonePipe } from '../../../shared/pipes/telefone.pipe';
 export default class ServidorDetalhesPage {
   // Injeções
   private readonly servidorService = inject(ServidorService);
-  private readonly notificationService = inject(NotificationService);
+  private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly location = inject(Location); // Para o botão voltar
 
   // O Angular injeta o :id da URL direto aqui!
@@ -253,21 +254,26 @@ export default class ServidorDetalhesPage {
     // Converte o id (string da URL) para número
     const servidorId = Number(this.id());
 
-    this.servidorService.findById(servidorId).subscribe({
-      next: (dados) => {
-        this.servidor.set(dados);
-        this.isLoading.set(false);
-        servidorName = dados.nome;
-      },
-      error: () => {
-        this.notificationService.error(
-          `Erro ao buscar detalhes do servidor ${servidorName}.`,
-          'Detalhe'
-        );
-        this.isLoading.set(false);
-        servidorName = '';
-        this.goBack(); // Volta para a tabela se o ID não existir
-      }
-    });
+    this.servidorService.findById(servidorId)
+      .pipe(
+        finalize(() => this.isLoading.set(false))
+      )
+      .subscribe({
+        next: (dados) => {
+          this.servidor.set(dados);
+          this.isLoading.set(false);
+          servidorName = dados.nome;
+        },
+        error: (err) => {
+          this.errorHandlerService.handle(err, 'Buscar');
+          // this.notificationService.error(
+          //   `Erro ao buscar detalhes do servidor ${servidorName}.`,
+          //   'Detalhe'
+          // );
+          // this.isLoading.set(false);
+          servidorName = '';
+          this.goBack(); // Volta para a tabela se o ID não existir
+        }
+      });
   }
 }

@@ -210,7 +210,7 @@ export default class ServidorListPage implements OnInit {
         .pipe(finalize(() => this.isLoading.set(false)))
         .subscribe({
           next: (pageData) => this.setPageData(pageData),
-          error: (err: Error) => {
+          error: (err) => {
             this.errorHandlerService.handle(err, 'Loading Ativos');
           }
         });
