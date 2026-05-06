@@ -8,6 +8,7 @@ import { MatPaginatorIntl } from '@angular/material/paginator';
 import { getPortuguesePaginatorIntl } from './shared/utils/custom-paginator-intl';
 import { provideEnvironmentNgxMask } from 'ngx-mask';
 import { authInterceptor } from './core/auth/interceptors/auth.interceptor';
+import { DatePipe } from '@angular/common';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -15,6 +16,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(),
     provideRouter(routes, withComponentInputBinding()),
     provideHttpClient(withInterceptors([authInterceptor])),
+    DatePipe,
     // permite a exibição do calendário no componente Datepicker
     provideNativeDateAdapter(),
     provideEnvironmentNgxMask(),
