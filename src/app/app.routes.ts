@@ -146,7 +146,7 @@ export const routes: Routes = [
         loadComponent: () => import('./features/servidor/pages/servidor-detalhes.page')
       },
       {
-        path: 'relatorios/auditoria',
+        path: 'auditoria/relatorio',
         title: 'Relatório de Auditoria',
         loadComponent: () => import('./core/auditoria/pages/audit.page/audit.page')
       }

@@ -30,6 +30,8 @@ import { NgClass } from '@angular/common';
       </a>
 
       <div class="flex flex-col">
+
+        <!-- Menu e submenu Gerenciamento-->
         <button
           (click)="toggleSubmenu('gerenciamento')"
           class="flex items-center h-12 w-full cursor-pointer transition-colors group relative justify-center px-0"
@@ -98,6 +100,8 @@ import { NgClass } from '@angular/common';
 
       @if (isLinkMenuHidden()) {
         <div class="flex flex-col">
+
+          <!-- Menu e submenu Cadastros-->
           <button
             (click)="toggleSubmenu('cadastros')"
             class="flex items-center h-12 w-full cursor-pointer transition-colors group relative justify-center px-0"
@@ -175,6 +179,8 @@ import { NgClass } from '@angular/common';
 
       @if (isLinkMenuHidden()) {
         <div class="flex flex-col">
+
+          <!-- Menu e submenu Permissões-->
           <button
             (click)="toggleSubmenu('permissoes')"
             class="flex items-center h-12 w-full cursor-pointer transition-colors group relative justify-center px-0"
@@ -185,11 +191,14 @@ import { NgClass } from '@angular/common';
             matTooltipClass="tooltip-blue"
           >
             <div class="flex items-center group-hover:text-blue-700">
-              <mat-icon class="text-gray-700 group-hover:scale-125 transition-all duration-200">admin_panel_settings
+              <mat-icon class="text-gray-700 group-hover:scale-125 transition-all duration-200">
+                admin_panel_settings
               </mat-icon>
               @if (isOpen()) {
                 <span
-                  class="ml-4 font-medium group-hover:font-semibold hidden md:block whitespace-nowrap">Permissões</span>
+                  class="ml-4 font-medium group-hover:font-semibold hidden md:block whitespace-nowrap">
+                  Permissões
+                </span>
               }
             </div>
 
@@ -235,6 +244,57 @@ import { NgClass } from '@angular/common';
               <mat-icon>label</mat-icon>
               @if (isOpen()) {
                 <span class="ml-4 hidden md:inline whitespace-nowrap">Alias (E-mails)</span>
+              }
+            </a>
+          </div>
+        </div>
+      }
+
+      @if (isLinkMenuHidden()) {
+        <div class="flex flex-col">
+          <!-- Menu e submenu Relatórios-->
+          <button
+            (click)="toggleSubmenu('auditoria')"
+            class="flex items-center h-12 w-full cursor-pointer transition-colors group relative justify-center px-0"
+            [ngClass]="isOpen() ? 'md:px-4 md:justify-between' : 'md:px-0 md:justify-center'"
+            matTooltip="Auditoria"
+            matTooltipPosition="right"
+            [matTooltipDisabled]="isOpen()"
+            matTooltipClass="tooltip-blue"
+          >
+            <div class="flex items-center group-hover:text-blue-700">
+              <mat-icon class="text-gray-700 group-hover:scale-125 transition-all duration-200">
+                manage_accounts
+              </mat-icon>
+              @if (isOpen()) {
+                <span
+                  class="ml-4 font-medium group-hover:font-semibold hidden md:block whitespace-nowrap">
+                  Auditoria
+                </span>
+              }
+            </div>
+
+            <mat-icon
+              class="text-gray-400 transition-transform duration-300 group-hover:!text-blue-700 shrink-0"
+              [class.rotate-180]="openMenus()['auditoria']"
+              [ngClass]="isOpen() ? '-ml-1 md:ml-0 scale-75 md:scale-100' : '-ml-1 scale-75'"
+            >
+              expand_more
+            </mat-icon>
+          </button>
+          <div
+            class="overflow-hidden transition-all duration-300 ease-in-out flex flex-col"
+            [class.max-h-0]="!openMenus()['auditoria']"
+            [class.max-h-96]="openMenus()['auditoria']"
+          >
+            <a routerLink="/auditoria/relatorio" routerLinkActive="bg-blue-50 text-blue-600"
+               class="menu-subitem group flex items-center h-12 w-full transition-colors justify-center px-0"
+               [ngClass]="isOpen() ? 'md:pl-12 md:justify-start' : 'md:px-0 md:justify-center'"
+               matTooltip="Visualizar Auditoria" matTooltipPosition="right" [matTooltipDisabled]="isOpen()"
+               matTooltipClass="tooltip-blue">
+              <mat-icon>label</mat-icon>
+              @if (isOpen()) {
+                <span class="ml-4 hidden md:inline whitespace-nowrap">Relatório</span>
               }
             </a>
           </div>

@@ -143,6 +143,8 @@ export type FormModel = Required<ServidorRequestDTO>;
                   <input
                     matInput [matDatepicker]="pickerNascimento"
                     [formField]="servidorForm.dataNascimento"
+                    mask="d0/M0/0000"
+                    [dropSpecialCharacters]="false"
                     placeholder="DD/MM/AAAA" />
                   <mat-datepicker-toggle
                     matIconSuffix [for]="pickerNascimento"></mat-datepicker-toggle>
@@ -408,7 +410,7 @@ export class ServidorFormComponent implements OnInit {
     // validações para o campo Data de Nascimento
     required(path.dataNascimento, { message: 'A data é obrigatório' });
     validate(path.dataNascimento, ({ value }) =>
-      CustomValidators.minimunAge(value(), 16));
+      CustomValidators.minimumAge(value(), 16));
 
     // validações para o campo Telefone
     maxLength(path.telefone, 20, {

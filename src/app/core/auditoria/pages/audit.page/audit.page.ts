@@ -15,32 +15,50 @@ import { AuditService } from '../../services/audit.service';
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
 import { form, FormField, minLength } from '@angular/forms/signals';
-import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper.component';
-import { CustomSelectComponent } from '../../../../shared/components/custom-select/custom-select.component';
 
 @Component({
   selector: 'app-audit.page',
   imports: [
     CommonModule, FormsModule, MatButtonModule, MatIconModule, MatInputModule,
     MatSelectModule, MatDatepickerModule, MatNativeDateModule, MatTableModule,
-    MatPaginatorModule, FormField, FieldWrapperComponent, CustomSelectComponent
+    MatPaginatorModule, FormField
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex flex-col w-full h-[calc(100vh-64px)] bg-gray-50 p-4 md:p-6 print:h-auto print:bg-white print:p-0">
+    <div class="flex flex-col w-full h-full overflow-hidden bg-gray-50 p-4 md:p-0 print:h-auto
+        print:bg-white print:p-0"
+    >
 
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4 shrink-0 print:hidden">
-        <div class="flex justify-between items-center mb-4 border-b pb-2">
+      <div
+        class="bg-white rounded-xl shadow-sm border border-gray-200 py-2 px-4 mb-2 shrink-0 print:hidden"
+      >
+        <div
+          class="flex flex-col sm:flex-row justify-between items-center sm:items-center mb-4
+                border-b pb-2 gap-4 sm:gap-0"
+        >
           <h1 class="text-xl font-bold text-blue-800">Relatório de Auditoria</h1>
 
-          <div class="flex gap-2">
-            <button mat-stroked-button (click)="cleanFilters()">Limpar</button>
-            <button mat-stroked-button color="primary" (click)="printReport()">
+          <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+            <button
+              mat-stroked-button
+              (click)="cleanFilters()"
+              class="flex-1 sm:flex-none">
+              Limpar
+            </button>
+            <button
+              mat-stroked-button
+              color="primary"
+              (click)="printReport()"
+              class="flex-1 sm:flex-none">
               <mat-icon>print</mat-icon>
               Imprimir
             </button>
-            <button mat-flat-button color="primary" (click)="generateReport(true)">
+            <button
+              mat-flat-button
+              color="primary"
+              (click)="generateReport(true)"
+              class="w-full sm:w-auto">
               <mat-icon>search</mat-icon>
               Gerar Relatório
             </button>
@@ -49,7 +67,7 @@ import { CustomSelectComponent } from '../../../../shared/components/custom-sele
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-            <mat-label>Usuário</mat-label>
+            <mat-label>Nome Usuário</mat-label>
             <input matInput [formField]="auditForm.username" placeholder="Ex: paulo.morais">
           </mat-form-field>
 
@@ -65,14 +83,14 @@ import { CustomSelectComponent } from '../../../../shared/components/custom-sele
 
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Data Inicial</mat-label>
-            <input matInput [matDatepicker]="pickerStart" [formField]="auditForm.startDate">
+            <input matInput [matDatepicker]="pickerStart" [formField]="$any(auditForm.startDate)">
             <mat-datepicker-toggle matIconSuffix [for]="pickerStart"></mat-datepicker-toggle>
             <mat-datepicker #pickerStart></mat-datepicker>
           </mat-form-field>
 
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Data Final</mat-label>
-            <input matInput [matDatepicker]="pickerEnd" [formField]="auditForm.endDate">
+            <input matInput [matDatepicker]="pickerEnd" [formField]="$any(auditForm.endDate)">
             <mat-datepicker-toggle matIconSuffix [for]="pickerEnd"></mat-datepicker-toggle>
             <mat-datepicker #pickerEnd></mat-datepicker>
           </mat-form-field>
@@ -80,7 +98,9 @@ import { CustomSelectComponent } from '../../../../shared/components/custom-sele
       </div>
 
       <div
-        class="flex flex-col flex-1 min-h-0 bg-white border border-gray-200 rounded-xl shadow-sm relative print:shadow-none print:border-none print:overflow-visible">
+        class="flex flex-col flex-1 min-h-0 bg-white border border-gray-200 rounded-xl shadow-sm
+              relative print:shadow-none print:border-none print:overflow-visible"
+      >
 
         <div class="overflow-auto w-full flex-1 print:overflow-visible">
 
@@ -90,24 +110,42 @@ import { CustomSelectComponent } from '../../../../shared/components/custom-sele
               a {{ auditFormModel().endDate | date:'dd/MM/yyyy' }}</p>
           </div>
 
-          <table mat-table [dataSource]="dadosAuditoria()" class="w-full">
+          <table mat-table [dataSource]="dataAudit()" class="w-full">
 
             <ng-container matColumnDef="dateHourAction">
-              <th mat-header-cell *matHeaderCellDef class="font-semibold text-gray-800">Data / Hora</th>
-              <td mat-cell *matCellDef="let row" class="text-gray-600 whitespace-nowrap">
+              <th mat-header-cell
+                  *matHeaderCellDef
+                  class="font-semibold text-gray-800 !px-3 w-[1%] whitespace-nowrap">
+                Data / Hora
+              </th>
+              <td mat-cell
+                  *matCellDef="let row"
+                  class="text-gray-600 whitespace-nowrap !px-3 w-[1%]">
                 {{ row.dateHourAction | date:'dd/MM/yyyy HH:mm:ss' }}
               </td>
             </ng-container>
 
             <ng-container matColumnDef="username">
-              <th mat-header-cell *matHeaderCellDef class="font-semibold text-gray-800">Usuário</th>
-              <td mat-cell *matCellDef="let row" class="font-medium text-gray-800">{{ row.username }}</td>
+              <th mat-header-cell
+                  *matHeaderCellDef
+                  class="font-semibold text-gray-800 !px-3 w-[1%] whitespace-nowrap">
+                Usuário
+              </th>
+              <td mat-cell
+                  *matCellDef="let row"
+                  class="font-medium text-gray-800 !px-3 w-[1%] whitespace-nowrap">
+                {{ row.username }}
+              </td>
             </ng-container>
 
             <ng-container matColumnDef="typeAction">
-              <th mat-header-cell *matHeaderCellDef class="font-semibold text-gray-800 text-center">Ação</th>
-              <td mat-cell *matCellDef="let row" class="text-center">
-            <span class="px-2 py-1 text-xs font-bold rounded-full"
+              <th mat-header-cell
+                  *matHeaderCellDef
+                  class="font-semibold text-gray-800 text-center !px-3 w-[1%] whitespace-nowrap">
+                Ação
+              </th>
+              <td mat-cell *matCellDef="let row" class="text-center !px-3 w-[1%] whitespace-nowrap">
+            <span class="px-2 py-1 text-xs font-semibold rounded-full"
                   [ngClass]="{
                     'bg-green-100 text-green-800': row.typeAction === 'INSERT',
                     'bg-blue-100 text-blue-800': row.typeAction === 'UPDATE',
@@ -117,23 +155,39 @@ import { CustomSelectComponent } from '../../../../shared/components/custom-sele
             </span>
               </td>
             </ng-container>
-
             <ng-container matColumnDef="affectedEntity">
-              <th mat-header-cell *matHeaderCellDef class="font-semibold text-gray-800">Registro</th>
+              <th mat-header-cell *matHeaderCellDef class="font-normal text-gray-800 !px-3">
+                Entidade
+              </th>
               <td mat-cell *matCellDef="let row" class="text-gray-600">{{ row.affectedEntity }}</td>
             </ng-container>
 
+            <ng-container matColumnDef="idAffectedRecord">
+              <th mat-header-cell *matHeaderCellDef class="font-normal text-gray-800 !px-3">
+                ID
+              </th>
+              <td mat-cell *matCellDef="let row" class="text-gray-600">{{ row.idAffectedRecord }}</td>
+            </ng-container>
+
             <ng-container matColumnDef="details">
-              <th mat-header-cell *matHeaderCellDef class="font-semibold text-gray-800">Detalhes Técnicos</th>
-              <td mat-cell *matCellDef="let row" class="text-gray-500 text-sm max-w-xs truncate" [title]="row.details">
+              <th mat-header-cell *matHeaderCellDef class="font-semibold text-gray-800 !px-3">
+                Detalhes / Alterações
+              </th>
+              <td mat-cell
+                  *matCellDef="let row"
+                  class="font-semibold text-gray-800 !px-3"
+                  [title]="row.details">
                 {{ row.details }}
               </td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"
-                class="bg-gray-50 border-b-2 border-gray-300 print:bg-white print:border-black"></tr>
+                class="bg-gray-50 border-b-2 border-gray-300 print:bg-white print:border-black
+                      !h-10 relative z-10">
+            </tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns"
-                class="hover:bg-blue-50 transition-colors border-gray-100 print:border-gray-300"></tr>
+                class="hover:!bg-blue-50 transition-colors border-gray-100 print:border-gray-300 !h-8">
+            </tr>
 
             <tr class="mat-row" *matNoDataRow>
               <td class="mat-cell p-8 text-center text-gray-500" [colSpan]="displayedColumns.length">
@@ -142,15 +196,17 @@ import { CustomSelectComponent } from '../../../../shared/components/custom-sele
             </tr>
           </table>
         </div>
-
-        <mat-paginator
-          class="border-t border-gray-200 shrink-0 print:hidden"
-          [length]="totalElements()"
-          [pageSize]="pageSize()"
-          [pageIndex]="currentPage()"
-          [pageSizeOptions]="[20, 50, 100]"
-          (page)="onPageChange($event)">
-        </mat-paginator>
+        <div class="shrink-0 print:hidden w-full">
+          <mat-paginator
+            class="border-t border-gray-200"
+            [length]="totalElements()"
+            [pageSize]="pageSize()"
+            [pageIndex]="currentPage()"
+            [pageSizeOptions]="[10, 20, 50]"
+            [showFirstLastButtons]="true"
+            (page)="onPageChange($event)">
+          </mat-paginator>
+        </div>
       </div>
     </div>
   `
@@ -161,14 +217,16 @@ export default class AuditPage {
   private readonly errorHandlerService = inject(ErrorHandlerService);
 
   // ✨ SIGNALS DE ESTADO DA TABELA
-  dadosAuditoria = signal<AuditResponseDTO[]>([]);
+  dataAudit = signal<AuditResponseDTO[]>([]);
   isLoading = signal<boolean>(false);
   totalElements = signal<number>(0);
-  pageSize = signal<number>(20);
+  pageSize = signal<number>(10);
   currentPage = signal<number>(0);
 
   // Configuração das colunas da tabela
-  displayedColumns = ['dateHourAction', 'username', 'typeAction', 'affectedEntity', 'details'];
+  displayedColumns = [
+    'dateHourAction', 'username', 'typeAction', 'affectedEntity', 'idAffectedRecord', 'details'
+  ];
 
   // Opções para o Select de Ação
   actionOptions = [
@@ -229,7 +287,7 @@ export default class AuditPage {
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: (response) => {
-          this.dadosAuditoria.set(response.content);
+          this.dataAudit.set(response.content);
           this.totalElements.set(response.page.totalElements);
           this.currentPage.set(response.page.number);
         },

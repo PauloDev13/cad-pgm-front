@@ -4,6 +4,7 @@ export interface AuditResponseDTO {
   dateHourAction: string; // Virá como ISO "2026-05-05T14:45:22"
   typeAction: 'INSERT' | 'UPDATE' | 'DELETE';
   affectedEntity: string;
+  idAffectedRecord: string;
   details: string;
 }
 

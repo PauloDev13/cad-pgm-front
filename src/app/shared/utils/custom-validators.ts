@@ -1,6 +1,6 @@
 export class CustomValidators {
   // Validador de Idade Mínima
-  static minimunAge(value: any, minAge: number): { kind: string; message: string } | null {
+  static minimumAge(value: any, minAge: number): { kind: string; message: string } | null {
     if (!value) return null; // Deixa o erro de "campo vazio" para o Validators.required
     const birthDate = new Date(value);
     const currentDate = new Date();
