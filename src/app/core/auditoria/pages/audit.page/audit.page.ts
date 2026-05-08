@@ -38,7 +38,7 @@ import { LoadingComponent } from '../../../../shared/components/loading.componen
           class="flex flex-col sm:flex-row justify-between items-center sm:items-center mb-4
                 border-b pb-2 gap-4 sm:gap-0"
         >
-          <h1 class="text-xl font-bold text-blue-800">Relatório de Auditoria</h1>
+          <h1 class="text-2xl font-bold text-blue-800">Relatório de Auditoria</h1>
 
           <div class="flex flex-wrap gap-2 w-full sm:w-auto">
             <button
@@ -85,14 +85,14 @@ import { LoadingComponent } from '../../../../shared/components/loading.componen
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Data Inicial</mat-label>
             <input matInput [matDatepicker]="pickerStart" [formField]="$any(auditForm.startDate)">
-            <mat-datepicker-toggle matIconSuffix [for]="pickerStart"></mat-datepicker-toggle>
+            <mat-datepicker-toggle class="pr-2" matIconSuffix [for]="pickerStart"></mat-datepicker-toggle>
             <mat-datepicker #pickerStart></mat-datepicker>
           </mat-form-field>
 
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <mat-label>Data Final</mat-label>
             <input matInput [matDatepicker]="pickerEnd" [formField]="$any(auditForm.endDate)">
-            <mat-datepicker-toggle matIconSuffix [for]="pickerEnd"></mat-datepicker-toggle>
+            <mat-datepicker-toggle class="pr-2" matIconSuffix [for]="pickerEnd"></mat-datepicker-toggle>
             <mat-datepicker #pickerEnd></mat-datepicker>
           </mat-form-field>
         </div>
@@ -122,7 +122,6 @@ import { LoadingComponent } from '../../../../shared/components/loading.componen
           </div>
 
           <table mat-table [dataSource]="dataAudit()" class="w-full">
-
             <ng-container matColumnDef="dateHourAction">
               <th mat-header-cell
                   *matHeaderCellDef
@@ -193,11 +192,12 @@ import { LoadingComponent } from '../../../../shared/components/loading.componen
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"
-                class="bg-gray-50 border-b-2 border-gray-300 print:bg-white print:border-black
+                class="bg-gray-50 border-b-2 border-gray-200 print:bg-white print:border-black
                       !h-10 relative z-10">
             </tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns"
-                class="hover:!bg-blue-50 transition-colors border-gray-100 print:border-gray-300 !h-8">
+                class="odd:!bg-white even:!bg-gray-50 hover:!bg-blue-50 transition-colors
+                      border-gray-100 print:border-gray-300 !h-8">
             </tr>
 
             <tr class="mat-row" *matNoDataRow>

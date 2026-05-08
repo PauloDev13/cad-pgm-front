@@ -4,15 +4,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../../core/auth/services/auth.service';
 import { NgClass } from '@angular/common';
+import { LinkSidebarComponent } from './link-sidebar/link-sidebar.component';
+import { ButtonSidebarComponent } from './button-sidebar/button-sidebar.component';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterModule, MatIconModule, MatTooltipModule, NgClass],
+  imports: [RouterModule, MatIconModule, MatTooltipModule, NgClass, LinkSidebarComponent, ButtonSidebarComponent],
   template: `
     <nav class="flex flex-col py-2 text-gray-700 select-none overflow-x-hidden">
-
       <a
         routerLink="/inicio"
         routerLinkActive="bg-blue-50 text-blue-600 border-r-4 border-blue-600"
@@ -30,273 +31,158 @@ import { NgClass } from '@angular/common';
       </a>
 
       <div class="flex flex-col">
+        <!-- Menu Gerenciamento-->
+        <app-button-sidebar
+          [label]="'Gerenciamento'"
+          [onOpen]="isOpen()"
+          [iconMenu]="'manage_accounts'"
+          [onOpenMenus]="openMenus()"
+          [toolTips]="'Gerenciamento'"
+          (toggleSubmenu)="toggleSubmenu('gerenciamento')"
+        />
 
-        <!-- Menu e submenu Gerenciamento-->
-        <button
-          (click)="toggleSubmenu('gerenciamento')"
-          class="flex items-center h-12 w-full cursor-pointer transition-colors group relative justify-center px-0"
-          [ngClass]="isOpen() ? 'md:px-4 md:justify-between' : 'md:px-0 md:justify-center'"
-          matTooltip="Gerenciamento"
-          matTooltipPosition="right"
-          [matTooltipDisabled]="isOpen()"
-          matTooltipClass="tooltip-blue"
-        >
-          <div class="flex items-center group-hover:text-blue-700">
-            <mat-icon class="text-gray-700 group-hover:scale-125 transition-all duration-200">manage_accounts</mat-icon>
-            @if (isOpen()) {
-              <span
-                class="ml-4 font-medium group-hover:font-semibold hidden md:block whitespace-nowrap">Gerenciamento</span>
-            }
-          </div>
-
-          <mat-icon
-            class="text-gray-400 transition-transform duration-300 group-hover:!text-blue-700 shrink-0"
-            [class.rotate-180]="openMenus()['gerenciamento']"
-            [ngClass]="isOpen() ? '-ml-1 md:ml-0 scale-75 md:scale-100' : '-ml-1 scale-75'"
-          >
-            expand_more
-          </mat-icon>
-        </button>
-
+        <!-- Submenu Gerenciamento-->
         <div
           class="overflow-hidden transition-all duration-300 ease-in-out flex flex-col"
           [class.max-h-0]="!openMenus()['gerenciamento']"
           [class.max-h-40]="openMenus()['gerenciamento']"
         >
           @if (isLinkMenuHidden()) {
-            <a
-              routerLink="/usuarios"
-              routerLinkActive="bg-blue-50 text-blue-600"
-              class="menu-subitem group flex items-center h-12 w-full transition-colors justify-center px-0"
-              [ngClass]="isOpen() ? 'md:pl-12 md:justify-start' : 'md:px-0 md:justify-center'"
-              matTooltip="Cadastro de Usuários"
-              matTooltipPosition="right"
-              [matTooltipDisabled]="isOpen()"
-              matTooltipClass="tooltip-blue"
-            >
-              <mat-icon>people</mat-icon>
-              @if (isOpen()) {
-                <span class="ml-4 hidden md:inline whitespace-nowrap">Usuários</span>
-              }
-            </a>
+            <app-link-sidebar
+              [toolTip]="'Gestão de Usuário'"
+              [link]="'/usuarios'"
+              [onOpen]="isOpen()"
+              [label]="'Usuários'"
+              [icon]="'group_work'"
+            />
           }
-          <a
-            routerLink="/servidores"
-            routerLinkActive="bg-blue-50 text-blue-600"
-            class="menu-subitem group flex items-center h-12 w-full transition-colors justify-center px-0"
-            [ngClass]="isOpen() ? 'md:pl-12 md:justify-start' : 'md:px-0 md:justify-center'"
-            matTooltip="Cadastro de Servidores"
-            matTooltipPosition="right"
-            [matTooltipDisabled]="isOpen()"
-            matTooltipClass="tooltip-blue"
-          >
-            <mat-icon>people</mat-icon>
-            @if (isOpen()) {
-              <span class="ml-4 hidden md:inline whitespace-nowrap">Servidores</span>
-            }
-          </a>
+          <app-link-sidebar
+            [toolTip]="'Gestão de Servidor'"
+            [link]="'/servidores'"
+            [onOpen]="isOpen()"
+            [label]="'Servidores'"
+            [icon]="'group'"
+          />
         </div>
       </div>
 
       @if (isLinkMenuHidden()) {
         <div class="flex flex-col">
-
-          <!-- Menu e submenu Cadastros-->
-          <button
-            (click)="toggleSubmenu('cadastros')"
-            class="flex items-center h-12 w-full cursor-pointer transition-colors group relative justify-center px-0"
-            [ngClass]="isOpen() ? 'md:px-4 md:justify-between' : 'md:px-0 md:justify-center'"
-            matTooltip="Cadastros"
-            matTooltipPosition="right"
-            [matTooltipDisabled]="isOpen()"
-            matTooltipClass="tooltip-blue"
-          >
-            <div class="flex items-center group-hover:text-blue-700">
-              <mat-icon class="text-gray-700 group-hover:scale-125 transition-all duration-200">post_add</mat-icon>
-              @if (isOpen()) {
-                <span
-                  class="ml-4 font-medium group-hover:font-semibold hidden md:block whitespace-nowrap">Cadastros</span>
-              }
-            </div>
-
-            <mat-icon
-              class="text-gray-400 transition-transform duration-300 group-hover:!text-blue-700 shrink-0"
-              [class.rotate-180]="openMenus()['cadastros']"
-              [ngClass]="isOpen() ? '-ml-1 md:ml-0 scale-75 md:scale-100' : '-ml-1 scale-75'"
-            >
-              expand_more
-            </mat-icon>
-          </button>
-
+          <!-- Menu Cadastros-->
+          <app-button-sidebar
+            [label]="'Cadastros'"
+            [onOpen]="isOpen()"
+            [onOpenMenus]="openMenus()"
+            [iconMenu]="'post_add'"
+            [toolTips]="'Cadastros'"
+            (toggleSubmenu)="toggleSubmenu('cadastros')"
+          />
+          <!-- Submenu Cadastros-->
           <div
             class="overflow-hidden transition-all duration-300 ease-in-out flex flex-col"
             [class.max-h-0]="!openMenus()['cadastros']"
             [class.max-h-96]="openMenus()['cadastros']"
           >
-            <a routerLink="/cadastro/cargos" routerLinkActive="bg-blue-50 text-blue-600"
-               class="menu-subitem group flex items-center h-12 w-full transition-colors justify-center px-0"
-               [ngClass]="isOpen() ? 'md:pl-12 md:justify-start' : 'md:px-0 md:justify-center'"
-               matTooltip="Cadastrar Cargo" matTooltipPosition="right" [matTooltipDisabled]="isOpen()"
-               matTooltipClass="tooltip-blue">
-              <mat-icon>work</mat-icon>
-              @if (isOpen()) {
-                <span class="ml-4 hidden md:inline whitespace-nowrap">Cargo</span>
-              }
-            </a>
-            <a routerLink="/cadastro/setores" routerLinkActive="bg-blue-50 text-blue-600"
-               class="menu-subitem group flex items-center h-12 w-full transition-colors justify-center px-0"
-               [ngClass]="isOpen() ? 'md:pl-12 md:justify-start' : 'md:px-0 md:justify-center'"
-               matTooltip="Cadastrar Setor" matTooltipPosition="right" [matTooltipDisabled]="isOpen()"
-               matTooltipClass="tooltip-blue">
-              <mat-icon>domain</mat-icon>
-              @if (isOpen()) {
-                <span class="ml-4 hidden md:inline whitespace-nowrap">Setor</span>
-              }
-            </a>
-            <a routerLink="/cadastro/vinculos" routerLinkActive="bg-blue-50 text-blue-600"
-               class="menu-subitem group flex items-center h-12 w-full transition-colors justify-center px-0"
-               [ngClass]="isOpen() ? 'md:pl-12 md:justify-start' : 'md:px-0 md:justify-center'"
-               matTooltip="Cadastrar Vínculo" matTooltipPosition="right" [matTooltipDisabled]="isOpen()"
-               matTooltipClass="tooltip-blue">
-              <mat-icon>link</mat-icon>
-              @if (isOpen()) {
-                <span class="ml-4 hidden md:inline whitespace-nowrap">Vínculo</span>
-              }
-            </a>
-            <a routerLink="/cadastro/status" routerLinkActive="bg-blue-50 text-blue-600"
-               class="menu-subitem group flex items-center h-12 w-full transition-colors justify-center px-0"
-               [ngClass]="isOpen() ? 'md:pl-12 md:justify-start' : 'md:px-0 md:justify-center'"
-               matTooltip="Cadastrar Status" matTooltipPosition="right" [matTooltipDisabled]="isOpen()"
-               matTooltipClass="tooltip-blue">
-              <mat-icon>fact_check</mat-icon>
-              @if (isOpen()) {
-                <span class="ml-4 hidden md:inline whitespace-nowrap">Status</span>
-              }
-            </a>
+            <app-link-sidebar
+              [toolTip]="'Gestão de Cargo'"
+              [link]="'/cadastros/cargos'"
+              [onOpen]="isOpen()"
+              [label]="'Cargo'"
+              [icon]="'work'"
+            />
+            <app-link-sidebar
+              [toolTip]="'Gestão de Setor'"
+              [link]="'/cadastros/setores'"
+              [onOpen]="isOpen()"
+              [label]="'Setor'"
+              [icon]="'domain'"
+            />
+            <app-link-sidebar
+              [toolTip]="'Gestão de Vínculo'"
+              [link]="'/cadastros/vinculos'"
+              [onOpen]="isOpen()"
+              [label]="'Vínculo'"
+              [icon]="'link'"
+            />
+            <app-link-sidebar
+              [toolTip]="'Gestão de Status'"
+              [link]="'/cadastros/status'"
+              [onOpen]="isOpen()"
+              [label]="'Status'"
+              [icon]="'fact_check'"
+            />
           </div>
         </div>
       }
 
       @if (isLinkMenuHidden()) {
         <div class="flex flex-col">
-
-          <!-- Menu e submenu Permissões-->
-          <button
-            (click)="toggleSubmenu('permissoes')"
-            class="flex items-center h-12 w-full cursor-pointer transition-colors group relative justify-center px-0"
-            [ngClass]="isOpen() ? 'md:px-4 md:justify-between' : 'md:px-0 md:justify-center'"
-            matTooltip="Vínculos e Permissões"
-            matTooltipPosition="right"
-            [matTooltipDisabled]="isOpen()"
-            matTooltipClass="tooltip-blue"
-          >
-            <div class="flex items-center group-hover:text-blue-700">
-              <mat-icon class="text-gray-700 group-hover:scale-125 transition-all duration-200">
-                admin_panel_settings
-              </mat-icon>
-              @if (isOpen()) {
-                <span
-                  class="ml-4 font-medium group-hover:font-semibold hidden md:block whitespace-nowrap">
-                  Permissões
-                </span>
-              }
-            </div>
-
-            <mat-icon
-              class="text-gray-400 transition-transform duration-300 group-hover:!text-blue-700 shrink-0"
-              [class.rotate-180]="openMenus()['permissoes']"
-              [ngClass]="isOpen() ? '-ml-1 md:ml-0 scale-75 md:scale-100' : '-ml-1 scale-75'"
-            >
-              expand_more
-            </mat-icon>
-          </button>
-
+          <!-- Menu Permissões-->
+          <app-button-sidebar
+            [label]="'Permissões'"
+            [onOpen]="isOpen()"
+            (toggleSubmenu)="toggleSubmenu('permissoes')"
+            [iconMenu]="'admin_panel_settings'"
+            [toolTips]="'Permissões'"
+            [onOpenMenus]="openMenus()"
+          />
+          <!-- submenu Permissões-->
           <div
             class="overflow-hidden transition-all duration-300 ease-in-out flex flex-col"
             [class.max-h-0]="!openMenus()['permissoes']"
             [class.max-h-96]="openMenus()['permissoes']"
           >
-            <a routerLink="/permissoes/procuradores" routerLinkActive="bg-blue-50 text-blue-600"
-               class="menu-subitem group flex items-center h-12 w-full transition-colors justify-center px-0"
-               [ngClass]="isOpen() ? 'md:pl-12 md:justify-start' : 'md:px-0 md:justify-center'"
-               matTooltip="Cadastrar Procurador" matTooltipPosition="right" [matTooltipDisabled]="isOpen()"
-               matTooltipClass="tooltip-blue">
-              <mat-icon>gavel</mat-icon>
-              @if (isOpen()) {
-                <span class="ml-4 hidden md:inline whitespace-nowrap">Procuradores</span>
-              }
-            </a>
-            <a routerLink="/permissoes/sistemas" routerLinkActive="bg-blue-50 text-blue-600"
-               class="menu-subitem group flex items-center h-12 w-full transition-colors justify-center px-0"
-               [ngClass]="isOpen() ? 'md:pl-12 md:justify-start' : 'md:px-0 md:justify-center'"
-               matTooltip="Cadastrar Sistema" matTooltipPosition="right" [matTooltipDisabled]="isOpen()"
-               matTooltipClass="tooltip-blue">
-              <mat-icon>dns</mat-icon>
-              @if (isOpen()) {
-                <span class="ml-4 hidden md:inline whitespace-nowrap">Sistemas</span>
-              }
-            </a>
-            <a routerLink="/permissoes/alias" routerLinkActive="bg-blue-50 text-blue-600"
-               class="menu-subitem group flex items-center h-12 w-full transition-colors justify-center px-0"
-               [ngClass]="isOpen() ? 'md:pl-12 md:justify-start' : 'md:px-0 md:justify-center'"
-               matTooltip="Cadastrar Alias(Email)" matTooltipPosition="right" [matTooltipDisabled]="isOpen()"
-               matTooltipClass="tooltip-blue">
-              <mat-icon>label</mat-icon>
-              @if (isOpen()) {
-                <span class="ml-4 hidden md:inline whitespace-nowrap">Alias (E-mails)</span>
-              }
-            </a>
+            <app-link-sidebar
+              [toolTip]="'Gestão de Procuradores'"
+              [link]="'/permissoes/procuradores'"
+              [onOpen]="isOpen()"
+              [label]="'Procuradores'"
+              [icon]="'gavel'"
+            />
+
+            <app-link-sidebar
+              [toolTip]="'Gestão de Sistemas'"
+              [link]="'/permissoes/sistemas'"
+              [onOpen]="isOpen()"
+              [label]="'Sistemas'"
+              [icon]="'dns'"
+            />
+
+            <app-link-sidebar
+              [toolTip]="'Gestão de Alias'"
+              [link]="'/permissoes/alias'"
+              [onOpen]="isOpen()"
+              [label]="'Alias (E-mail)'"
+              [icon]="'mail'"
+            />
           </div>
         </div>
       }
 
       @if (isLinkMenuHidden()) {
         <div class="flex flex-col">
-          <!-- Menu e submenu Relatórios-->
-          <button
-            (click)="toggleSubmenu('auditoria')"
-            class="flex items-center h-12 w-full cursor-pointer transition-colors group relative justify-center px-0"
-            [ngClass]="isOpen() ? 'md:px-4 md:justify-between' : 'md:px-0 md:justify-center'"
-            matTooltip="Auditoria"
-            matTooltipPosition="right"
-            [matTooltipDisabled]="isOpen()"
-            matTooltipClass="tooltip-blue"
-          >
-            <div class="flex items-center group-hover:text-blue-700">
-              <mat-icon class="text-gray-700 group-hover:scale-125 transition-all duration-200">
-                manage_accounts
-              </mat-icon>
-              @if (isOpen()) {
-                <span
-                  class="ml-4 font-medium group-hover:font-semibold hidden md:block whitespace-nowrap">
-                  Auditoria
-                </span>
-              }
-            </div>
-
-            <mat-icon
-              class="text-gray-400 transition-transform duration-300 group-hover:!text-blue-700 shrink-0"
-              [class.rotate-180]="openMenus()['auditoria']"
-              [ngClass]="isOpen() ? '-ml-1 md:ml-0 scale-75 md:scale-100' : '-ml-1 scale-75'"
-            >
-              expand_more
-            </mat-icon>
-          </button>
+          <!-- Menu Relatórios-->
+          <app-button-sidebar
+            [label]="'Relatórios'"
+            [onOpen]="isOpen()"
+            [onOpenMenus]="openMenus()"
+            [iconMenu]="'content_paste_search'"
+            [toolTips]="'Relatórios'"
+            (toggleSubmenu)="toggleSubmenu('relatorios')"
+          />
+          <!-- Submenu Relatórios-->
           <div
             class="overflow-hidden transition-all duration-300 ease-in-out flex flex-col"
-            [class.max-h-0]="!openMenus()['auditoria']"
-            [class.max-h-96]="openMenus()['auditoria']"
+            [class.max-h-0]="!openMenus()['relatorios']"
+            [class.max-h-96]="openMenus()['relatorios']"
           >
-            <a routerLink="/auditoria/relatorio" routerLinkActive="bg-blue-50 text-blue-600"
-               class="menu-subitem group flex items-center h-12 w-full transition-colors justify-center px-0"
-               [ngClass]="isOpen() ? 'md:pl-12 md:justify-start' : 'md:px-0 md:justify-center'"
-               matTooltip="Visualizar Auditoria" matTooltipPosition="right" [matTooltipDisabled]="isOpen()"
-               matTooltipClass="tooltip-blue">
-              <mat-icon>label</mat-icon>
-              @if (isOpen()) {
-                <span class="ml-4 hidden md:inline whitespace-nowrap">Relatório</span>
-              }
-            </a>
+            <app-link-sidebar
+              [toolTip]="'Rel. Auditoria'"
+              [link]="'/relatorios/auditoria'"
+              [onOpen]="isOpen()"
+              [label]="'Auditoria'"
+              [icon]="'change_history'"
+            />
           </div>
         </div>
       }

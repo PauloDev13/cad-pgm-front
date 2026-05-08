@@ -24,9 +24,8 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="bg-gray-50 shadow-md rounded-2xl border border-gray-200 p-4 md:p-6 mx-auto
-            mt-0 w-full max-w-7xl print:bg-white print:shadow-none print:border-none
-            print:p-0 print:m-0 print:max-w-full"
+      class="bg-gray-50 rounded-2xl p-4 md:p-6 mx-auto mt-0 w-full print:bg-white
+            print:shadow-none print:border-none print:p-0 print:m-0 print:max-w-full"
     >
       <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4 print:mb-4">
         <div>

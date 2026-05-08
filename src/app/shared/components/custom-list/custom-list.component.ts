@@ -30,17 +30,17 @@ import { LoadingComponent } from '../loading.component/loading.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="bg-gray-50 shadow-md rounded-2xl border border-gray-200 p-4 md:p-6 max-w-5xl
-            mx-auto mt-0 w-full h-[calc(100vh-12rem)] min-h-[400px] flex flex-col"
+      class="flex flex-col bg-gray-50 rounded-2xl p-4 md:p-6 max-w-5xl
+            mx-auto mt-0 w-full h-[calc(100vh-12rem)] min-h-[400px]"
     >
-      <div class="mb-6">
+      <div class="mb-4">
         <h2 class="text-xl md:text-2xl font-bold text-blue-800 leading-tight">Gestão de {{ title() }}</h2>
         <p class="text-sm text-gray-500 mt-1">Gerencie os {{ title() }}s do sistema</p>
       </div>
 
       <div
         class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mb-4
-              bg-white sm:bg-gray-100 p-3 sm:p-4 rounded-xl shadow-sm border border-gray-200"
+              bg-white sm:bg-gray-50 p-3 sm:p-4 rounded-xl shadow-sm border border-gray-200"
       >
         <mat-form-field
           appearance="outline"
@@ -165,13 +165,13 @@ import { LoadingComponent } from '../loading.component/loading.component';
             <tr
               mat-header-row
               *matHeaderRowDef="displayedColumns; sticky: true"
-              class="!min-h-[40px] !h-[40px] !bg-gray-100 border-b-2 border-gray-300 !z-10"
+              class="!min-h-[40px] !h-[40px] !bg-gray-50 border-b-2 border-gray-300 !z-10"
             ></tr>
             <tr
               mat-row
               *matRowDef="let row; columns: displayedColumns"
               class="!min-h-[40px] !h-[40px] odd:!bg-white even:!bg-gray-50 hover:!bg-blue-50
-                    transition-colors border-gray-100"
+                    transition-colors !border-gray-100"
             ></tr>
 
             <tr class="mat-row" *matNoDataRow>

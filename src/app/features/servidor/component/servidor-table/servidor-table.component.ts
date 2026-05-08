@@ -183,8 +183,8 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
 
           <tr
             mat-header-row
-            *matHeaderRowDef="displayedColumns()"
-            class="!min-h-[40px] !h-[40px] !bg-gray-50 border-b-2 border-gray-300"
+            *matHeaderRowDef="displayedColumns(); sticky: true"
+            class="!min-h-[40px] !h-[40px] !bg-gray-50 border-b-2 border-gray-300 z-10"
           ></tr>
           <tr
             mat-row

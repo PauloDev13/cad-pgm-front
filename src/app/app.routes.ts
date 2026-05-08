@@ -25,7 +25,7 @@ export const routes: Routes = [
       },
       {
         path: 'register',
-        title: 'Cadastro | Gestão de Servidores PGM Natal',
+        title: 'Cadastro Usuário| Gestão de Servidores PGM Natal',
         loadComponent: () => import('./core/auth/component/form-register-usuario.component')
           .then((m) => m.FormRegisterUsuarioComponent)
       },
@@ -43,7 +43,7 @@ export const routes: Routes = [
       },
       {
         path: 'troca-obrigatoria',
-        title: 'Troca de Senha Obrigatória | PGM Natal',
+        title: 'Troca de Senha | Gestão de Servidores PGM Natal',
         loadComponent: () => import('./core/auth/component/force-password-change.component').then(m => m.ForcePasswordChangeComponent)
       }
     ]
@@ -61,8 +61,9 @@ export const routes: Routes = [
     // Tudo que estiver aqui dentro vai aparecer no <router-outlet> do Menu
     children: [
       {
-        // Se acessar localhost:4200 vazio, joga a página inicial
+        // Se acessar vazio, joga a página inicial
         path: '',
+        title: 'Início | Gestão de Servidores PGM Natal',
         redirectTo: 'home',
         pathMatch: 'full'
       },
@@ -73,19 +74,19 @@ export const routes: Routes = [
       },
       {
         path: 'usuarios',
-        title: 'Gestão de Usuários',
+        title: 'Usuários | Gestão de Servidores PGM Natal',
         loadComponent: () => import('./features/usuario/pages/usuario-list.page')
       },
       {
         // A sua tela já existente, intacta!
         path: 'servidores',
-        title: 'Gestão de Servidores',
+        title: 'Servidores | Gestão de Servidores PGM Natal',
         loadComponent: () => import('./features/servidor/pages/servidor-list.page')
       },
       {
         // tela para cadastro, edição e exclusão de cargos
-        path: 'cadastro/cargos',
-        title: 'Gestão de Cargos',
+        path: 'cadastros/cargos',
+        title: 'Cargos  | Gestão de Servidores PGM Natal',
         // Empilhamos o roleGuard e informamos no 'data' qual o cargo exigido
         canActivate: [roleGuard],
         data: { role: 'admin' },
@@ -93,24 +94,24 @@ export const routes: Routes = [
       },
       {
         // tela para cadastro, edição e exclusão de setores
-        path: 'cadastro/setores',
-        title: 'Gestão de Setores',
+        path: 'cadastros/setores',
+        title: 'Setores  | Gestão de Servidores PGM Natal',
         canActivate: [roleGuard],
         data: { role: 'admin' },
         loadComponent: () => import('./features/setor/pages/setor-display.page')
       },
       {
         // tela para cadastro, edição e exclusão de vínculos
-        path: 'cadastro/vinculos',
-        title: 'Gestão de Vínculos',
+        path: 'cadastros/vinculos',
+        title: 'Vínculos | Gestão de Servidores PGM Natal',
         canActivate: [roleGuard],
         data: { role: 'admin' },
         loadComponent: () => import('./features/vinculo/pages/vinculo-display.page')
       },
       {
         // tela para cadastro, edição e exclusão status
-        path: 'cadastro/status',
-        title: 'Gestão de Status',
+        path: 'cadastros/status',
+        title: 'Status | Gestão de Servidores PGM Natal',
         canActivate: [roleGuard],
         data: { role: 'admin' },
         loadComponent: () => import('./features/status/pages/status-display.page')
@@ -118,7 +119,7 @@ export const routes: Routes = [
       {
         // tela para cadastro, edição e exclusão de procuradores
         path: 'permissoes/procuradores',
-        title: 'Gestão de Procuradores',
+        title: 'Procuradores | Gestão de Servidores PGM Natal',
         canActivate: [roleGuard],
         data: { role: 'admin' },
         loadComponent: () => import('./features/procurador/pages/procurador-display.page')
@@ -126,7 +127,7 @@ export const routes: Routes = [
       {
         // tela para cadastro, edição e exclusão de sistemas
         path: 'permissoes/sistemas',
-        title: 'Gestão de Sistemas',
+        title: 'Sistemas | Gestão de Servidores PGM Natal',
         canActivate: [roleGuard],
         data: { role: 'admin' },
         loadComponent: () => import('./features/sistema/pages/sistema-display.page')
@@ -134,21 +135,21 @@ export const routes: Routes = [
       {
         // tela para cadastro, edição e exclusão de alias
         path: 'permissoes/alias',
-        title: 'Gestão de Alias',
+        title: 'Alias (E-mails) | Gestão de Servidores PGM Natal',
         canActivate: [roleGuard],
         data: { role: 'admin' },
         loadComponent: () => import('./features/alias/pages/alias-display.page')
       },
       {
-        // tela para visualização de detalhes do servidor
-        path: 'servidores/detalhes/:id',
-        title: 'Detalhes do servidor',
-        loadComponent: () => import('./features/servidor/pages/servidor-detalhes.page')
+        path: 'relatorios/auditoria',
+        title: 'Relatório Auditoria | Gestão de Servidores PGM Natal',
+        loadComponent: () => import('./core/auditoria/pages/audit.page/audit.page')
       },
       {
-        path: 'auditoria/relatorio',
-        title: 'Relatório de Auditoria',
-        loadComponent: () => import('./core/auditoria/pages/audit.page/audit.page')
+        // tela para visualização de detalhes do servidor
+        path: 'servidores/detalhes/:id',
+        title: 'Detalhes do servidor | Gestão de Servidores PGM Natal',
+        loadComponent: () => import('./features/servidor/pages/servidor-detalhes.page')
       }
     ]
   },
