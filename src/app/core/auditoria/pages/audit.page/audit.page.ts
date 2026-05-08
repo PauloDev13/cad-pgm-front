@@ -15,13 +15,14 @@ import { AuditService } from '../../services/audit.service';
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
 import { form, FormField, minLength } from '@angular/forms/signals';
+import { LoadingComponent } from '../../../../shared/components/loading.component/loading.component';
 
 @Component({
   selector: 'app-audit.page',
   imports: [
     CommonModule, FormsModule, MatButtonModule, MatIconModule, MatInputModule,
     MatSelectModule, MatDatepickerModule, MatNativeDateModule, MatTableModule,
-    MatPaginatorModule, FormField
+    MatPaginatorModule, FormField, LoadingComponent
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -110,6 +111,16 @@ import { form, FormField, minLength } from '@angular/forms/signals';
               a {{ auditFormModel().endDate | date:'dd/MM/yyyy' }}</p>
           </div>
 
+          <!-- Chama o componente de loading-->
+          <div
+            class="absolute inset-0 z-50 bg-white/60 flex justify-center items-center backdrop-blur-sm
+              transition-opacity duration-300"
+            [class.opacity-0]="!isLoading()"
+            [class.opacity-100]="isLoading()"
+            [class.pointer-events-none]="!isLoading()">
+            <app-loading [isLoading]="true" />
+          </div>
+
           <table mat-table [dataSource]="dataAudit()" class="w-full">
 
             <ng-container matColumnDef="dateHourAction">
@@ -164,7 +175,7 @@ import { form, FormField, minLength } from '@angular/forms/signals';
 
             <ng-container matColumnDef="idAffectedRecord">
               <th mat-header-cell *matHeaderCellDef class="font-normal text-gray-800 !px-3">
-                ID
+                Identificação
               </th>
               <td mat-cell *matCellDef="let row" class="text-gray-600">{{ row.idAffectedRecord }}</td>
             </ng-container>
@@ -202,7 +213,7 @@ import { form, FormField, minLength } from '@angular/forms/signals';
             [length]="totalElements()"
             [pageSize]="pageSize()"
             [pageIndex]="currentPage()"
-            [pageSizeOptions]="[10, 20, 50]"
+            [pageSizeOptions]="[15, 30, 50]"
             [showFirstLastButtons]="true"
             (page)="onPageChange($event)">
           </mat-paginator>
@@ -220,7 +231,7 @@ export default class AuditPage {
   dataAudit = signal<AuditResponseDTO[]>([]);
   isLoading = signal<boolean>(false);
   totalElements = signal<number>(0);
-  pageSize = signal<number>(10);
+  pageSize = signal<number>(15);
   currentPage = signal<number>(0);
 
   // Configuração das colunas da tabela

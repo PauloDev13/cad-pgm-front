@@ -34,6 +34,7 @@ import { AuthService } from '../../../../core/auth/services/auth.service';
 import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper.component';
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
+import { DateTime } from 'luxon';
 
 export type FormModel = Required<ServidorRequestDTO>;
 
@@ -121,7 +122,6 @@ export type FormModel = Required<ServidorRequestDTO>;
                       [mask]="'0.000-0||00.000-0||000.000-0||0000.000-0'"
                       [dropSpecialCharacters]="true"
                     />
-
                   }
                 </mat-form-field>
               </app-field-wrapper>
@@ -141,14 +141,12 @@ export type FormModel = Required<ServidorRequestDTO>;
                 <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                   <mat-label>Data de Nascimento</mat-label>
                   <input
-                    matInput [matDatepicker]="pickerNascimento"
+                    matInput
+                    class="text-right"
                     [formField]="servidorForm.dataNascimento"
-                    mask="d0/M0/0000"
+                    mask="00/00/0000"
                     [dropSpecialCharacters]="false"
-                    placeholder="DD/MM/AAAA" />
-                  <mat-datepicker-toggle
-                    matIconSuffix [for]="pickerNascimento"></mat-datepicker-toggle>
-                  <mat-datepicker #pickerNascimento></mat-datepicker>
+                    placeHolder="Data como 'DD/MM/YYYY'" />
                 </mat-form-field>
               </app-field-wrapper>
 
@@ -410,6 +408,8 @@ export class ServidorFormComponent implements OnInit {
     // validações para o campo Data de Nascimento
     required(path.dataNascimento, { message: 'A data é obrigatório' });
     validate(path.dataNascimento, ({ value }) =>
+      CustomValidators.validDateText(value()));
+    validate(path.dataNascimento, ({ value }) =>
       CustomValidators.minimumAge(value(), 16));
 
     // validações para o campo Telefone
@@ -465,9 +465,11 @@ export class ServidorFormComponent implements OnInit {
           // Se existir a data no DTO, criamos o objeto Date. O 'T00:00:00' evita
           // bugs de fuso horário que poderiam fazer o dia voltar 1 número.
           // Usamos 'as any' temporariamente para o TypeScript não reclamar do tipo inicial 'string'.
+          // dataNascimento: this.payload?.dataNascimento
+          //   ? (new Date(this.payload.dataNascimento + 'T00:00:00') as any)
+          //   : '',
           dataNascimento: this.payload?.dataNascimento
-            ? (new Date(this.payload.dataNascimento + 'T00:00:00') as any)
-            : '',
+            ? DateTime.fromISO(this.payload.dataNascimento).toFormat('dd/MM/yyyy') : '',
 
           // BLINDAGEM 3: O "|| null" impede que o modelo receba undefined e apague o controle
           cargoId: this.payload?.cargo?.id || null as unknown as number,
@@ -498,13 +500,32 @@ export class ServidorFormComponent implements OnInit {
         // Obtemos os valores diretos do Signal de Modelo Atualizado
         const requestData = this.servidorModel() as ServidorRequestDTO;
 
+        // Preparamos a variável no tipo exato que o seu DTO aceita
+        let dataFormated: string | undefined = undefined;
+
+        // Só tentamos converter se o usuário de fato preencheu a data
+        if (requestData.dataNascimento) {
+          // 1. Lemos a string do input (DD/MM/YYYY) usando fromFormat
+          // 2. Convertemos para o padrão do banco (YYYY-MM-DD) usando toISODate()
+          const conversationLuxon =
+            DateTime.fromFormat(requestData.dataNascimento, 'dd/MM/yyyy').toISODate();
+
+          // Garantimos que não passaremos 'null' para satisfazer o TypeScript
+          dataFormated = conversationLuxon !== null ? conversationLuxon : undefined;
+        }
+
+        const dataPayload = {
+          ...requestData,
+          dataNascimento: dataFormated
+        };
+
         // Transformamos as chamadas Observable em Promise com firstValueFrom
         if (this.isReactivate) {
-          await firstValueFrom(this.servidorService.reactivate(this.payload!.id, requestData));
+          await firstValueFrom(this.servidorService.reactivate(this.payload!.id, dataPayload));
         } else if (this.isEdit) {
-          await firstValueFrom(this.servidorService.update(this.payload!.id, requestData));
+          await firstValueFrom(this.servidorService.update(this.payload!.id, dataPayload));
         } else {
-          await firstValueFrom(this.servidorService.create(requestData));
+          await firstValueFrom(this.servidorService.create(dataPayload));
         }
 
         const msgAction =

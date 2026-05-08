@@ -1,3 +1,5 @@
+import { DateTime } from 'luxon';
+
 export class CustomValidators {
   // Validador de Idade Mínima
   static minimumAge(value: any, minAge: number): { kind: string; message: string } | null {
@@ -82,5 +84,40 @@ export class CustomValidators {
 
     // Se passou por todas as barreiras, o CPF é válido!
     return null;
+  }
+
+  static validDateText(value: string | null): { kind: string; message: string } | null {
+    // 1. Se for nulo ou undefined, o required() cuida disso
+    if (value === null || value === undefined) {
+      return null;
+    }
+
+    // 2. BLINDAGEM: Se por algum motivo o valor não for uma string (ex: resquício de Date/DateTime)
+    // Nós o convertemos forçosamente para string, evitando o erro do .trim()
+    // const textValue = typeof value === 'string' ? value : String(value);
+
+    // 3. Agora podemos usar o trim() com 100% de segurança
+    // if (textValue.trim() === '') {
+    //   return null;
+    // }
+
+    // Se o valor convertido for um objeto gigante (ex: "Mon Apr 05 1982..."), barramos aqui
+    if (value.trim().length > 10) {
+      return { kind: 'invalidDate', message: 'Formato interno inválido.' };
+    }
+
+    // 4. Se o usuário não terminou de digitar...
+    if (value.trim().length > 0 && value.trim().length < 10) {
+      return { kind: 'invalidDate', message: 'A data está incompleta.' };
+    }
+
+    // 5. A validação real com Luxon
+    const dateObj = DateTime.fromFormat(value.trim(), 'dd/MM/yyyy');
+
+    if (!dateObj.isValid) {
+      return { kind: 'invalidDate', message: 'A data informada não existe no calendário.' };
+    }
+
+    return null; // A data é perfeita!
   }
 }
