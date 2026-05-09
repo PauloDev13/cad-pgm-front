@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, OnInit, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, OnInit, output } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -35,7 +35,7 @@ import { LoadingComponent } from '../loading.component/loading.component';
     >
       <div class="mb-4">
         <h2 class="text-xl md:text-2xl font-bold text-blue-800 leading-tight">Gestão de {{ title() }}</h2>
-        <p class="text-sm text-gray-500 mt-1">Gerencie os {{ title() }}s do sistema</p>
+        <p class="text-sm text-gray-500 mt-1">Gerencie os {{ subtitle() }}s do sistema</p>
       </div>
 
       <div
@@ -176,10 +176,10 @@ import { LoadingComponent } from '../loading.component/loading.component';
 
             <tr class="mat-row" *matNoDataRow>
               <td
-                class="mat-cell p-4 text-center text-red-800 text-base md:text-xl"
+                class="mat-cell !bg-red-500 p-4 font-semibold !text-center text-white text-base md:text-sm"
                 [colSpan]="displayedColumns.length"
               >
-                Nenhum registro encontrado.
+                Nenhum {{ title().toUpperCase() }} encontrado para o critério informado.
               </td>
             </tr>
           </table>
@@ -262,4 +262,19 @@ export class CustomListComponent implements OnInit {
         }
       });
   }
+
+  subtitle = computed(() => {
+    switch (this.title()) {
+      case 'Procurador':
+        return 'Procuradore';
+      case 'Alias':
+        return 'Aliase';
+      case 'Setor':
+        return 'Setore';
+      case 'Status':
+        return 'Statu';
+      default:
+        return this.title();
+    }
+  });
 }

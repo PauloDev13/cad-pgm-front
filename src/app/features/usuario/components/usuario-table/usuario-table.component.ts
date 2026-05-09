@@ -53,7 +53,8 @@ import { map } from 'rxjs';
               ID
             </th>
             <td mat-cell *matCellDef="let u"
-                class="!text-sm !px-3 whitespace-nowrap text-gray-600">
+                [class]="u.activated ? 'text-gray-700' : 'text-red-600 font-semibold'"
+                class="!text-sm !px-3 whitespace-nowrap">
               {{ u.id }}
             </td>
           </ng-container>
@@ -64,8 +65,8 @@ import { map } from 'rxjs';
               Nome
             </th>
             <td mat-cell *matCellDef="let u"
-                class="!font-medium !text-sm !px-3 text-gray-600
-                        truncate max-w-[150px] md:max-w-none">
+                [class]="u.activated ? 'text-gray-700' : 'text-red-600 font-semibold'"
+                class="!font-medium !text-sm !px-3 truncate max-w-[150px] md:max-w-none">
               {{ u.name }}
             </td>
           </ng-container>
@@ -76,7 +77,8 @@ import { map } from 'rxjs';
               E-mail
             </th>
             <td mat-cell *matCellDef="let u"
-                class="!text-sm !px-3 text-gray-600">
+                [class]="u.activated ? 'text-gray-700' : 'text-red-600 font-semibold'"
+                class="!text-sm !px-3">
               {{ u.email }}
             </td>
           </ng-container>
@@ -86,7 +88,12 @@ import { map } from 'rxjs';
                 class="font-semibold text-gray-800 !text-sm !px-3">
               Login
             </th>
-            <td mat-cell *matCellDef="let u" class="!text-sm !px-3 text-gray-600">
+            <td
+              mat-cell
+              *matCellDef="let u"
+              [class]="u.activated ? 'text-gray-700' : 'text-red-600 font-semibold'"
+              class="!text-sm !px-3"
+            >
               {{ u.userName }}
             </td>
           </ng-container>
@@ -172,10 +179,10 @@ import { map } from 'rxjs';
 
           <tr class="mat-row" *matNoDataRow>
             <td
-              class="mat-cell p-4 text-center text-red-800 text-base md:text-xl"
+              class="mat-cell p-4 !bg-red-600 font-semibold !text-center text-white text-base md:text-sm"
               [colSpan]="displayedColumns().length"
             >
-              Nenhum Usuário encontrado.
+              Nenhum USUÁRIO encontrado para o critério informado.
             </td>
           </tr>
         </table>

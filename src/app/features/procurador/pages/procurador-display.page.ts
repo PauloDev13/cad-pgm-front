@@ -30,7 +30,7 @@ export default class ProcuradorDisplayPage extends BaseGenericDirective<Procurad
   // Injeções
   private readonly procuradorService = inject(ProcuradorService);
 
-  // Implementação dos métodos obrigários herdados do pai
+  // Implementação dos métodos obrigatórios herdados do pai
   get entityService(): ICrudGeneric<ProcuradorResponseDTO> {
     return this.procuradorService;
   }

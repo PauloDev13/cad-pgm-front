@@ -208,10 +208,14 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
 
           <tr class="mat-row" *matNoDataRow>
             <td
-              class="mat-cell p-4 !text-center text-red-800 text-base md:text-sm"
+              class="mat-cell p-4 !bg-red-600 !text-center text-white text-base md:text-sm md:font-semibold"
               [colSpan]="displayedColumns().length"
             >
-              Nenhum servidor encontrado.
+              @if (tableMode() === 'NORMAL') {
+                Nenhum servidor com Status: {{ noDataRow() }} encontrado para o critério informado.
+              } @else {
+                Nenhum servidor com Status: EXCLUÍDO encontrado para o critério informado.
+              }
             </td>
           </tr>
         </table>
@@ -242,6 +246,8 @@ export class ServidorTableComponent {
   pageSize = input.required<number>();
   currentPage = input.required<number>();
   isLoading = input.required<boolean>();
+
+  status = input.required<number | null>();
 
   // NOVO: Define se a tabela é normal ou de lixeira (padrão é NORMAL)
   tableMode = input<'NORMAL' | 'EXCLUDED'>('NORMAL');
@@ -282,20 +288,32 @@ export class ServidorTableComponent {
     this.router.navigate(['/servidores/detalhes', id]).then();
   }
 
-  textColor(): string {
+  // Muda a cor do texto das linhas da tabela dependendo se está
+  // exibindo dados dos ATIVOS ou dos EXCLUÍDOS
+  textColor = computed(() => {
     if (this.tableMode() === 'NORMAL') {
       return 'text-gray-700';
     } else {
-      return 'text-red-700';
+      return 'text-red-600';
     }
-  }
+  });
 
-  // noDataRow(){
-  //   this.data().map(r => {
-  //     switch (r.status?.descricao){
-  //       case 'Pendente':
-  //         return 'PENDENTE'
-  //     }
-  //   })
-  // }
+  // Seleciona a legenda do status na mensagem quando não há
+  // registros a serem exibidos na tabela
+  noDataRow = computed(() => {
+    switch (this.status()) {
+      case 2:
+        return 'INATIVO';
+      case 3:
+        return 'FÉRIAS';
+      case 4:
+        return 'PENDENTE';
+      case 5:
+        return 'AFASTADO';
+      case 6:
+        return 'DESCONHECIDO';
+      default:
+        return 'ATIVO';
+    }
+  });
 }
