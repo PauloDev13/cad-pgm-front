@@ -13,7 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
   template: `
     <div
       class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 bg-white md:bg-gray-50 p-2 md:p-4
-             rounded-xl shadow-sm border border-gray-200"
+             rounded-xl border border-gray-200"
     >
       <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
         <mat-label>Filtrar por</mat-label>

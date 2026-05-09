@@ -14,3 +14,8 @@ export interface AuditForm {
   startDate: Date | null;
   endDate: Date | null;
 }
+
+export interface ActionOptions {
+  value: string;
+  label: string;
+}

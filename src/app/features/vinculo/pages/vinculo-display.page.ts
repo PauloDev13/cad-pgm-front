@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CustomListComponent } from '../../../shared/components/custom-list/custom-list.component';
-import { BaseGenericComponent } from '../../../shared/components/generic/base-generic.component';
+import { BaseGenericDirective } from '../../../shared/directives/base-generic/base-generic.directive';
 import { ICrudGeneric } from '../../../shared/model/generic/crud-generic.model';
 import { VinculoRequestDTO, VinculoResponseDTO } from '../models/vinculo.model';
 import { VinculoService } from '../services/vinculo.service';
@@ -24,9 +24,9 @@ import { VinculoService } from '../services/vinculo.service';
       (onPageChange)="handlePageEvent($event)"
       (onSearch)="handleSearch($event)"
     />
-  `,
+  `
 })
-export default class VinculoDisplayPage extends BaseGenericComponent<VinculoResponseDTO> {
+export default class VinculoDisplayPage extends BaseGenericDirective<VinculoResponseDTO> {
   // Injeções
   private readonly vinculoService = inject(VinculoService);
 

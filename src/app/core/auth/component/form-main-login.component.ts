@@ -10,7 +10,7 @@ import { Router, RouterLink } from '@angular/router';
 import { MatIconButton } from '@angular/material/button';
 import { LoginStateService } from '../services/login-state.service';
 import { HeaderLoginComponent } from './header-login.component';
-import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper.component';
+import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper/field-wrapper.component';
 import { jwtDecode } from 'jwt-decode';
 import { finalize } from 'rxjs';
 import { ErrorHandlerService } from '../../../shared/service/error-handler.service';

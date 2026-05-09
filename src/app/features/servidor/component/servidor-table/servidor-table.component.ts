@@ -56,7 +56,8 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
               Matrícula
             </th>
             <td mat-cell *matCellDef="let s"
-                class="!text-sm !px-3 whitespace-nowrap text-gray-600">
+                [ngClass]="textColor()"
+                class="!text-sm !px-3 whitespace-nowrap">
               {{ s.matricula | matricula }}
             </td>
           </ng-container>
@@ -67,8 +68,8 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
               Nome
             </th>
             <td mat-cell *matCellDef="let s"
-                class="!font-medium !text-sm !px-3 text-gray-600 truncate
-                        max-w-[150px] md:max-w-none">
+                [ngClass]="textColor()"
+                class="!font-medium !text-sm !px-3 truncate max-w-[150px] md:max-w-none">
               {{ s.nome }}
             </td>
           </ng-container>
@@ -81,7 +82,11 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
             >
               Email
             </th>
-            <td mat-cell *matCellDef="let s" class="!text-sm !px-3 text-gray-600">
+            <td
+              mat-cell
+              *matCellDef="let s"
+              [ngClass]="textColor()"
+              class="!text-sm !px-3 text-gray-600">
               {{ s.emailPessoal }}
             </td>
           </ng-container>
@@ -91,7 +96,11 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
                 class="font-semibold text-gray-800 !text-sm !px-3">
               Cargo
             </th>
-            <td mat-cell *matCellDef="let s" class="!text-sm !px-3 text-gray-600">
+            <td
+              mat-cell
+              *matCellDef="let s"
+              [ngClass]="textColor()"
+              class="!text-sm !px-3 text-gray-600">
               {{ s.cargo?.nome || '-' }}
             </td>
           </ng-container>
@@ -101,7 +110,11 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
                 class="!font-semibold text-gray-800 !text-sm !px-3">
               Setor
             </th>
-            <td mat-cell *matCellDef="let s" class="!text-sm !px-3 text-gray-600">
+            <td
+              mat-cell
+              *matCellDef="let s"
+              [ngClass]="textColor()"
+              class="!text-sm !px-3 text-gray-600">
               {{ s.setor?.nome || '-' }}
             </td>
           </ng-container>
@@ -128,7 +141,7 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
                   >
                     <mat-icon
                       class="!text-green-800 transition-transform duration-200
-                group-hover:!text-green-600 group-hover:!scale-125 !text-[20px]"
+                            group-hover:!text-green-600 group-hover:!scale-125 !text-[20px]"
                     >
                       visibility
                     </mat-icon>
@@ -195,7 +208,7 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
 
           <tr class="mat-row" *matNoDataRow>
             <td
-              class="mat-cell p-4 text-center text-red-800 text-base md:text-xl"
+              class="mat-cell p-4 !text-center text-red-800 text-base md:text-sm"
               [colSpan]="displayedColumns().length"
             >
               Nenhum servidor encontrado.
@@ -268,4 +281,21 @@ export class ServidorTableComponent {
   viewDetail(id: number) {
     this.router.navigate(['/servidores/detalhes', id]).then();
   }
+
+  textColor(): string {
+    if (this.tableMode() === 'NORMAL') {
+      return 'text-gray-700';
+    } else {
+      return 'text-red-700';
+    }
+  }
+
+  // noDataRow(){
+  //   this.data().map(r => {
+  //     switch (r.status?.descricao){
+  //       case 'Pendente':
+  //         return 'PENDENTE'
+  //     }
+  //   })
+  // }
 }

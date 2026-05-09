@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { SetorService } from '../services/setor.service';
 import { SetorRequestDTO, SetorResponseDTO } from '../models/setor.model';
 import { CustomListComponent } from '../../../shared/components/custom-list/custom-list.component';
-import { BaseGenericComponent } from '../../../shared/components/generic/base-generic.component';
+import { BaseGenericDirective } from '../../../shared/directives/base-generic/base-generic.directive';
 import { ICrudGeneric } from '../../../shared/model/generic/crud-generic.model';
 
 @Component({
@@ -24,9 +24,9 @@ import { ICrudGeneric } from '../../../shared/model/generic/crud-generic.model';
       (onPageChange)="handlePageEvent($event)"
       (onSearch)="handleSearch($event)"
     />
-  `,
+  `
 })
-export default class SetorDisplayPage extends BaseGenericComponent<SetorResponseDTO> {
+export default class SetorDisplayPage extends BaseGenericDirective<SetorResponseDTO> {
   // Injeções
   private readonly setorService = inject(SetorService);
 

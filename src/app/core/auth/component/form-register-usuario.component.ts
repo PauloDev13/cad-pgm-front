@@ -9,7 +9,7 @@ import { TRegisterNewUser } from '../../../features/usuario/models/usuario.model
 import { LoginStateService } from '../services/login-state.service';
 import { HeaderLoginComponent } from './header-login.component';
 import { Router, RouterLink } from '@angular/router';
-import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper.component';
+import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper/field-wrapper.component';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 import { AuthService } from '../services/auth.service';
 import { finalize } from 'rxjs';

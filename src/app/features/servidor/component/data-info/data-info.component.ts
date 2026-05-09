@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { BaseEntityDTO } from '../models/servidor.model';
+import { BaseEntityDTO } from '../../models/servidor.model';
 
 @Component({
   selector: 'app-data-info',

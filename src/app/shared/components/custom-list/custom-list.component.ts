@@ -6,7 +6,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -22,7 +22,7 @@ import { LoadingComponent } from '../loading.component/loading.component';
     MatTooltipModule,
     MatFormFieldModule,
     MatInputModule,
-    MatPaginator,
+    MatPaginatorModule,
     MatProgressSpinnerModule,
     LoadingComponent
   ],
@@ -40,7 +40,7 @@ import { LoadingComponent } from '../loading.component/loading.component';
 
       <div
         class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mb-4
-              bg-white sm:bg-gray-50 p-3 sm:p-4 rounded-xl shadow-sm border border-gray-200"
+              bg-white sm:bg-gray-50 p-3 sm:p-4 rounded-xl border border-gray-200"
       >
         <mat-form-field
           appearance="outline"
@@ -67,7 +67,7 @@ import { LoadingComponent } from '../loading.component/loading.component';
       </div>
 
       <div
-        class="shadow-sm rounded-xl border border-gray-200 overflow-hidden bg-white relative
+        class="rounded-xl border border-gray-200 overflow-hidden bg-white relative
               flex flex-col w-full flex-1 min-h-0"
       >
         <!-- Chama o componente de loading-->

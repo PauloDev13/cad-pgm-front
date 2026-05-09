@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CustomListComponent } from '../../../shared/components/custom-list/custom-list.component';
 import { ProcuradorRequestDTO, ProcuradorResponseDTO } from '../models/procurador.model';
 import { ProcuradorService } from '../services/procurador.service';
-import { BaseGenericComponent } from '../../../shared/components/generic/base-generic.component';
+import { BaseGenericDirective } from '../../../shared/directives/base-generic/base-generic.directive';
 import { ICrudGeneric } from '../../../shared/model/generic/crud-generic.model';
 
 @Component({
@@ -24,9 +24,9 @@ import { ICrudGeneric } from '../../../shared/model/generic/crud-generic.model';
       (onPageChange)="handlePageEvent($event)"
       (onSearch)="handleSearch($event)"
     />
-  `,
+  `
 })
-export default class ProcuradorDisplayPage extends BaseGenericComponent<ProcuradorResponseDTO> {
+export default class ProcuradorDisplayPage extends BaseGenericDirective<ProcuradorResponseDTO> {
   // Injeções
   private readonly procuradorService = inject(ProcuradorService);
 

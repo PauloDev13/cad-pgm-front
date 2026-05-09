@@ -69,7 +69,7 @@ export interface PermissoesDialogData {
       <button
         mat-stroked-button
         type="button"
-        (click)="cancelar()"
+        (click)="cancel()"
         class="w-full sm:w-auto !border-blue-600 !text-blue-600 !transition-transform duration-300
                !ease-in-out hover:!scale-105 !h-12 sm:!h-10 order-2 sm:order-1"
       >
@@ -84,7 +84,7 @@ export interface PermissoesDialogData {
               !ease-in-out hover:!scale-105 disabled:!bg-gray-200 disabled:!cursor-not-allowed
                disabled:hover:!scale-100 disabled:!text-gray-400 disabled:!border-transparent
                !h-12 sm:!h-10 order-1 sm:order-2"
-        (click)="confirmar()"
+        (click)="confirm()"
       >
         <mat-icon>checked</mat-icon>
         Confirmar Seleção
@@ -111,7 +111,7 @@ export class PermissoesDialogComponent implements OnInit {
 
   ngOnInit() {
     // Busca as listas disponíveis no backend (Certifique-se de criar esses métodos no DominioService)
-    this.carregarDominios();
+    this.loadDomains();
 
     // Pré-seleciona os valores que vieram do formulário pai
     this.selectedSistemas = [...this.data.sistemaIds];
@@ -119,17 +119,17 @@ export class PermissoesDialogComponent implements OnInit {
     this.selectedAliases = [...this.data.aliasIds];
   }
 
-  carregarDominios() {
+  loadDomains() {
     this.dominioService.getSistemas().subscribe((res) => this.listas.sistemas.set(res));
     this.dominioService.getProcuradores().subscribe((res) => this.listas.procuradores.set(res));
     this.dominioService.getAliases().subscribe((res) => this.listas.aliases.set(res));
   }
 
-  cancelar() {
+  cancel() {
     this.dialogRef.close(); // Retorna undefined, cancelando a ação
   }
 
-  confirmar() {
+  confirm() {
     // Retorna os novos arrays selecionados para o formulário pai
     this.dialogRef.close({
       sistemaIds: this.selectedSistemas,

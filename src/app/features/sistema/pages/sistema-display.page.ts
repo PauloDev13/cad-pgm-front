@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CustomListComponent } from '../../../shared/components/custom-list/custom-list.component';
 import { SistemaRequestDTO, SistemaResponseDTO } from '../models/sistema.model';
-import { BaseGenericComponent } from '../../../shared/components/generic/base-generic.component';
+import { BaseGenericDirective } from '../../../shared/directives/base-generic/base-generic.directive';
 import { ICrudGeneric } from '../../../shared/model/generic/crud-generic.model';
 import { SistemaService } from '../services/sistema.service';
 
@@ -24,9 +24,9 @@ import { SistemaService } from '../services/sistema.service';
       (onPageChange)="handlePageEvent($event)"
       (onSearch)="handleSearch($event)"
     />
-  `,
+  `
 })
-export default class SistemaDisplayPage extends BaseGenericComponent<SistemaResponseDTO> {
+export default class SistemaDisplayPage extends BaseGenericDirective<SistemaResponseDTO> {
   // Injeções
   private readonly sistemaService = inject(SistemaService);
 

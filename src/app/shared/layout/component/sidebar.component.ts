@@ -11,7 +11,14 @@ import { ButtonSidebarComponent } from './button-sidebar/button-sidebar.componen
   selector: 'app-sidebar',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterModule, MatIconModule, MatTooltipModule, NgClass, LinkSidebarComponent, ButtonSidebarComponent],
+  imports: [
+    RouterModule,
+    MatIconModule,
+    MatTooltipModule,
+    NgClass,
+    LinkSidebarComponent,
+    ButtonSidebarComponent
+  ],
   template: `
     <nav class="flex flex-col py-2 text-gray-700 select-none overflow-x-hidden">
       <a

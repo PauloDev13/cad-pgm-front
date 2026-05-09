@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CustomListComponent } from '../../../shared/components/custom-list/custom-list.component';
-import { BaseGenericComponent } from '../../../shared/components/generic/base-generic.component';
+import { BaseGenericDirective } from '../../../shared/directives/base-generic/base-generic.directive';
 import { ICrudGeneric } from '../../../shared/model/generic/crud-generic.model';
 import { StatusRequestDTO, StatusResponseDTO } from '../models/status.model';
 import { StatusService } from '../services/status.service';
@@ -26,9 +26,9 @@ import { StatusService } from '../services/status.service';
       mainColumnKey="descricao"
       mainColumnLabel="Descrição"
     />
-  `,
+  `
 })
-export default class StatusDisplayPage extends BaseGenericComponent<StatusResponseDTO> {
+export default class StatusDisplayPage extends BaseGenericDirective<StatusResponseDTO> {
   // Injeções
   private readonly statusService = inject(StatusService);
 

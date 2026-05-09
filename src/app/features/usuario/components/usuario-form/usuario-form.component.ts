@@ -9,7 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
-import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper.component';
+import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper/field-wrapper.component';
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
@@ -102,7 +102,7 @@ import { ErrorHandlerService } from '../../../../shared/service/error-handler.se
     <mat-dialog-actions class="!px-6 !pb-4 !pt-4 flex flex-col sm:flex-row sm:justify-end items-center gap-3">
       <button
         mat-flat-button
-        class="w-full sm:w-auto !bg-blue-600 !text-white !transition-transform duration-300 !ease-in-out hover:!scale-105 !h-12 sm:!h-10"
+        class="w-full sm:w-auto !transition-transform duration-300 hover:!scale-105 !h-12 sm:!h-10"
         (click)="salvar()"
         [disabled]="usuarioForm().invalid()"
       >

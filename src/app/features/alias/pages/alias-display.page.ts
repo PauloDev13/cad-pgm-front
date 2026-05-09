@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CustomListComponent } from '../../../shared/components/custom-list/custom-list.component';
 import { AliasRequestDTO, AliasResponseDTO } from '../models/alias.model';
 import { AliasService } from '../services/alias.service';
-import { BaseGenericComponent } from '../../../shared/components/generic/base-generic.component';
+import { BaseGenericDirective } from '../../../shared/directives/base-generic/base-generic.directive';
 import { ICrudGeneric } from '../../../shared/model/generic/crud-generic.model';
 
 @Component({
@@ -26,9 +26,9 @@ import { ICrudGeneric } from '../../../shared/model/generic/crud-generic.model';
       mainColumnLabel="E-mail"
       mainColumnKey="email"
     />
-  `,
+  `
 })
-export default class AliasDisplayPage extends BaseGenericComponent<AliasResponseDTO> {
+export default class AliasDisplayPage extends BaseGenericDirective<AliasResponseDTO> {
   // Injeções
   private readonly aliasService = inject(AliasService);
 

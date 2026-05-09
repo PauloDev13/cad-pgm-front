@@ -6,10 +6,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { SingleInputDialogData, SingleInputModalResult } from '../../model/generic/base-generic.model';
-import { FieldWrapperComponent } from '../../layout/component/field-wrapper.component';
+import { FieldWrapperComponent } from '../../layout/component/field-wrapper/field-wrapper.component';
 
 @Component({
-  selector: 'app-custom-cad-modal.component',
+  selector: 'app-custom-cad-modal',
   imports: [
     MatDialogModule,
     MatFormFieldModule,
@@ -70,8 +70,7 @@ import { FieldWrapperComponent } from '../../layout/component/field-wrapper.comp
         {{ isEdit() ? 'Atualizar' : 'Salvar' }}
       </button>
     </mat-dialog-actions>
-  `,
-  styles: ``
+  `
 })
 export class CustomCadModalComponent implements OnInit {
   dialogRef = inject(MatDialogRef<CustomCadModalComponent>);

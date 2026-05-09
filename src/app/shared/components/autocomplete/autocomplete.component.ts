@@ -1,18 +1,18 @@
 import { ChangeDetectionStrategy, Component, computed, effect, input, model, signal, viewChild } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
-import { MatAutocomplete, MatAutocompleteTrigger, MatOption } from '@angular/material/autocomplete';
+import { MatError, MatFormFieldModule, MatLabel } from '@angular/material/form-field';
+import { MatInput, MatInputModule } from '@angular/material/input';
+import { MatAutocompleteModule, MatAutocompleteTrigger, MatOption } from '@angular/material/autocomplete';
 import { ErrorStateMatcher } from '@angular/material/core';
 
 @Component({
   selector: 'app-list-autocomplete',
   imports: [
-    MatFormField,
-    MatInput,
+    MatFormFieldModule,
+    MatInputModule,
     ReactiveFormsModule,
     MatAutocompleteTrigger,
-    MatAutocomplete,
+    MatAutocompleteModule,
     MatOption,
     MatError,
     MatLabel

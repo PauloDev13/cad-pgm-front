@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HeaderLoginComponent } from './header-login.component';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
-import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper.component';
+import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper/field-wrapper.component';
 import { LoginStateService } from '../services/login-state.service';
 import { finalize } from 'rxjs';
 import { ErrorHandlerService } from '../../../shared/service/error-handler.service';

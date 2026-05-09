@@ -1,18 +1,27 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { MatFormField, MatInput, MatLabel, MatPrefix } from '@angular/material/input';
-import { MatIcon } from '@angular/material/icon';
-import { MatOption } from '@angular/material/core';
-import { MatSelect } from '@angular/material/select';
+import { MatInput, MatLabel, MatPrefix } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { MatOptionModule } from '@angular/material/core';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
   selector: 'app-usuario-filter',
-  imports: [MatFormField, MatIcon, MatInput, MatLabel, MatOption, MatPrefix, MatSelect],
+  imports: [
+    MatFormFieldModule,
+    MatIconModule,
+    MatInput,
+    MatLabel,
+    MatOptionModule,
+    MatPrefix,
+    MatSelectModule
+  ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
       class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 bg-white md:bg-gray-50 p-4 md:p-5
-             rounded-xl shadow-sm border border-gray-200"
+             rounded-xl border border-gray-200"
     >
       <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
         <mat-label>Filtrar por</mat-label>

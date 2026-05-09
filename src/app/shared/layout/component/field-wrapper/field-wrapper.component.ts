@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { FormErrorComponent } from '../../components/form-error/form-error.component'; // Ajuste o path
+import { FormErrorComponent } from '../../../components/form-error/form-error.component'; // Ajuste o path
 
 @Component({
   selector: 'app-field-wrapper',

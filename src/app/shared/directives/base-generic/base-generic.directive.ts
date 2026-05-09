@@ -4,14 +4,14 @@ import { MatDialog } from '@angular/material/dialog';
 import { ICrudGeneric } from '../../model/generic/crud-generic.model';
 import { PageEvent } from '@angular/material/paginator';
 import { finalize, firstValueFrom } from 'rxjs';
-import { CustomCadModalComponent } from '../custom-cad-modal/custom-cad-modal.component';
+import { CustomCadModalComponent } from '../../components/custom-cad-modal/custom-cad-modal.component';
 import { PageResponse } from '../../model/pagination.model';
 import { SingleInputDialogData, SingleInputModalResult } from '../../model/generic/base-generic.model';
 import { NotificationService } from '../../service/NotificationSnackbar.service';
 import { ErrorHandlerService } from '../../service/error-handler.service';
 
 @Directive()
-export abstract class BaseGenericComponent<T> implements OnInit {
+export abstract class BaseGenericDirective<T> implements OnInit {
   // Estado (Renomeamos de "cargos" para um nome genérico "dataList")
   dataList = signal<T[]>([]);
 
@@ -23,7 +23,6 @@ export abstract class BaseGenericComponent<T> implements OnInit {
   currentPage = signal<number>(0);
 
   // Injeções
-  // protected readonly toastService = inject(ToastService);
   protected readonly notificationService = inject(NotificationService);
   protected readonly errorHandlerService = inject(ErrorHandlerService);
   protected readonly customDeleteService = inject(CustomDeleteService);

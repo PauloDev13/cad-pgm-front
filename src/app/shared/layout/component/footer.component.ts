@@ -7,14 +7,17 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <footer
-      class="bg-gray-100 shadow-sm shadow-gray-700 border-t border-gray-200 py-4 px-4 flex
-            flex-col items-center justify-center text-center text-sm text-gray-700"
+      class="bg-gray-100 shadow-sm shadow-gray-700 border-t border-gray-200 py-2 px-4
+            flex flex-col md:flex-row items-center justify-center text-center font-semibold text-sm
+            text-blue-900 gap-1 md:gap-2"
     >
-      <p
-        class="leading-relaxed">
+      <p>
         &copy; 2026 Sistema Administrativo Corporativo. Todos os direitos reservados.
       </p>
-      <p class="text-xs mt-1 md:mt-2 text-gray-500 font-medium">
+
+      <span class="hidden md:inline text-blue-900">|</span>
+
+      <p class="text-blue-900 font-medium">
         Desenvolvido pelo Departamento do TI/PGM - Versão 1.0.0
       </p>
     </footer>

@@ -2,11 +2,11 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { ConfirmDialogData } from '../../model/confirm-dialog-data.model';
-import { MatIcon } from '@angular/material/icon';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-confirm-dialog',
-  imports: [MatDialogModule, MatButtonModule, MatIcon],
+  imports: [MatDialogModule, MatButtonModule, MatIconModule],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -49,7 +49,7 @@ import { MatIcon } from '@angular/material/icon';
         mat-flat-button
         type="button"
         (click)="onYesClick()"
-        class="w-full sm:w-auto !bg-red-600 !text-white hover:!bg-red-700 !transition-transform
+        class="w-full sm:w-auto !bg-red-500 !text-white hover:!bg-red-600 !transition-transform
               !duration-300 !ease-in-out hover:!scale-105 !h-12 sm:!h-10 order-1 sm:order-2"
       >
         SIM

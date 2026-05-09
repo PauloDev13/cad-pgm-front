@@ -1,9 +1,9 @@
 // O que o Pai manda para o Modal
 export interface SingleInputDialogData {
+  id?: number; // O ID se for edição
   title: string; // Ex: 'Cargo' ou 'Status'
   inputLabel: string; // Ex: 'Nome do Cargo' ou 'Descrição'
   inputValue: string; // O valor atual se for edição (ex: 'Analista') ou '' se for novo
-  id?: number; // O ID se for edição
 }
 
 // O que o Modal devolve para o Pai
@@ -23,4 +23,5 @@ export interface NomeableRequest {
 }
 
 // Junta o ID com o Nome (Herança múltipla do TypeScript)
-export interface NomeableResponse extends BaseEntityResponse, NomeableRequest {}
+export interface NomeableResponse extends BaseEntityResponse, NomeableRequest {
+}

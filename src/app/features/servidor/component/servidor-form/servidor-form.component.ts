@@ -31,7 +31,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { CustomValidators } from '../../../../shared/utils/custom-validators';
 import { NgxMaskDirective } from 'ngx-mask';
 import { AuthService } from '../../../../core/auth/services/auth.service';
-import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper.component';
+import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper/field-wrapper.component';
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
 import { DateTime } from 'luxon';
