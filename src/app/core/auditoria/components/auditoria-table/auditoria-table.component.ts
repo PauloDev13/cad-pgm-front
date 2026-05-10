@@ -120,8 +120,10 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
           </tr>
 
           <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell p-8 text-center text-gray-500" [colSpan]="displayedColumns.length">
-              Nenhum registro de auditoria encontrado para os filtros informados.
+            <td [colSpan]="displayedColumns.length"
+                class="mat-cell p-4 md:p-8 !bg-red-500 !text-center text-white text-base
+                      md:text-sm md:font-semibold">
+              Nenhum registro de AUDITORIA encontrado para os filtros informados.
             </td>
           </tr>
         </table>

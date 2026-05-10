@@ -176,10 +176,11 @@ import { LoadingComponent } from '../loading.component/loading.component';
 
             <tr class="mat-row" *matNoDataRow>
               <td
-                class="mat-cell !bg-red-500 p-4 font-semibold !text-center text-white text-base md:text-sm"
+                class="mat-cell p-4 md:p-8 !bg-red-500 !text-center text-white text-base
+                      md:text-sm md:font-semibold"
                 [colSpan]="displayedColumns.length"
               >
-                Nenhum {{ title().toUpperCase() }} encontrado para o critério informado.
+                Nenhum {{ title().toUpperCase() }} encontrado para o filtro informado.
               </td>
             </tr>
           </table>

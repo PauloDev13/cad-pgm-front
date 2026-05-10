@@ -208,13 +208,14 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
 
           <tr class="mat-row" *matNoDataRow>
             <td
-              class="mat-cell p-4 !bg-red-600 !text-center text-white text-base md:text-sm md:font-semibold"
+              class="mat-cell p-4 md:p-8 !bg-red-500 !text-center text-white text-base
+                    md:text-sm md:font-semibold"
               [colSpan]="displayedColumns().length"
             >
               @if (tableMode() === 'NORMAL') {
-                Nenhum servidor com Status: {{ noDataRow() }} encontrado para o critério informado.
+                Nenhum Servidor com Status: {{ noDataRow() }} encontrado para os filtros informados.
               } @else {
-                Nenhum servidor com Status: EXCLUÍDO encontrado para o critério informado.
+                Nenhum Servidor com Status: EXCLUÍDO encontrado para os filtros informados.
               }
             </td>
           </tr>

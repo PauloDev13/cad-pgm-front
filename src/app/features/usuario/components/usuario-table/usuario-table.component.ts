@@ -179,10 +179,11 @@ import { map } from 'rxjs';
 
           <tr class="mat-row" *matNoDataRow>
             <td
-              class="mat-cell p-4 !bg-red-600 font-semibold !text-center text-white text-base md:text-sm"
+              class="mat-cell p-4 md:p-8 !bg-red-500 !text-center text-white text-base
+                    md:text-sm md:font-semibold"
               [colSpan]="displayedColumns().length"
             >
-              Nenhum USUÁRIO encontrado para o critério informado.
+              Nenhum USUÁRIO encontrado para os filtros informados.
             </td>
           </tr>
         </table>
