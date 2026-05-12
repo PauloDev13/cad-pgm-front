@@ -1,0 +1,39 @@
+import { inject, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
+import { catchError, Observable } from 'rxjs';
+import { customHandlerError } from '../../../shared/utils/custom-handler-error';
+import { DocumentUploadModel } from '../models/document-upload.model';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class UploadService {
+  private readonly http = inject(HttpClient);
+  private readonly API = `${environment.apiUrl}/api/v1/servidores`;
+
+  uploadDocument(servidorId: number, file: File): Observable<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+    // Omitimos o Content-Type para o browser definir o boundary do FormData
+    return this.http.post(`${this.API}/${servidorId}/documents`, formData, {
+      responseType: 'text'
+    }).pipe(catchError(customHandlerError));
+  }
+
+  listDocuments(servidorId: number): Observable<DocumentUploadModel[]> {
+    return this.http.get<DocumentUploadModel[]>(`${this.API}/${servidorId}/documents`)
+      .pipe(catchError(customHandlerError));
+  }
+
+  getDocumentPreviewLink(documentoId: number): Observable<string> {
+    return this.http.get(`${this.API}/documents/${documentoId}/link`, {
+      responseType: 'text'
+    }).pipe(catchError(customHandlerError));
+  }
+
+  deleteDocument(documentoId: number): Observable<void> {
+    return this.http.delete<void>(`${this.API}/documents/${documentoId}`)
+      .pipe(catchError(customHandlerError));
+  }
+}

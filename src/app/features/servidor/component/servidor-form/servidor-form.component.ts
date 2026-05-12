@@ -35,6 +35,7 @@ import { FieldWrapperComponent } from '../../../../shared/layout/component/field
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
 import { DateTime } from 'luxon';
+import { DocumentManagerDialogComponent } from '../document-manager-dialog/document-menager-dialog.component';
 
 export type FormModel = Required<ServidorRequestDTO>;
 
@@ -70,7 +71,7 @@ export type FormModel = Required<ServidorRequestDTO>;
       </h2>
       <button
         mat-icon-button
-        mat-dialog-close
+        (click)="closeModal()"
         aria-label="Fechar"
         class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500
               !transition-colors !duration-300"
@@ -245,11 +246,22 @@ export type FormModel = Required<ServidorRequestDTO>;
     <mat-dialog-actions
       class="!px-6 !pb-4 !pt-4 flex flex-col sm:flex-row sm:justify-between items-center gap-3">
       <button
+        class="w-full sm:w-auto !border-blue-600 !text-blue-600 !transition-transform duration-300
+              hover:!scale-105 disabled:!border-gray-300 disabled:!text-gray-400 !h-12 sm:!h-10
+              order-3 sm:order-1"
+        mat-stroked-button
+        [disabled]="!currentServidorId()"
+        (click)="openDocumentManager()">
+        <mat-icon>attachment</mat-icon>
+        Documentos
+      </button>
+
+      <button
         mat-stroked-button
         type="button"
         class="w-full sm:w-auto !border-blue-600 !text-blue-600 !transition-transform duration-300
               hover:!scale-105 disabled:!border-gray-300 disabled:!text-gray-400 !h-12 sm:!h-10
-              order-2 sm:order-1"
+              order-2 sm:order-2"
         [disabled]="servidorForm().invalid() || !isPermissionsButtonHidden()"
         (click)="openPermissions()"
       >
@@ -260,7 +272,7 @@ export type FormModel = Required<ServidorRequestDTO>;
       <button
         mat-flat-button
         class="w-full sm:w-auto !transition-transform duration-300 hover:!scale-105 !h-12 sm:!h-10
-              order-1 sm:order-2"
+              order-1 sm:order-3"
         (click)="salvar()"
         [disabled]="servidorForm().invalid()"
       >
@@ -348,6 +360,11 @@ export class ServidorFormComponent implements OnInit {
 
   // É edição se tem payload mas NÃO é readmissão
   isEdit = !!this.payload && !this.isReactivate;
+
+  currentServidorId = signal<number | null>(this.payload?.id || null);
+
+  // Controle para avisar a tabela pai se precisamos recarregar o grid
+  private hasChange = false;
 
   //  Atualizado para buscar do this.payload ao invés do this.data
   private originMatricula: string | undefined = this.payload?.matricula;
@@ -521,11 +538,18 @@ export class ServidorFormComponent implements OnInit {
 
         // Transformamos as chamadas Observable em Promise com firstValueFrom
         if (this.isReactivate) {
-          await firstValueFrom(this.servidorService.reactivate(this.payload!.id, dataPayload));
+          await firstValueFrom(this.servidorService.reactivate(this.currentServidorId()!, dataPayload));
+          this.dialogRef.close(true);
         } else if (this.isEdit) {
-          await firstValueFrom(this.servidorService.update(this.payload!.id, dataPayload));
+          await firstValueFrom(this.servidorService.update(this.currentServidorId()!, dataPayload));
+          this.dialogRef.close(true);
         } else {
-          await firstValueFrom(this.servidorService.create(dataPayload));
+          // Esperamos o backend devolver o objeto criado (que contém o novo ID)
+          const response =
+            await firstValueFrom(this.servidorService.create(dataPayload));
+          this.hasChange = true;
+          this.currentServidorId.set(response.id);
+          this.isEdit = true;
         }
 
         const msgAction =
@@ -533,16 +557,39 @@ export class ServidorFormComponent implements OnInit {
         const msgTitle =
           this.isReactivate ? 'Readmissão' : (this.isEdit ? 'Atualização' : 'Cadastro');
 
-        this.notificationService.success(
-          `Servidor <strong>${requestData.nome} ${msgAction}</strong>  com sucesso!`,
-          `${msgTitle}`
-        );
+        if (this.hasChange) {
+          this.notificationService.success(
+            `Servidor <strong>${requestData.nome} ${msgAction}</strong>  com sucesso!<br>
+            Você já pode gerenciar as permissões e anexar documentos`,
+            `${msgTitle}`, { duration: 5000 }
+          );
+        } else {
+          this.notificationService.success(
+            `Servidor <strong>${requestData.nome} ${msgAction}</strong>  com sucesso!`,
+            `${msgTitle}`, { duration: 3000 }
+          );
+        }
 
-        this.dialogRef.close(true);
+        // this.dialogRef.close(true);
       } catch (err) {
         this.errorHandleService.handle(err, `${this.isReactivate
           ? 'Readmissão' : (this.isEdit ? 'Atualização' : 'Cadastro')}`);
       }
+    });
+  }
+
+  // ✨ MÉTODO QUE ABRE O GERENCIADOR
+  openDocumentManager() {
+    const id = this.currentServidorId();
+    if (!id) return; // Segurança extra
+
+    this.dialog.open(DocumentManagerDialogComponent, {
+      width: '80vw', // Um tamanho confortável para a tabela
+      maxWidth: '800px',
+      height: '70vh',
+      maxHeight: '500px',
+      disableClose: true, // Obriga a clicar no 'X' para fechar (evita fechar ao clicar fora por acidente)
+      data: { servidorId: id } // Passa o ID para o Modal carregar a lista certa
     });
   }
 
@@ -567,6 +614,11 @@ export class ServidorFormComponent implements OnInit {
         }));
       }
     });
+  }
+
+  // Fecha o modal ServidorForm
+  closeModal() {
+    this.dialogRef.close(this.hasChange);
   }
 
   // Busca os dados na API e seta os signals
