@@ -171,20 +171,27 @@ import { CustomDeleteService } from '../../../../shared/service/custom-delete.se
                 </ng-container>
 
                 <ng-container matColumnDef="acoes">
-                  <th mat-header-cell *matHeaderCellDef class="text-right px-4">Ações</th>
-                  <td mat-cell *matCellDef="let doc" class="text-right px-4 whitespace-nowrap">
-                    <button
-                      mat-icon-button
-                      matTooltip="Visualizar"
-                      (click)="documentView(doc.id)">
-                      <mat-icon class="!text-green-700 shrink-0">visibility</mat-icon>
-                    </button>
-                    <button
-                      mat-icon-button
-                      matTooltip="Excluir"
-                      (click)="deleteDocument(doc)">
-                      <mat-icon class="!text-red-500 shrink-0">delete</mat-icon>
-                    </button>
+                  <th
+                    mat-header-cell
+                    *matHeaderCellDef
+                    class="text-right px-4 w-[1%]">
+                    Ações
+                  </th>
+                  <td mat-cell *matCellDef="let doc" class="px-4 w-[1%]">
+                    <div class="flex items-center justify-end gap-1 min-w-max">
+                      <button
+                        mat-icon-button
+                        matTooltip="Visualizar"
+                        (click)="documentView(doc.id)">
+                        <mat-icon class="!text-green-700">visibility</mat-icon>
+                      </button>
+                      <button
+                        mat-icon-button
+                        matTooltip="Excluir"
+                        (click)="deleteDocument(doc)">
+                        <mat-icon class="!text-red-500">delete</mat-icon>
+                      </button>
+                    </div>
                   </td>
                 </ng-container>
 
@@ -195,7 +202,8 @@ import { CustomDeleteService } from '../../../../shared/service/custom-delete.se
                 </tr>
                 <tr
                   mat-row *matRowDef="let row; columns:displayedColumns"
-                  class="hover:bg-blue-50 transition-colors !h-10 border-b border-gray-100">
+                  class="!h-10 odd:!bg-white even:!bg-gray-50 hover:!bg-blue-50
+                    transition-colors cursor-pointer border-gray-100">
                 </tr>
               </table>
             </div>
@@ -271,6 +279,7 @@ export class DocumentManagerDialogComponent implements OnInit {
         next: () => {
           this.notificationService.success('Documento enviado com sucesso!', 'PDF');
           this.loadDocuments(); // Atualiza a lista
+          this.clearSelection(); // Limpa o input com o arquivo
         },
         error: (err) => this.errorHandlerService.handle(err, 'PDF')
       });

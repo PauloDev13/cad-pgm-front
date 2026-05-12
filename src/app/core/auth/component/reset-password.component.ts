@@ -78,7 +78,9 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
           </div>
           <div class="flex justify-end items-center mb-4 px-1 mt-1">
             <a tabindex="-1" routerLink="/auth/login"
-               class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">Voltar para o Login</a>
+               class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
+              Voltar para o Login
+            </a>
           </div>
 
           <button

@@ -11,26 +11,28 @@ import { MatIconModule } from '@angular/material/icon';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+    <div class="flex flex-wrap gap-4 w-full sm:w-auto">
       <button
         mat-stroked-button
         (click)="onCleanFilters.emit()"
-        class="flex-1 sm:flex-none">
+        class="flex-1 sm:flex-none w-full sm:w-auto !border-blue-600 !text-blue-600
+              !transition-transform duration-300 hover:!scale-105 order-3 sm:order-1">
         Limpar
+        <mat-icon>delete_sweep</mat-icon>
       </button>
       <button
         mat-stroked-button
-        color="primary"
         (click)="onPrintReport.emit()"
-        class="flex-1 sm:flex-none">
+        class="flex-1 sm:flex-none w-full sm:w-auto !border-blue-600 !text-blue-600
+              !transition-transform duration-300 hover:!scale-105 order-2 sm:order-2">
         <mat-icon>print</mat-icon>
         Imprimir
       </button>
       <button
         mat-flat-button
-        color="primary"
         (click)="onGenerateReport.emit(true)"
-        class="w-full sm:w-auto">
+        class="w-full sm:w-auto sm:gap-2 !transition-transform duration-300 hover:!scale-105
+              order-1 sm:order-3">
         <mat-icon>search</mat-icon>
         Gerar Relatório
       </button>

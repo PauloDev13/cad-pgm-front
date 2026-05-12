@@ -40,12 +40,12 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
         @if (activeTableIndex() === 0) {
           <button
             mat-flat-button
-            class="!bg-blue-600 !text-white w-full sm:w-auto !transition-transform duration-300
+            class="!bg-blue-600 !text-white w-full sm:w-auto sm:gap-2 !transition-transform duration-300
              !ease-in-out hover:!scale-105 flex justify-center items-center !h-12 sm:!h-10
              print:hidden"
             (click)="openForm()"
           >
-            <mat-icon class="mr-1">add</mat-icon>
+            <mat-icon>add</mat-icon>
             Novo
           </button>
         }

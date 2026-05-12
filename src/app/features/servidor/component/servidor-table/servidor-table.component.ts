@@ -210,7 +210,7 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
             <td
               class="mat-cell p-4 md:p-8 !bg-red-500 !text-center text-white text-base
                     md:text-sm md:font-semibold"
-              [colSpan]="displayedColumns().length"
+              [colSpan]="displayedColumns().length < 0"
             >
               @if (tableMode() === 'NORMAL') {
                 Nenhum Servidor com Status: {{ noDataRow() }} encontrado para os filtros informados.
