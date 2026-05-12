@@ -126,9 +126,11 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
           </tr>
 
           <tr class="mat-row" *matNoDataRow>
-            <td [colSpan]="displayedColumns.length"
-                class="mat-cell p-4 md:p-8 !bg-red-600 !text-center text-white text-base
-                   md:text-sm md:font-semibold print:!bg-transparent print:!text-red-600 print:border-none">
+            <td
+              class="mat-cell p-4 md:p-8 !bg-red-600 !text-center text-white text-base
+                   md:text-sm md:font-semibold print:!bg-transparent print:!text-red-600 print:border-none"
+              [colSpan]="displayedColumns.length"
+            >
               Nenhum registro de AUDITORIA encontrado para os filtros informados.
             </td>
           </tr>
