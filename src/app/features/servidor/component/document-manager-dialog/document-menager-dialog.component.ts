@@ -248,18 +248,51 @@ export class DocumentManagerDialogComponent implements OnInit {
 
   onFileSelected(event: any) {
     const file: File = event.target.files[0];
+    const maxSize = 1.5 * 1024 * 1024; // 1.5 MB
+
     if (!file) return;
 
-    // Validações "Padrão Ouro"
+    // Validação do Tipo
     if (file.type !== 'application/pdf') {
-      this.notificationService.error('Apenas arquivos PDF são permitidos.');
+      this.notificationService.error(
+        'Apenas arquivos PDF são permitidos.',
+        'Arquivo não permitido'
+      );
+      this.clearSelection();
       return;
     }
 
-    const maxSize = 1.5 * 1024 * 1024; // 1.5 MB
-
+    // 2. Validação de Tamanho (Máx: 1.5MB)
     if (file.size > maxSize) {
-      this.notificationService.error('O arquivo excede o limite de 1.5 MB.', 'PDF');
+      this.notificationService.error(
+        `O arquivo excede o <strong>(limite de 1.5 MB)</strong>.`,
+        'Tamanho Excedente'
+      );
+      this.clearSelection();
+      return;
+    }
+
+    // Limitamos a 50 caracteres (já contando com a extensão .pdf)
+    if (file.name.length > 50) {
+      this.notificationService.error(
+        `O nome do arquivo é muito extenso. O nome deve ter no <strong>(máximo 50
+                 caracteres)</strong>.`,
+        'Nome longo', { duration: 5000 }
+      );
+      this.clearSelection();
+      return;
+    }
+
+    // Bloqueia: Barras (/ \), aspas (" '), pipes (|), asteriscos (*), e símbolos especiais (& % $ @ !).
+    const regexValidCharacters = /^[a-zA-Z0-9 \-_\.\(\)\[\]À-ÿ]+$/;
+
+    if (!regexValidCharacters.test(file.name)) {
+      this.notificationService.error(
+        `O nome do arquivo contém símbolos não permitidos
+                <strong>(como aspas, barras ou %$@)</strong>. Renomei o arquivo`,
+        'Nome inválido'
+      );
+      this.clearSelection();
       return;
     }
 
@@ -277,11 +310,14 @@ export class DocumentManagerDialogComponent implements OnInit {
       .pipe(finalize(() => this.isUploading.set(false)))
       .subscribe({
         next: () => {
-          this.notificationService.success('Documento enviado com sucesso!', 'PDF');
+          this.notificationService.success(
+            `Arquivo <strong>${file.name}</strong> enviado com sucesso!`,
+            'Upload PDF'
+          );
           this.loadDocuments(); // Atualiza a lista
           this.clearSelection(); // Limpa o input com o arquivo
         },
-        error: (err) => this.errorHandlerService.handle(err, 'PDF')
+        error: (err) => this.errorHandlerService.handle(err, 'Upload PDF')
       });
   }
 
@@ -299,7 +335,7 @@ export class DocumentManagerDialogComponent implements OnInit {
         this.loadDocuments();
       },
       {
-        title: 'Excluir PDF',
+        title: 'Remoção PDF',
         message: `Esta ação não poderá ser desfeita. Excluir o doc.:
                   <strong class="text-red-600">${payload.originalName}</strong>?`,
         successMsg: `Documento: <strong>${payload.originalName}</strong> removido`

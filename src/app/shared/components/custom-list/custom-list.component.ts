@@ -130,35 +130,37 @@ import { LoadingComponent } from '../loading.component/loading.component';
                 *matCellDef="let element"
                 class="!text-sm !px-2 sm:!px-3 text-gray-600 whitespace-nowrap text-right"
               >
-                <button
-                  mat-icon-button
-                  class="group !w-10 !h-10 sm:!w-8 sm:!h-8 !leading-none mr-1 sm:mr-2 flex
+                <div class="flex items-center justify-end gap-1 min-w-max">
+                  <button
+                    mat-icon-button
+                    class="group !w-10 !h-10 sm:!w-8 sm:!h-8 !leading-none mr-1 sm:mr-2 flex
                         justify-center items-center"
-                  matTooltip="Editar"
-                  (click)="onEdit.emit(element)"
-                >
-                  <mat-icon
-                    class="!text-blue-600 transition-transform duration-200 group-hover:!scale-125
-                          !text-[20px]"
+                    matTooltip="Editar"
+                    (click)="onEdit.emit(element)"
                   >
-                    edit
-                  </mat-icon>
-                </button>
+                    <mat-icon
+                      class="!text-blue-600 transition-transform duration-200 group-hover:!scale-125
+                          !text-[20px]"
+                    >
+                      edit
+                    </mat-icon>
+                  </button>
 
-                <button
-                  mat-icon-button
-                  class="group !w-10 !h-10 sm:!w-8 sm:!h-8 !leading-none flex justify-center
+                  <button
+                    mat-icon-button
+                    class="group !w-10 !h-10 sm:!w-8 sm:!h-8 !leading-none flex justify-center
                         items-center"
-                  matTooltip="Excluir"
-                  (click)="onDelete.emit(element.id)"
-                >
-                  <mat-icon
-                    class="!text-red-600 transition-transform duration-200 group-hover:!scale-125
-                          !text-[20px]"
+                    matTooltip="Excluir"
+                    (click)="onDelete.emit(element.id)"
                   >
-                    delete
-                  </mat-icon>
-                </button>
+                    <mat-icon
+                      class="!text-red-600 transition-transform duration-200 group-hover:!scale-125
+                          !text-[20px]"
+                    >
+                      delete
+                    </mat-icon>
+                  </button>
+                </div>
               </td>
             </ng-container>
 

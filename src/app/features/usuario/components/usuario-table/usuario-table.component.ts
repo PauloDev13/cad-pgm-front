@@ -109,59 +109,61 @@ import { map } from 'rxjs';
             <td mat-cell *matCellDef="let u"
                 class="!text-sm !px-2 md:!px-3 text-gray-600 whitespace-nowrap text-right">
 
-              @if (!isMobile()) {
-                <button
-                  [disabled]="isActionDisabled(u)"
-                  mat-icon-button
-                  matTooltip="Gerar senha temporária"
-                  class="group !w-8 !h-8 !leading-none mr-2 disabled:!cursor-not-allowed
+              <div class="flex items-center justify-end gap-1 min-w-max">
+                @if (!isMobile()) {
+                  <button
+                    [disabled]="isActionDisabled(u)"
+                    mat-icon-button
+                    matTooltip="Gerar senha temporária"
+                    class="group !w-8 !h-8 !leading-none mr-2 disabled:!cursor-not-allowed
                      disabled:!pointer-events-auto"
-                  (click)="confirmResetPassword.emit(u)"
-                >
-                  <mat-icon
-                    class="!text-gray-600 transition-transform duration-200
+                    (click)="confirmResetPassword.emit(u)"
+                  >
+                    <mat-icon
+                      class="!text-gray-600 transition-transform duration-200
                        group-hover:!text-gray-900 group-hover:!scale-125
                        group-disabled:!scale-100
                        !text-[20px] group-disabled:!text-gray-500"
-                  >
-                    lock_reset
-                  </mat-icon>
-                </button>
-              }
-              <button
-                [disabled]="isActionDisabled(u)"
-                (click)="edit.emit(u)"
-                mat-icon-button
-                matTooltip="Editar"
-                class="group !w-8 !h-8 !leading-none mr-2 disabled:!cursor-not-allowed
+                    >
+                      lock_reset
+                    </mat-icon>
+                  </button>
+                }
+                <button
+                  [disabled]="isActionDisabled(u)"
+                  (click)="edit.emit(u)"
+                  mat-icon-button
+                  matTooltip="Editar"
+                  class="group !w-8 !h-8 !leading-none mr-2 disabled:!cursor-not-allowed
                      disabled:!pointer-events-auto"
-              >
-                <mat-icon
-                  class="!text-blue-600 transition-transform duration-200
+                >
+                  <mat-icon
+                    class="!text-blue-600 transition-transform duration-200
                        group-hover:!text-blue-900 group-hover:!scale-125
                        group-disabled:!scale-100
                        !text-[20px] group-disabled:!text-gray-500"
-                >
-                  edit
-                </mat-icon>
-              </button>
-              <button
-                [disabled]="isActionDisabled(u)"
-                mat-icon-button
-                matTooltip="Excluir"
-                class="group !w-8 !h-8 !leading-none disabled:!cursor-not-allowed
+                  >
+                    edit
+                  </mat-icon>
+                </button>
+                <button
+                  [disabled]="isActionDisabled(u)"
+                  mat-icon-button
+                  matTooltip="Excluir"
+                  class="group !w-8 !h-8 !leading-none disabled:!cursor-not-allowed
                      disabled:!pointer-events-auto"
-                (click)="delete.emit(u)"
-              >
-                <mat-icon
-                  class="!text-red-600 transition-transform duration-200
+                  (click)="delete.emit(u)"
+                >
+                  <mat-icon
+                    class="!text-red-600 transition-transform duration-200
                         group-hover:!text-red-900 group-hover:!scale-125
                         group-disabled:!scale-100
                         !text-[20px] group-disabled:!text-gray-500"
-                >
-                  delete
-                </mat-icon>
-              </button>
+                  >
+                    delete
+                  </mat-icon>
+                </button>
+              </div>
             </td>
           </ng-container>
 

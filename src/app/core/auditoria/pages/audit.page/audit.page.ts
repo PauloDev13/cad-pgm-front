@@ -60,6 +60,8 @@ import {
       <app-auditoria-table
         [dataAudit]="dataAudit()"
         [isLoading]="isLoading()"
+        [username]="auditFormModel().username"
+        [actionType]="auditFormModel().typeAction"
         [dateStart]="auditFormModel().startDate"
         [dateEnd]="auditFormModel().endDate"
         [currentPage]="currentPage()"

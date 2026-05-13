@@ -143,4 +143,45 @@
     flex: none !important; /* Abas assumem o tamanho do texto */
     padding: 0 24px !important;
   }
+
+  /* =========================================
+   CONFIGURAÇÕES GLOBAIS DE IMPRESSÃO
+   ========================================= */
+  @media print {
+    @page {
+      size: auto;
+      margin: 10mm;
+    }
+
+    body {
+      overflow: visible !important;
+    }
+
+    .print-full-width {
+      width: 100% !important;
+      display: table !important;
+    }
+  }
+
+  /* =========================================
+     CUSTOM SCROLLBAR (Opcional p/ uso global)
+     ========================================= */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
 }
