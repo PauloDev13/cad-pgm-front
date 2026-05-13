@@ -5,3 +5,9 @@ export interface DocumentUploadModel {
   FormatedSize: string;
   dataUpload: string;
 }
+
+export interface StagedFile {
+  file: File;
+  isValid: boolean;
+  errorMessage?: string;
+}

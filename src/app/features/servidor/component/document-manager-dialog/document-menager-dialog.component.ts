@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  OnInit,
+  signal,
+  ViewChild
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,7 +16,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { UploadService } from '../../services/upload.service';
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
-import { DocumentUploadModel } from '../../models/document-upload.model';
+import { DocumentUploadModel, StagedFile } from '../../models/document-upload.model';
 import { finalize } from 'rxjs';
 import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -34,7 +43,7 @@ import { CustomDeleteService } from '../../../../shared/service/custom-delete.se
           mat-icon-button
           mat-dialog-close
           aria-label="Fechar"
-          class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-800 hover:!bg-blue-500 !transition-colors !duration-300"
+          class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500 !transition-colors !duration-300"
         >
           <mat-icon class="!text-white !scale-90 !leading-none !m-0 !p-0">close</mat-icon>
         </button>
@@ -45,19 +54,22 @@ import { CustomDeleteService } from '../../../../shared/service/custom-delete.se
         <div class="bg-white p-4 rounded-lg border border-gray-200 mb-6 shrink-0 transition-all duration-300">
           <input
             type="file"
+            multiple
             #fileInput
             class="hidden"
-            accept="application/pdf"
+            accept=".pdf,application/pdf"
             (change)="onFileSelected($event)">
 
-          @if (!selectedFile()) {
+          @if (stagedFiles().length === 0) {
             <div
               class="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4
                     bg-blue-50 px-4 py-4 sm:py-2 rounded-md border border-blue-100 flex-1 w-full
                     text-center sm:text-left">
               <div>
-                <h3 class="font-semibold text-blue-700 text-sm">Anexar Novo Arquivo</h3>
-                <p class="text-xs text-gray-500 mt-1 sm:mt-0">Formato aceito: PDF (Máx. 1.5 MB)</p>
+                <h3 class="font-semibold text-blue-700 text-sm">Anexar Arquivos (lote)</h3>
+                <p class="text-xs text-gray-500 mt-1 sm:mt-0">
+                  Formato aceito: PDF (Máx. 1.5 MB por arquivo)
+                </p>
               </div>
 
               <button
@@ -65,57 +77,113 @@ import { CustomDeleteService } from '../../../../shared/service/custom-delete.se
                 class="w-full sm:w-auto !bg-blue-700 gap-2 !transition-transform duration-300
                       hover:!scale-105"
                 (click)="fileInput.click()">
-                <mat-icon>search</mat-icon>
-                Selecionar PDF
+                <mat-icon>add_photo_alternate</mat-icon>
+                Selecionar PDFs
               </button>
             </div>
           } @else {
-            <div
-              class="flex flex-col md:flex-row items-center justify-between gap-4 bg-blue-50 px-4
-                    py-3 sm:py-2 rounded-md border border-blue-100 w-full">
+            <div class="flex flex-col gap-4">
 
-              <div class="flex items-center gap-3 w-full md:w-auto overflow-hidden">
-                <mat-icon class="!text-red-500 shrink-0">picture_as_pdf</mat-icon>
-                <div class="flex flex-col overflow-hidden min-w-0">
-              <span
-                class="font-semibold text-gray-700 text-sm truncate"
-                [matTooltip]="selectedFile()!.name"
-              >
-                {{ selectedFile()!.name }}
-              </span>
-                  <span class="text-xs text-gray-500">
-                {{ (selectedFile()!.size / 1024 / 1024).toFixed(2) }} MB
-              </span>
+              <div class="flex items-center justify-between border-b pb-2">
+                <h3 class="font-semibold text-gray-700">
+                  Total de Anexos: ({{ stagedFiles().length }})
+
+                  @if (totalFileInvalid() > 0) {
+                    - {{ totalFileInvalid() > 1 ? 'Inválidos:' : 'Inválido:' }} ({{ totalFileInvalid() }})
+                  }
+                </h3>
+                <button
+                  mat-stroked-button
+                  class="w-full sm:w-auto !border-blue-600 !text-blue-600 !transition-transform duration-300
+                        hover:!scale-105 disabled:!border-gray-300 disabled:!text-gray-400"
+                  (click)="fileInput.click()"
+                  [disabled]="isUploading()">
+                  <mat-icon>add</mat-icon>
+                  Adicionar mais
+                </button>
+              </div>
+
+              <div class="flex flex-col gap-2 max-h-40 overflow-y-auto pr-2">
+                @for (item of stagedFiles(); track $index) {
+
+                  <div class="flex items-center justify-between px-4 py-2 rounded-md border"
+                       [class]="item.isValid ? 'bg-blue-50 border-blue-100' : 'bg-red-50 border-red-200'">
+
+                    <div class="flex items-center gap-3 overflow-hidden">
+                      <mat-icon [class]="item.isValid ? '!text-blue-500' : '!text-red-500'">
+                        {{ item.isValid ? 'picture_as_pdf' : 'error' }}
+                      </mat-icon>
+                      <div class="flex flex-col overflow-hidden">
+                        <span class="font-semibold text-sm truncate"
+                              [class]="item.isValid ? 'text-gray-700' : 'text-red-500'"
+                              [matTooltip]="item.file.name">
+                          {{ item.file.name }}
+                        </span>
+
+                        @if (item.isValid) {
+                          <span class="text-xs text-gray-500">
+                            {{ (item.file.size / 1024 / 1024).toFixed(2) }} MB
+                          </span>
+                        } @else {
+                          <span class="text-xs font-bold text-red-600">
+                            {{ item.errorMessage }}
+                          </span>
+                        }
+                      </div>
+                    </div>
+
+                    <button
+                      mat-icon-button
+                      class="!scale-80 !bg-blue-400 hover:!scale-90 !text-white hover:!bg-red-400
+                            !transition-transform duration-300 "
+                      (click)="removeStagedFile($index)"
+                      matTooltip="Remover"
+                      [disabled]="isUploading()">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                }
+              </div>
+
+              <div class="flex items-center justify-between pt-2">
+
+                <div class="text-sm">
+                  @if (hasInvalidFiles()) {
+                    <span class="text-red-600 font-semibold flex items-center gap-1">
+                      <mat-icon class="scale-75">
+                        warning
+                      </mat-icon> Remova os arquivos inválidos para continuar.
+                    </span>
+                  }
+                </div>
+
+                <div class="flex items-center gap-2">
+                  @if (isUploading()) {
+                    <div class="flex items-center text-blue-600 text-sm font-medium gap-2 mr-2">
+                      <mat-spinner diameter="20"></mat-spinner>
+                      Enviando lote...
+                    </div>
+                  } @else {
+                    <button
+                      mat-stroked-button
+                      class="w-full sm:w-auto !border-blue-600 !text-blue-600 !transition-transform
+                            duration-300 hover:!scale-105"
+                      (click)="clearSelection()">
+                      Cancelar Lote
+                    </button>
+                    <button
+                      mat-flat-button
+                      class="!bg-green-600 gap-2 !transition-transform duration-300 hover:!scale-105
+                            disabled:!bg-gray-100"
+                      (click)="sendPdfFile()"
+                      [disabled]="!canUpload()">
+                      <mat-icon>cloud_upload</mat-icon>
+                      Enviar Lote
+                    </button>
+                  }
                 </div>
               </div>
 
-              <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto shrink-0">
-                @if (isUploading()) {
-                  <div
-                    class="flex items-center justify-center text-blue-600 text-sm font-medium
-                          gap-2 w-full py-2">
-                    <mat-spinner diameter="20"></mat-spinner>
-                    Enviando...
-                  </div>
-                } @else {
-                  <button
-                    mat-stroked-button
-                    type="button"
-                    class="w-full sm:w-auto !border-blue-600 !text-blue-600 !transition-transform
-                           duration-300 hover:!scale-105 disabled:!border-gray-300 disabled:!text-gray-400 "
-                    (click)="clearSelection()">
-                    Cancelar
-                  </button>
-                  <button
-                    mat-flat-button
-                    class="w-full sm:w-auto !bg-green-600 gap-2 !transition-transform duration-300
-                          hover:!scale-105"
-                    (click)="sendPdfFile()">
-                    <mat-icon>cloud_upload</mat-icon>
-                    Enviar Arquivo
-                  </button>
-                }
-              </div>
             </div>
           }
         </div>
@@ -126,8 +194,8 @@ import { CustomDeleteService } from '../../../../shared/service/custom-delete.se
               <mat-spinner diameter="40"></mat-spinner>
             </div>
           } @else if (documents().length === 0) {
-            <div class="p-8 text-center text-red-500">
-              <mat-icon class="text-4xl !text-red-500 mb-2">description</mat-icon>
+            <div class=" flex justify-center p-4 gap-2 text-red-500">
+              <mat-icon class="text-4xl !text-red-500">description</mat-icon>
               <p>Nenhum documento anexado a este servidor.</p>
             </div>
           } @else {
@@ -230,7 +298,24 @@ export class DocumentManagerDialogComponent implements OnInit {
   isLoadingList = signal(false);
 
   // Signal para guardar o arquivo na "Área de Preparação"
-  selectedFile = signal<File | null>(null);
+  // selectedFile = signal<File | null>(null);
+
+  // Signal para guardar a lista de arquivos na "Área de Preparação"
+  stagedFiles = signal<StagedFile[]>([]);
+
+  // Verifica se há pelo menos um arquivo problemático na lista
+  hasInvalidFiles = computed(
+    () => this.stagedFiles().some(f => !f.isValid));
+
+  // O botão de enviar só acende se houver arquivos E nenhum deles for inválido
+  canUpload = computed(
+    () => this.stagedFiles().length > 0 && !this.hasInvalidFiles());
+
+  // Ver no array de arquivos quantos são inválidos
+  totalFileInvalid = computed(() => this.stagedFiles()
+    .filter(f => f.isValid === false).length
+  );
+
 
   displayedColumns = ['originalName', 'dataUpload', 'formatedSize', 'acoes'];
 
@@ -247,77 +332,79 @@ export class DocumentManagerDialogComponent implements OnInit {
   }
 
   onFileSelected(event: any) {
-    const file: File = event.target.files[0];
-    const maxSize = 1.5 * 1024 * 1024; // 1.5 MB
+    // Agora pegamos o FileList (lista de arquivos) inteiro
+    const inputFiles: FileList = event.target.files;
+    // Se a lista estiver nula ou vazia, aborta
+    if (!inputFiles || inputFiles.length === 0) return;
 
-    if (!file) return;
-
-    // Validação do Tipo
-    if (file.type !== 'application/pdf') {
-      this.notificationService.error(
-        'Apenas arquivos PDF são permitidos.',
-        'Arquivo não permitido'
-      );
-      this.clearSelection();
-      return;
-    }
-
-    // 2. Validação de Tamanho (Máx: 1.5MB)
-    if (file.size > maxSize) {
-      this.notificationService.error(
-        `O arquivo excede o <strong>(limite de 1.5 MB)</strong>.`,
-        'Tamanho Excedente'
-      );
-      this.clearSelection();
-      return;
-    }
-
-    // Limitamos a 50 caracteres (já contando com a extensão .pdf)
-    if (file.name.length > 50) {
-      this.notificationService.error(
-        `O nome do arquivo é muito extenso. O nome deve ter no <strong>(máximo 50
-                 caracteres)</strong>.`,
-        'Nome longo', { duration: 5000 }
-      );
-      this.clearSelection();
-      return;
-    }
-
+    const newStagedFiles: StagedFile[] = [];
     // Bloqueia: Barras (/ \), aspas (" '), pipes (|), asteriscos (*), e símbolos especiais (& % $ @ !).
     const regexValidCharacters = /^[a-zA-Z0-9 \-_\.\(\)\[\]À-ÿ]+$/;
+    const maxSize = 1.5 * 1024 * 1024; // 1.5 MB
 
-    if (!regexValidCharacters.test(file.name)) {
-      this.notificationService.error(
-        `O nome do arquivo contém símbolos não permitidos
-                <strong>(como aspas, barras ou %$@)</strong>. Renomei o arquivo`,
-        'Nome inválido'
-      );
-      this.clearSelection();
-      return;
+    for (let i = 0; i < inputFiles.length; i++) {
+      const file = inputFiles[i];
+      let isValid = true;
+      let errorMessage = '';
+
+      if (file.type !== 'application/pdf') {
+        isValid = false;
+        errorMessage = 'Apenas arquivos PDF são permitidos.';
+
+        // 2. Validação de Tamanho (Máx: 1.5MB)
+      } else if (file.size > maxSize) {
+        isValid = false;
+        errorMessage = `O arquivo excede o limite de (1.5 MB).`;
+
+        // Validação do tamnho do nome do arquivo, já com a extensão .pdf)
+      } else if (file.name.length > 50) {
+        isValid = false;
+        errorMessage = `O nome do arquivo é muito extenso. Renomeie para máximo (50) caracteres).`;
+
+      } else if (!regexValidCharacters.test(file.name)) {
+        isValid = false;
+        errorMessage = `O nome do arquivo com símbolos não permitidos
+                        (aspas, barras ou %, $, @). Renomei o arquivo`;
+      }
+
+      newStagedFiles.push({ file, isValid, errorMessage });
     }
 
-    this.selectedFile.set(file);
+    // Adiciona os novos arquivos aos que já estavam na área de preparação
+    this.stagedFiles.update(current => [...current, ...newStagedFiles]);
+
+    // Reseta o input nativo para permitir selecionar o mesmo arquivo novamente se necessário
+    if (this.fileInputRef?.nativeElement) {
+      this.fileInputRef.nativeElement.value = '';
+    }
+  }
+
+  // Remove um arquivo específico da área de preparação
+  removeStagedFile(index: number) {
+    this.stagedFiles.update(current => current.filter(
+      (_, i) => i !== index));
   }
 
   sendPdfFile() {
-    const file = this.selectedFile();
+    const filesToSend = this.stagedFiles().filter(f => f.isValid)
+      .map(f => f.file);
 
-    if (!file) return;
+    if (filesToSend.length === 0) return;
 
     this.isUploading.set(true);
 
-    this.uploadService.uploadDocument(this.data.servidorId, file)
+    this.uploadService.uploadDocument(this.data.servidorId, filesToSend)
       .pipe(finalize(() => this.isUploading.set(false)))
       .subscribe({
         next: () => {
           this.notificationService.success(
-            `Arquivo <strong>${file.name}</strong> enviado com sucesso!`,
+            `<strong>${filesToSend.length} arquivo(s)</strong> enviado com sucesso!`,
             'Upload PDF'
           );
           this.loadDocuments(); // Atualiza a lista
           this.clearSelection(); // Limpa o input com o arquivo
         },
-        error: (err) => this.errorHandlerService.handle(err, 'Upload PDF')
+        error: (err) => this.errorHandlerService.handle(err, 'Upload PDFs')
       });
   }
 
@@ -344,9 +431,6 @@ export class DocumentManagerDialogComponent implements OnInit {
   }
 
   clearSelection() {
-    this.selectedFile.set(null);
-    if (this.fileInputRef?.nativeElement) {
-      this.fileInputRef.nativeElement.value = '';
-    }
+    this.stagedFiles.set([]);
   }
 }

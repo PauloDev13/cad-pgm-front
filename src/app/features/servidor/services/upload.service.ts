@@ -12,9 +12,11 @@ export class UploadService {
   private readonly http = inject(HttpClient);
   private readonly API = `${environment.apiUrl}/api/v1/servidores`;
 
-  uploadDocument(servidorId: number, file: File): Observable<string> {
+  uploadDocument(servidorId: number, files: File[]): Observable<string> {
     const formData = new FormData();
-    formData.append('file', file);
+    files.forEach((file: File) => {
+      formData.append('files', file);
+    });
     // Omitimos o Content-Type para o browser definir o boundary do FormData
     return this.http.post(`${this.API}/${servidorId}/documents`, formData, {
       responseType: 'text'
