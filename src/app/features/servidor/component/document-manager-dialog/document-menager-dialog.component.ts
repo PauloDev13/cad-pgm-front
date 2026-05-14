@@ -22,6 +22,11 @@ import { ErrorHandlerService } from '../../../../shared/service/error-handler.se
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CustomDeleteService } from '../../../../shared/service/custom-delete.service';
 
+
+// Definição dos limites em Bytes
+const MAX_FILE_SIZE = 1.5 * 1024 * 1024; // 1.5 MB
+const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 20 MB
+
 @Component({
   selector: 'app-document-manager-dialog',
   imports: [
@@ -43,15 +48,18 @@ import { CustomDeleteService } from '../../../../shared/service/custom-delete.se
           mat-icon-button
           mat-dialog-close
           aria-label="Fechar"
-          class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500 !transition-colors !duration-300"
+          class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500
+                  !transition-colors !duration-300"
         >
           <mat-icon class="!text-white !scale-90 !leading-none !m-0 !p-0">close</mat-icon>
         </button>
       </div>
 
-      <div class="p-4 md:p-6 flex-1 overflow-auto bg-gray-50">
+      <div class="p-4 md:p-4 flex flex-1 flex-col bg-gray-50 min-h-0">
 
-        <div class="bg-white p-4 rounded-lg border border-gray-200 mb-6 shrink-0 transition-all duration-300">
+        <div
+          class="bg-white p-0 rounded-lg border border-gray-200 mb-2 shrink-0 transition-all
+                 duration-300">
           <input
             type="file"
             multiple
@@ -86,10 +94,14 @@ import { CustomDeleteService } from '../../../../shared/service/custom-delete.se
 
               <div class="flex items-center justify-between border-b pb-2">
                 <h3 class="font-semibold text-gray-700">
-                  Total de Anexos: ({{ stagedFiles().length }})
+                  Total de {{ stagedFiles().length }} anexos no lote
 
                   @if (totalFileInvalid() > 0) {
-                    - {{ totalFileInvalid() > 1 ? 'Inválidos:' : 'Inválido:' }} ({{ totalFileInvalid() }})
+                    - {{
+                      totalFileInvalid() > 1
+                        ? 'Inválidos:'
+                        : 'Inválido:'
+                    }} {{ totalFileInvalid() }} - Válidos: {{ stagedFiles().length - totalFileInvalid() }}
                   }
                 </h3>
                 <button
@@ -115,7 +127,7 @@ import { CustomDeleteService } from '../../../../shared/service/custom-delete.se
                       </mat-icon>
                       <div class="flex flex-col overflow-hidden">
                         <span class="font-semibold text-sm truncate"
-                              [class]="item.isValid ? 'text-gray-700' : 'text-red-500'"
+                              [class]="item.isValid ? 'text-gray-700' : 'text-gray-500'"
                               [matTooltip]="item.file.name">
                           {{ item.file.name }}
                         </span>
@@ -145,15 +157,24 @@ import { CustomDeleteService } from '../../../../shared/service/custom-delete.se
                 }
               </div>
 
-              <div class="flex items-center justify-between pt-2">
-
-                <div class="text-sm">
+              <div class="flex flex-col sm:flex-row items-center justify-between pt-2 gap-3 border-t">
+                <div class="text-sm flex flex-col gap-1">
                   @if (hasInvalidFiles()) {
                     <span class="text-red-600 font-semibold flex items-center gap-1">
-                      <mat-icon class="scale-75">
-                        warning
-                      </mat-icon> Remova os arquivos inválidos para continuar.
+                      <mat-icon class="scale-75">report_problem </mat-icon>
+                      Remova os arquivos marcados em vermelho.
                     </span>
+                  } @else if (isTotalSizeExceeded()) {
+                    <span class="text-red-600 font-semibold flex items-center gap-1">
+                      <mat-icon class="scale-75">warning</mat-icon>
+                      Lote muito grande. {{ (totaSizeFilesValid() / 1024 / 1024).toFixed(2) }}
+                      Máximo permitido é 20MB
+                    </span>
+                  } @else {
+                    <span class="flex items-center text-green-600 font-semibold text-xs">
+                      <mat-icon class="scale-75 !text-green-600">checked</mat-icon>
+                        Total do lote: {{ (totaSizeFilesValid() / 1024 / 1024).toFixed(2) }} MB / 20 MB
+                     </span>
                   }
                 </div>
 
@@ -188,101 +209,112 @@ import { CustomDeleteService } from '../../../../shared/service/custom-delete.se
           }
         </div>
 
-        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-          @if (isLoadingList()) {
-            <div class="flex justify-center p-8">
-              <mat-spinner diameter="40"></mat-spinner>
-            </div>
-          } @else if (documents().length === 0) {
-            <div class=" flex justify-center p-4 gap-2 text-red-500">
-              <mat-icon class="text-4xl !text-red-500">description</mat-icon>
-              <p>Nenhum documento anexado a este servidor.</p>
-            </div>
-          } @else {
-            <div class="flex-1 overflow-auto w-full">
-              <table mat-table [dataSource]="documents()" class="w-full">
+        @if (stagedFiles().length === 0) {
 
-                <ng-container matColumnDef="originalName">
-                  <th mat-header-cell *matHeaderCellDef class="font-semibold px-4">Arquivo</th>
-                  <td mat-cell *matCellDef="let doc"
-                      class="font-medium text-gray-700 px-4 max-w-[150px] sm:max-w-xs md:max-w-none
-                            truncate"
-                      [matTooltip]="doc.originalName">
-                    <div class="flex items-center gap-2 truncate">
-                      <mat-icon class="!text-red-500 shrink-0">picture_as_pdf</mat-icon>
-                      <span class="truncate">{{ doc.originalName }}</span>
-                    </div>
-                  </td>
-                </ng-container>
+          <div class="bg-white rounded-lg border border-gray-200 flex flex-col flex-1 min-h-0">
 
-                <ng-container matColumnDef="dataUpload">
-                  <th
-                    mat-header-cell
-                    *matHeaderCellDef
-                    class="hidden sm:table-cell font-semibold text-center px-4">
-                    Data Envio
-                  </th>
-                  <td mat-cell *matCellDef="let doc"
-                      class="hidden sm:table-cell text-gray-500 text-center px-4 whitespace-nowrap">
-                    {{ doc.dataUpload }}
-                  </td>
-                </ng-container>
+            @if (isLoadingList()) {
+              <div class="flex justify-center items-center flex-1 p-8">
+                <mat-spinner diameter="40"></mat-spinner>
+              </div>
+            } @else if (documents().length === 0) {
+              <div class="flex justify-center items-center flex-1 p-4 gap-2 text-red-500">
+                <mat-icon class="text-4xl !text-red-500">description</mat-icon>
+                <p>Nenhum documento anexado a este servidor.</p>
+              </div>
+            } @else {
+              <div class="flex-1 overflow-auto w-full">
+                <table mat-table [dataSource]="documents()" class="w-full">
 
-                <ng-container matColumnDef="formatedSize">
-                  <th mat-header-cell *matHeaderCellDef class="hidden md:table-cell font-semibold text-center px-4">
-                    Tamanho
-                  </th>
-                  <td mat-cell *matCellDef="let doc"
+                  <ng-container matColumnDef="originalName">
+                    <th mat-header-cell *matHeaderCellDef class="font-semibold px-4">Arquivo</th>
+
+                    <td mat-cell *matCellDef="let doc"
+                        class="font-medium text-gray-700 px-4 w-full max-w-0"
+                        [matTooltip]="doc.originalName">
+                      <div class="flex items-center gap-2">
+                        <mat-icon class="!text-red-500 shrink-0">picture_as_pdf</mat-icon>
+                        <span class="truncate block">{{ doc.originalName }}</span>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="dataUpload">
+                    <th
+                      mat-header-cell
+                      *matHeaderCellDef
+                      class="hidden sm:table-cell font-semibold text-center px-4">
+                      Data Envio
+                    </th>
+                    <td mat-cell *matCellDef="let doc"
+                        class="hidden sm:table-cell text-gray-500 text-center px-4 whitespace-nowrap">
+                      {{ doc.dataUpload }}
+                    </td>
+                  </ng-container>
+
+                  <ng-container matColumnDef="formatedSize">
+                    <th
+                      mat-header-cell
+                      *matHeaderCellDef
+                      class="hidden md:table-cell font-semibold text-center px-4">
+                      Tamanho
+                    </th>
+                    <td
+                      mat-cell
+                      *matCellDef="let doc"
                       class="hidden md:table-cell text-gray-500 text-center px-4 whitespace-nowrap">
-                    {{ doc.formatedSize }}
-                  </td>
-                </ng-container>
+                      {{ doc.formatedSize }}
+                    </td>
+                  </ng-container>
 
-                <ng-container matColumnDef="acoes">
-                  <th
-                    mat-header-cell
-                    *matHeaderCellDef
-                    class="text-right px-4 w-[1%]">
-                    Ações
-                  </th>
-                  <td mat-cell *matCellDef="let doc" class="px-4 w-[1%]">
-                    <div class="flex items-center justify-end gap-1 min-w-max">
-                      <button
-                        mat-icon-button
-                        matTooltip="Visualizar"
-                        (click)="documentView(doc.id)">
-                        <mat-icon class="!text-green-700">visibility</mat-icon>
-                      </button>
-                      <button
-                        mat-icon-button
-                        matTooltip="Excluir"
-                        (click)="deleteDocument(doc)">
-                        <mat-icon class="!text-red-500">delete</mat-icon>
-                      </button>
-                    </div>
-                  </td>
-                </ng-container>
+                  <ng-container matColumnDef="acoes">
+                    <th
+                      mat-header-cell
+                      *matHeaderCellDef
+                      class="text-right px-4 w-[1%]">
+                      Ações
+                    </th>
+                    <td mat-cell *matCellDef="let doc" class="px-4 w-[1%]">
+                      <div class="flex items-center justify-end gap-1 min-w-max">
+                        <button
+                          mat-icon-button
+                          matTooltip="Visualizar"
+                          (click)="documentView(doc.id)">
+                          <mat-icon class="!text-green-700">visibility</mat-icon>
+                        </button>
+                        <button
+                          mat-icon-button
+                          matTooltip="Excluir"
+                          (click)="deleteDocument(doc)">
+                          <mat-icon class="!text-red-500">delete</mat-icon>
+                        </button>
+                      </div>
+                    </td>
+                  </ng-container>
 
-                <tr
-                  mat-header-row
-                  *matHeaderRowDef="displayedColumns; sticky: true"
-                  class="bg-gray-50 border-b border-gray-200 !h-10">
-                </tr>
-                <tr
-                  mat-row *matRowDef="let row; columns:displayedColumns"
-                  class="!h-10 odd:!bg-white even:!bg-gray-50 hover:!bg-blue-50
-                    transition-colors cursor-pointer border-gray-100">
-                </tr>
-              </table>
-            </div>
-          }
-        </div>
-
+                  <tr
+                    mat-header-row
+                    *matHeaderRowDef="displayedColumns; sticky: true"
+                    class="bg-gray-50 border-b border-gray-200 !h-10">
+                  </tr>
+                  <tr
+                    mat-row
+                    *matRowDef="let row; columns:displayedColumns"
+                    class="!h-10 odd:!bg-white even:!bg-gray-50 hover:!bg-blue-50
+                            transition-colors cursor-pointer border-gray-100">
+                  </tr>
+                </table>
+              </div>
+            }
+          </div>
+        }
       </div>
     </div>
   `
 })
+
 export class DocumentManagerDialogComponent implements OnInit {
+
   // Recebe o ID do servidor através do DATA do MatDialog
   data = inject(MAT_DIALOG_DATA);
   private uploadService = inject(UploadService);
@@ -307,13 +339,30 @@ export class DocumentManagerDialogComponent implements OnInit {
   hasInvalidFiles = computed(
     () => this.stagedFiles().some(f => !f.isValid));
 
-  // O botão de enviar só acende se houver arquivos E nenhum deles for inválido
-  canUpload = computed(
-    () => this.stagedFiles().length > 0 && !this.hasInvalidFiles());
 
-  // Ver no array de arquivos quantos são inválidos
+  // Filtra do lote apenas os arquivos válidos
   totalFileInvalid = computed(() => this.stagedFiles()
-    .filter(f => f.isValid === false).length
+    .filter(f => !f.isValid).length
+  );
+
+  // Usa o totalFileInvalid para alcula o tamanho total do lote só com os arquivos válidos
+  totaSizeFilesValid = computed(() => {
+    return this.stagedFiles().filter(f => f.isValid)
+      .reduce((total, { file }) => total + file.size, 0);
+  });
+
+  // Retorna verdadeiro se o tamanho total dos arquivos ultrapassar 20MB
+  isTotalSizeExceeded = computed(() =>
+    this.totaSizeFilesValid() > MAX_TOTAL_SIZE);
+
+  // O botão de enviar só acende se houver arquivos, não contiver arquivos inválidos,
+  // o total do lote não exceder o tamanho de 20 MB e não estiver em processo de envio
+  // de arquivos
+  canUpload = computed(() =>
+    this.stagedFiles().length > 0 &&
+    !this.hasInvalidFiles() &&
+    !this.isTotalSizeExceeded() &&
+    !this.isUploading()
   );
 
 
@@ -340,7 +389,6 @@ export class DocumentManagerDialogComponent implements OnInit {
     const newStagedFiles: StagedFile[] = [];
     // Bloqueia: Barras (/ \), aspas (" '), pipes (|), asteriscos (*), e símbolos especiais (& % $ @ !).
     const regexValidCharacters = /^[a-zA-Z0-9 \-_\.\(\)\[\]À-ÿ]+$/;
-    const maxSize = 1.5 * 1024 * 1024; // 1.5 MB
 
     for (let i = 0; i < inputFiles.length; i++) {
       const file = inputFiles[i];
@@ -352,9 +400,9 @@ export class DocumentManagerDialogComponent implements OnInit {
         errorMessage = 'Apenas arquivos PDF são permitidos.';
 
         // 2. Validação de Tamanho (Máx: 1.5MB)
-      } else if (file.size > maxSize) {
+      } else if (file.size > MAX_FILE_SIZE) {
         isValid = false;
-        errorMessage = `O arquivo excede o limite de (1.5 MB).`;
+        errorMessage = `O tamanho individual do arquivo excede (1.5 MB).`;
 
         // Validação do tamnho do nome do arquivo, já com a extensão .pdf)
       } else if (file.name.length > 50) {

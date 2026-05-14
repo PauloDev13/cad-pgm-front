@@ -49,6 +49,18 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         return EMPTY;
       }
 
+      if (error.status === 413) {
+        notificationService.warning(
+          'Os arquivos enviados excedem o limite máximo permitido de 20 MB',
+          'Tamanho de arquivo');
+
+        // Criamos uma propriedade 'globalHandled' para avisar o restante do sistema.
+        Object.defineProperty(error, 'globalHandled', { value: true });
+
+        // Retornando EMPTY, o fluxo do erro é cortado não repassando o erro para frente
+        return EMPTY;
+      }
+
       if (error.status === 0 || error.status === 502) {
         notificationService.warning(
           'Não foi possível conectar ao servidor. Verifique sua ' +
@@ -56,14 +68,14 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
         // Criamos uma propriedade 'globalHandled' para avisar o restante do sistema.
         Object.defineProperty(error, 'globalHandled', { value: true });
-        
+
         // Retornando EMPTY, o fluxo do erro é cortado não repassando o erro para frente
         return EMPTY;
       }
 
       if (error.status === 500) {
         notificationService.warning(
-          'Erro interno no servidor. Catate o administrador' +
+          'Erro interno no servidor. Contate o administrador' +
           '</br>ou tente novamente.', 'Conexão');
 
         Object.defineProperty(error, 'globalHandled', { value: true });

@@ -30,7 +30,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
           Usuário: {{ username() || 'Todos' }} - Tipo de Ação: {{ actionType() || 'Todas' }}
         </p>
         <p class="text-sm text-gray-700">
-          Período: {{ dateStart() ? (dateStart() | date:'dd/MM/yyyy') : 'Início' }} até
+          Período: {{ dateStart() ? (dateStart() | date:'dd/MM/yyyy') : '' }} até
           {{ dateEnd() ? (dateEnd() | date:'dd/MM/yyyy') : (currentDate() | date:'dd/MM/yyyy') }}
         </p>
       </div>
