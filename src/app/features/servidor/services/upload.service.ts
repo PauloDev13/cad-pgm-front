@@ -34,8 +34,17 @@ export class UploadService {
     }).pipe(catchError(customHandlerError));
   }
 
+  // Exclusão única
   deleteDocument(documentoId: number): Observable<void> {
     return this.http.delete<void>(`${this.API}/documents/${documentoId}`)
       .pipe(catchError(customHandlerError));
+  }
+
+  // Exclusão em Lote
+  deleteDocumentBatch(documentIds: number[]): Observable<void> {
+    // Atenção à sintaxe para enviar Body numa requisição DELETE
+    return this.http.delete<void>(`${this.API}/documents/batch`, {
+      body: documentIds
+    }).pipe(catchError(customHandlerError));
   }
 }

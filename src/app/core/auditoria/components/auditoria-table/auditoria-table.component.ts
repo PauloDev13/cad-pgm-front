@@ -19,7 +19,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="flex flex-col h-full min-h-0 w-full max-w-full bg-white border border-gray-200
+      class="flex flex-col h-[calc(100vh-250px)] min-h-0 w-full max-w-full bg-white border border-gray-200
             rounded-xl relative overflow-hidden print:border-none print:shadow-none print:block
             print:h-auto print:overflow-visible"
     >
@@ -44,7 +44,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
         <app-loading [isLoading]="true" />
       </div>
 
-      <div class="flex-1 overflow-auto w-full custom-scrollbar print:overflow-visible print:h-auto">
+      <div class="flex-1 min-h-0 overflow-auto w-full custom-scrollbar print:overflow-visible print:h-auto">
         <table mat-table [dataSource]="dataAudit()" class="w-full print-full-width">
 
           <ng-container matColumnDef="dateHourAction">

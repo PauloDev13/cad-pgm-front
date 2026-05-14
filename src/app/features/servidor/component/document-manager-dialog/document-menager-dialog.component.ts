@@ -21,6 +21,7 @@ import { finalize } from 'rxjs';
 import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CustomDeleteService } from '../../../../shared/service/custom-delete.service';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 
 // Definição dos limites em Bytes
@@ -36,7 +37,8 @@ const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 20 MB
     MatTableModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    MatDialogModule
+    MatDialogModule,
+    MatCheckboxModule
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -56,162 +58,189 @@ const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 20 MB
       </div>
 
       <div class="p-4 md:p-4 flex flex-1 flex-col bg-gray-50 min-h-0">
-
-        <div
-          class="bg-white p-0 rounded-lg border border-gray-200 mb-2 shrink-0 transition-all
+        @if (!selectedIds().length) {
+          <div
+            class="bg-white p-0 rounded-lg border border-gray-200 mb-2 shrink-0 transition-all
                  duration-300">
-          <input
-            type="file"
-            multiple
-            #fileInput
-            class="hidden"
-            accept=".pdf,application/pdf"
-            (change)="onFileSelected($event)">
+            <input
+              type="file"
+              multiple
+              #fileInput
+              class="hidden"
+              accept=".pdf,application/pdf"
+              (change)="onFileSelected($event)">
 
-          @if (stagedFiles().length === 0) {
-            <div
-              class="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4
+            @if (stagedFiles().length === 0) {
+              <div
+                class="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4
                     bg-blue-50 px-4 py-4 sm:py-2 rounded-md border border-blue-100 flex-1 w-full
                     text-center sm:text-left">
-              <div>
-                <h3 class="font-semibold text-blue-700 text-sm">Anexar Arquivos (lote)</h3>
-                <p class="text-xs text-gray-500 mt-1 sm:mt-0">
-                  Formato aceito: PDF (Máx. 1.5 MB por arquivo)
-                </p>
-              </div>
+                <div>
+                  <h3 class="font-semibold text-blue-700 text-sm">Anexar Arquivos (lote)</h3>
+                  <p class="text-xs text-gray-500 mt-1 sm:mt-0">
+                    Formato aceito: PDF (Máx. 1.5 MB por arquivo)
+                  </p>
+                </div>
 
-              <button
-                mat-flat-button
-                class="w-full sm:w-auto !bg-blue-700 gap-2 !transition-transform duration-300
-                      hover:!scale-105"
-                (click)="fileInput.click()">
-                <mat-icon>add_photo_alternate</mat-icon>
-                Selecionar PDFs
-              </button>
-            </div>
-          } @else {
-            <div class="flex flex-col gap-4">
-
-              <div class="flex items-center justify-between border-b pb-2">
-                <h3 class="font-semibold text-gray-700">
-                  Total de {{ stagedFiles().length }} anexos no lote
-
-                  @if (totalFileInvalid() > 0) {
-                    - {{
-                      totalFileInvalid() > 1
-                        ? 'Inválidos:'
-                        : 'Inválido:'
-                    }} {{ totalFileInvalid() }} - Válidos: {{ stagedFiles().length - totalFileInvalid() }}
-                  }
-                </h3>
                 <button
-                  mat-stroked-button
-                  class="w-full sm:w-auto !border-blue-600 !text-blue-600 !transition-transform duration-300
-                        hover:!scale-105 disabled:!border-gray-300 disabled:!text-gray-400"
-                  (click)="fileInput.click()"
-                  [disabled]="isUploading()">
-                  <mat-icon>add</mat-icon>
-                  Adicionar mais
+                  mat-flat-button
+                  class="w-full sm:w-auto !bg-blue-500 gap-2 !transition-transform duration-300
+                      hover:!scale-105"
+                  (click)="fileInput.click()">
+                  <mat-icon>add_photo_alternate</mat-icon>
+                  Selecionar PDFs
                 </button>
               </div>
+            } @else {
+              <div class="flex flex-col gap-4">
 
-              <div class="flex flex-col gap-2 max-h-40 overflow-y-auto pr-2">
-                @for (item of stagedFiles(); track $index) {
+                <div class="flex items-center justify-between border-b pb-2">
+                  <h3 class="font-semibold text-gray-700">
+                    Total de {{ stagedFiles().length }} anexos no lote
 
-                  <div class="flex items-center justify-between px-4 py-2 rounded-md border"
-                       [class]="item.isValid ? 'bg-blue-50 border-blue-100' : 'bg-red-50 border-red-200'">
+                    @if (totalFileInvalid() > 0) {
+                      - {{
+                        totalFileInvalid() > 1
+                          ? 'Inválidos:'
+                          : 'Inválido:'
+                      }} {{ totalFileInvalid() }} - Válidos: {{ stagedFiles().length - totalFileInvalid() }}
+                    }
+                  </h3>
+                  <button
+                    mat-stroked-button
+                    class="w-full sm:w-auto !border-blue-600 !text-blue-600 !transition-transform duration-300
+                        hover:!scale-105 disabled:!border-gray-300 disabled:!text-gray-400"
+                    (click)="fileInput.click()"
+                    [disabled]="isUploading()">
+                    <mat-icon>add</mat-icon>
+                    Adicionar mais
+                  </button>
+                </div>
 
-                    <div class="flex items-center gap-3 overflow-hidden">
-                      <mat-icon [class]="item.isValid ? '!text-blue-500' : '!text-red-500'">
-                        {{ item.isValid ? 'picture_as_pdf' : 'error' }}
-                      </mat-icon>
-                      <div class="flex flex-col overflow-hidden">
+                <div class="flex flex-col gap-2 max-h-40 overflow-y-auto pr-2">
+                  @for (item of stagedFiles(); track $index) {
+
+                    <div class="flex items-center justify-between px-4 py-2 rounded-md border"
+                         [class]="item.isValid ? 'bg-blue-50 border-blue-100' : 'bg-red-50 border-red-200'">
+
+                      <div class="flex items-center gap-3 overflow-hidden">
+                        <mat-icon [class]="item.isValid ? '!text-blue-500' : '!text-red-500'">
+                          {{ item.isValid ? 'picture_as_pdf' : 'error' }}
+                        </mat-icon>
+                        <div class="flex flex-col overflow-hidden">
                         <span class="font-semibold text-sm truncate"
                               [class]="item.isValid ? 'text-gray-700' : 'text-gray-500'"
                               [matTooltip]="item.file.name">
                           {{ item.file.name }}
                         </span>
 
-                        @if (item.isValid) {
-                          <span class="text-xs text-gray-500">
+                          @if (item.isValid) {
+                            <span class="text-xs text-gray-500">
                             {{ (item.file.size / 1024 / 1024).toFixed(2) }} MB
                           </span>
-                        } @else {
-                          <span class="text-xs font-bold text-red-600">
+                          } @else {
+                            <span class="text-xs font-bold text-red-600">
                             {{ item.errorMessage }}
                           </span>
-                        }
+                          }
+                        </div>
                       </div>
-                    </div>
 
-                    <button
-                      mat-icon-button
-                      class="!scale-80 !bg-blue-400 hover:!scale-90 !text-white hover:!bg-red-400
+                      <button
+                        mat-icon-button
+                        class="!scale-80 !bg-blue-400 hover:!scale-90 !text-white hover:!bg-red-400
                             !transition-transform duration-300 "
-                      (click)="removeStagedFile($index)"
-                      matTooltip="Remover"
-                      [disabled]="isUploading()">
-                      <mat-icon>close</mat-icon>
-                    </button>
-                  </div>
-                }
-              </div>
+                        (click)="removeStagedFile($index)"
+                        matTooltip="Remover"
+                        [disabled]="isUploading()">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </div>
 
-              <div class="flex flex-col sm:flex-row items-center justify-between pt-2 gap-3 border-t">
-                <div class="text-sm flex flex-col gap-1">
-                  @if (hasInvalidFiles()) {
-                    <span class="text-red-600 font-semibold flex items-center gap-1">
+                <div class="flex flex-col sm:flex-row items-center justify-between pt-2 gap-3 border-t">
+                  <div class="text-sm flex flex-col gap-1">
+                    @if (hasInvalidFiles()) {
+                      <span class="text-red-600 font-semibold flex items-center gap-1">
                       <mat-icon class="scale-75">report_problem </mat-icon>
                       Remova os arquivos marcados em vermelho.
                     </span>
-                  } @else if (isTotalSizeExceeded()) {
-                    <span class="text-red-600 font-semibold flex items-center gap-1">
+                    } @else if (isTotalSizeExceeded()) {
+                      <span class="text-red-600 font-semibold flex items-center gap-1">
                       <mat-icon class="scale-75">warning</mat-icon>
                       Lote muito grande. {{ (totaSizeFilesValid() / 1024 / 1024).toFixed(2) }}
-                      Máximo permitido é 20MB
+                        Máximo permitido é 20MB
                     </span>
-                  } @else {
-                    <span class="flex items-center text-green-600 font-semibold text-xs">
+                    } @else {
+                      <span class="flex items-center text-green-600 font-semibold text-xs">
                       <mat-icon class="scale-75 !text-green-600">checked</mat-icon>
                         Total do lote: {{ (totaSizeFilesValid() / 1024 / 1024).toFixed(2) }} MB / 20 MB
                      </span>
-                  }
-                </div>
+                    }
+                  </div>
 
-                <div class="flex items-center gap-2">
-                  @if (isUploading()) {
-                    <div class="flex items-center text-blue-600 text-sm font-medium gap-2 mr-2">
-                      <mat-spinner diameter="20"></mat-spinner>
-                      Enviando lote...
-                    </div>
-                  } @else {
-                    <button
-                      mat-stroked-button
-                      class="w-full sm:w-auto !border-blue-600 !text-blue-600 !transition-transform
+                  <div class="flex items-center gap-2">
+                    @if (isUploading()) {
+                      <div class="flex items-center text-blue-600 text-sm font-medium gap-2 mr-2">
+                        <mat-spinner diameter="20"></mat-spinner>
+                        Enviando lote...
+                      </div>
+                    } @else {
+                      <button
+                        mat-stroked-button
+                        class="w-full sm:w-auto !border-blue-600 !text-blue-600 !transition-transform
                             duration-300 hover:!scale-105"
-                      (click)="clearSelection()">
-                      Cancelar Lote
-                    </button>
-                    <button
-                      mat-flat-button
-                      class="!bg-green-600 gap-2 !transition-transform duration-300 hover:!scale-105
+                        (click)="clearSelection()">
+                        Cancelar Lote
+                      </button>
+                      <button
+                        mat-flat-button
+                        class="!bg-green-600 gap-2 !transition-transform duration-300 hover:!scale-105
                             disabled:!bg-gray-100"
-                      (click)="sendPdfFile()"
-                      [disabled]="!canUpload()">
-                      <mat-icon>cloud_upload</mat-icon>
-                      Enviar Lote
-                    </button>
-                  }
+                        (click)="sendPdfFile()"
+                        [disabled]="!canUpload()">
+                        <mat-icon>cloud_upload</mat-icon>
+                        Enviar Lote
+                      </button>
+                    }
+                  </div>
                 </div>
               </div>
-
-            </div>
-          }
-        </div>
-
+            }
+          </div>
+        }
         @if (stagedFiles().length === 0) {
 
           <div class="bg-white rounded-lg border border-gray-200 flex flex-col flex-1 min-h-0">
+            <!-- opção de remoção de arquivos em lote-->
+            <div
+              class="h-14 shrink-0 px-4 flex mb-2 items-center bg-blue-50 border-b border-blue-100
+                    transition-all duration-300"
+              [class.hidden]="selectedIds().length === 0"
+            >
+              <div class="flex flex-1 flex-col">
+                <span class="text-blue-800 font-semibold text-sm">
+                  {{
+                    selectedIds().length > 1
+                      ? selectedIds().length + ' arquivos selecionados'
+                      : selectedIds().length + ' arquivo selecionado'
+                  }}
+
+                </span>
+                <p class="text-xs text-gray-500 mt-1 sm:mt-0">
+                  Os arquivos selecionados serão excluídos definitivamente
+                </p>
+              </div>
+
+              <button
+                mat-flat-button
+                class="!bg-red-500 gap-2 !transition-transform duration-300 hover:!scale-105"
+                (click)="deleteBatch()">
+                <mat-icon>delete_sweep</mat-icon>
+                Excluir Selecionados
+              </button>
+            </div>
 
             @if (isLoadingList()) {
               <div class="flex justify-center items-center flex-1 p-8">
@@ -225,9 +254,30 @@ const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 20 MB
             } @else {
               <div class="flex-1 overflow-auto w-full">
                 <table mat-table [dataSource]="documents()" class="w-full">
+                  <!-- Checkbox de seleção de arquivos PDFs para remoção -->
+                  <ng-container matColumnDef="select">
+                    <th mat-header-cell *matHeaderCellDef class="px-4 w-[1%]">
+                      <mat-checkbox
+                        (change)="toggleAll($event.checked)"
+                        [checked]="isAllSelected()"
+                        [indeterminate]="isSomeSelected()"
+                        color="primary">
+                      </mat-checkbox>
+                    </th>
+                    <td mat-cell *matCellDef="let doc" class="px-4 w-[1%]">
+                      <mat-checkbox
+                        (click)="$event.stopPropagation()"
+                        (change)="toggleRow(doc.id, $event.checked)"
+                        [checked]="selectedIds().includes(doc.id)"
+                        color="primary">
+                      </mat-checkbox>
+                    </td>
+                  </ng-container>
 
                   <ng-container matColumnDef="originalName">
-                    <th mat-header-cell *matHeaderCellDef class="font-semibold px-4">Arquivo</th>
+                    <th mat-header-cell *matHeaderCellDef class="font-semibold px-4">
+                      Arquivo
+                    </th>
 
                     <td mat-cell *matCellDef="let doc"
                         class="font-medium text-gray-700 px-4 w-full max-w-0"
@@ -282,12 +332,6 @@ const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 20 MB
                           (click)="documentView(doc.id)">
                           <mat-icon class="!text-green-700">visibility</mat-icon>
                         </button>
-                        <button
-                          mat-icon-button
-                          matTooltip="Excluir"
-                          (click)="deleteDocument(doc)">
-                          <mat-icon class="!text-red-500">delete</mat-icon>
-                        </button>
                       </div>
                     </td>
                   </ng-container>
@@ -322,23 +366,39 @@ export class DocumentManagerDialogComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private errorHandlerService = inject(ErrorHandlerService);
 
+  displayedColumns = ['select', 'originalName', 'dataUpload', 'formatedSize', 'acoes'];
+
   // Para limpar o input nativo caso o usuário cancele
   @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
 
+  // ********** SIGNALS **********
   documents = signal<DocumentUploadModel[]>([]);
   isUploading = signal(false);
   isLoadingList = signal(false);
 
-  // Signal para guardar o arquivo na "Área de Preparação"
-  // selectedFile = signal<File | null>(null);
+  // Signal para exclusão em lote
+  selectedIds = signal<number[]>([]);
 
   // Signal para guardar a lista de arquivos na "Área de Preparação"
   stagedFiles = signal<StagedFile[]>([]);
 
+  // ********** COMPUTEDS **********
+  // Computed que verifica se TODOS os documentos PDF estão selecionados
+  isAllSelected = computed(() => {
+    const docs = this.documents();
+    const selected = this.selectedIds();
+    return docs.length > 0 && selected.length === docs.length;
+  });
+
+  // Computed que verifica se APENAS ALGUNS estão selecionados (Gera o tracinho no checkbox)
+  isSomeSelected = computed(() => {
+    const selected = this.selectedIds().length;
+    return selected > 0 && selected < this.documents().length;
+  });
+
   // Verifica se há pelo menos um arquivo problemático na lista
   hasInvalidFiles = computed(
     () => this.stagedFiles().some(f => !f.isValid));
-
 
   // Filtra do lote apenas os arquivos válidos
   totalFileInvalid = computed(() => this.stagedFiles()
@@ -365,13 +425,13 @@ export class DocumentManagerDialogComponent implements OnInit {
     !this.isUploading()
   );
 
-
-  displayedColumns = ['originalName', 'dataUpload', 'formatedSize', 'acoes'];
-
   ngOnInit() {
     this.loadDocuments();
   }
 
+  // ********** MÉTODOS **********
+
+  // Carrega todos os documento PDF
   loadDocuments() {
     this.isLoadingList.set(true);
 
@@ -380,6 +440,7 @@ export class DocumentManagerDialogComponent implements OnInit {
       .subscribe(docs => this.documents.set(docs));
   }
 
+  // Seleciona os arquivos PDF que serão enviados
   onFileSelected(event: any) {
     // Agora pegamos o FileList (lista de arquivos) inteiro
     const inputFiles: FileList = event.target.files;
@@ -427,12 +488,13 @@ export class DocumentManagerDialogComponent implements OnInit {
     }
   }
 
-  // Remove um arquivo específico da área de preparação
+  // Remove um arquivo específico da área de preparação (lista com os arquivos a serem enviados)
   removeStagedFile(index: number) {
     this.stagedFiles.update(current => current.filter(
       (_, i) => i !== index));
   }
 
+  // Envia o arquivo PDF para o MinIO e grava os dados no banco
   sendPdfFile() {
     const filesToSend = this.stagedFiles().filter(f => f.isValid)
       .map(f => f.file);
@@ -456,13 +518,60 @@ export class DocumentManagerDialogComponent implements OnInit {
       });
   }
 
+  // Gera o link para a visualização do arquivo PDF
   documentView(docId: number) {
     this.uploadService.getDocumentPreviewLink(docId).subscribe(url => {
       window.open(url, '_blank');
     });
   }
 
-  // Exclui registro ativos
+  // Controla a seleção múltipla de arquivos PDF para a remoção em lote
+  toggleAll(checked: boolean) {
+    if (checked) {
+      // Pega todos os IDs da tabela e joga no Signal
+      this.selectedIds.set(this.documents().map(doc => doc.id));
+    } else {
+      this.selectedIds.set([]); // Limpa tudo
+    }
+  }
+
+  // Atualiza o signal que guarda os IDs dos documentos que serão removidos em lote
+  toggleRow(id: number, checked: boolean) {
+    this.selectedIds.update(ids => {
+      if (checked) {
+        return [...ids, id]; // Adiciona o ID
+      } else {
+        return ids.filter(i => i !== id); // Remove o ID
+      }
+    });
+  }
+
+  // Remove o lote de arquivos PDFs selecionados
+  deleteBatch() {
+    const idsToExclude = this.selectedIds();
+
+    // Se a lista de IDs está vazia, não faz nada
+    if (idsToExclude.length === 0) return;
+
+    // Chama o serviço que contem o dialog de confirmação
+    this.customDeleteService.execute(
+      () => this.uploadService.deleteDocumentBatch(idsToExclude),
+      () => {
+        this.isLoadingList.set(true);
+        this.selectedIds.set([]); // Limpa a seleção após excluir
+        this.loadDocuments();
+      },
+      {
+        title: 'Remoção PDF',
+        message: `Esta ação não poderá ser desfeita. Confirma a remoção de
+        <strong class="text-red-600">${idsToExclude.length} ${idsToExclude.length > 1 ? 'arquivos' : 'arquivo'}</strong>?`,
+        successMsg: `<strong>${idsToExclude.length}</strong> ${idsToExclude.length > 1 ? ' arquivos removidos' : ' arquivo removido'}
+                    com sucesso.`
+      }
+    );
+  }
+
+  // Exclui um documento PDF por vez
   deleteDocument(payload: DocumentUploadModel) {
     this.customDeleteService.execute(
       () => this.uploadService.deleteDocument(payload.id),
@@ -478,6 +587,7 @@ export class DocumentManagerDialogComponent implements OnInit {
     );
   }
 
+  // Limpa a lista de arquivos PDF após o envio o cancelamento
   clearSelection() {
     this.stagedFiles.set([]);
   }

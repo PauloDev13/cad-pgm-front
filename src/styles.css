@@ -2,7 +2,9 @@
 @import 'tailwindcss';
 
 @layer components {
-  /* SIDEBAR SUBMENUS */
+  /* =========================================
+   SIDEBAR MENU
+   ========================================= */
   .menu-subitem {
     @apply flex items-center h-10 transition-colors;
   }
@@ -27,7 +29,9 @@
     @apply text-blue-700 font-semibold;
   }
 
-  /* HEADER MENU */
+  /* =========================================
+   HEADER MENU
+   ========================================= */
   .menu-item-header {
     @apply flex items-center gap-3 px-3 py-2 rounded-md transition-colors duration-200;
   }
@@ -52,7 +56,9 @@
     @apply !bg-blue-700 !text-white text-xs px-2 py-1 rounded shadow;
   }
 
-  /* Classe para "resetar" o container do Material Snackbar */
+  /* =========================================
+   RESETA O CONTAINER DO SNACKBAR
+   ========================================= */
   .custom-snackbar-container {
     /* Remove o fundo e a sombra das variáveis do MDC */
     --mdc-snackbar-container-color: transparent !important;
@@ -75,9 +81,9 @@
   }
 }
 
-/* =========================================================================
-   CUSTOM TABS - MODO PASTA/BOTÃO (Aplicado via classe delimitadora)
-========================================================================= */
+/* ===============================================
+   CUSTOM TABS - MODO PASTA/BOTÃO
+================================================== */
 
 /* 1. Estrutura base das abas inativas */
 .custom-folder-tabs .mat-mdc-tab {
@@ -97,9 +103,9 @@
   font-weight: 600 !important;
 }
 
-/* =========================================================================
+/* =================================================
    2. ABA ATIVA (Azul com texto Branco)
-========================================================================= */
+=====================================================*/
 .custom-folder-tabs .mdc-tab--active {
   background-color: #2563eb !important;
 }
@@ -113,16 +119,16 @@
   color: #ffffff !important;
 }
 
-/* =========================================================================
+/* ==============================================
    3. Esconde a linha sublinhada padrão
-========================================================================= */
+================================================== */
 .custom-folder-tabs .mdc-tab-indicator__content {
   display: none !important;
 }
 
-/* =========================================================================
+/* ===========================================
    4. RESPONSIVIDADE (Mobile First)
-========================================================================= */
+=============================================== */
 @media (max-width: 639px) {
   .custom-folder-tabs .mat-mdc-tab-labels {
     gap: 4px !important;
@@ -147,10 +153,10 @@
   /* =========================================
    CONFIGURAÇÕES GLOBAIS DE IMPRESSÃO
    ========================================= */
-  @media print {
+  @media print and (orientation: portrait) {
     @page {
-      size: auto;
-      margin: 10mm;
+      size: A4 !important;
+      margin: 1cm 1cm 1cm -1cm !important;
     }
 
     body {
@@ -160,6 +166,15 @@
     .print-full-width {
       width: 100% !important;
       display: table !important;
+    }
+  }
+
+  /* 2. Interceptador de Paisagem (Landscape) */
+  @media print and (orientation: landscape) {
+    @page {
+      /* Exemplo: Reduzindo as margens superior/inferior para dar mais espaço à tabela
+         no papel deitado. Ajuste os valores conforme a necessidade da equipe. */
+      margin: 1cm 1cm 1cm 1cm !important;
     }
   }
 
