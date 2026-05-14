@@ -18,7 +18,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
       <span class="hidden md:inline text-blue-900">|</span>
 
       <p class="text-blue-900 font-medium">
-        Desenvolvido pelo Departamento do TI/PGM - Versão 1.0.0
+        Desenvolvido pelo Departamento do TI/PGM - Versão 1.2.0
       </p>
     </footer>
   `

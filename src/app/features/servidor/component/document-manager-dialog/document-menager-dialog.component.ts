@@ -44,6 +44,7 @@ const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 20 MB
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col h-full">
+      <!-- TÍTULO E BOTÃO FECHAR-->
       <div class="flex justify-between items-center px-4 md:px-6 py-4 border-b border-gray-200 shrink-0">
         <h2 class="text-lg md:text-xl font-bold text-blue-700 m-0">Anexos</h2>
         <button
@@ -59,6 +60,7 @@ const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 20 MB
 
       <div class="p-4 md:p-4 flex flex-1 flex-col bg-gray-50 min-h-0">
         @if (!selectedIds().length) {
+          <!-- ÁREA PARA INCLUSÃO DOS ARQUIVOS PDF ENVIADOS AO BD-->
           <div
             class="bg-white p-0 rounded-lg border border-gray-200 mb-2 shrink-0 transition-all
                  duration-300">
@@ -93,7 +95,6 @@ const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 20 MB
               </div>
             } @else {
               <div class="flex flex-col gap-4">
-
                 <div class="flex items-center justify-between border-b pb-2">
                   <h3 class="font-semibold text-gray-700">
                     Total de {{ stagedFiles().length }} anexos no lote
@@ -117,6 +118,7 @@ const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 20 MB
                   </button>
                 </div>
 
+                <!-- ÁREA PARA VALIDAÇÃO DOS ARQUIVOS PDF ENVIADOS AO BD-->
                 <div class="flex flex-col gap-2 max-h-40 overflow-y-auto pr-2">
                   @for (item of stagedFiles(); track $index) {
 
@@ -180,6 +182,7 @@ const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 20 MB
                     }
                   </div>
 
+                  <!-- ÁREA PARA ENVIO DOS ARQUIVOS PDF AO BD-->
                   <div class="flex items-center gap-2">
                     @if (isUploading()) {
                       <div class="flex items-center text-blue-600 text-sm font-medium gap-2 mr-2">
@@ -211,9 +214,9 @@ const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 20 MB
           </div>
         }
         @if (stagedFiles().length === 0) {
-
           <div class="bg-white rounded-lg border border-gray-200 flex flex-col flex-1 min-h-0">
-            <!-- opção de remoção de arquivos em lote-->
+
+            <!-- ÁREA PARA REMOÇÃO DE ARQUIVOS PDF DO BD-->
             <div
               class="h-14 shrink-0 px-4 flex mb-2 items-center bg-blue-50 border-b border-blue-100
                     transition-all duration-300"
@@ -252,9 +255,10 @@ const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 20 MB
                 <p>Nenhum documento anexado a este servidor.</p>
               </div>
             } @else {
+
+              <!-- TABELA COM ARQUIVOS PDF JÁ ENVIADOS AO BD -->
               <div class="flex-1 overflow-auto w-full">
                 <table mat-table [dataSource]="documents()" class="w-full">
-                  <!-- Checkbox de seleção de arquivos PDFs para remoção -->
                   <ng-container matColumnDef="select">
                     <th mat-header-cell *matHeaderCellDef class="px-4 w-[1%]">
                       <mat-checkbox
@@ -358,7 +362,9 @@ const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 20 MB
 })
 
 export class DocumentManagerDialogComponent implements OnInit {
-
+  /* =========================================
+                    INJEÇÃO DE DEPENDÊNCIAS
+     ========================================= */
   // Recebe o ID do servidor através do DATA do MatDialog
   data = inject(MAT_DIALOG_DATA);
   private uploadService = inject(UploadService);
@@ -366,12 +372,17 @@ export class DocumentManagerDialogComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private errorHandlerService = inject(ErrorHandlerService);
 
+  /* =========================================
+                    VARIÁVEIS DIVERSAS
+     ========================================= */
   displayedColumns = ['select', 'originalName', 'dataUpload', 'formatedSize', 'acoes'];
 
   // Para limpar o input nativo caso o usuário cancele
   @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
 
-  // ********** SIGNALS **********
+  /* =========================================
+                    SIGNALS
+     ========================================= */
   documents = signal<DocumentUploadModel[]>([]);
   isUploading = signal(false);
   isLoadingList = signal(false);
@@ -382,7 +393,9 @@ export class DocumentManagerDialogComponent implements OnInit {
   // Signal para guardar a lista de arquivos na "Área de Preparação"
   stagedFiles = signal<StagedFile[]>([]);
 
-  // ********** COMPUTEDS **********
+  /* =========================================
+                    COMPUTEDS
+     ========================================= */
   // Computed que verifica se TODOS os documentos PDF estão selecionados
   isAllSelected = computed(() => {
     const docs = this.documents();
@@ -429,7 +442,9 @@ export class DocumentManagerDialogComponent implements OnInit {
     this.loadDocuments();
   }
 
-  // ********** MÉTODOS **********
+  /* =========================================
+                    MÉTODOS
+     ========================================= */
 
   // Carrega todos os documento PDF
   loadDocuments() {
