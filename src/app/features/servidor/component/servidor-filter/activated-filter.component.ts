@@ -13,7 +13,7 @@ import { BaseEntityDTO } from '../../models/servidor.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 bg-white md:bg-gray-50 p-2 md:p-4
+      class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4 bg-white md:bg-gray-50 p-2 md:p-4
              rounded-xl border border-gray-200"
     >
       <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -25,6 +25,32 @@ import { BaseEntityDTO } from '../../models/servidor.model';
           <mat-option [value]="null">Todos os Status</mat-option>
           @for (status of statusList(); track status.id) {
             <mat-option [value]="status.id">{{ status.descricao }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-label>Filtrar por Cargo</mat-label>
+        <mat-select
+          [value]="selectedCargoId()"
+          (selectionChange)="cargoChange.emit($event.value)"
+        >
+          <mat-option [value]="null">Todos os Status</mat-option>
+          @for (cargo of cargoList(); track cargo.id) {
+            <mat-option [value]="cargo.id">{{ cargo.nome }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <mat-label>Filtrar por Setor</mat-label>
+        <mat-select
+          [value]="selectedSetorId()"
+          (selectionChange)="setorChange.emit($event.value)"
+        >
+          <mat-option [value]="null">Todos os Status</mat-option>
+          @for (setor of setorList(); track setor.id) {
+            <mat-option [value]="setor.id">{{ setor.nome }}</mat-option>
           }
         </mat-select>
       </mat-form-field>
@@ -68,11 +94,20 @@ export class ActivatedFilterComponent {
   // INPUTS: O que o Pai vai mandar para cá
   statusList = input.required<BaseEntityDTO[]>();
   selectedStatusId = input<number | null>(null);
+
+  cargoList = input.required<BaseEntityDTO[]>();
+  selectedCargoId = input<number | null>(null);
+
+  setorList = input.required<BaseEntityDTO[]>();
+  selectedSetorId = input<number | null>(null);
+
   searchType = input<'CPF' | 'MATRICULA' | 'NOME'>('NOME');
   searchTerm = input<string>('');
 
   // OUTPUTS: O que vamos avisar ao Pai
   statusChange = output<number | null>();
+  cargoChange = output<number | null>();
+  setorChange = output<number | null>();
   searchTypeChange = output<'CPF' | 'MATRICULA' | 'NOME'>();
   searchInput = output<Event>();
 }

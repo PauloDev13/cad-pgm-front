@@ -1,4 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { debounceTime, distinctUntilChanged, finalize, forkJoin, Subject } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ServidorService } from '../services/servidor.service';
 import { BaseEntityDTO, ServidorResponseDTO } from '../models/servidor.model';
 import { MatDialog } from '@angular/material/dialog';
@@ -10,8 +12,6 @@ import { ServidorFormComponent } from '../component/servidor-form/servidor-form.
 import { DominioService } from '../services/dominio.service';
 import { PageResponse } from '../../../shared/model/pagination.model';
 import { CustomDeleteService } from '../../../shared/service/custom-delete.service';
-import { debounceTime, distinctUntilChanged, finalize, Subject } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedFilterComponent } from '../component/servidor-filter/activated-filter.component';
 import { ServidorTableComponent } from '../component/servidor-table/servidor-table.component';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -61,10 +61,16 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
             <div class="print:hidden">
               <app-servidor-filter
                 [statusList]="statusList()"
+                [cargoList]="cargoList()"
+                [setorList]="setorList()"
                 [selectedStatusId]="selectedStatusId()"
+                [selectedCargoId]="selectedCargoId()"
+                [selectedSetorId]="selectedSetorId()"
                 [searchType]="searchType()"
                 [searchTerm]="searchTerm()"
                 (statusChange)="onStatusChange($event)"
+                (cargoChange)="onCargoChange($event)"
+                (setorChange)="onSetorChange($event)"
                 (searchTypeChange)="onSearchTypeChange($event)"
                 (searchInput)="onSearchInput($event)"
               />
@@ -137,10 +143,14 @@ export default class ServidorListPage implements OnInit {
   isLoading = signal<boolean>(false);
   servidores = signal<ServidorResponseDTO[]>([]);
   statusList = signal<BaseEntityDTO[]>([]);
+  selectedStatusId = signal<number | null>(null);
+  cargoList = signal<BaseEntityDTO[]>([]);
+  selectedCargoId = signal<number | null>(null);
+  setorList = signal<BaseEntityDTO[]>([]);
+  selectedSetorId = signal<number | null>(null);
   totalElements = signal<number>(0);
   pageSize = signal<number>(10);
   currentPage = signal<number>(0);
-  selectedStatusId = signal<number | null>(null);
   searchType = signal<'CPF' | 'MATRICULA' | 'NOME'>('NOME');
   searchTerm = signal<string>('');
 
@@ -182,11 +192,17 @@ export default class ServidorListPage implements OnInit {
 
     // Captura os valores atuais dos signals de filtro
     const statusId = this.selectedStatusId();
+    const cargoId = this.selectedCargoId();
+    const setorId = this.selectedSetorId();
     const termo = this.searchTerm();
     const tipo = this.searchType();
 
     // Regra de Negócio: Se tem algum filtro preenchido, usamos o novo endpoint
-    const temFiltroAtivo = statusId !== null || (termo && termo.trim() !== '');
+    const temFiltroAtivo =
+      statusId !== null ||
+      cargoId !== null ||
+      setorId !== null ||
+      (termo && termo.trim() !== '');
 
     if (temFiltroAtivo) {
       // Mapeia o termo de pesquisa para o parâmetro correto
@@ -196,7 +212,7 @@ export default class ServidorListPage implements OnInit {
 
       // Chama o NOVO ENDPOINT no Service (searchFilter)
       this.servidorService
-        .searchFilter(page, size, statusId, cpf, matricula, nome)
+        .searchFilter(page, size, cpf, matricula, nome, statusId, cargoId, setorId)
         .pipe(finalize(() => this.isLoading.set(false)))
         .subscribe({
           next: (pageData) => {
@@ -338,6 +354,24 @@ export default class ServidorListPage implements OnInit {
     this.loadData(); //Dispara a busca limpa no backend
   }
 
+  // É o chamado pelo HTML quando o usuário troca o Cargo
+  onCargoChange(id: number | null) {
+    this.selectedCargoId.set(id);
+    // Limpa o input de texto (CPF/Matrícula)
+    this.searchTerm.set('');
+    this.currentPage.set(0); // Reseta para a primeira página
+    this.loadData(); //Dispara a busca limpa no backend
+  }
+
+  // É o chamado pelo HTML quando o usuário troca o Setor
+  onSetorChange(id: number | null) {
+    this.selectedSetorId.set(id);
+    // Limpa o input de texto (CPF/Matrícula)
+    this.searchTerm.set('');
+    this.currentPage.set(0); // Reseta para a primeira página
+    this.loadData(); //Dispara a busca limpa no backend
+  }
+
   // É chamado pelo HTML quando o usuário digita no campo de busca de ativos
   // O HTML não atualiza mais o Signal direto, ele alimenta o Subject
   onSearchInput(event: Event) {
@@ -456,24 +490,22 @@ export default class ServidorListPage implements OnInit {
 
   // Busca a lista de Status e cumpre o requisito de UX de iniciar com "Ativos"
   private carregarFiltrosIniciais() {
-    this.dominioService.getStatus().subscribe({
-      next: (statusData) => {
-        this.statusList.set(statusData);
+    forkJoin({
+      status: this.dominioService.getStatus(),
+      cargos: this.dominioService.getCargos(),
+      setores: this.dominioService.getSetores()
+    })
+      .pipe(
+        finalize(() => this.isLoading.set(false))
+      ).subscribe({
+      next: ({ status, cargos, setores }) => {
+        this.statusList.set(status);
+        this.cargoList.set(cargos);
+        this.setorList.set(setores);
 
-        // Tenta encontrar dinamicamente o ID do status "Ativo"
-        const ativo = statusData.find(
-          (s) => (s.descricao || s.nome)?.toLowerCase() === 'ativo');
-
-        if (ativo) {
-          this.selectedStatusId.set(ativo.id); // Seta Ativo como padrão
-        }
-
-        // Após configurar o status padrão, chamamos a listagem inicial
         this.loadData();
       },
-      error: (err) => {
-        this.errorHandlerService.handle(err, 'Loading Status');
-      }
+      error: (err) => this.errorHandlerService.handle(err, 'Filtros iniciais')
     });
   }
 }

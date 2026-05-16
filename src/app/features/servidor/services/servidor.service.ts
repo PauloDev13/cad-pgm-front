@@ -32,15 +32,25 @@ export class ServidorService {
   searchFilter(
     page: number,
     size: number,
-    statusId?: number | null,
     cpf?: string,
     matricula?: string,
-    nome?: string
+    nome?: string,
+    statusId?: number | null,
+    cargoId?: number | null,
+    setorId?: number | null
   ): Observable<PageResponse<ServidorResponseDTO[]>> {
     let params = new HttpParams().set('page', page).set('size', size);
 
     if (statusId !== null && statusId !== undefined) {
       params = params.set('statusId', statusId.toString());
+    }
+
+    if (cargoId !== null && cargoId !== undefined) {
+      params = params.set('cargoId', cargoId.toString());
+    }
+
+    if (setorId !== null && setorId !== undefined) {
+      params = params.set('setorId', setorId.toString());
     }
 
     if (cpf && cpf.trim() !== '') {
