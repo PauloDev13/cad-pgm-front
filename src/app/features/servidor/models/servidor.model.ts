@@ -41,6 +41,8 @@ export interface ServidorResponseDTO {
   emailInstitucional?: string;
   endereco?: string;
   filiacao?: string;
+  excluded: boolean;
+  excludedDate: string;
   cargo?: BaseEntityDTO;
   lotacao?: BaseEntityDTO;
   setor?: BaseEntityDTO;

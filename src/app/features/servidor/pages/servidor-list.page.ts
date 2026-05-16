@@ -30,11 +30,12 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
       <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4 print:mb-4">
         <div>
           <h1
-            class="text-xl md:text-2xl font-bold text-blue-800 leading-tight print:text-black
-                  print:text-2xl">
-            Gestão de Servidores
+            class="text-xl md:text-2xl font-bold leading-tight print:text-black print:text-2xl"
+            [class]="activeTableIndex() === 0 ? 'text-blue-800' : 'text-red-600'"
+          >
+            Gestão de Servidores {{ activeTableIndex() === 0 ? 'Ativos' : 'Desligados' }}
           </h1>
-          <p class="text-sm text-gray-500 mt-1 print:hidden">Gerencie os servidores do sistema</p>
+          <p class="text-sm text-gray-600 mt-1 print:hidden">Gerencie os servidores do sistema</p>
         </div>
 
         @if (activeTableIndex() === 0) {
@@ -84,7 +85,7 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
             </div>
           </div>
         </mat-tab>
-        <mat-tab label="Lixeira / Excluídos">
+        <mat-tab label="Quadro Desligado">
           <div class="pt-0">
             <div class="print:hidden">
               <app-deleted-filter

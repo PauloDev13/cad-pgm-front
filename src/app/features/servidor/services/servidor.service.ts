@@ -104,4 +104,11 @@ export class ServidorService {
     )
       .pipe(catchError(customHandlerError));
   }
+
+  getExcludedById(id: number): Observable<ServidorResponseDTO> {
+    return this.http.get<ServidorResponseDTO>(
+      `${this.apiUrl}/excluded/${id}`
+    )
+      .pipe(catchError(customHandlerError));
+  }
 }

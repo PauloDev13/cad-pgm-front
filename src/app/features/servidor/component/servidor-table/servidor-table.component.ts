@@ -56,7 +56,6 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
               Matrícula
             </th>
             <td mat-cell *matCellDef="let s"
-                [ngClass]="textColor()"
                 class="!text-sm !px-3 whitespace-nowrap">
               {{ s.matricula | matricula }}
             </td>
@@ -68,7 +67,6 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
               Nome
             </th>
             <td mat-cell *matCellDef="let s"
-                [ngClass]="textColor()"
                 class="!font-medium !text-sm !px-3 truncate max-w-[150px] md:max-w-none">
               {{ s.nome }}
             </td>
@@ -85,7 +83,6 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
             <td
               mat-cell
               *matCellDef="let s"
-              [ngClass]="textColor()"
               class="!text-sm !px-3 text-gray-600">
               {{ s.emailPessoal }}
             </td>
@@ -99,7 +96,6 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
             <td
               mat-cell
               *matCellDef="let s"
-              [ngClass]="textColor()"
               class="!text-sm !px-3 text-gray-600">
               {{ s.cargo?.nome || '-' }}
             </td>
@@ -113,7 +109,6 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
             <td
               mat-cell
               *matCellDef="let s"
-              [ngClass]="textColor()"
               class="!text-sm !px-3 text-gray-600">
               {{ s.setor?.nome || '-' }}
             </td>
@@ -134,7 +129,7 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
                 @if (tableMode() === 'NORMAL') {
                   <button
                     mat-icon-button
-                    (click)="viewDetail(s.id)"
+                    (click)="viewDetail(s.id, 'ativo')"
                     matTooltip="Exibir detalhes"
                     class="group !w-10 !h-10 md:!w-8 md:!h-8 !leading-none mr-1
                         md:mr-2 flex justify-center items-center"
@@ -161,7 +156,6 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
                     </mat-icon>
                   </button>
                   <button
-                    [disabled]="!isButtonsDisabled()"
                     mat-icon-button
                     (click)="delete.emit(s)"
                     matTooltip="Excluir"
@@ -177,6 +171,21 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
                     </mat-icon>
                   </button>
                 } @else {
+                  <button
+                    mat-icon-button
+                    (click)="viewDetail(s.id, 'desligado')"
+                    matTooltip="Exibir detalhes"
+                    class="group !w-10 !h-10 md:!w-8 md:!h-8 !leading-none mr-1
+                        md:mr-2 flex justify-center items-center"
+                  >
+                    <mat-icon
+                      class="!text-green-800 transition-transform duration-200
+                            group-hover:!text-green-600 group-hover:!scale-125 !text-[20px]"
+                    >
+                      visibility
+                    </mat-icon>
+                  </button>
+
                   <button
                     mat-icon-button
                     (click)="reactivate.emit(s)"
@@ -202,8 +211,10 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
           <tr
             mat-row
             *matRowDef="let row; columns: displayedColumns()"
-            class="!min-h-[40px] !h-[40px] odd:!bg-white even:!bg-gray-50 hover:!bg-blue-50
-                    transition-colors cursor-pointer border-gray-100"
+            [class]="tableMode() !== 'NORMAL'
+              ? '!bg-red-100 hover:!bg-red-200 [&>td]:!text-red-800'
+              : 'odd:!bg-white even:!bg-gray-50 hover:!bg-blue-50'"
+            class="!min-h-[40px] !h-[40px] transition-colors cursor-pointer border-gray-100"
           ></tr>
 
           <tr class="mat-row" *matNoDataRow>
@@ -285,8 +296,10 @@ export class ServidorTableComponent {
   });
 
   // navega para a página que exibe relatório de detalhes
-  viewDetail(id: number) {
-    this.router.navigate(['/servidores/detalhes', id]).then();
+  viewDetail(id: number, currentTab: 'ativo' | 'desligado') {
+    this.router.navigate(['/servidores/detalhes', id], {
+      queryParams: { type: currentTab }
+    }).then();
   }
 
   // Muda a cor do texto das linhas da tabela dependendo se está

@@ -146,6 +146,11 @@ export const routes: Routes = [
         loadComponent: () => import('./core/auditoria/pages/audit.page/audit.page')
       },
       {
+        path: 'relatorios/aniversariantes',
+        title: 'Lista Aniversariantes | Gestão de Servidores PGM Natal',
+        loadComponent: () => import('./features/relatorios/components/aniversariantes/aniversariantes.component')
+      },
+      {
         // tela para visualização de detalhes do servidor
         path: 'servidores/detalhes/:id',
         title: 'Detalhes do servidor | Gestão de Servidores PGM Natal',

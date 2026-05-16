@@ -190,6 +190,13 @@ import { ButtonSidebarComponent } from './button-sidebar/button-sidebar.componen
               [label]="'Auditoria'"
               [icon]="'change_history'"
             />
+            <app-link-sidebar
+              [toolTip]="'Rel. Aniversariantes'"
+              [link]="'/relatorios/aniversariantes'"
+              [onOpen]="isOpen()"
+              [label]="'Aniversariantes'"
+              [icon]="'celebration'"
+            />
           </div>
         </div>
       }

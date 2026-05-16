@@ -1,9 +1,13 @@
-import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
-import { DatePipe, NgClass } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { LoadingComponent } from '../../../../shared/components/loading.component/loading.component';
 import { MatHeaderCellDef, MatTableModule } from '@angular/material/table';
 import { AuditResponseDTO } from '../../models/audit-response.dto';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { Router } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { map } from 'rxjs';
 
 @Component({
   selector: 'app-auditoria-table',
@@ -12,8 +16,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
     LoadingComponent,
     MatPaginatorModule,
     MatTableModule,
-    MatHeaderCellDef,
-    NgClass
+    MatHeaderCellDef
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -78,11 +81,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
             </th>
             <td mat-cell *matCellDef="let row"
                 class="hidden md:table-cell text-center !px-3 w-[1%] whitespace-nowrap print:hidden">
-          <span class="px-2 py-1 text-[10px] font-semibold rounded-full"
-                [ngClass]="{
-                'bg-green-100 text-green-800': row.typeAction === 'INSERT',
-                'bg-blue-100 text-blue-800': row.typeAction === 'UPDATE',
-                'bg-red-100 text-red-800': row.typeAction === 'DELETE'}">
+          <span class="px-2 py-1 text-[10px] font-semibold rounded-full">
             {{ row.typeAction }}
           </span>
             </td>
@@ -103,11 +102,12 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 
           <ng-container matColumnDef="idAffectedRecord">
             <th mat-header-cell *matHeaderCellDef
-                class="font-semibold text-gray-800 !px-3 w-[1%] whitespace-nowrap print:text-black">
+                class="font-semibold text-gray-800 !px-3 whitespace-nowrap print:text-black">
               ID
             </th>
             <td mat-cell *matCellDef="let row"
-                class="text-gray-600 !px-3 w-[1%] print:text-black text-xs md:text-sm">
+                class="text-gray-600 !px-3 min-w-4  print:whitespace-nowrap print:text-black
+                      text-xs md:text-sm">
               {{ row.idAffectedRecord }}
             </td>
           </ng-container>
@@ -124,19 +124,21 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
             </td>
           </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"
-              class="bg-gray-100 border-b-2 border-gray-200 print:bg-white print:border-black !h-10 z-10">
+          <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"
+              class="bg-gray-100 border-b-2 border-gray-200 !h-auto z-10 print:bg-white
+                     print:border-black">
           </tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns"
-              class="odd:!bg-white even:!bg-gray-50 hover:!bg-blue-50 transition-colors border-b
-                      border-gray-100 print:border-gray-300 print:!bg-transparent !h-auto py-1">
+          <tr mat-row *matRowDef="let row; columns: displayedColumns()"
+              [class]="lineTableColor(row.typeAction)"
+              class="transition-colors border-b border-gray-100 print:border-gray-300
+                     print:!bg-transparent !h-auto py-1">
           </tr>
 
           <tr class="mat-row" *matNoDataRow>
             <td
               class="mat-cell p-8 !bg-red-600 !text-center text-white font-semibold
                      print:!bg-transparent print:!text-red-600"
-              [colSpan]="displayedColumns.length">
+              [colSpan]="displayedColumns().length">
               Nenhum registro encontrado.
             </td>
           </tr>
@@ -148,7 +150,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
           [length]="totalElements()"
           [pageSize]="pageSize()"
           [pageIndex]="currentPage()"
-          [pageSizeOptions]="[15, 30, 50]"
+          [pageSizeOptions]="[30, 50, 100]"
           [showFirstLastButtons]="true"
           (page)="pageChange.emit($event)">
         </mat-paginator>
@@ -161,6 +163,9 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
   `
 })
 export class AuditoriaTableComponent {
+  router = inject(Router);
+  private readonly breakpointObserver = inject(BreakpointObserver);
+
   // INPUTS DE ESTADO DA TABELA
   dataAudit = input.required<AuditResponseDTO[]>();
   isLoading = input.required<boolean>();
@@ -175,8 +180,47 @@ export class AuditoriaTableComponent {
 
   pageChange = output<PageEvent>();
 
-  // Configuração das colunas da tabela
-  displayedColumns = [
-    'dateHourAction', 'username', 'typeAction', 'affectedEntity', 'idAffectedRecord', 'details'
-  ];
+  // Cria um Signal reativo que será true em telas menores que 768px
+  // (equivalente ao 'md' do Tailwind)
+  isMobile = toSignal(
+    this.breakpointObserver.observe('(max-width: 767px)').pipe(
+      map(result => result.matches)
+    ),
+    { initialValue: false }
+  );
+
+  // Computa as colunas a serem exibidas com base no Signal isMobile
+  displayedColumns = computed(() => {
+    if (this.isMobile()) {
+      return ['dateHourAction', 'username', 'details']; // Array para Mobile
+    }
+    return [
+      'dateHourAction',
+      'username',
+      'typeAction',
+      'affectedEntity',
+      'idAffectedRecord',
+      'details'
+    ]; // Array para Desktop
+  });
+
+  // Adicione esta função dentro do seu componente de Auditoria
+  lineTableColor(actionType: string): string {
+    switch (actionType) {
+      case 'INSERT':
+        return '!bg-green-100 hover:!bg-green-200 [&>td]:!text-green-800';
+
+      case 'UPDATE':
+        // Usando azul para update (Destaca bem sem ser agressivo)
+        return '!bg-blue-100 hover:!bg-blue-200 [&>td]:!text-blue-800';
+
+      case 'DELETE':
+        return '!bg-red-100 hover:!bg-red-200 [&>td]:!text-red-800';
+
+      default:
+        // O comportamento padrão (listrado) caso venha um tipo desconhecido,
+        // ou um tipo que você não queira pintar (ex: 'LOGIN', 'READ')
+        return 'odd:!bg-white even:!bg-gray-50 hover:!bg-gray-100';
+    }
+  }
 }

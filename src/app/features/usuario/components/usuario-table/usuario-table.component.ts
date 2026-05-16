@@ -53,7 +53,6 @@ import { map } from 'rxjs';
               ID
             </th>
             <td mat-cell *matCellDef="let u"
-                [class]="u.activated ? 'text-gray-700' : 'text-red-600 font-semibold'"
                 class="!text-sm !px-3 whitespace-nowrap">
               {{ u.id }}
             </td>
@@ -65,7 +64,6 @@ import { map } from 'rxjs';
               Nome
             </th>
             <td mat-cell *matCellDef="let u"
-                [class]="u.activated ? 'text-gray-700' : 'text-red-600 font-semibold'"
                 class="!font-medium !text-sm !px-3 truncate max-w-[150px] md:max-w-none">
               {{ u.name }}
             </td>
@@ -77,7 +75,6 @@ import { map } from 'rxjs';
               E-mail
             </th>
             <td mat-cell *matCellDef="let u"
-                [class]="u.activated ? 'text-gray-700' : 'text-red-600 font-semibold'"
                 class="!text-sm !px-3">
               {{ u.email }}
             </td>
@@ -91,7 +88,6 @@ import { map } from 'rxjs';
             <td
               mat-cell
               *matCellDef="let u"
-              [class]="u.activated ? 'text-gray-700' : 'text-red-600 font-semibold'"
               class="!text-sm !px-3"
             >
               {{ u.userName }}
@@ -175,7 +171,10 @@ import { map } from 'rxjs';
           <tr
             mat-row
             *matRowDef="let row; columns: displayedColumns()"
-            class="!min-h-[40px] !h-[40px] odd:!bg-white even:!bg-gray-50 hover:!bg-blue-50
+            [class]="!row.activated
+              ? '!bg-red-100 hover:!bg-red-200 [&>td]:!text-red-800'
+              : 'odd:!bg-white even:!bg-gray-50 hover:!bg-blue-50'"
+            class="!min-h-[40px] !h-[40px]
               transition-colors cursor-pointer border-gray-100"
           ></tr>
 

@@ -81,7 +81,7 @@ export default class AuditPage {
   dataAudit = signal<AuditResponseDTO[]>([]);
   isLoading = signal<boolean>(false);
   totalElements = signal<number>(0);
-  pageSize = signal<number>(15);
+  pageSize = signal<number>(30);
   currentPage = signal<number>(0);
 
   auditFormModel = signal<AuditForm>({
