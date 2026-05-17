@@ -14,6 +14,7 @@ import { MatriculaPipe } from '../../../shared/pipes/matricula.pipe';
 import { TelefonePipe } from '../../../shared/pipes/telefone.pipe';
 import { ErrorHandlerService } from '../../../shared/service/error-handler.service';
 import { finalize } from 'rxjs';
+import { PhotoComponent } from '../component/photo.component/photo.component';
 
 @Component({
   selector: 'app-servidor-detalhes',
@@ -28,7 +29,8 @@ import { finalize } from 'rxjs';
     DataDisplayComponent,
     DataInfoComponent,
     TelefonePipe,
-    MatriculaPipe
+    MatriculaPipe,
+    PhotoComponent
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -74,41 +76,55 @@ import { finalize } from 'rxjs';
       <app-loading [isLoading]="isLoading()" />
 
       @if (!isLoading() && servidor(); as s) {
-        <div
-          class="bg-gray-50 print:bg-white rounded-xl border print:border-none border-gray-200
-            shadow-sm print:shadow-none overflow-hidden print:overflow-visible"
-        >
+        <div class="bg-gray-50 print:bg-white rounded-xl border print:border-none border-gray-200
+            shadow-sm print:shadow-none overflow-hidden print:overflow-visible">
+
           <div class="p-4 md:p-6 print:p-0 print:break-inside-avoid">
             <h2 class="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
               <mat-icon>person</mat-icon>
               Dados Pessoais
             </h2>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-              <app-data-display class="md:col-span-2" label="Nome" [fieldData]="s.nome" />
+            <div class="flex flex-col md:flex-row gap-4 md:gap-6">
+              <div class="shrink-0 flex justify-center md:justify-start">
+                <div
+                  class="w-[2.5cm] h-[3.5cm] rounded-lg border border-gray-200 shadow-sm
+                        overflow-hidden bg-white print:border-gray-300">
+                  <app-photo class="block w-full h-full" [servidorId]="s.id" />
+                </div>
+              </div>
 
-              <app-data-display
-                label="CPF"
-                [fieldData]="(s.cpf | slice: 0 : 3) + '.***.***-' + (s.cpf | slice: 9 : 11)"
-              />
+              <div class="flex flex-1 flex-col gap-4 md:gap-6 justify-center">
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                  <app-data-display class="md:col-span-2" label="Nome" [fieldData]="s.nome" />
 
-              <app-data-display
-                label="Data de Nascimento"
-                [fieldData]="s.dataNascimento | date: 'dd/MM/yyyy'"
-              />
+                  <app-data-display
+                    label="CPF"
+                    [fieldData]="(s.cpf | slice: 0 : 3) + '.###.##-' + (s.cpf | slice: 9 : 11)"
+                  />
+
+                  <app-data-display
+                    label="Data de Nascimento"
+                    [fieldData]="s.dataNascimento | date: 'dd/MM/yyyy'"
+                  />
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mt-4 md:mt-6">
+                  <app-data-display
+                    class="md:col-span-2"
+                    label="E-mail Pessoal"
+                    [fieldData]="s.emailPessoal"
+                  />
+                  <app-data-display label="Gênero" [fieldData]="s.genero" />
+                  <app-data-display
+                    label="Telefone"
+                    [fieldData]="s.telefone | telefone"
+                  />
+                </div>
+              </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mt-4 md:mt-6">
-              <app-data-display
-                class="md:col-span-2"
-                label="E-mail Pessoal"
-                [fieldData]="s.emailPessoal"
-              />
-              <app-data-display label="Gênero" [fieldData]="s.genero" />
-              <app-data-display
-                label="Telefone"
-                [fieldData]="s.telefone | telefone"
-              />
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 mt-4 md:mt-6">
               <app-data-display class="md:col-span-2" label="Filiação" [fieldData]="s.filiacao" />
               <app-data-display class="md:col-span-2" label="Endereço" [fieldData]="s.endereco" />
             </div>
