@@ -1,22 +1,40 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, model, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { BaseEntityDTO } from '../../models/servidor.model';
+import { MatButtonModule } from '@angular/material/button';
+
 
 @Component({
   selector: 'app-servidor-filter',
-  imports: [CommonModule, MatFormFieldModule, MatSelectModule, MatInputModule, MatIconModule],
+  imports: [
+    CommonModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatInputModule,
+    MatIconModule,
+    MatButtonModule
+  ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4 bg-white md:bg-gray-50 p-2 md:p-4
+      class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-4 bg-white md:bg-gray-50 p-2 md:p-4
              rounded-xl border border-gray-200"
     >
-      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <button
+        mat-stroked-button
+        (click)="cleanFilters.emit($event)"
+        class="md:col-span-1 w-full sm:w-auto !border-blue-600 !text-blue-600
+              !transition-transform duration-300 hover:!scale-105 order-3 sm:order-1">
+        Limpar
+        <mat-icon>delete_sweep</mat-icon>
+      </button>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2">
         <mat-label>Filtrar por Status</mat-label>
         <mat-select
           [value]="selectedStatusId()"
@@ -29,7 +47,7 @@ import { BaseEntityDTO } from '../../models/servidor.model';
         </mat-select>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2 w-full">
         <mat-label>Filtrar por Cargo</mat-label>
         <mat-select
           [value]="selectedCargoId()"
@@ -42,7 +60,7 @@ import { BaseEntityDTO } from '../../models/servidor.model';
         </mat-select>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-4 w-full">
         <mat-label>Filtrar por Setor</mat-label>
         <mat-select
           [value]="selectedSetorId()"
@@ -55,7 +73,7 @@ import { BaseEntityDTO } from '../../models/servidor.model';
         </mat-select>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-1 w-full">
         <mat-label>Filtrar por</mat-label>
         <mat-select
           [value]="searchType()"
@@ -70,7 +88,7 @@ import { BaseEntityDTO } from '../../models/servidor.model';
       <mat-form-field
         appearance="outline"
         subscriptSizing="dynamic"
-        class="w-full"
+        class="md:col-span-2 w-full"
       >
         <mat-label>Digite para buscar...</mat-label>
         <input
@@ -93,16 +111,16 @@ import { BaseEntityDTO } from '../../models/servidor.model';
 export class ActivatedFilterComponent {
   // INPUTS: O que o Pai vai mandar para cá
   statusList = input.required<BaseEntityDTO[]>();
-  selectedStatusId = input<number | null>(null);
+  selectedStatusId = model<number | null>(null);
 
   cargoList = input.required<BaseEntityDTO[]>();
-  selectedCargoId = input<number | null>(null);
+  selectedCargoId = model<number | null>(null);
 
   setorList = input.required<BaseEntityDTO[]>();
-  selectedSetorId = input<number | null>(null);
+  selectedSetorId = model<number | null>(null);
 
   searchType = input<'CPF' | 'MATRICULA' | 'NOME'>('NOME');
-  searchTerm = input<string>('');
+  searchTerm = model<string>('');
 
   // OUTPUTS: O que vamos avisar ao Pai
   statusChange = output<number | null>();
@@ -110,4 +128,5 @@ export class ActivatedFilterComponent {
   setorChange = output<number | null>();
   searchTypeChange = output<'CPF' | 'MATRICULA' | 'NOME'>();
   searchInput = output<Event>();
+  cleanFilters = output<Event>();
 }

@@ -13,7 +13,7 @@ import {
   submit,
   validate
 } from '@angular/forms/signals';
-import { firstValueFrom } from 'rxjs';
+import { finalize, firstValueFrom } from 'rxjs';
 import { DominioService } from '../../services/dominio.service';
 import { AutocompleteComponent } from '../../../../shared/components/autocomplete/autocomplete.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -36,6 +36,9 @@ import { NotificationService } from '../../../../shared/service/NotificationSnac
 import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
 import { DateTime } from 'luxon';
 import { DocumentManagerDialogComponent } from '../document-manager-dialog/document-menager-dialog.component';
+import { UploadService } from '../../services/upload.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 export type FormModel = Required<ServidorRequestDTO>;
 
@@ -44,6 +47,8 @@ export type FormModel = Required<ServidorRequestDTO>;
   imports: [
     FormField,
     MatIconModule,
+    MatTooltipModule,
+    MatProgressSpinnerModule,
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
@@ -59,7 +64,7 @@ export type FormModel = Required<ServidorRequestDTO>;
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex justify-between items-center px-6 pt-4 pb-1">
+    <div class="flex justify-between items-center px-6 pt-2 pb-1">
       <h2 mat-dialog-title class="!font-bold !text-xl !text-blue-700 !m-0 !p-0">
         @if (isReactivate) {
           Readmitir: <span class="text-gray-600 font-medium">{{ payload?.nome }}</span>
@@ -91,42 +96,69 @@ export type FormModel = Required<ServidorRequestDTO>;
           </h3>
 
           <div class="flex flex-col gap-y-3">
-            <app-field-wrapper [field]="servidorForm.nome()">
-              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                <mat-label>Nome Completo</mat-label>
-                <input matInput [formField]="servidorForm.nome" placeholder="Ex: João da Silva" />
-              </mat-form-field>
-            </app-field-wrapper>
+            <div class="flex flex-col sm:flex-row gap-3">
+              <!-- input de seleção da foto-->
+              <input
+                type="file"
+                #fileInput
+                class="hidden"
+                accept=".jpg,.jpeg,.png"
+                (change)="onSelectedPhoto($event)">
 
-            <app-field-wrapper [field]="servidorForm.filiacao()">
-              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                <mat-label>Filiação (Nome da Mãe/Pai)</mat-label>
-                <input matInput [formField]="servidorForm.filiacao" />
-              </mat-form-field>
-            </app-field-wrapper>
+              <div class="shrink-0 flex items-start justify-center sm:justify-start">
+                <div
+                  class="w-[2.5cm] h-[3.5cm] rounded-xl border border-gray-300 overflow-hidden
+                        relative shadow-sm bg-white group cursor-pointer transition-all
+                         duration-300 hover:shadow-md hover:border-blue-400 active:scale-95"
+                  (click)="fileInput.click()"
+                  matTooltip="Clique para alterar a foto"
+                >
+                  <img
+                    [src]="photoUrl()"
+                    alt="Foto do Servidor"
+                    class="object-cover w-full h-full"
+                  />
+                  <div
+                    class="hidden sm:flex absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100
+                          transition-opacity duration-300 items-center justify-center">
+                    <mat-icon class="!text-white scale-150">photo_camera</mat-icon>
+                  </div>
+
+                  <div
+                    class="sm:hidden absolute bottom-0 inset-x-0 bg-black/50 py-0.5 flex
+                           justify-center items-center">
+                    <mat-icon class="!text-white scale-75 !m-0 !p-0">photo_camera</mat-icon>
+                  </div>
+
+                  @if (isUploadingPhoto()) {
+                    <div class="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
+                      <mat-spinner diameter="30"></mat-spinner>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- Nome-->
+              <div class="flex-1 flex flex-col gap-y-3 justify-center">
+                <app-field-wrapper [field]="servidorForm.nome()">
+                  <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                    <mat-label>Nome Completo</mat-label>
+                    <input matInput [formField]="servidorForm.nome" placeholder="Ex: João da Silva" />
+                  </mat-form-field>
+                </app-field-wrapper>
+
+                <!-- Filiação-->
+                <app-field-wrapper [field]="servidorForm.filiacao()">
+                  <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                    <mat-label>Filiação (Nome da Mãe/Pai)</mat-label>
+                    <input matInput [formField]="servidorForm.filiacao" />
+                  </mat-form-field>
+                </app-field-wrapper>
+              </div>
+            </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-3">
-              <app-field-wrapper [field]="servidorForm.matricula()">
-                <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                  <mat-label>Matrícula</mat-label>
-                  @if (isTerceirizado) {
-                    <input
-                      matInput
-                      [formField]="servidorForm.matricula"
-                      placeholder="Ex: T032"
-                    />
-
-                  } @else {
-                    <input
-                      matInput
-                      [formField]="servidorForm.matricula"
-                      [mask]="'0.000-0||00.000-0||000.000-0||0000.000-0'"
-                      [dropSpecialCharacters]="true"
-                    />
-                  }
-                </mat-form-field>
-              </app-field-wrapper>
-
+              <!-- CPF-->
               <app-field-wrapper [field]="servidorForm.cpf()">
                 <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                   <mat-label>CPF</mat-label>
@@ -138,6 +170,7 @@ export type FormModel = Required<ServidorRequestDTO>;
                 </mat-form-field>
               </app-field-wrapper>
 
+              <!-- Data Nascimento-->
               <app-field-wrapper [field]="servidorForm.dataNascimento()">
                 <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                   <mat-label>Data de Nascimento</mat-label>
@@ -151,21 +184,25 @@ export type FormModel = Required<ServidorRequestDTO>;
                 </mat-form-field>
               </app-field-wrapper>
 
+              <!-- gênero-->
               <app-custom-select
                 label="Gênero"
                 placeholder="Selecione..."
                 [field]="servidorForm.genero()"
                 [options]="generos()" />
-            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-x-3">
+              <!-- Celular-->
               <app-field-wrapper [field]="servidorForm.telefone()">
                 <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                   <mat-label>Celular</mat-label>
                   <input mask="(00) 0 0000-0000" matInput [formField]="servidorForm.telefone" />
                 </mat-form-field>
               </app-field-wrapper>
+            </div>
 
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-3">
+              <!-- E-mail pessoal-->
               <app-field-wrapper [field]="servidorForm.emailPessoal()">
                 <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                   <mat-label>E-mail Pessoal</mat-label>
@@ -173,6 +210,7 @@ export type FormModel = Required<ServidorRequestDTO>;
                 </mat-form-field>
               </app-field-wrapper>
 
+              <!-- E-mail institucional-->
               <app-field-wrapper [field]="servidorForm.emailInstitucional()">
                 <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                   <mat-label>E-mail Institucional</mat-label>
@@ -181,12 +219,13 @@ export type FormModel = Required<ServidorRequestDTO>;
               </app-field-wrapper>
             </div>
 
+            <!-- Endereço-->
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
               <mat-label>Endereço Completo</mat-label>
               <input
                 matInput
                 [formField]="servidorForm.endereco"
-                placeholder="Rua, Número, Bairro, Cidade - UF" />
+                placeholder="Rua, Número, Bairro, Cidade, UF, CEP" />
             </mat-form-field>
           </div>
         </div>
@@ -197,54 +236,86 @@ export type FormModel = Required<ServidorRequestDTO>;
             Vínculo Funcional
           </h3>
 
-          <div class="flex flex-col gap-y-3">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-x-3">
-              <app-list-autocomplete
-                [data]="cargos()"
-                label="Cargo"
-                placeholder="Pesquisar..."
-                [selectedId]="servidorModel().cargoId"
-                (selectedIdChange)="onCargoChange($event)"
-                [hasExternalError]="servidorForm.cargoId().invalid()"
-                [errorMessage]="servidorForm.cargoId().invalid()
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-x-3 mb-2">
+            <!-- Matrícula-->
+            <app-field-wrapper
+              class="md:col-span-2"
+              [field]="servidorForm.matricula()">
+              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                <mat-label>Matrícula</mat-label>
+                @if (isTerceirizado) {
+                  <input
+                    matInput
+                    [formField]="servidorForm.matricula"
+                    placeholder="Ex: T032"
+                  />
+
+                } @else {
+                  <input
+                    matInput
+                    [formField]="servidorForm.matricula"
+                    [mask]="'0.000-0||00.000-0||000.000-0||0000.000-0'"
+                    [dropSpecialCharacters]="true"
+                  />
+                }
+              </mat-form-field>
+            </app-field-wrapper>
+
+            <!-- Vínculo-->
+            <app-custom-select
+              class="md:col-span-4"
+              label="Vínculo"
+              placeholder="Selecione..."
+              [field]="servidorForm.vinculoId()"
+              [options]="vinculos()"
+            />
+            <!-- Setor-->
+            <app-custom-select
+              class="md:col-span-6"
+              label="Setor"
+              placeholder="Selecione..."
+              [field]="servidorForm.setorId()"
+              [options]="setores()" />
+
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-x-3 mb-2">
+            <!-- Cargo-->
+            <app-list-autocomplete
+              class="md:col-span-6"
+              [data]="cargos()"
+              label="Cargo"
+              placeholder="Pesquisar..."
+              [selectedId]="servidorModel().cargoId"
+              (selectedIdChange)="onCargoChange($event)"
+              [hasExternalError]="servidorForm.cargoId().invalid()"
+              [errorMessage]="servidorForm.cargoId().invalid()
                   ? servidorForm.cargoId().errors()[0]?.message
                   : ''"
-                [externalTouched]="servidorForm.cargoId().touched()" />
+              [externalTouched]="servidorForm.cargoId().touched()" />
 
-              <app-custom-select
-                label="Setor"
-                placeholder="Selecione..."
-                [field]="servidorForm.setorId()"
-                [options]="setores()" />
+            <!-- Lotação-->
+            <app-custom-select
+              class="md:col-span-2"
+              label="Lotação"
+              placeholder="Selecione..."
+              [field]="servidorForm.lotacaoId()"
+              [options]="lotacaoList()" />
 
-              <app-custom-select
-                label="Lotação"
-                placeholder="Selecione..."
-                [field]="servidorForm.lotacaoId()"
-                [options]="lotacaoList()" />
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-3">
-              <app-custom-select
-                label="Status"
-                placeholder="Selecione..."
-                [field]="servidorForm.statusId()"
-                [options]="statusList()" />
-
-              <app-custom-select
-                label="Vínculo"
-                placeholder="Selecione..."
-                [field]="servidorForm.vinculoId()"
-                [options]="vinculos()"
-              />
-            </div>
+            <!-- Status-->
+            <app-custom-select
+              class="md:col-span-4"
+              label="Status"
+              placeholder="Selecione..."
+              [field]="servidorForm.statusId()"
+              [options]="statusList()" />
           </div>
         </div>
       </form>
     </mat-dialog-content>
 
     <mat-dialog-actions
-      class="!px-6 !pb-4 !pt-4 flex flex-col sm:flex-row sm:justify-between items-center gap-3">
+      class="!px-6 !pb-4 !pt-0 flex flex-col sm:flex-row sm:justify-between items-center gap-3">
       <button
         class="w-full sm:w-auto !border-blue-600 !text-blue-600 !transition-transform duration-300
               hover:!scale-105 disabled:!border-gray-300 disabled:!text-gray-400 !h-12 sm:!h-10
@@ -286,6 +357,7 @@ export class ServidorFormComponent implements OnInit {
   // Injeções de dependência
   private readonly servidorService = inject(ServidorService);
   private readonly dominioService = inject(DominioService);
+  private readonly uploadService = inject(UploadService);
   private readonly notificationService = inject(NotificationService);
   private readonly errorHandleService = inject(ErrorHandlerService);
   private readonly dialogRef = inject(MatDialogRef<ServidorFormComponent>);
@@ -349,6 +421,7 @@ export class ServidorFormComponent implements OnInit {
   // MÉTODOS PARA A READMISSÃO DE SERVIDOR
   // Recebemos um "any" para suportar o DTO direto (legado) ou o novo wrapper
   readonly dialogData = inject<any>(MAT_DIALOG_DATA, { optional: true });
+  readonly DEFAULT_PHOTO = '/img/default_photo.jpg';
 
   isReactivate = this.dialogData?.action === 'REACTIVATE';
 
@@ -379,6 +452,12 @@ export class ServidorFormComponent implements OnInit {
   // Signals para armazenar dados estáticos vindos do domínio service
   generos = signal<BaseEntityDTO[]>([]);
   lotacaoList = signal<BaseEntityDTO[]>([]);
+
+  // Signals de controle da foto
+  photoUrl = signal<string>(this.DEFAULT_PHOTO);
+  isUploadingPhoto = signal<boolean>(false);
+  // servidorId = signal<number | null>(null);
+
   // Modelo para validação
   servidorModel = signal<FormModel>({
     nome: '',
@@ -412,7 +491,7 @@ export class ServidorFormComponent implements OnInit {
     });
 
     // validações para o campo Matrícula
-    required(path.matricula, { message: 'A matrícula é obrigatório' });
+    required(path.matricula, { message: 'Campo obrigatório' });
     maxLength(path.matricula, 20, {
       message: 'A matrícula deve ter no máximo 20 caracteres'
     });
@@ -472,8 +551,10 @@ export class ServidorFormComponent implements OnInit {
 
   ngOnInit() {
     this.loadDomains();
-
     if (this.payload) {
+      // this.servidorId.set(this.payload.id);
+      this.loadPhotoServidor(this.payload.id);
+
       try {
         this.servidorModel.update((m) => ({
           ...m,
@@ -483,8 +564,6 @@ export class ServidorFormComponent implements OnInit {
           // bugs de fuso horário que poderiam fazer o dia voltar 1 número.
           // Usamos 'as any' temporariamente para o TypeScript não reclamar do tipo inicial 'string'.
           // dataNascimento: this.payload?.dataNascimento
-          //   ? (new Date(this.payload.dataNascimento + 'T00:00:00') as any)
-          //   : '',
           dataNascimento: this.payload?.dataNascimento
             ? DateTime.fromISO(this.payload.dataNascimento).toFormat('dd/MM/yyyy') : '',
 
@@ -631,6 +710,80 @@ export class ServidorFormComponent implements OnInit {
     // Busca dados estáticos e simula uma requisição a API
     this.dominioService.getLotacaoList().subscribe((res) => this.lotacaoList.set(res));
     this.dominioService.getGeneros().subscribe((res) => this.generos.set(res));
+  }
+
+  loadPhotoServidor(id: number) {
+    this.uploadService.downloadPhoto(id)
+      .subscribe({
+        next: (blob) => {
+          const objectUrl = URL.createObjectURL(blob);
+          this.photoUrl.set(objectUrl);
+        },
+        error: (err) => {
+          if (err.status !== 404) {
+            this.errorHandleService.handle(err, 'Baixar foto');
+          }
+        }
+      });
+  }
+
+  onSelectedPhoto(event: Event) {
+    const input = event.target as HTMLInputElement;
+
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    const id = this.payload?.id;
+
+    if (!id) {
+      this.notificationService.error(
+        'Salve o servidor primeiro antes de anexar uma foto.',
+        'Anexar foto');
+      return;
+    }
+
+    // 🛡Fail-Fast 1: Tipo do Arquivo
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+
+    if (!allowedTypes.includes(file.type)) {
+      this.notificationService.error(
+        'Formato inválido. Selecione uma imagem JPG ou PNG.',
+        'Erro extensão');
+      return;
+    }
+
+    // 🛡Fail-Fast 2: Tamanho do Arquivo (1MB = 1048576 bytes)
+    if (file.size > 1048576) {
+      this.notificationService.error(
+        'A foto é muito grande. O tamanho máximo é 1MB.',
+        'Tamanho arquivo');
+      return;
+    }
+
+    // Preview Instantâneo na Tela
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      this.photoUrl.set(e.target?.result as string); // Atualiza a foto na tela na hora!
+    };
+
+    reader.readAsDataURL(file);
+
+    // Upload Silencioso
+    this.isUploadingPhoto.set(true);
+
+    this.uploadService.uploadProfilePicture(id, file)
+      .pipe(finalize(() => this.isUploadingPhoto.set(false)))
+      .subscribe({
+        next: () => this.notificationService.success('Foto atualizada com sucesso!',
+          'Anexar foto'),
+        error: (err) => {
+          this.errorHandleService.handle(err, 'Upload de Foto');
+          alert('ERROR ' + err);
+          // Se der erro, volta para a foto original/padrão
+          this.loadPhotoServidor(id);
+        }
+      });
   }
 
   // MÉTHOD AUXILIAR: Gera um código no formato "T" + 3 ou 4 dígitos aleatórios

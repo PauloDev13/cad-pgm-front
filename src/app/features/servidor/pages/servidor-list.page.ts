@@ -63,16 +63,17 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
                 [statusList]="statusList()"
                 [cargoList]="cargoList()"
                 [setorList]="setorList()"
-                [selectedStatusId]="selectedStatusId()"
-                [selectedCargoId]="selectedCargoId()"
-                [selectedSetorId]="selectedSetorId()"
+                [(selectedStatusId)]="selectedStatusId"
+                [(selectedCargoId)]="selectedCargoId"
+                [(selectedSetorId)]="selectedSetorId"
                 [searchType]="searchType()"
-                [searchTerm]="searchTerm()"
+                [(searchTerm)]="searchTerm"
                 (statusChange)="onStatusChange($event)"
                 (cargoChange)="onCargoChange($event)"
                 (setorChange)="onSetorChange($event)"
                 (searchTypeChange)="onSearchTypeChange($event)"
                 (searchInput)="onSearchInput($event)"
+                (cleanFilters)="onCleanFilters()"
               />
             </div>
 
@@ -426,6 +427,15 @@ export default class ServidorListPage implements OnInit {
 
     this.excludedCurrentPage.set(0); // Volta para página 1
     this.loadExcludedData(); //Recarrega a tabela mostrando todos os registros novamente!
+  }
+
+  onCleanFilters() {
+    this.selectedStatusId.set(null);
+    this.selectedCargoId.set(null);
+    this.selectedSetorId.set(null);
+    this.searchTerm.set('');
+
+    this.loadData();
   }
 
   // Busca dinâmica na aba lixeira

@@ -17,6 +17,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { jwtDecode } from 'jwt-decode';
 import { LoginStateService } from './login-state.service';
 import { customHandlerError } from '../../../shared/utils/custom-handler-error';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -26,6 +27,7 @@ export class AuthService {
   private readonly API_URL = `${environment.apiUrl}/api/v1`;
   private readonly plataformId = inject(PLATFORM_ID);
   private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
   private readonly loginStateService = inject(LoginStateService);
 
   // A chave que usaremos para guardar o usuário logado no localstorage
@@ -65,13 +67,18 @@ export class AuthService {
 
   // Limpa o estado global ao sair do sistema
   logout() {
-    // Atribui null ao usuário logado
-    this.currentUser.set(null);
-
-    if (isPlatformBrowser(this.plataformId)) {
-      // Remove o usuário logado do localstorage
-      localStorage.removeItem(this.TOKEN_KEY);
-    }
+    this.http.post<void>(`${this.API_URL}/auth/logout`, {}).subscribe({
+      next: () => {
+        // Sucesso: Backend registrou a saída e invalidou o token
+        this.clearLogout();
+      },
+      error: (err) => {
+        // Falha: Backend fora do ar, internet caiu ou token já expirado
+        console.warn('Falha ao comunicar logout ao backend. Forçando logout local.', err);
+        this.clearLogout();
+      },
+      complete: () => this.clearLogout()
+    });
   }
 
   // O próprio usuário pode criar seu cadastro
@@ -119,11 +126,6 @@ export class AuthService {
       // Essa informação aparece na tela de login. O usuário só vai digitar a SENHA
       tap(() => this.loginStateService.newUserName.set(decoded.username)),
       catchError(customHandlerError)
-      // catchError((error) => {
-      //   console.error('Erro ao redefinir senha:', error);
-      //   // Pode ser token expirado ou inválido
-      //   return throwError(() => new Error('Link inválido ou expirou. Solicite novamente.'));
-      // })
     );
   }
 
@@ -185,5 +187,20 @@ export class AuthService {
     return this.http.get(url, { params: { token } }).pipe(
       catchError(customHandlerError)
     );
+  }
+
+  // MÉTODOS PRIVADOS
+  private clearLogout() {
+    // Atribui null ao usuário logado
+    this.currentUser.set(null);
+
+    if (isPlatformBrowser(this.plataformId)) {
+
+      // Remove o usuário logado do localstorage
+      localStorage.removeItem(this.TOKEN_KEY);
+    }
+
+    // Redirecionamento (Caso já não esteja sendo feito no componente do botão)
+    this.router.navigate(['auth/login']);
   }
 }

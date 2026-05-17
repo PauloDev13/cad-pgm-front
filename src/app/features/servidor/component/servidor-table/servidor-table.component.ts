@@ -302,16 +302,6 @@ export class ServidorTableComponent {
     }).then();
   }
 
-  // Muda a cor do texto das linhas da tabela dependendo se está
-  // exibindo dados dos ATIVOS ou dos EXCLUÍDOS
-  textColor = computed(() => {
-    if (this.tableMode() === 'NORMAL') {
-      return 'text-gray-700';
-    } else {
-      return 'text-red-600';
-    }
-  });
-
   // Seleciona a legenda do status na mensagem quando não há
   // registros a serem exibidos na tabela
   noDataRow = computed(() => {
@@ -330,4 +320,5 @@ export class ServidorTableComponent {
         return 'ATIVO';
     }
   });
+
 }
