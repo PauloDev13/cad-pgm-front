@@ -222,21 +222,9 @@ export class ResetPasswordComponent {
         this.isLoading.set(false);
       })
     ).subscribe({
-      // next: () => {
-      //   // Token OK! Esconde o spinner e deixa o formulário habilitado
-      //   this.isValidatingToken.set(false);
-      // },
       error: (err) => {
         this.errorHandlerService.handle(err, 'Link');
       }
     });
   }
-
-  // private handleInvalidToken(message: string) {
-  //   this.isValidatingToken.set(false);
-  //   this.isTokenInvalid.set(true); // Isso vai desabilitar a UI
-  //
-  //   // Dispara o nosso Snackbar personalizado com a mensagem de erro
-  //   this.notificationService.error(message, 'Link');
-  // }
 }

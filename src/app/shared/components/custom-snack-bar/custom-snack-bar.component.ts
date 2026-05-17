@@ -60,7 +60,7 @@ export class CustomSnackBarComponent {
       case 'warning':
         return 'bg-amber-600'; // Amarelo escuro ideal para alertas com texto branco
       default:
-        return 'bg-gray-800';
+        return 'bg-cyan-600';
     }
   }
 

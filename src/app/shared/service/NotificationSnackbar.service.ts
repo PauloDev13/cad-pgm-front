@@ -34,9 +34,14 @@ export class NotificationService {
     this.show('warning', message, title, config);
   }
 
+  // Dispara um Toast de INFORMAÇÂO (azul claro)
+  info(message: string, title?: string, config?: MatSnackBarConfig): void {
+    this.show('info', message, title, config);
+  }
+
   // Método privado que exibe as mensagens e as configurações do snakbar
   private show(
-    type: 'success' | 'error' | 'warning',
+    type: 'success' | 'error' | 'warning' | 'info',
     message: string,
     title?: string,
     config?: MatSnackBarConfig

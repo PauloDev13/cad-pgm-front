@@ -481,6 +481,12 @@ export class ServidorFormComponent implements OnInit {
     aliasIds: [],
     sistemaIds: []
   });
+
+  // Signal que vai monitorar se houve mudanças nos dados do formulário
+  private readonly initialValue = signal<FormModel>(
+    structuredClone(this.servidorModel())
+  );
+
   // validações dos campos do formulário
   servidorForm = form(this.servidorModel, (path) => {
     // validações para o campo Nome
@@ -534,6 +540,12 @@ export class ServidorFormComponent implements OnInit {
     required(path.vinculoId, { message: 'O vinculo é obrigatório' });
   });
 
+  // Computed que compara os dados iniciais do formulário vindos do backend,
+  // com os dados atuais do formulário. Se forem diferentes, retorna verdadeiro
+  readonly hasChanges = computed(() => {
+    return JSON.stringify(this.initialValue()) !== JSON.stringify(this.servidorModel());
+  });
+
   // Computed
   isPermissionsButtonHidden = computed(() => {
     const user = this.authService.currentUser();
@@ -551,9 +563,11 @@ export class ServidorFormComponent implements OnInit {
 
   ngOnInit() {
     this.loadDomains();
+    // Passa o ID atual do objeto servidor para o método que carrega a foto
+    this.loadPhotoServidor(this.currentServidorId()!);
+
     if (this.payload) {
-      // this.servidorId.set(this.payload.id);
-      this.loadPhotoServidor(this.payload.id);
+      // this.loadPhotoServidor(this.payload.id);
 
       try {
         this.servidorModel.update((m) => ({
@@ -586,6 +600,11 @@ export class ServidorFormComponent implements OnInit {
         console.log('Dados problemáticos recebidos:', this.payload);
       }
     }
+
+    // Seta o signal com os dados que vieram do backend
+    this.initialValue.set(
+      structuredClone(this.servidorModel())
+    );
   }
 
   // Salva ou Atualiza um registro com todos os dados de um funcionário
@@ -593,6 +612,12 @@ export class ServidorFormComponent implements OnInit {
     // e checa o valid() automaticamente antes de engatilhar o callback.
     await submit(this.servidorForm, async () => {
       try {
+
+        if (this.isEdit && !this.isReactivate && !this.hasChanges()) {
+          this.notificationService.info('Nenhum dado foi alterado.', 'Atualização');
+          this.dialogRef.close(false);
+          return;
+        }
         // Obtemos os valores diretos do Signal de Modelo Atualizado
         const requestData = this.servidorModel() as ServidorRequestDTO;
 
@@ -733,7 +758,8 @@ export class ServidorFormComponent implements OnInit {
     if (!input.files || input.files.length === 0) return;
 
     const file = input.files[0];
-    const id = this.payload?.id;
+    // const id = this.payload?.id;
+    const id = this.currentServidorId();
 
     if (!id) {
       this.notificationService.error(
