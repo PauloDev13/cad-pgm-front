@@ -37,8 +37,8 @@ import { PhotoComponent } from '../component/photo.component/photo.component';
   template: `
     <div
       class="max-w-7xl mx-auto mt-4 print:mt-0 p-4 md:p-6 print:p-0
-        bg-gray-50 print:bg-white shadow print:shadow-none rounded-2xl
-        print:rounded-none border border-gray-200 print:border-none"
+    bg-gray-50 print:bg-white shadow print:shadow-none rounded-2xl
+    print:rounded-none border border-gray-200 print:border-none"
     >
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div class="flex items-center gap-3 w-full md:w-auto">
@@ -47,7 +47,7 @@ import { PhotoComponent } from '../component/photo.component/photo.component';
             (click)="goBack()"
             matTooltip="Voltar"
             class="print:!hidden shrink-0 !bg-blue-600 border border-gray-300 drop-shadow-sm
-               transition-transform duration-500 hover:scale-105"
+           transition-transform duration-500 hover:scale-105"
           >
             <mat-icon class="!text-white">arrow_back</mat-icon>
           </button>
@@ -77,7 +77,7 @@ import { PhotoComponent } from '../component/photo.component/photo.component';
 
       @if (!isLoading() && servidor(); as s) {
         <div class="bg-gray-50 print:bg-white rounded-xl border print:border-none border-gray-200
-            shadow-sm print:shadow-none overflow-hidden print:overflow-visible">
+        shadow-sm print:shadow-none overflow-hidden print:overflow-visible">
 
           <div class="p-4 md:p-6 print:p-0 print:break-inside-avoid">
             <h2 class="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
@@ -85,18 +85,21 @@ import { PhotoComponent } from '../component/photo.component/photo.component';
               Dados Pessoais
             </h2>
 
-            <div class="flex flex-col md:flex-row gap-4 md:gap-6">
-              <div class="shrink-0 flex justify-center md:justify-start">
+            <div class="flex flex-col md:flex-row print:flex-row gap-4 md:gap-6 print:gap-6">
+
+              <div class="shrink-0 flex justify-center md:justify-start print:justify-start">
                 <div
                   class="w-[2.5cm] h-[3.5cm] rounded-lg border border-gray-200 shadow-sm
-                        overflow-hidden bg-white print:border-gray-300">
+                    overflow-hidden bg-white print:border-gray-300">
                   <app-photo class="block w-full h-full" [servidorId]="s.id" />
                 </div>
               </div>
 
-              <div class="flex flex-1 flex-col gap-4 md:gap-6 justify-center">
-                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                  <app-data-display class="md:col-span-2" label="Nome" [fieldData]="s.nome" />
+              <div class="flex flex-1 flex-col gap-4 md:gap-6 print:gap-4 justify-center">
+
+                <div
+                  class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 print:grid-cols-4 gap-4 md:gap-6 print:gap-4">
+                  <app-data-display class="md:col-span-2 print:col-span-2" label="Nome" [fieldData]="s.nome" />
 
                   <app-data-display
                     label="CPF"
@@ -109,9 +112,10 @@ import { PhotoComponent } from '../component/photo.component/photo.component';
                   />
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mt-4 md:mt-6">
+                <div
+                  class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 print:grid-cols-4 gap-4 md:gap-6 print:gap-4 mt-4 md:mt-6 print:mt-2">
                   <app-data-display
-                    class="md:col-span-2"
+                    class="md:col-span-2 print:col-span-2"
                     label="E-mail Pessoal"
                     [fieldData]="s.emailPessoal"
                   />
@@ -124,9 +128,10 @@ import { PhotoComponent } from '../component/photo.component/photo.component';
               </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 mt-4 md:mt-6">
-              <app-data-display class="md:col-span-2" label="Filiação" [fieldData]="s.filiacao" />
-              <app-data-display class="md:col-span-2" label="Endereço" [fieldData]="s.endereco" />
+            <div
+              class="grid grid-cols-1 md:grid-cols-4 print:grid-cols-4 gap-4 md:gap-6 print:gap-4 mt-4 md:mt-6 print:mt-4">
+              <app-data-display class="md:col-span-2 print:col-span-2" label="Filiação" [fieldData]="s.filiacao" />
+              <app-data-display class="md:col-span-2 print:col-span-2" label="Endereço" [fieldData]="s.endereco" />
             </div>
           </div>
 
@@ -138,33 +143,35 @@ import { PhotoComponent } from '../component/photo.component/photo.component';
               Vínculo Funcional
             </h2>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 print:grid-cols-4 gap-4 md:gap-6 print:gap-4">
+
               <app-data-display label="Matrícula" [fieldData]="s.matricula | matricula" />
+              
 
-              <div class="flex flex-col">
+              <div class="flex flex-col items-start">
                 <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">Status</span>
-                <span class="inline-flex items-center mt-1">
-              @if (s.excluded) {
-                <span class="bg-red-600 px-2 py-1 rounded-full text-xs text-white font-bold text-center">
-                  Desligado em {{ s.excludedDate | date: 'dd/MM/yyyy' }}
-                </span>
-              } @else {
-                <span
-                  class="px-3 py-1 rounded-full text-xs font-bold text-center"
-                  [ngClass]="cssStatus(s.status?.descricao)"
-                >
-                  {{ s.status?.descricao || 'INDEFINIDO' }}
-                </span>
-              }
-            </span>
-              </div>
 
+                <span class="flex items-center mt-1">
+                  @if (s.excluded) {
+                    <span class="bg-red-600 px-2 py-1 rounded-full text-xs text-white font-bold">
+                      Desligado em {{ s.excludedDate | date: 'dd/MM/yyyy' }}
+                    </span>
+                  } @else {
+                    <span
+                      class="px-3 py-1 rounded-full text-xs font-bold print:border print:border-gray-300 print:text-black"
+                      [class]="cssStatus(s.status?.descricao)"
+                    >
+                      {{ s.status?.descricao || 'INDEFINIDO' }}
+                    </span>
+                  }
+                  </span>
+              </div>
               <app-data-display label="Vínculo" [fieldData]="s.vinculo?.nome" />
               <app-data-display label="Cargo" [fieldData]="s.cargo?.nome" />
               <app-data-display label="Setor" [fieldData]="s.setor?.nome" />
               <app-data-display label="Lotação" [fieldData]="s.lotacao?.nome" />
               <app-data-display
-                class="md:col-span-2"
+                class="md:col-span-2 print:col-span-2"
                 label="E-mail Institucional"
                 [fieldData]="s.emailInstitucional"
               />
@@ -179,10 +186,10 @@ import { PhotoComponent } from '../component/photo.component/photo.component';
               Permissões e Acessos
             </h2>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 print:grid-cols-3 gap-4 md:gap-6 print:gap-4">
               <app-data-info
                 spanClass="px-2 py-1 bg-blue-50 text-blue-700 border border-blue-200
-                      rounded-md text-xs font-medium"
+                  rounded-md text-xs font-medium print:bg-transparent print:border-gray-300 print:text-black"
                 label="Acessa os Sistemas"
                 [data]="s.sistemas"
                 emptyMessage="Sistema"
@@ -190,7 +197,7 @@ import { PhotoComponent } from '../component/photo.component/photo.component';
 
               <app-data-info
                 spanClass="px-2 py-1 bg-purple-50 text-purple-700 border
-                      border-purple-200 rounded-md text-xs font-medium"
+                  border-purple-200 rounded-md text-xs font-medium print:bg-transparent print:border-gray-300 print:text-black"
                 label="Aliasses de E-mail"
                 [data]="s.aliases"
                 emptyMessage="Alias"
@@ -198,7 +205,7 @@ import { PhotoComponent } from '../component/photo.component/photo.component';
 
               <app-data-info
                 spanClass="px-2 py-1 bg-amber-50 text-amber-700 border
-                      border-amber-200 rounded-md text-xs font-medium"
+                  border-amber-200 rounded-md text-xs font-medium print:bg-transparent print:border-gray-300 print:text-black"
                 label="Procuradores Vinculados"
                 [data]="s.procuradores"
                 emptyMessage="Procurador"
@@ -211,25 +218,22 @@ import { PhotoComponent } from '../component/photo.component/photo.component';
   `
 })
 export default class ServidorDetalhesPage {
+  // O Angular injeta o id do Servidor que vem na URL direto aqui!
+  servidorId = input.required<string>({ alias: 'id' });
+  // Recebe o query param: ?type=excluídos
+  type = input<string>(); // 'ativos' | 'excluídos'
+  // Controla o estado do array de Servidores
+  servidor = signal<ServidorResponseDTO | null>(null);
+  isLoading = signal<boolean>(true);
   // Injeções
   private readonly servidorService = inject(ServidorService);
   private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly location = inject(Location); // Para o botão voltar
 
-  // O Angular injeta o :id da URL direto aqui!
-  id = input.required<string>();
-
-  // Recebe o query param: ?type=excluídos
-  type = input<string>(); // 'ativos' | 'excluídos'
-
-  // Estado
-  servidor = signal<ServidorResponseDTO | null>(null);
-  isLoading = signal<boolean>(true);
-
-
   constructor() {
     effect(() => {
-      if (this.id()) {
+      const id = this.servidorId();
+      if (id) {
         this.loadServidorList();
       }
     });
@@ -269,7 +273,7 @@ export default class ServidorDetalhesPage {
 
     let servidorName = '';
     // Converte o id (string da URL) para número
-    const servidorId = Number(this.id());
+    const servidorId = Number(this.servidorId());
 
     const request$ = this.type() === 'desligado'
       ? this.servidorService.getExcludedById(servidorId)

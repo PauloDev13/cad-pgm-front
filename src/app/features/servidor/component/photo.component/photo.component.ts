@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, signal } from '@angular/core';
-import { UploadService } from '../../services/upload.service';
-import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
+
 import { MatIconModule } from '@angular/material/icon';
+import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
+import { ServidorService } from '../../services/servidor.service';
 
 @Component({
   selector: 'app-photo',
@@ -19,33 +20,32 @@ import { MatIconModule } from '@angular/material/icon';
   `
 })
 export class PhotoComponent {
-  private readonly uploadService = inject(UploadService);
+  private readonly servidorService = inject(ServidorService);
   private readonly errorHandlerService = inject(ErrorHandlerService);
   private destroyRef = inject(DestroyRef);
 
+  // Guarda a URL da foto
   photoUrl = signal<string | null>(null);
+  // Recebe o ID do Servidor via parâmetro na URL
   servidorId = input.required<number | undefined>();
 
   constructor() {
     effect(() => {
       const id = this.servidorId();
 
+      // Se o ID não for null
       if (id) {
-        this.loadPhoto(id);
-      } else {
-        this.clearPhotoMemory();
+        this.loadPhotoServidor(id);
       }
     });
 
     this.destroyRef.onDestroy(() => {
       this.clearPhotoMemory();
     });
-
   }
 
-  // Carrega a foto
-  private loadPhoto(id: number) {
-    this.uploadService.downloadPhoto(id)
+  loadPhotoServidor(id: number) {
+    this.servidorService.downloadPhoto(id)
       .subscribe({
         next: (blob) => {
           const objectUrl = URL.createObjectURL(blob);
@@ -55,12 +55,11 @@ export class PhotoComponent {
           if (err.status !== 404) {
             this.errorHandlerService.handle(err, 'Baixar foto');
           }
-          this.clearPhotoMemory();
         }
       });
   }
 
-  // Limpa a sujeira deixada pela fotos em memória
+  // Limpa a sujeira deixada pelas fotos em memória
   private clearPhotoMemory() {
     const currentUrl = this.photoUrl();
     if (currentUrl) {

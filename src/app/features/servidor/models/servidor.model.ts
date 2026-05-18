@@ -43,6 +43,7 @@ export interface ServidorResponseDTO {
   filiacao?: string;
   excluded: boolean;
   excludedDate: string;
+  photoPath: string,
   cargo?: BaseEntityDTO;
   lotacao?: BaseEntityDTO;
   setor?: BaseEntityDTO;

@@ -121,4 +121,25 @@ export class ServidorService {
     )
       .pipe(catchError(customHandlerError));
   }
+
+
+  // Envia a foto para o backend
+  uploadProfilePicture(servidorId: number, photo: File): Observable<void> {
+    const formData = new FormData();
+
+    formData.append('file', photo); // 'file' é o nome do @RequestParam no Spring Boot
+
+    return this.http.post<void>(`${this.apiUrl}/${servidorId}/photo`, formData)
+      .pipe(
+        catchError(customHandlerError)
+      );
+  }
+
+  // Monta a URL de visualização da foto para a tag <img>
+  downloadPhoto(servidorId: number): Observable<Blob> {
+    const timestamp = new Date().getTime();
+    return this.http.get(`${this.apiUrl}/${servidorId}/photo?t=${timestamp}`, {
+      responseType: 'blob'
+    });
+  }
 }

@@ -36,7 +36,6 @@ import { NotificationService } from '../../../../shared/service/NotificationSnac
 import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
 import { DateTime } from 'luxon';
 import { DocumentManagerDialogComponent } from '../document-manager-dialog/document-menager-dialog.component';
-import { UploadService } from '../../services/upload.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
@@ -357,9 +356,8 @@ export class ServidorFormComponent implements OnInit {
   // Injeções de dependência
   private readonly servidorService = inject(ServidorService);
   private readonly dominioService = inject(DominioService);
-  private readonly uploadService = inject(UploadService);
   private readonly notificationService = inject(NotificationService);
-  private readonly errorHandleService = inject(ErrorHandlerService);
+  private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly dialogRef = inject(MatDialogRef<ServidorFormComponent>);
   private readonly dialog = inject(MatDialog);
   private readonly authService = inject(AuthService);
@@ -596,7 +594,7 @@ export class ServidorFormComponent implements OnInit {
           aliasIds: this.payload?.aliases?.map((a) => a.id) || []
         }));
       } catch (err) {
-        this.errorHandleService.handle(err, 'Dados');
+        this.errorHandlerService.handle(err, 'Dados');
         console.log('Dados problemáticos recebidos:', this.payload);
       }
     }
@@ -676,7 +674,7 @@ export class ServidorFormComponent implements OnInit {
 
         // this.dialogRef.close(true);
       } catch (err) {
-        this.errorHandleService.handle(err, `${this.isReactivate
+        this.errorHandlerService.handle(err, `${this.isReactivate
           ? 'Readmissão' : (this.isEdit ? 'Atualização' : 'Cadastro')}`);
       }
     });
@@ -738,7 +736,7 @@ export class ServidorFormComponent implements OnInit {
   }
 
   loadPhotoServidor(id: number) {
-    this.uploadService.downloadPhoto(id)
+    this.servidorService.downloadPhoto(id)
       .subscribe({
         next: (blob) => {
           const objectUrl = URL.createObjectURL(blob);
@@ -746,7 +744,7 @@ export class ServidorFormComponent implements OnInit {
         },
         error: (err) => {
           if (err.status !== 404) {
-            this.errorHandleService.handle(err, 'Baixar foto');
+            this.errorHandlerService.handle(err, 'Baixar foto');
           }
         }
       });
@@ -798,13 +796,13 @@ export class ServidorFormComponent implements OnInit {
     // Upload Silencioso
     this.isUploadingPhoto.set(true);
 
-    this.uploadService.uploadProfilePicture(id, file)
+    this.servidorService.uploadProfilePicture(id, file)
       .pipe(finalize(() => this.isUploadingPhoto.set(false)))
       .subscribe({
         next: () => this.notificationService.success('Foto atualizada com sucesso!',
           'Anexar foto'),
         error: (err) => {
-          this.errorHandleService.handle(err, 'Upload de Foto');
+          this.errorHandlerService.handle(err, 'Upload de Foto');
           alert('ERROR ' + err);
           // Se der erro, volta para a foto original/padrão
           this.loadPhotoServidor(id);

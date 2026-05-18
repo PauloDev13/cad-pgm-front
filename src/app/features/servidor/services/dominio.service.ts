@@ -93,7 +93,6 @@ export class DominioService {
   }
 
   // Arrays fixos
-
   getLotacaoList(): Observable<BaseEntityDTO[]> {
     return of(this.lotacaoList).pipe(delay(100));
   }
