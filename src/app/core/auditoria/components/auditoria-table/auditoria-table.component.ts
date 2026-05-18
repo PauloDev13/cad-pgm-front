@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { map } from 'rxjs';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-auditoria-table',
@@ -16,13 +17,14 @@ import { map } from 'rxjs';
     LoadingComponent,
     MatPaginatorModule,
     MatTableModule,
-    MatHeaderCellDef
+    MatHeaderCellDef,
+    MatIconModule
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="flex flex-col h-[calc(100vh-250px)] min-h-0 w-full max-w-full bg-white border border-gray-200
+      class="flex flex-col h-[calc(100vh-250px)] w-full max-w-full bg-white border border-gray-200
             rounded-xl relative overflow-hidden print:border-none print:shadow-none print:block
             print:h-auto print:overflow-visible"
     >
@@ -128,18 +130,25 @@ import { map } from 'rxjs';
               class="bg-gray-100 border-b-2 border-gray-200 !h-auto z-10 print:bg-white
                      print:border-black">
           </tr>
+
           <tr mat-row *matRowDef="let row; columns: displayedColumns()"
               [class]="lineTableColor(row.typeAction)"
               class="transition-colors border-b border-gray-100 print:border-gray-300
                      print:!bg-transparent !h-auto py-1">
           </tr>
 
-          <tr class="mat-row" *matNoDataRow>
+          <tr class="mat-row" *matNoDataRow [class.hidden]="isLoading()">
             <td
-              class="mat-cell p-8 !bg-red-600 !text-center text-white font-semibold
-                     print:!bg-transparent print:!text-red-600"
-              [colSpan]="displayedColumns().length">
-              Nenhum registro encontrado.
+              class="mat-cell border-none !p-0"
+              [colSpan]="displayedColumns().length"
+            >
+              <div class="flex flex-col items-center justify-center w-full h-[300px] text-gray-400 gap-3">
+                <mat-icon class="scale-[2] !text-gray-300 mb-2">folder_off</mat-icon>
+                <p class="text-base md:text-sm font-medium text-gray-500">
+                  Nenhum registro encontrado.
+                </p>
+                <p class="text-xs text-gray-400">Tente ajustar os filtros da sua pesquisa.</p>
+              </div>
             </td>
           </tr>
         </table>

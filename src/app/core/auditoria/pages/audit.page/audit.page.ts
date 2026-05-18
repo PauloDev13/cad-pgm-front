@@ -79,7 +79,7 @@ export default class AuditPage {
 
   // SIGNALS DE ESTADO DA TABELA
   dataAudit = signal<AuditResponseDTO[]>([]);
-  isLoading = signal<boolean>(false);
+  isLoading = signal<boolean>(true);
   totalElements = signal<number>(0);
   pageSize = signal<number>(30);
   currentPage = signal<number>(0);

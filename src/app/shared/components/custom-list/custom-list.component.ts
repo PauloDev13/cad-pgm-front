@@ -72,7 +72,8 @@ import { LoadingComponent } from '../loading.component/loading.component';
       >
         <!-- Chama o componente de loading-->
         <div
-          class="absolute inset-0 z-50 bg-white/60 flex justify-center items-center backdrop-blur-sm transition-opacity duration-300"
+          class="absolute inset-0 z-50 bg-white/60 flex justify-center items-center
+                backdrop-blur-sm transition-opacity duration-300"
           [class.opacity-0]="!isLoading()"
           [class.opacity-100]="isLoading()"
           [class.pointer-events-none]="!isLoading()">
@@ -176,13 +177,18 @@ import { LoadingComponent } from '../loading.component/loading.component';
                     transition-colors !border-gray-100"
             ></tr>
 
-            <tr class="mat-row" *matNoDataRow>
+            <tr class="mat-row" *matNoDataRow [class.hidden]="isLoading()">
               <td
-                class="mat-cell p-4 md:p-8 !bg-red-500 !text-center text-white text-base
-                      md:text-sm md:font-semibold"
+                class="mat-cell border-none !p-0"
                 [colSpan]="displayedColumns.length"
               >
-                Nenhum {{ title().toUpperCase() }} encontrado para o filtro informado.
+                <div class="flex flex-col items-center justify-center w-full h-[300px] text-gray-400 gap-3">
+                  <mat-icon class="scale-[2] !text-gray-300 mb-2">folder_off</mat-icon>
+                  <p class="text-base md:text-sm font-medium text-gray-500">
+                    Nenhum {{ title().toUpperCase() }} encontrado
+                  </p>
+                  <p class="text-xs text-gray-400">Tente ajustar os filtros da sua pesquisa.</p>
+                </div>
               </td>
             </tr>
           </table>
@@ -216,7 +222,7 @@ export class CustomListComponent implements OnInit {
   pageSize = input<number>();
   currentPage = input<number>();
 
-  isLoading = input<boolean>(false);
+  isLoading = input<boolean>(true);
 
   //Avisa o pai que a página ou o tamanho mudaram
   onPageChange = output<PageEvent>();

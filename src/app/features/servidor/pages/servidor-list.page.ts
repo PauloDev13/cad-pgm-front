@@ -141,7 +141,7 @@ export default class ServidorListPage implements OnInit {
   activeTableIndex = signal(0);
 
   //Signal de estado independente para a aba de ativos
-  isLoading = signal<boolean>(false);
+  isLoading = signal<boolean>(true);
   servidores = signal<ServidorResponseDTO[]>([]);
   statusList = signal<BaseEntityDTO[]>([]);
   selectedStatusId = signal<number | null>(null);

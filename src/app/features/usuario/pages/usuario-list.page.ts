@@ -93,7 +93,7 @@ export default class UsuarioListPage implements OnInit {
   totalElements = signal<number>(0);
   pageSize = signal<number>(10);
   currentPage = signal<number>(0);
-  isLoading = signal<boolean>(false);
+  isLoading = signal<boolean>(true);
 
   // Estado do formulário de busca no HTML
   selectedNameId = signal<number | null>(null);

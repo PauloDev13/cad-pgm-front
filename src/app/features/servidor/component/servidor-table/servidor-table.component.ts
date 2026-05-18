@@ -32,13 +32,13 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="flex flex-col w-full border border-gray-300 rounded-lg drop-shadow-md overflow-hidden
-             relative max-h-[calc(100vh-406px)] min-h-[505px]"
+      class="flex flex-col w-full border border-gray-300 rounded-lg overflow-hidden
+             relative h-[calc(100vh-406px)] min-h-[505px]"
     >
       <!-- Chama o componente de loading-->
       <div
         class="absolute inset-0 z-50 bg-white/60 flex justify-center items-center backdrop-blur-sm
-              transition-opacity duration-300"
+                    transition-opacity duration-300"
         [class.opacity-0]="!isLoading()"
         [class.opacity-100]="isLoading()"
         [class.pointer-events-none]="!isLoading()">
@@ -214,20 +214,26 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
             [class]="tableMode() !== 'NORMAL'
               ? '!bg-red-100 hover:!bg-red-200 [&>td]:!text-red-800'
               : 'odd:!bg-white even:!bg-gray-50 hover:!bg-blue-50'"
-            class="!min-h-[40px] !h-[40px] transition-colors cursor-pointer border-gray-100"
-          ></tr>
+            class="!min-h-[40px] !h-[40px] transition-colors cursor-pointer border-gray-100">
+          </tr>
 
-          <tr class="mat-row" *matNoDataRow>
+          <tr class="mat-row" *matNoDataRow [class.hidden]="isLoading()">
             <td
-              class="mat-cell p-4 md:p-8 !bg-red-500 !text-center text-white text-base
-                    md:text-sm md:font-semibold"
+              class="mat-cell border-none !p-0"
               [colSpan]="displayedColumns().length"
             >
-              @if (tableMode() === 'NORMAL') {
-                Nenhum Servidor com Status: {{ noDataRow() }} encontrado para os filtros informados.
-              } @else {
-                Nenhum Servidor com Status: EXCLUÍDO encontrado para os filtros informados.
-              }
+              <div class="flex flex-col items-center justify-center w-full h-[300px] text-gray-400 gap-3">
+                <mat-icon class="scale-[2] !text-gray-300 mb-2">folder_off</mat-icon>
+                <p class="text-base md:text-sm font-medium text-gray-500">
+                  @if (tableMode() === 'NORMAL') {
+                    Nenhum Servidor com Status <strong
+                      class="text-gray-700 uppercase">{{ noDataRow() }}</strong> encontrado.
+                  } @else {
+                    Nenhum Servidor com Status <strong class="text-gray-700 uppercase">EXCLUÍDO</strong> encontrado.
+                  }
+                </p>
+                <p class="text-xs text-gray-400">Tente ajustar os filtros da sua pesquisa.</p>
+              </div>
             </td>
           </tr>
         </table>
