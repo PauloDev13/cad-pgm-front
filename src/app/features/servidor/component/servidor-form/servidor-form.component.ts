@@ -13,7 +13,7 @@ import {
   submit,
   validate
 } from '@angular/forms/signals';
-import { finalize, firstValueFrom } from 'rxjs';
+import { finalize, firstValueFrom, switchMap } from 'rxjs';
 import { DominioService } from '../../services/dominio.service';
 import { AutocompleteComponent } from '../../../../shared/components/autocomplete/autocomplete.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -797,10 +797,25 @@ export class ServidorFormComponent implements OnInit {
     this.isUploadingPhoto.set(true);
 
     this.servidorService.uploadProfilePicture(id, file)
-      .pipe(finalize(() => this.isUploadingPhoto.set(false)))
+      .pipe(
+        switchMap(() => {
+          const chacheBuster = Date.now();
+          return this.servidorService.downloadPhoto(id, chacheBuster);
+        }),
+        finalize(() => this.isUploadingPhoto.set(false))
+      )
       .subscribe({
-        next: () => this.notificationService.success('Foto atualizada com sucesso!',
-          'Anexar foto'),
+        next: (blob) => {
+          const oldUrl = this.photoUrl();
+
+          if (oldUrl && oldUrl.startsWith('blob:')) {
+            URL.revokeObjectURL(oldUrl);
+          }
+
+          this.photoUrl.set(URL.createObjectURL(blob));
+          this.notificationService.success('Foto atualizada com sucesso!',
+            'Anexar foto');
+        },
         error: (err) => {
           this.errorHandlerService.handle(err, 'Upload de Foto');
           alert('ERROR ' + err);

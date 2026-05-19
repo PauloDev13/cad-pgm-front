@@ -136,10 +136,13 @@ export class ServidorService {
   }
 
   // Monta a URL de visualização da foto para a tag <img>
-  downloadPhoto(servidorId: number): Observable<Blob> {
-    const timestamp = new Date().getTime();
-    return this.http.get(`${this.apiUrl}/${servidorId}/photo?t=${timestamp}`, {
-      responseType: 'blob'
-    });
+  downloadPhoto(servidorId: number, cacheBuster?: number): Observable<Blob> {
+    let url = `${this.apiUrl}/${servidorId}/photo`;
+
+    if (cacheBuster) {
+      url += `?t=${cacheBuster}`;
+    }
+
+    return this.http.get(url, { responseType: 'blob' });
   }
 }
