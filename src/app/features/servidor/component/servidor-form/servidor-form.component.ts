@@ -371,7 +371,9 @@ export class ServidorFormComponent implements OnInit {
       untracked(() => {
         if (!selectedId) return;
         // atribui valores as variáveis locais do untracked
-        const selectedVinculo = vinculoList.find(opt => opt.id === selectedId);
+        const selectedVinculo = vinculoList.find(
+          opt => opt.id === selectedId
+        );
         const vinculoName = (selectedVinculo?.nome || '').toLowerCase();
         const currentMatricula = this.servidorForm.matricula().value();
 
@@ -423,7 +425,6 @@ export class ServidorFormComponent implements OnInit {
 
   isReactivate = this.dialogData?.action === 'REACTIVATE';
 
-
   // Lógica de extração de dados e estado do formulário
   payload: ServidorResponseDTO | undefined = this.isReactivate
     ? this.dialogData?.payload
@@ -432,6 +433,7 @@ export class ServidorFormComponent implements OnInit {
   // É edição se tem payload mas NÃO é readmissão
   isEdit = !!this.payload && !this.isReactivate;
 
+  // Recebe o ID do usuário atual e caso não exista, recebe null
   currentServidorId = signal<number | null>(this.payload?.id || null);
 
   // Controle para avisar a tabela pai se precisamos recarregar o grid
@@ -544,7 +546,7 @@ export class ServidorFormComponent implements OnInit {
     return JSON.stringify(this.initialValue()) !== JSON.stringify(this.servidorModel());
   });
 
-  // Computed
+  // Computed para ocultar partes do html (botões, divs, etc) se o usuário não for administrador
   isPermissionsButtonHidden = computed(() => {
     const user = this.authService.currentUser();
     if (!user) return;
@@ -560,7 +562,11 @@ export class ServidorFormComponent implements OnInit {
   }
 
   ngOnInit() {
+    // Carrega os dados das tabelas de domínio (Cargo, Setor, Alias, etc)
     this.loadDomains();
+    // Se não houver ID, não faz nada
+    if (!this.currentServidorId()) return;
+
     // Passa o ID atual do objeto servidor para o método que carrega a foto
     this.loadPhotoServidor(this.currentServidorId()!);
 

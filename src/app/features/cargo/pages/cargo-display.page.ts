@@ -30,7 +30,7 @@ export default class CargoDisplayPage extends BaseGenericDirective<CargoResponse
   // Injeções
   private readonly cargoService = inject(CargoService);
 
-  // Implementação dos métodos obrigários herdados do pai
+  // Implementação dos métodos obrigatórios herdados do pai
   get entityService(): ICrudGeneric<CargoResponseDTO> {
     return this.cargoService;
   }
