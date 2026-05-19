@@ -70,7 +70,9 @@ export const routes: Routes = [
       {
         path: 'home',
         title: 'Início | Gestão de Servidores PGM Natal',
-        loadComponent: () => import('./features/home/pages/home.page')
+        loadComponent: () => import(
+          './features/dashboard/components/dashboard.component/dashboard.component')
+        // loadComponent: () => import('./features/home/pages/home.page')
       },
       {
         path: 'usuarios',

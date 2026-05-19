@@ -64,8 +64,8 @@ import { PhotoComponent } from '../component/photo.component/photo.component';
         <button
           mat-flat-button
           (click)="imprimir()"
-          class="!bg-blue-600 text-white print:!hidden transition-transform hover:scale-105 w-full md:w-auto shrink-0"
-        >
+          class="!bg-blue-600 text-white print:!hidden transition-transform hover:scale-105
+                w-full md:w-auto shrink-0">
           <mat-icon>print</mat-icon>
           Imprimir / PDF
         </button>
@@ -146,7 +146,7 @@ import { PhotoComponent } from '../component/photo.component/photo.component';
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 print:grid-cols-4 gap-4 md:gap-6 print:gap-4">
 
               <app-data-display label="Matrícula" [fieldData]="s.matricula | matricula" />
-              
+
 
               <div class="flex flex-col items-start">
                 <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">Status</span>
