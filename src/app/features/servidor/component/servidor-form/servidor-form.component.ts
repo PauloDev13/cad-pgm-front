@@ -236,6 +236,20 @@ export type FormModel = Required<ServidorRequestDTO>;
           </h3>
 
           <div class="grid grid-cols-1 md:grid-cols-12 gap-x-3 mb-2">
+            <!-- Vínculo-->
+            <app-list-autocomplete
+              class="md:col-span-4"
+              [data]="vinculos()"
+              label="Vínculo"
+              placeholder="Pesquisar..."
+              [selectedId]="servidorModel().vinculoId"
+              (selectedIdChange)="onAutocompeteChange('vinculoId', $event)"
+              [hasExternalError]="servidorForm.vinculoId().invalid()"
+              [errorMessage]="servidorForm.vinculoId().invalid()
+                  ? servidorForm.vinculoId().errors()[0]?.message
+                  : ''"
+              [externalTouched]="servidorForm.vinculoId().touched()" />
+
             <!-- Matrícula-->
             <app-field-wrapper
               class="md:col-span-2"
@@ -260,22 +274,19 @@ export type FormModel = Required<ServidorRequestDTO>;
               </mat-form-field>
             </app-field-wrapper>
 
-            <!-- Vínculo-->
-            <app-custom-select
-              class="md:col-span-4"
-              label="Vínculo"
-              placeholder="Selecione..."
-              [field]="servidorForm.vinculoId()"
-              [options]="vinculos()"
-            />
             <!-- Setor-->
-            <app-custom-select
+            <app-list-autocomplete
               class="md:col-span-6"
+              [data]="setores()"
               label="Setor"
-              placeholder="Selecione..."
-              [field]="servidorForm.setorId()"
-              [options]="setores()" />
-
+              placeholder="Pesquisar..."
+              [selectedId]="servidorModel().setorId"
+              (selectedIdChange)="onAutocompeteChange('setorId', $event)"
+              [hasExternalError]="servidorForm.setorId().invalid()"
+              [errorMessage]="servidorForm.setorId().invalid()
+                  ? servidorForm.setorId().errors()[0]?.message
+                  : ''"
+              [externalTouched]="servidorForm.setorId().touched()" />
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-12 gap-x-3 mb-2">
@@ -286,7 +297,7 @@ export type FormModel = Required<ServidorRequestDTO>;
               label="Cargo"
               placeholder="Pesquisar..."
               [selectedId]="servidorModel().cargoId"
-              (selectedIdChange)="onCargoChange($event)"
+              (selectedIdChange)="onAutocompeteChange('cargoId', $event)"
               [hasExternalError]="servidorForm.cargoId().invalid()"
               [errorMessage]="servidorForm.cargoId().invalid()
                   ? servidorForm.cargoId().errors()[0]?.message
@@ -553,11 +564,11 @@ export class ServidorFormComponent implements OnInit {
     return user.roles.some((p) => p === 'admin');
   });
 
-  // controla as mudanças no campo autocomplete Cargo
-  onCargoChange(id: number | null) {
+  // Método genérico que controla mudanças nos campos autocomplete
+  onAutocompeteChange(field: keyof ServidorRequestDTO, id: number | null) {
     this.servidorModel.update((m) => ({
       ...m,
-      cargoId: id as number
+      [field]: id as number
     }));
   }
 

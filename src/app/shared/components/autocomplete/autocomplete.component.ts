@@ -4,6 +4,7 @@ import { MatError, MatFormFieldModule, MatLabel } from '@angular/material/form-f
 import { MatInput, MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule, MatAutocompleteTrigger, MatOption } from '@angular/material/autocomplete';
 import { ErrorStateMatcher } from '@angular/material/core';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-list-autocomplete',
@@ -13,6 +14,7 @@ import { ErrorStateMatcher } from '@angular/material/core';
     ReactiveFormsModule,
     MatAutocompleteTrigger,
     MatAutocompleteModule,
+    MatIconModule,
     MatOption,
     MatError,
     MatLabel
@@ -30,6 +32,8 @@ import { ErrorStateMatcher } from '@angular/material/core';
         <mat-label>{{ label() }}</mat-label>
 
         <input
+          #trigger="matAutocompleteTrigger"
+          #inputEl
           type="text"
           matInput
           [placeholder]="placeholder()"
@@ -37,8 +41,19 @@ import { ErrorStateMatcher } from '@angular/material/core';
           [value]="displayValue()"
           (input)="onInput($event)"
           (blur)="onBlur()"
+          (focus)="inputEl.select()"
+          (click)="inputEl.select()"
           [errorStateMatcher]="errorMatcher"
         />
+
+        <mat-icon
+          matSuffix
+          class="text-slate-500 cursor-pointer select-none transition-transform duration-200"
+          [class.rotate-180]="trigger.panelOpen"
+          (mousedown)="$event.preventDefault(); trigger.openPanel()"
+        >
+          arrow_drop_down
+        </mat-icon>
 
         <mat-autocomplete
           #auto="matAutocomplete"

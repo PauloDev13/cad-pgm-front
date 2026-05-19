@@ -155,20 +155,57 @@ export default class AniversariantesComponent implements OnInit {
 
     // Formata cada linha: "05/05 - José Antônio - Contabilidade"
     // O '\n' garante a quebra de linha entre os servidores
-    const textoFormatado = LisBirthday
+    const formatedText = LisBirthday
       .map(item => `${item.diaMes} - ${item.nome} - ${item.setor}`)
       .join('\n');
 
-    // API nativa do navegador para copiar para o Clipboard
-    navigator.clipboard.writeText(textoFormatado)
-      .then(() => {
-        this.notificationService.success(
-          'Lista copiada!', 'Copiar');
-      })
-      .catch((err) => {
-        this.errorHandlerService.handle(err, 'Erro Cópia');
-        // this.notificationService.error(
-        //   'Não foi possível copiar. Verifique as permissões do navegador.');
-      });
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      // API nativa do navegador para copiar para o Clipboard
+      navigator.clipboard.writeText(formatedText)
+        .then(() => {
+          this.notificationService.success(
+            'Lista copiada!', 'Copiar');
+        })
+        .catch((err) => {
+          this.errorHandlerService.handle(err, 'Erro Cópia');
+        });
+    } else {
+      this.fallbackCopyClipboard(formatedText);
+    }
+  }
+
+  // ✨ Método auxiliar privado para garantir a cópia em ambientes sem HTTPS
+  private fallbackCopyClipboard(texto: string) {
+    // Cria um <textarea> fantasma no HTML
+    const textArea = document.createElement('textarea');
+    textArea.value = texto;
+
+    // Esconde o elemento no canto superior da tela para não causar rolagem nem piscar
+    textArea.style.top = '0';
+    textArea.style.left = '0';
+    textArea.style.position = 'fixed';
+    textArea.style.opacity = '0';
+
+    // Injeta no DOM
+    document.body.appendChild(textArea);
+
+    // Foca e seleciona o conteúdo inteiro do textarea
+    textArea.focus();
+    textArea.select();
+
+    try {
+      // Executa o comando de cópia legado do navegador
+      const sucesso = document.execCommand('copy');
+      if (sucesso) {
+        this.notificationService.success('Lista copiada!', 'Copiar');
+      } else {
+        this.errorHandlerService.handle(new Error('Navegador bloqueou a ação'), 'Erro Cópia');
+      }
+    } catch (err: any) {
+      this.errorHandlerService.handle(err, 'Erro Cópia');
+    } finally {
+      // Limpeza rigorosa: remove o textarea fantasma do DOM
+      document.body.removeChild(textArea);
+    }
   }
 }
