@@ -16,7 +16,6 @@ import {
 import { finalize, firstValueFrom, switchMap } from 'rxjs';
 import { DominioService } from '../../services/dominio.service';
 import { AutocompleteComponent } from '../../../../shared/components/autocomplete/autocomplete.component';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -49,7 +48,6 @@ export type FormModel = Required<ServidorRequestDTO>;
     MatTooltipModule,
     MatProgressSpinnerModule,
     MatDialogModule,
-    MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
     MatDatepickerModule,

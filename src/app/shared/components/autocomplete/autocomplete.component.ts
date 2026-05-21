@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, effect, input, model, signal, viewChild } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MatError, MatFormFieldModule, MatLabel } from '@angular/material/form-field';
+import { MatError, MatFormFieldModule } from '@angular/material/form-field';
 import { MatInput, MatInputModule } from '@angular/material/input';
-import { MatAutocompleteModule, MatAutocompleteTrigger, MatOption } from '@angular/material/autocomplete';
-import { ErrorStateMatcher } from '@angular/material/core';
+import { MatAutocompleteModule, MatAutocompleteTrigger } from '@angular/material/autocomplete';
+import { ErrorStateMatcher, MatOptionModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
@@ -15,9 +15,8 @@ import { MatIconModule } from '@angular/material/icon';
     MatAutocompleteTrigger,
     MatAutocompleteModule,
     MatIconModule,
-    MatOption,
-    MatError,
-    MatLabel
+    MatOptionModule,
+    MatError
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

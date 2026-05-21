@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { MatFormFieldModule, MatSuffix } from '@angular/material/form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatOptionModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { Field, FormField } from '@angular/forms/signals';
@@ -13,9 +12,7 @@ import { ActionOptions } from '../../models/audit-response.dto';
     MatDatepickerModule,
     MatFormFieldModule,
     MatInputModule,
-    MatOptionModule,
     MatSelectModule,
-    MatSuffix,
     FormField
   ],
   standalone: true,

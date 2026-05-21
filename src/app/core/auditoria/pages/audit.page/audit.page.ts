@@ -28,7 +28,8 @@ import {
   imports: [
     CommonModule, FormsModule, MatButtonModule, MatIconModule, MatInputModule,
     MatSelectModule, MatDatepickerModule, MatNativeDateModule, MatTableModule,
-    MatPaginatorModule, AuditoriaTableComponent, AuditoriaFieldsSearchComponent, AuditoriaButtonsSearchComponent
+    MatPaginatorModule, AuditoriaTableComponent, AuditoriaFieldsSearchComponent,
+    AuditoriaButtonsSearchComponent
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

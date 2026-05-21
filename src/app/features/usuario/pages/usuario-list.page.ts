@@ -4,7 +4,6 @@ import { PageEvent } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { PageResponse } from '../../../shared/model/pagination.model';
-// import { CustomDeleteService } from '../../../shared/service/custom-delete.service';
 import { debounceTime, distinctUntilChanged, finalize, Subject } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IUsuarioResponse } from '../models/usuario.model';

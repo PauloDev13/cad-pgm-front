@@ -16,8 +16,8 @@ import { FieldWrapperComponent } from '../../layout/component/field-wrapper/fiel
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    FormField,
-    FieldWrapperComponent
+    FieldWrapperComponent,
+    FormField
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -217,14 +217,29 @@ export class AuditoriaTableComponent {
   lineTableColor(actionType: string): string {
     switch (actionType) {
       case 'INSERT':
-        return '!bg-green-100 hover:!bg-green-200 [&>td]:!text-green-800';
+        return '!bg-green-50 hover:!bg-green-200 [&>td]:!text-green-800';
 
       case 'UPDATE':
         // Usando azul para update (Destaca bem sem ser agressivo)
-        return '!bg-blue-100 hover:!bg-blue-200 [&>td]:!text-blue-800';
+        return '!bg-blue-50 hover:!bg-blue-200 [&>td]:!text-blue-800';
 
       case 'DELETE':
-        return '!bg-red-100 hover:!bg-red-200 [&>td]:!text-red-800';
+        return '!bg-red-50 hover:!bg-red-200 [&>td]:!text-red-800';
+
+      case 'LOGIN':
+        return '!bg-yellow-50 hover:!bg-yellow-200 [&>td]:!text-gray-800';
+
+      case 'LOGOUT':
+        return '!bg-fuchsia-50 hover:!bg-fuchsia-200 [&>td]:!text-gray-800';
+
+      case 'LOGIN_FAILED':
+        return '!bg-violet-50 hover:!bg-violet-200 [&>td]:!text-gray-800';
+
+      case 'PASSWORD_RECOVERY':
+        return '!bg-rose-50 hover:!bg-rose-200 [&>td]:!text-gray-800';
+
+      case 'PASSWORD_RESET':
+        return '!bg-indigo-50 hover:!bg-indigo-200 [&>td]:!text-gray-800';
 
       default:
         // O comportamento padrão (listrado) caso venha um tipo desconhecido,

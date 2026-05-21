@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { MatInput, MatLabel, MatPrefix } from '@angular/material/input';
+import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { MatOptionModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
@@ -10,10 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
   imports: [
     MatFormFieldModule,
     MatIconModule,
-    MatInput,
-    MatLabel,
-    MatOptionModule,
-    MatPrefix,
+    MatInputModule,
     MatSelectModule
   ],
   standalone: true,
@@ -56,8 +52,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
         <mat-icon matIconPrefix class="text-gray-500">search</mat-icon>
       </mat-form-field>
     </div>
-  `,
-  styles: ``
+  `
 })
 export class UsuarioFilterComponent {
   // INPUTS: O que o Pai vai mandar para cá

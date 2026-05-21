@@ -2,13 +2,14 @@ import { ChangeDetectionStrategy, Component, input, model } from '@angular/core'
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
-import { FormField } from '@angular/forms/signals';
 import { FormErrorComponent } from '../form-error/form-error.component';
 import { BaseEntityDTO } from '../../../features/servidor/models/servidor.model';
+import { FormField } from '@angular/forms/signals';
+
 
 @Component({
   selector: 'app-custom-select',
-  imports: [MatFormFieldModule, MatSelectModule, MatOptionModule, FormField, FormErrorComponent],
+  imports: [MatFormFieldModule, MatSelectModule, MatOptionModule, FormErrorComponent, FormField],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `

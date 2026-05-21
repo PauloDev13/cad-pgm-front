@@ -11,21 +11,21 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper/field-wrapper.component';
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
-import { MatCheckbox } from '@angular/material/checkbox';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
 
 @Component({
   selector: 'app-usuario-form.component',
   imports: [
-    FormField,
+    MatFormFieldModule,
     MatIconModule,
     MatDialogModule,
-    MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
     MatSelectModule,
     FieldWrapperComponent,
-    MatCheckbox
+    MatCheckboxModule,
+    FormField
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -80,7 +80,9 @@ import { ErrorHandlerService } from '../../../../shared/service/error-handler.se
               <div class="sm:col-span-7 pb-5">
                 <mat-form-field appearance="outline" class="w-full" floatLabel="always" subscriptSizing="dynamic">
                   <mat-label>Roles</mat-label>
-                  <mat-select multiple="true" placeholder="Adicione permissões" [formField]="usuarioForm.permissions">
+                  <mat-select
+                    multiple="true"
+                    placeholder="Adicione permissões" [formField]="usuarioForm.permissions">
                     @for (role of roles(); track role) {
                       <mat-option [value]="role">{{ role }}</mat-option>
                     }
