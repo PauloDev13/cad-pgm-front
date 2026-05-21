@@ -24,6 +24,7 @@
     "@types/luxon": "^3.7.1",
     "autoprefixer": "^10.4.27",
     "chart.js": "^4.5.1",
+    "html-to-image": "^1.11.13",
     "jwt-decode": "^4.0.0",
     "luxon": "^3.7.2",
     "ng2-charts": "^10.0.0",
