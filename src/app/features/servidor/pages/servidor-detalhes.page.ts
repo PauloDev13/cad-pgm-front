@@ -170,11 +170,9 @@ import { PhotoComponent } from '../component/photo.component/photo.component';
               <app-data-display label="Cargo" [fieldData]="s.cargo?.nome" />
               <app-data-display label="Setor" [fieldData]="s.setor?.nome" />
               <app-data-display label="Lotação" [fieldData]="s.lotacao?.nome" />
-              <app-data-display
-                class="md:col-span-2 print:col-span-2"
-                label="E-mail Institucional"
-                [fieldData]="s.emailInstitucional"
+              <app-data-display label="E-mail Institucional" [fieldData]="s.emailInstitucional"
               />
+              <app-data-display label="Atividade" [fieldData]="s.tipoAtividade" />
             </div>
           </div>
 
@@ -205,7 +203,8 @@ import { PhotoComponent } from '../component/photo.component/photo.component';
 
               <app-data-info
                 spanClass="px-2 py-1 bg-amber-50 text-amber-700 border
-                  border-amber-200 rounded-md text-xs font-medium print:bg-transparent print:border-gray-300 print:text-black"
+                          border-amber-200 rounded-md text-xs font-medium print:bg-transparent
+                          print:border-gray-300 print:text-black"
                 label="Procuradores Vinculados"
                 [data]="s.procuradores"
                 emptyMessage="Procurador"

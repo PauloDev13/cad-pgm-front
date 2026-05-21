@@ -1,3 +1,5 @@
+export type TipoAtividade = 'PRESENCIAL' | 'REMOTO' | 'AMBOS' | null;
+
 // DTO do envio (request)
 export interface ServidorRequestDTO {
   nome: string;
@@ -10,6 +12,7 @@ export interface ServidorRequestDTO {
   emailInstitucional?: string;
   endereco?: string;
   filiacao?: string;
+  tipoAtividade: TipoAtividade;
   cargoId: number;
   setorId: number;
   lotacaoId: number;
@@ -44,6 +47,7 @@ export interface ServidorResponseDTO {
   excluded: boolean;
   excludedDate: string;
   photoPath: string,
+  tipoAtividade: TipoAtividade;
   cargo?: BaseEntityDTO;
   lotacao?: BaseEntityDTO;
   setor?: BaseEntityDTO;

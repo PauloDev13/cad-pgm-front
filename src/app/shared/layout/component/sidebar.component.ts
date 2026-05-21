@@ -165,24 +165,23 @@ import { ButtonSidebarComponent } from './button-sidebar/button-sidebar.componen
           </div>
         </div>
       }
-
-      @if (isLinkMenuHidden()) {
-        <div class="flex flex-col">
-          <!-- Menu Relatórios-->
-          <app-button-sidebar
-            [label]="'Relatórios'"
-            [onOpen]="isOpen()"
-            [onOpenMenus]="openMenus()"
-            [iconMenu]="'content_paste_search'"
-            [toolTips]="'Relatórios'"
-            (toggleSubmenu)="toggleSubmenu('relatorios')"
-          />
-          <!-- Submenu Relatórios-->
-          <div
-            class="overflow-hidden transition-all duration-300 ease-in-out flex flex-col"
-            [class.max-h-0]="!openMenus()['relatorios']"
-            [class.max-h-96]="openMenus()['relatorios']"
-          >
+      <div class="flex flex-col">
+        <!-- Menu Relatórios-->
+        <app-button-sidebar
+          [label]="'Relatórios'"
+          [onOpen]="isOpen()"
+          [onOpenMenus]="openMenus()"
+          [iconMenu]="'content_paste_search'"
+          [toolTips]="'Relatórios'"
+          (toggleSubmenu)="toggleSubmenu('relatorios')"
+        />
+        <!-- Submenu Relatórios-->
+        <div
+          class="overflow-hidden transition-all duration-300 ease-in-out flex flex-col"
+          [class.max-h-0]="!openMenus()['relatorios']"
+          [class.max-h-96]="openMenus()['relatorios']"
+        >
+          @if (isLinkMenuHidden()) {
             <app-link-sidebar
               [toolTip]="'Rel. Auditoria'"
               [link]="'/relatorios/auditoria'"
@@ -197,9 +196,17 @@ import { ButtonSidebarComponent } from './button-sidebar/button-sidebar.componen
               [label]="'Aniversariantes'"
               [icon]="'celebration'"
             />
-          </div>
+          } @else {
+            <app-link-sidebar
+              [toolTip]="'Rel. Aniversariantes'"
+              [link]="'/relatorios/aniversariantes'"
+              [onOpen]="isOpen()"
+              [label]="'Aniversariantes'"
+              [icon]="'celebration'"
+            />
+          }
         </div>
-      }
+      </div>
     </nav>
   `
 })

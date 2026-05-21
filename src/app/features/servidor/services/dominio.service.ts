@@ -25,6 +25,12 @@ export class DominioService {
     { id: 'Outros', nome: 'Outros' }
   ];
 
+  readonly atividades: any[] = [
+    { id: 'PRESENCIAL', nome: 'Presencial' },
+    { id: 'REMOTO', nome: 'Remoto' },
+    { id: 'HIBRIDO', nome: 'Híbrido' }
+  ];
+
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/api/v1`;
   private statusCache$: Observable<BaseEntityDTO[]> | null = null;
@@ -141,6 +147,10 @@ export class DominioService {
 
   getGeneros(): Observable<BaseEntityDTO[]> {
     return of(this.generos).pipe(delay(100));
+  }
+
+  getAtividades(): Observable<BaseEntityDTO[]> {
+    return of(this.atividades).pipe(delay(100));
   }
 
   // Limpa o cache das entidades de domínio se for cadastrado

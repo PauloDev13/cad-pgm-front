@@ -34,14 +34,14 @@ import { ArteAniversariantesComponent } from '../arte-aniversariantes/arte-anive
           </button>
         </div>
 
-        <div class="w-full md:w-1/3 flex flex-col items-center justify-center">
+        <div class="w-full gap-2 flex items-center justify-center">
           <span class="text-xs md:text-base font-semibold tracking-[0.25em] text-[#0A1D3C] uppercase text-center">
             Listagem de
           </span>
           <h1 class="text-2xl md:text-[2rem] font-black text-[#0A1D3C] leading-tight mt-1 mb-1 text-center">
             ANIVERSARIANTES</h1>
 
-          <div class="flex items-center justify-center gap-2 md:gap-4 text-[#C29B57] font-semibold text-lg md:text-xl">
+          <div class="flex items-center justify-center gap-1 md:gap-2 text-[#C29B57] font-semibold text-lg md:text-xl">
             <span class="text-2xl md:text-3xl leading-none">&bull;</span>
             <span class="uppercase tracking-wide text-center">{{ currentDate }}</span>
             <span class="text-2xl md:text-3xl leading-none">&bull;</span>
@@ -61,7 +61,8 @@ import { ArteAniversariantesComponent } from '../arte-aniversariantes/arte-anive
       </div>
 
       <div
-        class="bg-white border border-gray-200 rounded-xl shadow-sm h-[calc(100dvh-200px)] md:h-[calc(100dvh-220px)] flex flex-col overflow-hidden">
+        class="bg-white border border-gray-200 rounded-xl shadow-sm h-[calc(100dvh-200px)]
+              md:h-[calc(100dvh-225px)] flex flex-col overflow-hidden">
 
         @if (isLoading()) {
           <div class="flex flex-1 justify-center items-center p-10">

@@ -292,7 +292,7 @@ export type FormModel = Required<ServidorRequestDTO>;
           <div class="grid grid-cols-1 md:grid-cols-12 gap-x-3 mb-2">
             <!-- Cargo-->
             <app-list-autocomplete
-              class="md:col-span-6"
+              class="md:col-span-5"
               [data]="cargos()"
               label="Cargo"
               placeholder="Pesquisar..."
@@ -312,13 +312,39 @@ export type FormModel = Required<ServidorRequestDTO>;
               [field]="servidorForm.lotacaoId()"
               [options]="lotacaoList()" />
 
+            <!-- Se for ADMIN, ver o select e pode editar-->
+            @if (isAdminLogged()) {
+              <!-- Atividade-->
+              <app-custom-select
+                class="md:col-span-2"
+                label="Atividade"
+                placeholder="Selecione..."
+                [field]="servidorForm.tipoAtividade()"
+                [options]="atividades()" />
+
+            } @else {
+              <!-- Se não, aparece o input com a informação e bloqueado para edição-->
+              <mat-form-field appearance="outline" class="md:col-span-2 w-full">
+                <mat-label>Atividade</mat-label>
+                <input
+                  matInput
+                  class="w-full bg-transparent border-none text-gray-800 font-medium
+                          focus:outline-none focus:ring-0 cursor-default"
+                  type="text"
+                  readonly
+                  [value]="servidorForm.tipoAtividade().value()"
+                />
+              </mat-form-field>
+            }
+
             <!-- Status-->
             <app-custom-select
-              class="md:col-span-4"
+              class="md:col-span-3"
               label="Status"
               placeholder="Selecione..."
               [field]="servidorForm.statusId()"
               [options]="statusList()" />
+
           </div>
         </div>
       </form>
@@ -343,7 +369,7 @@ export type FormModel = Required<ServidorRequestDTO>;
         class="w-full sm:w-auto !border-blue-600 !text-blue-600 !transition-transform duration-300
               hover:!scale-105 disabled:!border-gray-300 disabled:!text-gray-400 !h-12 sm:!h-10
               order-2 sm:order-2"
-        [disabled]="servidorForm().invalid() || !isPermissionsButtonHidden()"
+        [disabled]="servidorForm().invalid() || !isAdminLogged()"
         (click)="openPermissions()"
       >
         <mat-icon class="mr-2">security</mat-icon>
@@ -463,6 +489,7 @@ export class ServidorFormComponent implements OnInit {
   // Signals para armazenar dados estáticos vindos do domínio service
   generos = signal<BaseEntityDTO[]>([]);
   lotacaoList = signal<BaseEntityDTO[]>([]);
+  atividades = signal<BaseEntityDTO[]>([]);
 
   // Signals de controle da foto
   photoUrl = signal<string>(this.DEFAULT_PHOTO);
@@ -481,6 +508,7 @@ export class ServidorFormComponent implements OnInit {
     emailInstitucional: '',
     endereco: '',
     filiacao: '',
+    tipoAtividade: 'PRESENCIAL',
     // Garantindo tipos compatíveis com numbers que iniciam vazios
     cargoId: null as unknown as number,
     setorId: null as unknown as number,
@@ -558,7 +586,7 @@ export class ServidorFormComponent implements OnInit {
   });
 
   // Computed para ocultar partes do html (botões, divs, etc) se o usuário não for administrador
-  isPermissionsButtonHidden = computed(() => {
+  isAdminLogged = computed(() => {
     const user = this.authService.currentUser();
     if (!user) return;
     return user.roles.some((p) => p === 'admin');
@@ -742,14 +770,27 @@ export class ServidorFormComponent implements OnInit {
 
   // Busca os dados na API e seta os signals
   loadDomains() {
-    this.dominioService.getCargos().subscribe((res) => this.cargos.set(res));
-    this.dominioService.getSetores().subscribe((res) => this.setores.set(res));
-    this.dominioService.getStatus().subscribe((res) => this.statusList.set(res));
-    this.dominioService.getVinculos().subscribe((res) => this.vinculos.set(res));
+    this.dominioService.getCargos()
+      .subscribe((res) => this.cargos.set(res));
+
+    this.dominioService.getSetores()
+      .subscribe((res) => this.setores.set(res));
+
+    this.dominioService.getStatus()
+      .subscribe((res) => this.statusList.set(res));
+
+    this.dominioService.getVinculos()
+      .subscribe((res) => this.vinculos.set(res));
 
     // Busca dados estáticos e simula uma requisição a API
-    this.dominioService.getLotacaoList().subscribe((res) => this.lotacaoList.set(res));
-    this.dominioService.getGeneros().subscribe((res) => this.generos.set(res));
+    this.dominioService.getLotacaoList()
+      .subscribe((res) => this.lotacaoList.set(res));
+
+    this.dominioService.getGeneros()
+      .subscribe((res) => this.generos.set(res));
+
+    this.dominioService.getAtividades()
+      .subscribe((res) => this.atividades.set(res));
   }
 
   loadPhotoServidor(id: number) {
