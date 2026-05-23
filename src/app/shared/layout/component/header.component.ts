@@ -27,11 +27,9 @@ import { RouterLink } from '@angular/router';
             menu
           </mat-icon>
         </button>
-        <img
-          src="/img/logo.png"
-          alt="logo"
-          routerLink="/home"
-          class="h-[30px] lg:h-[45px] ml-4 bg-gray-100 cursor-pointer" />
+        <span routerLink="/" class="text-[18px] text-gray-50 cursor-pointer">
+          PREFEITURA MUNICIPAL DO NATAL - Procuradoria Geral do Município
+        </span>
       </div>
 
       <div class="flex items-center gap-1 sm:gap-2">
