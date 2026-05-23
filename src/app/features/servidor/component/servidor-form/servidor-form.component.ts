@@ -2,17 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, s
 import { ServidorService } from '../../services/servidor.service';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { BaseEntityDTO, ServidorRequestDTO, ServidorResponseDTO } from '../../models/servidor.model';
-import {
-  email,
-  form,
-  FormField,
-  maxLength,
-  minLength,
-  pattern,
-  required,
-  submit,
-  validate
-} from '@angular/forms/signals';
+import { form, FormField, submit } from '@angular/forms/signals';
 import { finalize, firstValueFrom, switchMap } from 'rxjs';
 import { DominioService } from '../../services/dominio.service';
 import { AutocompleteComponent } from '../../../../shared/components/autocomplete/autocomplete.component';
@@ -27,7 +17,6 @@ import {
   PermissoesDialogData
 } from '../../../../shared/components/permissoes-dialog/permissoes-dialog.component';
 import { MatIconModule } from '@angular/material/icon';
-import { CustomValidators } from '../../../../shared/utils/custom-validators';
 import { NgxMaskDirective } from 'ngx-mask';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper/field-wrapper.component';
@@ -37,6 +26,7 @@ import { DateTime } from 'luxon';
 import { DocumentManagerDialogComponent } from '../document-manager-dialog/document-menager-dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { initialDataServidor, subscriptionSchema } from '../../utils/subscription-servidor';
 
 export type FormModel = Required<ServidorRequestDTO>;
 
@@ -371,7 +361,7 @@ export type FormModel = Required<ServidorRequestDTO>;
         (click)="openPermissions()"
       >
         <mat-icon class="mr-2">security</mat-icon>
-        Gerenciar Permissões
+        Vínculos e Permissões
       </button>
 
       <button
@@ -453,7 +443,6 @@ export class ServidorFormComponent implements OnInit {
     });
   }
 
-  // MÉTODOS PARA A READMISSÃO DE SERVIDOR
   // Recebemos um "any" para suportar o DTO direto (legado) ou o novo wrapper
   readonly dialogData = inject<any>(MAT_DIALOG_DATA, { optional: true });
   readonly DEFAULT_PHOTO = '/img/default_photo.jpg';
@@ -468,11 +457,8 @@ export class ServidorFormComponent implements OnInit {
   // É edição se tem payload mas NÃO é readmissão
   isEdit = !!this.payload && !this.isReactivate;
 
-  // Recebe o ID do usuário atual e caso não exista, recebe null
-  currentServidorId = signal<number | null>(this.payload?.id || null);
-
   // Controle para avisar a tabela pai se precisamos recarregar o grid
-  private hasChange = false;
+  private hasCreated = false;
 
   //  Atualizado para buscar do this.payload ao invés do this.data
   private originMatricula: string | undefined = this.payload?.matricula;
@@ -484,10 +470,12 @@ export class ServidorFormComponent implements OnInit {
   setores = signal<BaseEntityDTO[]>([]);
   vinculos = signal<BaseEntityDTO[]>([]);
   statusList = signal<BaseEntityDTO[]>([]);
-  // Signals para armazenar dados estáticos vindos do domínio service
   generos = signal<BaseEntityDTO[]>([]);
   lotacaoList = signal<BaseEntityDTO[]>([]);
   atividades = signal<BaseEntityDTO[]>([]);
+
+  // Recebe o ID do usuário atual e caso não exista, recebe null
+  currentServidorId = signal<number | null>(this.payload?.id || null);
 
   // Signals de controle da foto
   photoUrl = signal<string>(this.DEFAULT_PHOTO);
@@ -495,91 +483,19 @@ export class ServidorFormComponent implements OnInit {
   // servidorId = signal<number | null>(null);
 
   // Modelo para validação
-  servidorModel = signal<FormModel>({
-    nome: '',
-    matricula: '',
-    cpf: '',
-    dataNascimento: '',
-    genero: '',
-    telefone: '',
-    emailPessoal: '',
-    emailInstitucional: '',
-    endereco: '',
-    filiacao: '',
-    tipoAtividade: 'PRESENCIAL',
-    // Garantindo tipos compatíveis com numbers que iniciam vazios
-    cargoId: null as unknown as number,
-    setorId: null as unknown as number,
-    lotacaoId: 1,
-    statusId: 1,
-    vinculoId: null as unknown as number,
+  servidorModel = signal<FormModel>(initialDataServidor);
 
-    procuradorIds: [],
-    aliasIds: [],
-    sistemaIds: []
-  });
+  // Formulário
+  servidorForm = form(this.servidorModel, subscriptionSchema);
 
   // Signal que vai monitorar se houve mudanças nos dados do formulário
   private readonly initialValue = signal<FormModel>(
     structuredClone(this.servidorModel())
   );
 
-  // validações dos campos do formulário
-  servidorForm = form(this.servidorModel, (path) => {
-    // validações para o campo Nome
-    required(path.nome, { message: 'O nome é obrigatório' });
-    minLength(path.nome, 5, { message: 'O Nome deve ter no mínimo 5 caracteres' });
-    maxLength(path.nome, 150, {
-      message: 'O nome deve ter no máximo 150 caracteres'
-    });
-
-    // validações para o campo Matrícula
-    required(path.matricula, { message: 'Campo obrigatório' });
-    maxLength(path.matricula, 20, {
-      message: 'A matrícula deve ter no máximo 20 caracteres'
-    });
-
-    // validações para o campo CPF
-    required(path.cpf, { message: 'O CPF é obrigatório' });
-    pattern(path.cpf, /^\d{11}$/, { message: 'O CPF deve ter 11 dígitos' });
-    validate(path.cpf, ({ value }) => CustomValidators.cpfValidator(value()));
-
-    // validações para o campo Data de Nascimento
-    required(path.dataNascimento, { message: 'A data é obrigatório' });
-    validate(path.dataNascimento, ({ value }) =>
-      CustomValidators.validDateText(value()));
-    validate(path.dataNascimento, ({ value }) =>
-      CustomValidators.minimumAge(value(), 16));
-
-    // validações para o campo Telefone
-    maxLength(path.telefone, 20, {
-      message: 'O telefone deve ter no máximo 20 dígitos'
-    });
-
-    // validações para o campo Email Pessoal
-    required(path.emailPessoal, { message: 'O Email é obrigatório' });
-    email(path.emailPessoal, { message: 'E-mail inválido' });
-    maxLength(path.emailPessoal, 100, {
-      message: 'O Email deve ter no máximo 100 caracteres'
-    });
-
-    // validações para o campo Email Institucional
-    maxLength(path.emailInstitucional, 100, {
-      message: 'O Email deve ter no máximo 100 caracteres'
-    });
-    email(path.emailInstitucional, { message: 'E-mail inválido' });
-
-    // validações para os campos de relacionamentos
-    required(path.cargoId, { message: 'O Cargo é obrigatório' });
-    required(path.setorId, { message: 'O Setor é obrigatório' });
-    required(path.lotacaoId, { message: 'A Lotação é obrigatório' });
-    required(path.statusId, { message: 'O Status é obrigatório' });
-    required(path.vinculoId, { message: 'O vinculo é obrigatório' });
-  });
-
   // Computed que compara os dados iniciais do formulário vindos do backend,
   // com os dados atuais do formulário. Se forem diferentes, retorna verdadeiro
-  readonly hasChanges = computed(() => {
+  readonly hasCreateds = computed(() => {
     return JSON.stringify(this.initialValue()) !== JSON.stringify(this.servidorModel());
   });
 
@@ -654,7 +570,7 @@ export class ServidorFormComponent implements OnInit {
     await submit(this.servidorForm, async () => {
       try {
 
-        if (this.isEdit && !this.isReactivate && !this.hasChanges()) {
+        if (this.isEdit && !this.isReactivate && !this.hasCreateds()) {
           this.notificationService.info('Nenhum dado foi alterado.', 'Atualização');
           this.dialogRef.close(false);
           return;
@@ -692,7 +608,7 @@ export class ServidorFormComponent implements OnInit {
           // Esperamos o backend devolver o objeto criado (que contém o novo ID)
           const response =
             await firstValueFrom(this.servidorService.create(dataPayload));
-          this.hasChange = true;
+          this.hasCreated = true;
           this.currentServidorId.set(response.id);
           this.isEdit = true;
         }
@@ -702,7 +618,7 @@ export class ServidorFormComponent implements OnInit {
         const msgTitle =
           this.isReactivate ? 'Readmissão' : (this.isEdit ? 'Atualização' : 'Cadastro');
 
-        if (this.hasChange) {
+        if (this.hasCreated) {
           this.notificationService.success(
             `Servidor <strong>${requestData.nome} ${msgAction}</strong>  com sucesso!<br>
             Você já pode gerenciar as permissões e anexar documentos`,
@@ -763,7 +679,7 @@ export class ServidorFormComponent implements OnInit {
 
   // Fecha o modal ServidorForm
   closeModal() {
-    this.dialogRef.close(this.hasChange);
+    this.dialogRef.close(this.hasCreated);
   }
 
   // Busca os dados na API e seta os signals

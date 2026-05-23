@@ -1,37 +1,29 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  ElementRef,
-  inject,
-  input,
-  OnInit,
-  signal,
-  ViewChild
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, input, ViewChild } from '@angular/core';
 import { AniversarianteModel } from '../../models/aniversariente.model';
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
 import { toPng } from 'html-to-image';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-arte-aniversariantes',
-  imports: [],
+  imports: [MatIconModule],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="fixed -left-[9999px] top-0">
 
-      <div #moldeImagem class="w-[850px] bg-[#FDF8ED] p-12 font-sans">
+      <div #moldeImagem class="w-[950px] bg-[#FDF8ED] p-12 font-sans">
 
         <div class="flex items-center justify-center gap-8 mb-8">
+          <mat-icon class="!w-[2.5cm] !h-[2.5cm] !text-[2.5cm] !text-[#0A1D3C] !leading-none">cake</mat-icon>
           <div class="flex flex-col items-center">
             <span class="text-base font-bold tracking-[0.25em] text-[#0A1D3C] uppercase">Listagem de</span>
             <h1 class="text-[2.25rem] font-black text-[#0A1D3C] leading-tight mt-1 mb-1">ANIVERSARIANTES</h1>
 
             <div class="flex items-center gap-4 text-[#C29B57] font-bold text-xl">
               <span class="text-3xl leading-none">&bull;</span>
-              <span class="uppercase tracking-wide">{{ currentDate }}</span>
+              <span class="uppercase tracking-wide">{{ titleReport() }}</span>
               <span class="text-3xl leading-none">&bull;</span>
             </div>
           </div>
@@ -54,7 +46,7 @@ import { toPng } from 'html-to-image';
 
             <thead class="bg-[#0A1D3C] text-white">
             <tr>
-              <th class="py-4 px-4 font-semibold border-r border-white/20 w-36">
+              <th class="py-2 px-2 font-semibold border-r border-white/20 w-20">
                 <div class="flex items-center justify-center gap-2">
                   <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -63,7 +55,7 @@ import { toPng } from 'html-to-image';
                   DATA
                 </div>
               </th>
-              <th class="py-4 px-4 font-semibold border-r border-white/20 text-left">
+              <th class="py-2 px-2 font-semibold border-r border-white/20 text-left">
                 <div class="flex justify-center items-center gap-2">
                   <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -72,7 +64,7 @@ import { toPng } from 'html-to-image';
                   ANIVERSARIANTE
                 </div>
               </th>
-              <th class="py-4 px-4 font-semibold text-left">
+              <th class="py-2 px-2 font-semibold text-left">
                 <div class="justify-center flex items-center gap-2">
                   <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -88,9 +80,9 @@ import { toPng } from 'html-to-image';
               @for (item of aniversariantes(); track item.nome) {
                 <tr class="border-b border-[#E8DFC8] last:border-0">
 
-                  <td class="py-1 px-0 border-r border-[#E8DFC8]">
+                  <td class="py-1 px-1.5 border-r border-[#E8DFC8]">
                     <div
-                      class="flex items-center gap-2 font-bold bg-[#FDF8ED] px-3 py-1.5 rounded-md w-fit mx-auto border border-[#E8DFC8]/60">
+                      class="flex items-center gap-1.5 font-bold bg-[#FDF8ED] px-1 py-1 rounded-md w-fit mx-auto border border-[#E8DFC8]/60">
                       <svg class="w-4 h-4 text-[#C29B57]" fill="none" viewBox="0 0 24 24" stroke-width="2"
                            stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -100,47 +92,33 @@ import { toPng } from 'html-to-image';
                     </div>
                   </td>
 
-                  <td class="py-1 px-2 border-r border-[#E8DFC8] font-semibold text-left text-[14px]">
+                  <td class="py-1 px-1.5 border-r border-[#E8DFC8] font-semibold text-left text-[14px]">
                     {{ item.nome }}
                   </td>
 
-                  <td class="py-1 px-2 text-left">
+                  <td class="py-1 px-1.5 text-left">
                     {{ item.setor }}
                   </td>
                 </tr>
               }
             </tbody>
-
           </table>
         </div>
       </div>
     </div>
   `
 })
-export class ArteAniversariantesComponent implements OnInit {
+export class ArteAniversariantesComponent {
 
   private readonly notificationService = inject(NotificationService);
   private readonly errorHandlerService = inject(ErrorHandlerService);
 
   aniversariantes = input.required<AniversarianteModel[]>();
 
+  titleReport = input<string>('');
+
   // Pega a referência da div que criamos no HTML
   @ViewChild('moldeImagem') moldeImagem!: ElementRef;
-
-  currentDate: string = '';
-
-  // Nome do mês atual dinâmico (ex: "maio")
-  currentMonth = computed(() => {
-    const currentDate = new Date();
-    return currentDate.toLocaleString('pt-BR', { month: 'long' });
-  });
-
-  // Signal para o ano atual (ex: 2026)
-  currentYear = signal(new Date().getFullYear());
-
-  ngOnInit() {
-    this.currentDate = `${this.currentMonth()}/${this.currentYear()}`;
-  }
 
   generateArt() {
     const element = this.moldeImagem.nativeElement;

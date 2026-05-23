@@ -15,16 +15,6 @@ import { MatIconModule } from '@angular/material/icon';
           class="!font-bold !text-lg sm:!text-xl !text-blue-800 !m-0 !p-0 !text-left flex-1">
         {{ data.title }}
       </h2>
-
-      <button
-        mat-icon-button
-        mat-dialog-close
-        aria-label="Fechar"
-        class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500
-              !transition-colors !duration-300"
-      >
-        <mat-icon class="!text-white !scale-90 !leading-none !m-0 !p-0">close</mat-icon>
-      </button>
     </div>
 
     <mat-dialog-content class="!px-6 !pb-2 !pt-2">

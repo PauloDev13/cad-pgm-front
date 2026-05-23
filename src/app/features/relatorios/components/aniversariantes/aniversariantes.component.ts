@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, v
 import { RelatorioService } from '../../services/relatorio.service';
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
-import { AniversarianteModel } from '../../models/aniversariente.model';
+import { AniversarianteModel, MESES_DO_ANO } from '../../models/aniversariente.model';
 import { finalize } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { Location } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ArteAniversariantesComponent } from '../arte-aniversariantes/arte-aniversariantes.component';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-aniversariantes',
@@ -41,9 +42,9 @@ import { ArteAniversariantesComponent } from '../arte-aniversariantes/arte-anive
           <h1 class="text-2xl md:text-[2rem] font-black text-[#0A1D3C] leading-tight mt-1 mb-1 text-center">
             ANIVERSARIANTES</h1>
 
-          <div class="flex items-center justify-center gap-1 md:gap-2 text-[#C29B57] font-semibold text-lg md:text-xl">
+          <div class="flex items-center justify-center gap-1 md:gap-2 text-[#C29B57] font-bold text-lg md:text-xl">
             <span class="text-2xl md:text-3xl leading-none">&bull;</span>
-            <span class="uppercase tracking-wide text-center">{{ currentDate }}</span>
+            <span class="uppercase tracking-wide text-center">{{ titleReport() }}</span>
             <span class="text-2xl md:text-3xl leading-none">&bull;</span>
           </div>
         </div>
@@ -72,7 +73,7 @@ import { ArteAniversariantesComponent } from '../arte-aniversariantes/arte-anive
           <div class="flex flex-col flex-1 justify-center items-center p-10 text-gray-400 gap-3 text-center">
             <mat-icon class="text-5xl !text-gray-300">event_busy</mat-icon>
             <p class="text-base md:text-lg font-medium">
-              Nenhum aniversariante em {{ currentMonth() }}/{{ currentYear() }}.
+              Nenhum aniversariante em {{ titleReport() }}.
             </p>
           </div>
         } @else {
@@ -155,7 +156,7 @@ import { ArteAniversariantesComponent } from '../arte-aniversariantes/arte-anive
         }
       </div>
     </div>
-    <app-arte-aniversariantes [aniversariantes]="aniversariantes()" />
+    <app-arte-aniversariantes [aniversariantes]="aniversariantes()" [titleReport]="titleReport()" />
   `
 })
 export default class AniversariantesComponent implements OnInit {
@@ -163,39 +164,47 @@ export default class AniversariantesComponent implements OnInit {
   private notificationService = inject(NotificationService); // Seu serviço de Toast
   private errorHandlerService = inject(ErrorHandlerService);
   private location = inject(Location);
+  private readonly route = inject(ActivatedRoute);
 
   artAniversariantes = viewChild.required(ArteAniversariantesComponent);
 
-  currentDate = '';
-
   aniversariantes = signal<AniversarianteModel[]>([]);
   isLoading = signal(true);
+  currentMonth = signal<number | null>(null);
 
-  // Nome do mês atual dinâmico (ex: "maio")
-  currentMonth = computed(() => {
-    const currentDate = new Date();
-    return currentDate.toLocaleString('pt-BR', { month: 'long' });
+  titleReport = computed(() => {
+    const idMonth = Number(this.currentMonth());
+    const currentYear = new Date().getFullYear();
+    const monthObj = MESES_DO_ANO.find(m => m.id === idMonth);
+    const nameMonth = monthObj ? monthObj.nome : 'Mês inválido';
+    return `${nameMonth}/${currentYear}`;
   });
 
-  // Signal para o ano atual (ex: 2026)
-  currentYear = signal(new Date().getFullYear());
-
   ngOnInit(): void {
-    this.currentDate = `${this.currentMonth()}/${this.currentYear()}`;
-    this.loadList();
+    this.route.queryParams.subscribe(params => {
+      const monthUrl = params['month'];
+
+      if (monthUrl) {
+        this.currentMonth.set(Number(monthUrl));
+        this.loadList(Number(monthUrl));
+      }
+    });
   }
 
   generateArt() {
     this.artAniversariantes().generateArt();
   }
 
-  loadList() {
+  loadList(month: number) {
     this.isLoading.set(true);
-    this.relatorioService.getAniversariantesMes()
+    this.relatorioService.getAniversariantesMes(month)
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
         next: (data) => this.aniversariantes.set(data),
-        error: (err) => this.errorHandlerService.handle(err, 'Buscar Aniversariantes')
+        error: ((err) => {
+          this.goBack();
+          this.errorHandlerService.handle(err, 'Aniversariantes');
+        })
       });
   }
 

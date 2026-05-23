@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { email, form, FormField, maxLength, minLength, required, submit } from '@angular/forms/signals';
+import { form, FormField, submit } from '@angular/forms/signals';
 import { firstValueFrom } from 'rxjs';
 import { IUsuarioRequest, IUsuarioResponse, TUsuarioUpdate } from '../../models/usuario.model';
 import { UsuarioService } from '../../services/usuario.service';
@@ -13,6 +13,7 @@ import { FieldWrapperComponent } from '../../../../shared/layout/component/field
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
+import { initialDataUsuario, subscriptionSchema } from '../../utils/subscription-usuario';
 
 @Component({
   selector: 'app-usuario-form.component',
@@ -82,7 +83,7 @@ import { ErrorHandlerService } from '../../../../shared/service/error-handler.se
                   <mat-label>Roles</mat-label>
                   <mat-select
                     multiple="true"
-                    placeholder="Adicione permissões" [formField]="usuarioForm.permissions">
+                    placeholder="Adicione permissões" [formField]="$any(usuarioForm.permissions)">
                     @for (role of roles(); track role) {
                       <mat-option [value]="role">{{ role }}</mat-option>
                     }
@@ -126,34 +127,11 @@ export class UsuarioFormComponent implements OnInit {
   // Signals para armazenar os dados que virão da API
   usuarios = signal<IUsuarioResponse[]>([]);
   roles = signal<string[]>([]);
-  // Signals para exibir/ocultar senha/confirmar senha
-  hidePassword = signal<boolean>(true);
-  hideConfirm = signal<boolean>(true);
+
   // Modelo do formulário para cadastro
-  userFormModel = signal<TUsuarioUpdate>({
-    name: '',
-    userName: '',
-    email: '',
-    activated: true,
-    permissions: ['guest'],
-    forcePasswordChange: false
-  });
-  // Formulário de cadastro com validações
-  usuarioForm = form(this.userFormModel, (path: any) => {
+  userFormModel = signal<TUsuarioUpdate>(initialDataUsuario);
 
-    // Nome completo
-    required(path.name, { message: 'Nome completo é obrigatório' });
-    minLength(path.name, 5, { message: 'O Nome deve ter no mínimo 5 caracteres' });
-
-    // Login
-    required(path.userName, { message: 'login é obrigatório' });
-    minLength(path.userName, 5, { message: 'O Login deve ter no mínimo 5 caracteres' });
-    maxLength(path.userName, 30, { message: 'O Login deve ter no máximo 30 caracteres' });
-
-    // E-mail
-    required(path.email, { message: 'E-mail é obrigatório' });
-    email(path.email, { message: 'E-mail inválido' });
-  });
+  usuarioForm = form(this.userFormModel, subscriptionSchema);
 
   ngOnInit() {
     this.loadRoles();
@@ -212,17 +190,6 @@ export class UsuarioFormComponent implements OnInit {
         this.errorHandlerService.handle(err, `${this.isEdit ? 'Atualização' : 'Cadastro'}`);
       }
     });
-  }
-
-  // Métodos para alternar a visualização do ícone do "olhinho" nos inputs senha e confirme senha
-  togglePassword(event: MouseEvent) {
-    event.preventDefault(); // Evita que o formulário submeta ao clicar no botão do ícone
-    this.hidePassword.set(!this.hidePassword());
-  }
-
-  toggleConfirm(event: MouseEvent) {
-    event.preventDefault();
-    this.hideConfirm.set(!this.hideConfirm());
   }
 
   // lê as permissões e seta o signal com o array

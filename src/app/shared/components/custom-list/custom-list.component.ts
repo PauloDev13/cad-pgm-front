@@ -214,8 +214,10 @@ export class CustomListComponent implements OnInit {
   data = input.required<any[]>();
 
   // Novos Inputs para tornar a coluna dinâmica (Com valores padrão para não quebrar o que já existe)
-  mainColumnKey = input<string>('nome'); // Qual atributo ler do objeto? (ex: 'nome', 'descricao')
-  mainColumnLabel = input<string>('Nome'); // Qual o título da coluna? (ex: 'Nome', 'Descrição')
+  // Qual atributo ler do objeto? (ex: 'nome', 'descricao')
+  mainColumnKey = input<string>('nome');
+  // Qual o título da coluna? (ex: 'Nome', 'Descrição')
+  mainColumnLabel = input<string>('Nome');
 
   // Inputs signals de paginação
   totalElements = input.required<number>();

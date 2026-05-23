@@ -1,4 +1,4 @@
-import { inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
+import { computed, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -18,6 +18,7 @@ import { jwtDecode } from 'jwt-decode';
 import { LoginStateService } from './login-state.service';
 import { customHandlerError } from '../../../shared/utils/custom-handler-error';
 import { Router } from '@angular/router';
+import { UserRole } from '../../../features/servidor/models/servidor.model';
 
 @Injectable({
   providedIn: 'root'
@@ -32,6 +33,21 @@ export class AuthService {
 
   // A chave que usaremos para guardar o usuário logado no localstorage
   currentUser = signal<ILoggedUser | null>(null);
+
+  // Signal que pega o array de roles do usuário com segurança
+  userRoles = computed(
+    () => this.currentUser()?.roles ?? []);
+
+  // O Método Genérico que valida se as permissões do usuário tem a permissão informada
+  hasRole(role: UserRole): boolean {
+    return this.userRoles().includes(role);
+  }
+
+  // Retorna verdadeiro se o usuário logado for o "admin" ou "rh"
+  canEdit = computed(() => this.hasRole('admin') || this.hasRole('rh'));
+
+  // Retorna verdadeiro se o usuário logado for o "admin"
+  canManager = computed(() => this.hasRole('admin'));
 
   // Construtor
   constructor() {

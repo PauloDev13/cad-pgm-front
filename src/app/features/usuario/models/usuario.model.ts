@@ -1,3 +1,7 @@
+/*==================================
+            INTERFACES
+====================================*/
+
 export interface IUsuarioRequest {
   name: string;
   userName: string;
@@ -8,13 +12,6 @@ export interface IUsuarioRequest {
   permissions: string[];
   forcePasswordChange?: boolean;
 }
-
-export type TUsuarioUpdate = Omit<IUsuarioRequest, 'confirmPassword' | 'password'>;
-export type TUsuarioUpdatePut = Omit<IUsuarioRequest, 'password'>;
-export type TRegisterNewUser = Omit<
-  IUsuarioRequest,
-  'activated' | 'permissions' | 'forcePasswordChange'
->;
 
 export interface IUsuarioResponse {
   id: number;
@@ -30,6 +27,23 @@ export interface IRoles {
   roles: string[];
 }
 
+/*==================================
+            TYPES
+==================================== */
+
+export type TUsuarioUpdate = Omit<IUsuarioRequest, 'confirmPassword' | 'password'>;
+
+export type TUsuarioUpdatePut = Omit<IUsuarioRequest, 'password'>;
+
+export type TRegisterNewUser = Omit<
+  IUsuarioRequest,
+  'activated' | 'permissions' | 'forcePasswordChange'
+>;
+
+/*==================================
+            CONSTANTS
+==================================== */
+
 export const roles: IRoles = {
-  roles: ['admin', 'rh', 'gabinete', 'guest'],
+  roles: ['admin', 'rh', 'gabinete', 'guest']
 };

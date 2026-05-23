@@ -127,6 +127,7 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
 
               <div class="flex items-center justify-end">
                 @if (tableMode() === 'NORMAL') {
+                  <!-- Visualizar relatório -->
                   <button
                     mat-icon-button
                     (click)="viewDetail(s.id, 'ativo')"
@@ -141,36 +142,43 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
                       visibility
                     </mat-icon>
                   </button>
-                  <button
-                    mat-icon-button
-                    (click)="edit.emit(s)"
-                    matTooltip="Editar"
-                    class="group !w-10 !h-10 md:!w-8 md:!h-8 !leading-none mr-1 md:mr-2
-                        flex justify-center items-center"
-                  >
-                    <mat-icon
-                      class="!text-blue-600 transition-transform duration-200
-                          group-hover:!text-blue-400 group-hover:!scale-125 !text-[20px]"
+
+                  @if (canEdit) {
+                    <button
+                      mat-icon-button
+                      (click)="edit.emit(s)"
+                      matTooltip="Editar"
+                      class="group !w-10 !h-10 md:!w-8 md:!h-8 !leading-none mr-1 md:mr-2
+                          flex justify-center items-center"
                     >
-                      edit
-                    </mat-icon>
-                  </button>
-                  <button
-                    mat-icon-button
-                    (click)="delete.emit(s)"
-                    matTooltip="Excluir"
-                    class="group !w-10 !h-10 md:!w-8 md:!h-8 !leading-none disabled:!cursor-not-allowed
-                         disabled:!pointer-events-auto flex justify-center items-center"
-                  >
-                    <mat-icon
-                      class="!text-red-600 transition-transform duration-200 group-hover:!text-red-900
-                            group-hover:!scale-125 group-disabled:!text-gray-400
-                            group-disabled:!scale-100 !text-[20px]"
+                      <mat-icon
+                        class="!text-blue-600 transition-transform duration-200
+                            group-hover:!text-blue-400 group-hover:!scale-125 !text-[20px]"
+                      >
+                        edit
+                      </mat-icon>
+                    </button>
+
+                    <!-- Remover Servidor -->
+                    <button
+                      mat-icon-button
+                      (click)="delete.emit(s)"
+                      matTooltip="Excluir"
+                      class="group !w-10 !h-10 md:!w-8 md:!h-8 !leading-none disabled:!cursor-not-allowed
+                           disabled:!pointer-events-auto flex justify-center items-center"
                     >
-                      delete
-                    </mat-icon>
-                  </button>
+                      <mat-icon
+                        class="!text-red-600 transition-transform duration-200 group-hover:!text-red-900
+                              group-hover:!scale-125 group-disabled:!text-gray-400
+                              group-disabled:!scale-100 !text-[20px]"
+                      >
+                        delete
+                      </mat-icon>
+                    </button>
+                    <!-- fim do if "canEdit"-->
+                  }
                 } @else {
+                  <!-- Visualizar relatório-->
                   <button
                     mat-icon-button
                     (click)="viewDetail(s.id, 'desligado')"
@@ -186,18 +194,22 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
                     </mat-icon>
                   </button>
 
-                  <button
-                    mat-icon-button
-                    (click)="reactivate.emit(s)"
-                    matTooltip="Readmitir Servidor"
-                    class="group !w-10 !h-10 md:!w-8 md:!h-8 !leading-none flex justify-center
-                          items-center">
-                    <mat-icon
-                      class="!text-teal-600 transition-transform duration-200
-                            group-hover:!text-teal-400 group-hover:!scale-125 !text-[20px]">
-                      settings_backup_restore
-                    </mat-icon>
-                  </button>
+                  @if (canEdit) {
+                    <!-- Readmitir Servidor-->
+                    <button
+                      mat-icon-button
+                      (click)="reactivate.emit(s)"
+                      matTooltip="Readmitir Servidor"
+                      class="group !w-10 !h-10 md:!w-8 md:!h-8 !leading-none flex justify-center
+                            items-center">
+                      <mat-icon
+                        class="!text-teal-600 transition-transform duration-200
+                              group-hover:!text-teal-400 group-hover:!scale-125 !text-[20px]">
+                        settings_backup_restore
+                      </mat-icon>
+                    </button>
+                    <!-- fim do if "canEdit"-->
+                  }
                 }
               </div>
             </td>
@@ -294,12 +306,8 @@ export class ServidorTableComponent {
     return ['matricula', 'nome', 'email', 'setor', 'cargo', 'acoes']; // Array para Desktop
   });
 
-  // Desabilita botões se o usuário não for admin
-  isButtonsDisabled = computed(() => {
-    const user = this.authService.currentUser();
-    if (!user) return;
-    return user.roles.find((p) => p === 'admin');
-  });
+  canEdit = this.authService.canEdit();
+  canManager = this.authService.canManager();
 
   // navega para a página que exibe relatório de detalhes
   viewDetail(id: number, currentTab: 'ativo' | 'desligado') {

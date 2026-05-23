@@ -1,11 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../../core/auth/services/auth.service';
-import { NgClass } from '@angular/common';
 import { LinkSidebarComponent } from './link-sidebar/link-sidebar.component';
 import { ButtonSidebarComponent } from './button-sidebar/button-sidebar.component';
+import { MatDialog } from '@angular/material/dialog';
+import {
+  MesAniversarioModalComponent
+} from '../../../features/relatorios/components/mes-aniversario-modal.component/mes-aniversario-modal.component';
 
 @Component({
   selector: 'app-sidebar',
@@ -15,7 +18,7 @@ import { ButtonSidebarComponent } from './button-sidebar/button-sidebar.componen
     RouterModule,
     MatIconModule,
     MatTooltipModule,
-    NgClass,
+    // NgClass,
     LinkSidebarComponent,
     ButtonSidebarComponent
   ],
@@ -25,7 +28,7 @@ import { ButtonSidebarComponent } from './button-sidebar/button-sidebar.componen
         routerLink="/inicio"
         routerLinkActive="bg-blue-50 text-blue-600 border-r-4 border-blue-600"
         class="flex items-center h-12 w-full cursor-pointer hover:text-blue-700 hover:bg-blue-50 transition-colors group justify-center px-0"
-        [ngClass]="isOpen() ? 'md:px-4 md:justify-start' : 'md:px-0 md:justify-center'"
+        [class]="isOpen() ? 'md:px-4 md:justify-start' : 'md:px-0 md:justify-center'"
         matTooltip="Página inicial"
         matTooltipPosition="right"
         [matTooltipDisabled]="isOpen()"
@@ -40,11 +43,11 @@ import { ButtonSidebarComponent } from './button-sidebar/button-sidebar.componen
       <div class="flex flex-col">
         <!-- Menu Gerenciamento-->
         <app-button-sidebar
-          [label]="'Gerenciamento'"
+          label="Gerenciamento"
           [onOpen]="isOpen()"
-          [iconMenu]="'manage_accounts'"
+          iconMenu="manage_accounts"
           [onOpenMenus]="openMenus()"
-          [toolTips]="'Gerenciamento'"
+          toolTips="Gerenciamento"
           (toggleSubmenu)="toggleSubmenu('gerenciamento')"
         />
 
@@ -54,34 +57,34 @@ import { ButtonSidebarComponent } from './button-sidebar/button-sidebar.componen
           [class.max-h-0]="!openMenus()['gerenciamento']"
           [class.max-h-40]="openMenus()['gerenciamento']"
         >
-          @if (isLinkMenuHidden()) {
+          @if (canManager) {
             <app-link-sidebar
-              [toolTip]="'Gestão de Usuário'"
-              [link]="'/usuarios'"
+              toolTip="Gestão de Usuário"
+              link="/usuarios"
               [onOpen]="isOpen()"
-              [label]="'Usuários'"
-              [icon]="'group_work'"
+              label="Usuários"
+              icon="group_work"
             />
           }
           <app-link-sidebar
-            [toolTip]="'Gestão de Servidor'"
-            [link]="'/servidores'"
+            toolTip="Gestão de Servidor"
+            link="/servidores"
             [onOpen]="isOpen()"
-            [label]="'Servidores'"
-            [icon]="'group'"
+            label="Servidores"
+            icon="group"
           />
         </div>
       </div>
 
-      @if (isLinkMenuHidden()) {
+      @if (canManager) {
         <div class="flex flex-col">
           <!-- Menu Cadastros-->
           <app-button-sidebar
-            [label]="'Cadastros'"
+            label="Cadastros"
             [onOpen]="isOpen()"
             [onOpenMenus]="openMenus()"
-            [iconMenu]="'post_add'"
-            [toolTips]="'Cadastros'"
+            iconMenu="post_add"
+            toolTips="Cadastros"
             (toggleSubmenu)="toggleSubmenu('cadastros')"
           />
           <!-- Submenu Cadastros-->
@@ -91,46 +94,46 @@ import { ButtonSidebarComponent } from './button-sidebar/button-sidebar.componen
             [class.max-h-96]="openMenus()['cadastros']"
           >
             <app-link-sidebar
-              [toolTip]="'Gestão de Cargo'"
-              [link]="'/cadastros/cargos'"
+              toolTip="Gestão de Cargo"
+              link="/cadastros/cargos"
               [onOpen]="isOpen()"
-              [label]="'Cargo'"
-              [icon]="'work'"
+              label="Cargo"
+              icon="work"
             />
             <app-link-sidebar
-              [toolTip]="'Gestão de Setor'"
-              [link]="'/cadastros/setores'"
+              toolTip="Gestão de Setor"
+              link="/cadastros/setores"
               [onOpen]="isOpen()"
-              [label]="'Setor'"
-              [icon]="'domain'"
+              label="Setor"
+              icon="domain"
             />
             <app-link-sidebar
-              [toolTip]="'Gestão de Vínculo'"
-              [link]="'/cadastros/vinculos'"
+              toolTip="Gestão de Vínculo"
+              link="/cadastros/vinculos"
               [onOpen]="isOpen()"
-              [label]="'Vínculo'"
-              [icon]="'link'"
+              label="Vínculo"
+              icon="link"
             />
             <app-link-sidebar
-              [toolTip]="'Gestão de Status'"
-              [link]="'/cadastros/status'"
+              toolTip="Gestão de Status"
+              link="/cadastros/status"
               [onOpen]="isOpen()"
-              [label]="'Status'"
-              [icon]="'fact_check'"
+              label="Status"
+              icon="fact_check"
             />
           </div>
         </div>
       }
 
-      @if (isLinkMenuHidden()) {
+      @if (canManager) {
         <div class="flex flex-col">
           <!-- Menu Permissões-->
           <app-button-sidebar
-            [label]="'Permissões'"
+            label="Permissões"
             [onOpen]="isOpen()"
             (toggleSubmenu)="toggleSubmenu('permissoes')"
-            [iconMenu]="'admin_panel_settings'"
-            [toolTips]="'Permissões'"
+            iconMenu="admin_panel_settings"
+            toolTips="Permissões"
             [onOpenMenus]="openMenus()"
           />
           <!-- submenu Permissões-->
@@ -140,27 +143,27 @@ import { ButtonSidebarComponent } from './button-sidebar/button-sidebar.componen
             [class.max-h-96]="openMenus()['permissoes']"
           >
             <app-link-sidebar
-              [toolTip]="'Gestão de Procuradores'"
-              [link]="'/permissoes/procuradores'"
-              [onOpen]="isOpen()"
-              [label]="'Procuradores'"
-              [icon]="'gavel'"
+              toolTip="Gestão de Procuradores"
+              link="/permissoes/procuradores"
+              onOpen="isOpen()"
+              label="Procuradores"
+              icon="gavel"
             />
 
             <app-link-sidebar
-              [toolTip]="'Gestão de Sistemas'"
-              [link]="'/permissoes/sistemas'"
+              toolTip="Gestão de Sistemas"
+              link="/permissoes/sistemas"
               [onOpen]="isOpen()"
-              [label]="'Sistemas'"
-              [icon]="'dns'"
+              label="Sistemas"
+              icon="dns"
             />
 
             <app-link-sidebar
-              [toolTip]="'Gestão de Alias'"
-              [link]="'/permissoes/alias'"
+              toolTip="Gestão de Alias"
+              link="/permissoes/alias"
               [onOpen]="isOpen()"
-              [label]="'Alias (E-mail)'"
-              [icon]="'mail'"
+              label="Alias (E-mail)"
+              icon="mail"
             />
           </div>
         </div>
@@ -168,11 +171,11 @@ import { ButtonSidebarComponent } from './button-sidebar/button-sidebar.componen
       <div class="flex flex-col">
         <!-- Menu Relatórios-->
         <app-button-sidebar
-          [label]="'Relatórios'"
+          label="Relatórios"
           [onOpen]="isOpen()"
           [onOpenMenus]="openMenus()"
-          [iconMenu]="'content_paste_search'"
-          [toolTips]="'Relatórios'"
+          iconMenu="content_paste_search"
+          toolTips="Relatórios"
           (toggleSubmenu)="toggleSubmenu('relatorios')"
         />
         <!-- Submenu Relatórios-->
@@ -181,30 +184,22 @@ import { ButtonSidebarComponent } from './button-sidebar/button-sidebar.componen
           [class.max-h-0]="!openMenus()['relatorios']"
           [class.max-h-96]="openMenus()['relatorios']"
         >
-          @if (isLinkMenuHidden()) {
+          @if (canManager) {
             <app-link-sidebar
-              [toolTip]="'Rel. Auditoria'"
-              [link]="'/relatorios/auditoria'"
+              toolTip="Rel. Auditoria"
+              link="/relatorios/auditoria"
               [onOpen]="isOpen()"
-              [label]="'Auditoria'"
-              [icon]="'change_history'"
-            />
-            <app-link-sidebar
-              [toolTip]="'Rel. Aniversariantes'"
-              [link]="'/relatorios/aniversariantes'"
-              [onOpen]="isOpen()"
-              [label]="'Aniversariantes'"
-              [icon]="'celebration'"
-            />
-          } @else {
-            <app-link-sidebar
-              [toolTip]="'Rel. Aniversariantes'"
-              [link]="'/relatorios/aniversariantes'"
-              [onOpen]="isOpen()"
-              [label]="'Aniversariantes'"
-              [icon]="'celebration'"
+              label="Auditoria"
+              icon="change_history"
             />
           }
+          <app-link-sidebar
+            toolTip="Rel. Aniversariantes"
+            label="Aniversariantes"
+            icon="cake"
+            [onOpen]="isOpen()"
+            (actionClick)="openBirthdayReport()"
+          />
         </div>
       </div>
     </nav>
@@ -212,6 +207,8 @@ import { ButtonSidebarComponent } from './button-sidebar/button-sidebar.componen
 })
 export class SidebarComponent {
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
 
   // Recebe o estado do layout pai
   isOpen = input.required<boolean>();
@@ -223,12 +220,10 @@ export class SidebarComponent {
     permissoes: false
   });
 
-  // Verifica se o usuário logado é admin
-  isLinkMenuHidden = computed(() => {
-    const user = this.authService.currentUser();
-    if (!user) return;
-    return user.roles.find((p) => p === 'admin');
-  });
+  canEdit = this.authService.canEdit();
+
+  // Retorna verdadeiro se o usuário logado é admin
+  canManager = this.authService.canManager();
 
   // Função que inverte o estado do submenu clicado
   toggleSubmenu(menu: string) {
@@ -236,5 +231,20 @@ export class SidebarComponent {
       ...menus,
       [menu]: !menus[menu]
     }));
+  }
+
+  openBirthdayReport() {
+    const dialogRef = this.dialog.open(MesAniversarioModalComponent, {
+      width: '400px',
+      disableClose: true
+    });
+
+    dialogRef.afterClosed().subscribe((month) => {
+      if (month) {
+        this.router.navigate(['/relatorios/aniversariantes'], {
+          queryParams: { month: month }
+        }).then();
+      }
+    });
   }
 }

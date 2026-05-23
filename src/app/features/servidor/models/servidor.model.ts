@@ -1,4 +1,16 @@
-export type TipoAtividade = 'PRESENCIAL' | 'REMOTO' | 'AMBOS' | null;
+// Tipagem para o Enum atividade
+export type TipoAtividade = 'PRESENCIAL' | 'REMOTO' | 'HIBRIDO' | null;
+
+// Tipagem para consultar as roles do usuário e evitar erros de digitação
+export type UserRole = 'admin' | 'rh' | 'guest';
+
+// Interfaces auxiliares de Resposta
+export interface BaseEntityDTO {
+  id: number;
+  nome: string;
+  descricao?: string; // Para status_servidor
+  email?: string; // Para alias_servidor
+}
 
 // DTO do envio (request)
 export interface ServidorRequestDTO {
@@ -21,14 +33,6 @@ export interface ServidorRequestDTO {
   sistemaIds?: number[];
   aliasIds?: number[];
   procuradorIds?: number[];
-}
-
-// Interfaces auxiliares de Resposta
-export interface BaseEntityDTO {
-  id: number;
-  nome: string;
-  descricao?: string; // Para status_servidor
-  email?: string; // Para alias_servidor
 }
 
 // DTO de Recebimento (Response)
