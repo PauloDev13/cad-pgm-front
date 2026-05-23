@@ -5,49 +5,58 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../../core/auth/services/auth.service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-header',
-  imports: [MatToolbarModule, MatButtonModule, MatIconModule, MatMenuModule, MatDividerModule],
+  imports: [MatToolbarModule, MatButtonModule, MatIconModule, MatMenuModule, MatDividerModule, RouterLink],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <mat-toolbar
-      class="flex justify-between !bg-gray-50 items-center shadow-sm z-50 relative h-16 !px-2 md:!px-4">
+      class="flex justify-between !bg-blue-500 items-center shadow-sm z-50 relative h-16 !px-2 md:!px-4">
 
       <div class="flex items-center">
         <button
           mat-icon-button
           (click)="toggleSidebar.emit()"
           aria-label="Toggle menu"
-          class="group !w-12 !h-12 flex justify-center items-center"
+          class="group !w-12 !h-12 flex justify-center items-center !text-gray-50"
         >
-          <mat-icon class="group-hover:!text-blue-700 group-hover:scale-125 transition-all duration-200">
+          <mat-icon class="group-hover:!text-white group-hover:scale-125 transition-all duration-200">
             menu
           </mat-icon>
         </button>
+        <img
+          src="/img/logo.png"
+          alt="logo"
+          routerLink="/home"
+          class="h-[30px] lg:h-[45px] ml-4 bg-gray-100 cursor-pointer" />
       </div>
 
       <div class="flex items-center gap-1 sm:gap-2">
-        <button class="group !w-10 !h-10 sm:!w-12 sm:!h-12 flex justify-center items-center" mat-icon-button
-                aria-label="Notificações">
-          <mat-icon class="group-hover:!text-blue-700 group-hover:scale-125 transition-all duration-200">
+        <button
+          class="group !w-10 !h-10 sm:!w-12 sm:!h-12 flex justify-center items-center !text-gray-50"
+          mat-icon-button
+          aria-label="Notificações">
+          <mat-icon class="group-hover:!text-white group-hover:scale-125 transition-all duration-200">
             notifications
           </mat-icon>
         </button>
 
         <button mat-button [matMenuTriggerFor]="userMenu"
-                class="flex items-center gap-1 sm:gap-2 group !px-2 sm:!px-4 !min-w-0">
-          <mat-icon class="group-hover:!text-blue-700 group-hover:!scale-125 transition-all duration-200 !m-0">
+                class="flex items-center gap-1 sm:gap-2 group !px-2 sm:!px-4 !min-w-0 !text-gray-50">
+          <mat-icon class="group-hover:!text-white group-hover:!scale-125 transition-all duration-200 !m-0">
             account_circle
           </mat-icon>
 
           <span
-            class="inline font-medium group-hover:text-blue-700 group-hover:font-semibold truncate max-w-[80px] sm:max-w-[150px] lg:max-w-[200px]">
+            class="inline font-medium group-hover:text-white group-hover:font-semibold truncate
+                  max-w-[80px] sm:max-w-[150px] lg:max-w-[200px]">
         {{ loggedUserName() }}
       </span>
 
-          <mat-icon class="!text-blue-700 !m-0 hidden sm:block">arrow_drop_down</mat-icon>
+          <mat-icon class="!text-white !m-0 hidden sm:block">arrow_drop_down</mat-icon>
         </button>
 
         <mat-menu #userMenu="matMenu">

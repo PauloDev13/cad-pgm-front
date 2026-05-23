@@ -10,9 +10,9 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 
     <div class="relative z-10 text-center p-8 lg:p-12 text-white flex flex-col items-center">
       <img
-        src="/img/logo_home.png"
+        src="/img/logo_home_2.png"
         alt="Logo central"
-        class="h-[200px] lg:h-[300px] w-auto object-contain mb-6 lg:mb-8"
+        class="h-[200px] lg:h-[300px] bg-gray-100 rounded-2xl w-auto object-contain mb-6 lg:mb-8"
       />
       <h2 class="text-3xl lg:text-4xl font-bold mb-4 leading-tight">Gestão inteligente e segura.</h2>
       <p class="text-base lg:text-lg text-blue-100 max-w-md mx-auto leading-relaxed">
