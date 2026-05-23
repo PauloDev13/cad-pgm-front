@@ -28,7 +28,7 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
   ],
   template: `
     <div
-      class="w-full flex flex-col bg-white rounded-xl shadow-xl p-6 sm:p-8 border border-gray-100 lg:border-none lg:shadow-lg">
+      class="w-full max-w-[500px] flex flex-col bg-white rounded-xl shadow-xl p-6 sm:p-8 border border-gray-100 lg:border-none lg:shadow-lg">
       <app-header-login
         title="Recuperar Senha"
         subtitle="Digite seu e-mail cadastrado e enviaremos um link para redefinir sua senha."

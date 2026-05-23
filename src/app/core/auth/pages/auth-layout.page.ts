@@ -16,8 +16,9 @@ import { RouterOutlet } from '@angular/router';
         <app-form-info-login />
       </div>
 
-      <div class="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 md:p-12 lg:p-24 bg-gray-50 lg:bg-white">
-        <div class="w-full max-w-md">
+      <div
+        class="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 md:p-12 lg:p-24 bg-gray-50 lg:bg-white">
+        <div class="w-full flex justify-center">
           <router-outlet></router-outlet>
         </div>
       </div>

@@ -29,9 +29,13 @@ import { finalize } from 'rxjs';
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: 'block w-full flex justify-center'
+  },
   template: `
     <div
-      class="w-full flex flex-col bg-white rounded-xl shadow-xl p-6 sm:p-8 border border-gray-100 lg:border-none lg:shadow-lg">
+      class="w-full max-w-[650px] flex flex-col bg-white rounded-xl shadow-xl p-6 sm:p-8 border border-gray-100
+            lg:border-none lg:shadow-lg">
       <app-header-login title="Bem-vindo" subtitle="Insira as informações e confirme o cadastro." />
 
       <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col w-full gap-y-3">

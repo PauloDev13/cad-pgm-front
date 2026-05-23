@@ -32,7 +32,8 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="w-full flex flex-col bg-white rounded-xl shadow-xl p-6 sm:p-8 border border-gray-100 lg:border-none lg:shadow-lg">
+      class="w-full flex flex-col bg-white rounded-xl shadow-xl p-6 sm:p-8 border border-gray-100
+            lg:border-none lg:shadow-lg">
       <app-header-login
         title="Bem-vindo de volta"
         subtitle="Insira suas credenciais para acessar o painel."
