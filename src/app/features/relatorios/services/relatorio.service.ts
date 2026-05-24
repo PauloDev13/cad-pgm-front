@@ -16,9 +16,6 @@ export class RelatorioService {
     const params = new HttpParams().set('month', month);
     return this.http.get<AniversarianteModel[]>(`${this.apiUrl}/aniversariantes`, {
       params
-    })
-      .pipe(
-        catchError(customHandlerError)
-      );
+    }).pipe(catchError(customHandlerError));
   }
 }

@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { catchError, Observable } from 'rxjs';
 import { PageResponse } from '../../../shared/model/pagination.model';
-import { AuditResponseDTO } from '../models/audit-response.dto';
+import { AuditResponseDTO, IAuditoriaQueryParams } from '../models/audit-response.dto';
 import { customHandlerError } from '../../../shared/utils/custom-handler-error';
 
 @Injectable({
@@ -15,12 +15,7 @@ export class AuditService {
 
   // MÉTODO DA API: Monta os parâmetros dinamicamente apenas se existirem
   searchAuditFilter(
-    page: number,
-    size: number,
-    username?: string | null,
-    typeAction?: string | null,
-    startDate?: string | null,
-    endDate?: string | null
+    { page, size, username, typeAction, startDate, endDate }: IAuditoriaQueryParams
   ): Observable<PageResponse<AuditResponseDTO>> {
     let params: HttpParams = new HttpParams()
       .set('page', page)
@@ -47,7 +42,6 @@ export class AuditService {
     // Chamada GET com tratamento de erro global padronizado
     return this.http.get<PageResponse<AuditResponseDTO>>(
       `${this.apiUrl}/searchAuditFilter`, { params })
-      .pipe(catchError(customHandlerError)
-      );
+      .pipe(catchError(customHandlerError));
   }
 }

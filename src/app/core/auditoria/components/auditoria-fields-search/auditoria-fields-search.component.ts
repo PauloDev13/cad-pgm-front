@@ -60,6 +60,11 @@ export class AuditoriaFieldsSearchComponent {
   actionOptions: ActionOptions[] = [
     { value: 'INSERT', label: 'Criação (Insert)' },
     { value: 'UPDATE', label: 'Atualização (Update)' },
-    { value: 'DELETE', label: 'Exclusão (Delete)' }
+    { value: 'DELETE', label: 'Exclusão (Delete)' },
+    { value: 'LOGIN', label: 'Entrada (Login)' },
+    { value: 'LOGOUT', label: 'Saída (Logout)' },
+    { value: 'LOGIN_FAILED', label: 'Falha (Login Failed)' },
+    { value: 'PASSWORD_RECOVERY', label: 'Senha (Recovery)' },
+    { value: 'PASSWORD_RESET', label: 'Senha (Reset)' }
   ];
 }

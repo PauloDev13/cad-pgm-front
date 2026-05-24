@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,12 +9,11 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { AuditForm, AuditResponseDTO } from '../../models/audit-response.dto';
-import { finalize } from 'rxjs';
+import { AuditForm, IAuditoriaQueryParams } from '../../models/audit-response.dto';
 import { AuditService } from '../../services/audit.service';
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
-import { form, minLength } from '@angular/forms/signals';
+import { form } from '@angular/forms/signals';
 import { AuditoriaTableComponent } from '../../components/auditoria-table/auditoria-table.component';
 import {
   AuditoriaFieldsSearchComponent
@@ -22,6 +21,8 @@ import {
 import {
   AuditoriaButtonsSearchComponent
 } from '../../components/auditoria-buttons-search/auditoria-buttons-search.component';
+import { rxResource, toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { debounceTime } from 'rxjs';
 
 @Component({
   selector: 'app-audit.page',
@@ -79,9 +80,6 @@ export default class AuditPage {
   private readonly errorHandlerService = inject(ErrorHandlerService);
 
   // SIGNALS DE ESTADO DA TABELA
-  dataAudit = signal<AuditResponseDTO[]>([]);
-  isLoading = signal<boolean>(true);
-  totalElements = signal<number>(0);
   pageSize = signal<number>(30);
   currentPage = signal<number>(0);
 
@@ -92,63 +90,132 @@ export default class AuditPage {
     endDate: null
   });
 
-  auditForm = form(this.auditFormModel, (path: any) => {
-    minLength(path.username, 5, { message: 'O Username deve ter no mínimo 5 caracteres' });
-  });
+  // Formulário
+  auditForm = form(this.auditFormModel);
+
+  // Modelo de formulário reativo
+  debouncedFormModel = toSignal(
+    toObservable(this.auditFormModel).pipe(debounceTime(500)),
+    { initialValue: this.auditFormModel() }
+  );
 
   constructor() {
-    this.generateReport();
+    effect(() => {
+      const { startDate, endDate } = this.auditFormModel();
+
+      const err = this.auditoriaResource.error();
+      if (err) {
+        this.errorHandlerService.handle(err, 'Relatório');
+      }
+
+      if (startDate && endDate && endDate < startDate) {
+        this.notificationService.error(
+          'A data final não pode ser menor que a data inicial.', 'Filtro Inválido'
+        );
+      }
+    });
   }
+
+  // Resource que busca todas os registros auditorias
+  auditoriaResource = rxResource({
+    params: () => {
+      const currentModel = this.debouncedFormModel();
+      const { startDate, endDate, username, typeAction } = currentModel;
+
+      // Se a data final for maior que a data inicial
+      if (startDate && endDate && endDate < startDate) {
+        return; // Aborta a requisição!
+      }
+
+      // Não permite que requisição de pesquisa no input
+      // se o número de caracteres for menor ou igual a 3
+      const isUsernameBlocked = username && username.trim().length <= 3;
+
+      // Se for menor ou igual a 2, aborta
+      if (isUsernameBlocked) {
+        return;
+      }
+
+      // Formata das datas usando o método privado formatDateToISO
+      const isoStartDate = startDate ? this.formatDateToISO(startDate) : null;
+      const isoEndDate = endDate ? this.formatDateToISO(endDate) : null;
+
+      // Monta os objeto com os parâmetros da requisição
+      const queryParams: IAuditoriaQueryParams = {
+        page: this.currentPage(),
+        size: this.pageSize(),
+        username,
+        typeAction,
+        startDate: isoStartDate,
+        endDate: isoEndDate
+      };
+      return queryParams;
+    },
+    // Faz a requisição
+    stream: ({ params }) => {
+      return this.auditoriaService.searchAuditFilter(params);
+    }
+  });
+
+  // Lista de registro de auditoria
+  dataAudit = computed(() => {
+    return this.auditoriaResource.value()?.content ?? [];
+  });
+
+  isLoading = this.auditoriaResource.isLoading;
+
+  totalElements = computed(() => {
+    return this.auditoriaResource.value()?.page.totalElements ?? 0;
+  });
 
   // MÉTODO PRINCIPAL DA BUSCA
   generateReport(resetPage: boolean = false) {
     if (resetPage) {
       this.currentPage.set(0);
     }
-
-    const currentModel = this.auditFormModel();
-
-    // 1. Validação de Datas (Regra de Negócio Frontend)
-    const startDate = currentModel.startDate;
-    const endDate = currentModel.endDate;
-
-    if (startDate && endDate && endDate < startDate) {
-      this.notificationService.error(
-        'A data final não pode ser menor que a data inicial.', 'Filtro Inválido'
-      );
-      return; // Aborta a requisição!
-    }
-
-    this.isLoading.set(true);
-
-    // 2. Formatação das datas para YYYY-MM-DD
-    const isoStartDate = startDate ? this.formatDateToISO(startDate) : null;
-    const isoEndDate = endDate ? this.formatDateToISO(endDate) : null;
-
-    // 3. Chamada à API
-    this.auditoriaService.searchAuditFilter(
-      this.currentPage(),
-      this.pageSize(),
-      currentModel.username,
-      currentModel.typeAction,
-      isoStartDate,
-      isoEndDate
-    )
-      .pipe(finalize(() => this.isLoading.set(false)))
-      .subscribe({
-        next: (response) => {
-          this.dataAudit.set(response.content);
-          this.totalElements.set(response.page.totalElements);
-          this.currentPage.set(response.page.number);
-        },
-        error: (err) => this.errorHandlerService.handle(err, 'Relatório')
-      });
+    // const currentModel = this.auditFormModel();
+    //
+    // // 1. Validação de Datas (Regra de Negócio Frontend)
+    // const startDate = currentModel.startDate;
+    // const endDate = currentModel.endDate;
+    //
+    // if (startDate && endDate && endDate < startDate) {
+    //   this.notificationService.error(
+    //     'A data final não pode ser menor que a data inicial.', 'Filtro Inválido'
+    //   );
+    //   return; // Aborta a requisição!
+    // }
+    //
+    // this.isLoading.set(true);
+    //
+    // // 2. Formatação das datas para YYYY-MM-DD
+    // const isoStartDate = startDate ? this.formatDateToISO(startDate) : null;
+    // const isoEndDate = endDate ? this.formatDateToISO(endDate) : null;
+    //
+    // // 3. Chamada à API
+    // this.auditoriaService.searchAuditFilter({
+    //   page: this.currentPage(),
+    //   size: this.pageSize(),
+    //   username: currentModel.username,
+    //   typeAction: currentModel.typeAction,
+    //   startDate: isoStartDate,
+    //   endDate: isoEndDate
+    // })
+    //   .pipe(finalize(() => this.isLoading.set(false)))
+    //   .subscribe({
+    //     next: (response) => {
+    //       this.dataAudit.set(response.content);
+    //       this.totalElements.set(response.page.totalElements);
+    //       this.currentPage.set(response.page.number);
+    //     },
+    //     error: (err) => this.errorHandlerService.handle(err, 'Relatório')
+    //   });
   }
 
   onPageChange(event: PageEvent) {
     this.currentPage.set(event.pageIndex);
     this.pageSize.set(event.pageSize);
-    this.generateReport();
+    // this.generateReport();
   }
 
   cleanFilters() {

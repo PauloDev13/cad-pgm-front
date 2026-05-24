@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, viewChild } from '@angular/core';
 import { RelatorioService } from '../../services/relatorio.service';
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
-import { AniversarianteModel, MESES_DO_ANO } from '../../models/aniversariente.model';
-import { finalize } from 'rxjs';
+import { MESES_DO_ANO } from '../../models/aniversariente.model';
+import { of } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,6 +11,7 @@ import { Location } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ArteAniversariantesComponent } from '../arte-aniversariantes/arte-aniversariantes.component';
 import { ActivatedRoute } from '@angular/router';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-aniversariantes',
@@ -159,18 +160,23 @@ import { ActivatedRoute } from '@angular/router';
     <app-arte-aniversariantes [aniversariantes]="aniversariantes()" [titleReport]="titleReport()" />
   `
 })
-export default class AniversariantesComponent implements OnInit {
+export default class AniversariantesComponent {
   private readonly relatorioService = inject(RelatorioService);
   private notificationService = inject(NotificationService); // Seu serviço de Toast
   private errorHandlerService = inject(ErrorHandlerService);
   private location = inject(Location);
   private readonly route = inject(ActivatedRoute);
+  // Transforma o Observable queryParams em signal
+  private queryParams = toSignal(this.route.queryParams);
 
   artAniversariantes = viewChild.required(ArteAniversariantesComponent);
 
-  aniversariantes = signal<AniversarianteModel[]>([]);
-  isLoading = signal(true);
-  currentMonth = signal<number | null>(null);
+  // Pega o mês passado pela URL através de queryParams
+  currentMonth = computed(() => {
+    const monthUrl = this.queryParams()?.['month'];
+    return monthUrl ? Number(monthUrl) : null;
+  });
+
 
   titleReport = computed(() => {
     const idMonth = Number(this.currentMonth());
@@ -180,32 +186,36 @@ export default class AniversariantesComponent implements OnInit {
     return `${nameMonth}/${currentYear}`;
   });
 
-  ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
-      const monthUrl = params['month'];
+  // Busca a lista de aniversariantes
+  aniversariantesResource = rxResource({
+    params: () => ({ month: this.currentMonth() }),
+    stream: ({ params }) => {
+      if (!params.month || isNaN(params.month)) {
+        return of([]);
+      }
+      return this.relatorioService.getAniversariantesMes(params.month);
+    }
+  });
 
-      if (monthUrl) {
-        this.currentMonth.set(Number(monthUrl));
-        this.loadList(Number(monthUrl));
+  // Usa a lista de aniversariantes
+  aniversariantes = computed(() => {
+    return this.aniversariantesResource.value() ?? [];
+  });
+
+  isLoading = this.aniversariantesResource.isLoading;
+
+  constructor() {
+    effect(() => {
+      const erro = this.aniversariantesResource.error();
+      if (erro) {
+        this.errorHandlerService.handle(erro, 'Aniversariantes');
+        this.goBack(); // Volta de tela se der erro
       }
     });
   }
 
   generateArt() {
     this.artAniversariantes().generateArt();
-  }
-
-  loadList(month: number) {
-    this.isLoading.set(true);
-    this.relatorioService.getAniversariantesMes(month)
-      .pipe(finalize(() => this.isLoading.set(false)))
-      .subscribe({
-        next: (data) => this.aniversariantes.set(data),
-        error: ((err) => {
-          this.goBack();
-          this.errorHandlerService.handle(err, 'Aniversariantes');
-        })
-      });
   }
 
   // Método para o botão Voltar

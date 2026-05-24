@@ -2,7 +2,15 @@ export interface AuditResponseDTO {
   id: number;
   username: string;
   dateHourAction: string; // Virá como ISO "2026-05-05T14:45:22"
-  typeAction: 'INSERT' | 'UPDATE' | 'DELETE';
+  typeAction:
+    'INSERT' |
+    'UPDATE' |
+    'DELETE' |
+    'LOGIN' |
+    'LOGOUT' |
+    'LOGIN_FAILED' |
+    'PASSWORD_RECOVERY' |
+    'PASSWORD_RESET';
   affectedEntity: string;
   idAffectedRecord: string;
   details: string;
@@ -18,4 +26,13 @@ export interface AuditForm {
 export interface ActionOptions {
   value: string;
   label: string;
+}
+
+export interface IAuditoriaQueryParams {
+  page: number,
+  size: number,
+  username?: string | null,
+  typeAction?: string | null,
+  startDate?: string | null,
+  endDate?: string | null
 }
