@@ -114,9 +114,6 @@ export default class UsuarioListPage {
     });
   }
 
-  // ngOnInit(): void {
-  // }
-
   usuariosResource = rxResource({
     params: () => {
       const termo = this.searchTerm();

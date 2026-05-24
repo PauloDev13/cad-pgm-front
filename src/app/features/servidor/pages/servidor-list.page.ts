@@ -1,8 +1,13 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
-import { debounceTime, distinctUntilChanged, finalize, forkJoin, Subject } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, signal } from '@angular/core';
+import { debounceTime, distinctUntilChanged, forkJoin, Subject } from 'rxjs';
+import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ServidorService } from '../services/servidor.service';
-import { BaseEntityDTO, ServidorResponseDTO } from '../models/servidor.model';
+import {
+  BaseEntityDTO,
+  IServidorExcludedQueryParams,
+  IServidorQueryParams,
+  ServidorResponseDTO
+} from '../models/servidor.model';
 import { MatDialog } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { PageEvent } from '@angular/material/paginator';
@@ -10,7 +15,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ServidorFormComponent } from '../component/servidor-form/servidor-form.component';
 import { DominioService } from '../services/dominio.service';
-import { PageResponse } from '../../../shared/model/pagination.model';
 import { CustomDeleteService } from '../../../shared/service/custom-delete.service';
 import { ActivatedFilterComponent } from '../component/servidor-filter/activated-filter.component';
 import { ServidorTableComponent } from '../component/servidor-table/servidor-table.component';
@@ -129,7 +133,7 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
     DeletedFilterComponent
   ]
 })
-export default class ServidorListPage implements OnInit {
+export default class ServidorListPage {
   // Injeções de dependências
   private readonly servidorService = inject(ServidorService);
   private readonly dominioService = inject(DominioService);
@@ -141,27 +145,21 @@ export default class ServidorListPage implements OnInit {
   activeTableIndex = signal(0);
 
   //Signal de estado independente para a aba de ativos
-  isLoading = signal<boolean>(true);
-  servidores = signal<ServidorResponseDTO[]>([]);
   statusList = signal<BaseEntityDTO[]>([]);
   selectedStatusId = signal<number | null>(null);
   cargoList = signal<BaseEntityDTO[]>([]);
   selectedCargoId = signal<number | null>(null);
   setorList = signal<BaseEntityDTO[]>([]);
   selectedSetorId = signal<number | null>(null);
-  totalElements = signal<number>(0);
   pageSize = signal<number>(10);
   currentPage = signal<number>(0);
   searchType = signal<'CPF' | 'MATRICULA' | 'NOME'>('NOME');
   searchTerm = signal<string>('');
 
   // Sinal de estado independente para a aba de Lixeira
-  isExcludedLoading = signal<boolean>(false);
-  excludedServidores = signal<ServidorResponseDTO[]>([]);
   searchDeletedType = signal<'CPF' | 'NOME'>('NOME');
   excludedPageSize = signal<number>(10);
   excludedCurrentPage = signal<number>(0);
-  excludedTotalElements = signal<number>(0);
   searchDeletedTerm = signal<string>('');
 
   //O funil de eventos de digitação para aba lixeira
@@ -173,108 +171,92 @@ export default class ServidorListPage implements OnInit {
   // O Angular nos dá uma referência da destruição deste componente
   private destroyRef = inject(DestroyRef);
 
-  ngOnInit(): void {
-    // Aba ativos
-    this.carregarFiltrosIniciais();
-    this.configurarDebounceDePesquisa();
+  constructor() {
+    effect(() => {
+      const errActivated = this.servidoresResource.error();
+      const errDeleted = this.servidoresResource.error();
 
-    // Aba lixeira
-    this.loadExcludedData();
-    this.configureSearchDebounceDeleted();
+      if (errActivated) {
+        this.errorHandlerService.handle(errActivated, 'Ativos');
+      }
+
+      if (errDeleted) {
+        this.errorHandlerService.handle(errDeleted, 'Desligados');
+      }
+      // Aba ativos
+      this.carregarFiltrosIniciais();
+      this.configurarDebounceDePesquisa();
+
+      // Aba lixeira
+      this.configureSearchDebounceDeleted();
+
+    });
   }
 
-  // Busca os dados para a aba ativa de acordo com o filtro de pesquisa
-  loadData() {
-    this.isLoading.set(true);
+  // Usa rxResources para buscar os registros paginados de Servidores Ativos
+  servidoresResource = rxResource({
+    params: () => {
+      const termo = this.searchTerm();
+      const tipo = this.searchType();
 
-    // Captura os valores atuais dos signals de paginação
-    const page = this.currentPage();
-    const size = this.pageSize();
+      const queryParams: IServidorQueryParams = {
+        // Captura os valores atuais dos signals de paginação
+        page: this.currentPage(),
+        size: this.pageSize(),
 
-    // Captura os valores atuais dos signals de filtro
-    const statusId = this.selectedStatusId();
-    const cargoId = this.selectedCargoId();
-    const setorId = this.selectedSetorId();
-    const termo = this.searchTerm();
-    const tipo = this.searchType();
+        // Mapeia o termo de pesquisa para o parâmetro correto
+        cpf: tipo === 'CPF' && termo ? termo : undefined,
+        matricula: tipo === 'MATRICULA' && termo ? termo : undefined,
+        nome: tipo === 'NOME' && termo ? termo : undefined,
 
-    // Regra de Negócio: Se tem algum filtro preenchido, usamos o novo endpoint
-    const temFiltroAtivo =
-      statusId !== null ||
-      cargoId !== null ||
-      setorId !== null ||
-      (termo && termo.trim() !== '');
-
-    if (temFiltroAtivo) {
-      // Mapeia o termo de pesquisa para o parâmetro correto
-      const cpf = tipo === 'CPF' && termo ? termo : undefined;
-      const matricula = tipo === 'MATRICULA' && termo ? termo : undefined;
-      const nome = tipo === 'NOME' && termo ? termo : undefined;
-
-      // Chama o NOVO ENDPOINT no Service (searchFilter)
-      this.servidorService
-        .searchFilter(page, size, cpf, matricula, nome, statusId, cargoId, setorId)
-        .pipe(finalize(() => this.isLoading.set(false)))
-        .subscribe({
-          next: (pageData) => {
-            this.setPageData(pageData);
-            // this.totalElements.set(pageData.page.totalElements);
-          },
-          error: (err) => this.errorHandlerService.handle(err, 'Pesquisa Ativos')
-        });
-    } else {
-      // Chama o ENDPOINT ORIGINAL (findAll) - Listagem limpa
-      this.servidorService
-        .findAll(page, size)
-        .pipe(finalize(() => this.isLoading.set(false)))
-        .subscribe({
-          next: (pageData) => this.setPageData(pageData),
-          error: (err) => {
-            this.errorHandlerService.handle(err, 'Loading Ativos');
-          }
-        });
+        // Captura os valores atuais dos signals de filtro
+        statusId: this.selectedStatusId(),
+        cargoId: this.selectedCargoId(),
+        setorId: this.selectedSetorId()
+      };
+      return queryParams;
+    },
+    stream: ({ params }) => {
+      return this.servidorService.searchFilter(params);
     }
-  }
+  });
 
-  // Busca os dados para a aba lixeira de acordo com o filtro de pesquisa
-  loadExcludedData() {
-    this.isExcludedLoading.set(true);
+  // Usa rxResources para buscar os registros paginados de Servidores Desligados
+  servidoresExcludedResource = rxResource({
+    params: () => {
+      // const term = this.searchDeletedTerm();
 
-    const page = this.excludedCurrentPage();
-    const size = this.excludedPageSize();
-
-    const term = this.searchDeletedTerm();
-
-    const hasActiveFilter = term && term.trim() !== '';
-
-    if (hasActiveFilter) {
-      this.servidorService.searchExcluded(term, page, size)
-        .pipe(finalize(() => this.isExcludedLoading.set(false)))
-        .subscribe({
-          next: (response) => {
-            this.excludedServidores.set(response.content);
-            this.excludedTotalElements.set(response.page.totalElements);
-            this.excludedCurrentPage.set(response.page.number);
-          },
-          error: (err) => {
-            this.errorHandlerService.handle(err, 'Pesquisa Lixeira');
-          }
-        });
-    } else {
-      this.servidorService.getExcluded(page, size)
-        .pipe(finalize(() => this.isExcludedLoading.set(false)))
-        .subscribe({
-          next: (response) => {
-            this.excludedServidores.set(response.content);
-            this.excludedTotalElements.set(response.page.totalElements);
-            this.excludedCurrentPage.set(response.page.number);
-          },
-          error: (err) => {
-            this.errorHandlerService.handle(err, 'Loading Lixeira');
-          }
-        });
+      const queryParams: IServidorExcludedQueryParams = {
+        page: this.excludedCurrentPage(),
+        size: this.excludedPageSize(),
+        term: this.searchDeletedTerm()
+      };
+      return queryParams;
+    },
+    stream: ({ params }) => {
+      return this.servidorService.searchExcluded(params);
     }
-  }
+  });
+
+  // Extrai somente a lista de Servidores Ativos
+  servidores = computed(() =>
+    this.servidoresResource.value()?.content ?? []);
+
+  // Extrai somente a lista de Servidores Desligados
+  excludedServidores = computed(() =>
+    this.servidoresExcludedResource.value()?.content ?? []);
+
+  // Carregamento para Ativos e Desligados
+  isLoading = this.servidoresResource.isLoading;
+  isExcludedLoading = this.servidoresExcludedResource.isLoading;
+
+  // Total de retistros Ativos
+  totalElements = computed(() =>
+    this.servidoresResource.value()?.page?.totalElements ?? 0);
+
+  // Total de retistros Desligados
+  excludedTotalElements = computed(() =>
+    this.servidoresExcludedResource.value()?.page?.totalElements ?? 0);
 
   // abre o formulário de cadastro em modo novo
   openForm(servidor?: ServidorResponseDTO) {
@@ -286,9 +268,19 @@ export default class ServidorListPage implements OnInit {
       disableClose: true
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.loadData(); // Recarrega se houve alteração
+    dialogRef.afterClosed().subscribe((payload) => {
+      // Se tiver payload atualiza o servidoresResource
+      if (payload) {
+        this.servidoresResource.update((currentServidor) => {
+          if (!currentServidor) return currentServidor;
+
+          return {
+            ...currentServidor,
+            content: currentServidor.content.map(servidor =>
+              servidor.id === payload?.id ? payload : servidor
+            )
+          };
+        });
       }
     });
   }
@@ -304,12 +296,22 @@ export default class ServidorListPage implements OnInit {
       disableClose: true
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        // Se deu sucesso, recarrega as duas abas!
-        // Assim o servidor some da aba de excluídos e aparece na de ativos instantaneamente.
-        this.loadData();
-        this.loadExcludedData();
+    dialogRef.afterClosed().subscribe((payload) => {
+      if (payload) {
+        this.servidoresExcludedResource.update((currentServidor) => {
+          if (!currentServidor) return currentServidor;
+
+          return {
+            ...currentServidor,
+            content: currentServidor.content.map(servidor =>
+              servidor.id === payload?.id ? payload : servidor
+            )
+          };
+        });
+
+        // Atualiza as listas de Ativos e Desligados
+        this.servidoresExcludedResource.reload();
+        this.servidoresResource.reload();
       }
     });
   }
@@ -319,8 +321,8 @@ export default class ServidorListPage implements OnInit {
     this.customDeleteService.execute(
       () => this.servidorService.delete(payload),
       () => {
-        this.loadData();
-        this.loadExcludedData();
+        this.servidoresResource.reload();
+        this.servidoresExcludedResource.reload();
       },
       {
         title: 'Servidor',
@@ -336,14 +338,12 @@ export default class ServidorListPage implements OnInit {
   onPageChange(event: PageEvent) {
     this.currentPage.set(event.pageIndex);
     this.pageSize.set(event.pageSize);
-    this.loadData();
   }
 
   // Controla a paginação da aba de lixeira
   onExcludedPageChange(event: PageEvent) {
     this.excludedCurrentPage.set(event.pageIndex);
     this.excludedPageSize.set(event.pageSize);
-    this.loadExcludedData();
   }
 
   // É o chamado pelo HTML quando o usuário troca o Status
@@ -352,25 +352,22 @@ export default class ServidorListPage implements OnInit {
     // Limpa o input de texto (CPF/Matrícula)
     this.searchTerm.set('');
     this.currentPage.set(0); // Reseta para a primeira página
-    this.loadData(); //Dispara a busca limpa no backend
   }
 
   // É o chamado pelo HTML quando o usuário troca o Cargo
   onCargoChange(id: number | null) {
     this.selectedCargoId.set(id);
-    // Limpa o input de texto (CPF/Matrícula)
+    // Limpa o input de texto
     this.searchTerm.set('');
     this.currentPage.set(0); // Reseta para a primeira página
-    this.loadData(); //Dispara a busca limpa no backend
   }
 
   // É o chamado pelo HTML quando o usuário troca o Setor
   onSetorChange(id: number | null) {
     this.selectedSetorId.set(id);
-    // Limpa o input de texto (CPF/Matrícula)
+    // Limpa o input de texto
     this.searchTerm.set('');
     this.currentPage.set(0); // Reseta para a primeira página
-    this.loadData(); //Dispara a busca limpa no backend
   }
 
   // É chamado pelo HTML quando o usuário digita no campo de busca de ativos
@@ -408,13 +405,11 @@ export default class ServidorListPage implements OnInit {
   // É chamado quando o usuário troca entre Nome, CPF ou Matrícula na aba ativos
   onSearchTypeChange(newType: 'CPF' | 'MATRICULA' | 'NOME') {
     this.searchType.set(newType);
-    this.searchTerm.set(''); // Limpa a memória oficial
+    this.searchTerm.set('');
 
     // Esvazia o "funil" do RxJS para garantir que nenhuma busca fantasma aconteça
     this.searchSubject.next('');
-
     this.currentPage.set(0); // Volta para página 1
-    this.loadData(); //Recarrega a tabela mostrando todos os registros novamente!
   }
 
   // É chamado quando o usuário troca entre Nome, CPF ou Matrícula na aba lixeira
@@ -426,7 +421,6 @@ export default class ServidorListPage implements OnInit {
     this.searchDeletedSubject.next('');
 
     this.excludedCurrentPage.set(0); // Volta para página 1
-    this.loadExcludedData(); //Recarrega a tabela mostrando todos os registros novamente!
   }
 
   onCleanFilters() {
@@ -434,11 +428,9 @@ export default class ServidorListPage implements OnInit {
     this.selectedCargoId.set(null);
     this.selectedSetorId.set(null);
     this.searchTerm.set('');
-
-    this.loadData();
   }
 
-  // Busca dinâmica na aba lixeira
+  // Busca dinâmica na aba Desligados
   private configureSearchDebounceDeleted() {
     this.searchDeletedSubject
       .pipe(
@@ -451,7 +443,6 @@ export default class ServidorListPage implements OnInit {
         if (typedTerm.trim() === '') {
           this.searchDeletedTerm.set(''); // Limpa o termo no Signal
           this.excludedCurrentPage.set(0); // Volta para página 1
-          this.loadExcludedData(); // Recarrega a tabela completa!
           return;
         }
 
@@ -459,7 +450,6 @@ export default class ServidorListPage implements OnInit {
         if (typedTerm.trim().length >= 3) {
           this.searchDeletedTerm.set(typedTerm.trim());
           this.excludedCurrentPage.set(0);
-          this.loadExcludedData();
         }
       });
   }
@@ -478,7 +468,6 @@ export default class ServidorListPage implements OnInit {
           this.selectedStatusId.set(null); // Volta para "Todos os Status"
           this.searchTerm.set(''); // Limpa o termo no Signal
           this.currentPage.set(0); // Volta para página 1
-          this.loadData(); // Recarrega a tabela completa!
           return;
         }
 
@@ -486,19 +475,11 @@ export default class ServidorListPage implements OnInit {
         if (termoDigitado.trim().length >= 3) {
           this.searchTerm.set(termoDigitado.trim());
           this.currentPage.set(0);
-          this.loadData();
         }
       });
   }
 
-  // Helper para centralizar a atualização dos signals da tabela na aba ativos
-  private setPageData(response: PageResponse<any>) {
-    this.servidores.set(response.content);
-    this.totalElements.set(response.page.totalElements);
-    this.currentPage.set(response.page.number);
-  }
-
-  // Busca a lista de Status e cumpre o requisito de UX de iniciar com "Ativos"
+  // Busca a lista de Status
   private carregarFiltrosIniciais() {
     forkJoin({
       status: this.dominioService.getStatus(),
@@ -506,14 +487,11 @@ export default class ServidorListPage implements OnInit {
       setores: this.dominioService.getSetores()
     })
       .pipe(
-        finalize(() => this.isLoading.set(false))
       ).subscribe({
       next: ({ status, cargos, setores }) => {
         this.statusList.set(status);
         this.cargoList.set(cargos);
         this.setorList.set(setores);
-
-        this.loadData();
       },
       error: (err) => this.errorHandlerService.handle(err, 'Filtros iniciais')
     });

@@ -1,10 +1,9 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
-import { ServidorResponseDTO } from '../models/servidor.model';
 import { ServidorService } from '../services/servidor.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LoadingComponent } from '../../../shared/components/loading.component/loading.component';
@@ -13,8 +12,9 @@ import { DataInfoComponent } from '../component/data-info/data-info.component';
 import { MatriculaPipe } from '../../../shared/pipes/matricula.pipe';
 import { TelefonePipe } from '../../../shared/pipes/telefone.pipe';
 import { ErrorHandlerService } from '../../../shared/service/error-handler.service';
-import { finalize } from 'rxjs';
+import { of } from 'rxjs';
 import { PhotoComponent } from '../component/photo.component/photo.component';
+import { rxResource } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-servidor-detalhes',
@@ -221,9 +221,7 @@ export default class ServidorDetalhesPage {
   servidorId = input.required<string>({ alias: 'id' });
   // Recebe o query param: ?type=excluídos
   type = input<string>(); // 'ativos' | 'excluídos'
-  // Controla o estado do array de Servidores
-  servidor = signal<ServidorResponseDTO | null>(null);
-  isLoading = signal<boolean>(true);
+
   // Injeções
   private readonly servidorService = inject(ServidorService);
   private readonly errorHandlerService = inject(ErrorHandlerService);
@@ -231,12 +229,36 @@ export default class ServidorDetalhesPage {
 
   constructor() {
     effect(() => {
-      const id = this.servidorId();
-      if (id) {
-        this.loadServidorList();
+      const err = this.servidorResource.error();
+
+      if (err) {
+        this.errorHandlerService.handle(err, 'Buscar Servidor');
+        this.goBack();
       }
     });
   }
+
+  servidorResource = rxResource({
+    params: () => ({
+      id: Number(this.servidorId()),
+      tipo: this.type()
+    }),
+    stream: ({ params }) => {
+      const { id, tipo } = params;
+
+      if (!id || isNaN(id)) {
+        return of(null);
+      }
+
+      return tipo === 'desligado'
+        ? this.servidorService.getExcludedById(id)
+        : this.servidorService.findById(id);
+
+    }
+  });
+
+  servidor = computed(() => this.servidorResource.value());
+  isLoading = this.servidorResource.isLoading;
 
   goBack() {
     this.location.back(); // Retorna para a página anterior (a tabela) no histórico do navegador
@@ -266,34 +288,4 @@ export default class ServidorDetalhesPage {
     };
     return mapColors[statusNormalizado] || 'bg-gray-700 text-white';
   }
-
-  private loadServidorList() {
-    this.isLoading.set(true);
-
-    let servidorName = '';
-    // Converte o id (string da URL) para número
-    const servidorId = Number(this.servidorId());
-
-    const request$ = this.type() === 'desligado'
-      ? this.servidorService.getExcludedById(servidorId)
-      : this.servidorService.findById(servidorId);
-
-    request$
-      .pipe(
-        finalize(() => this.isLoading.set(false))
-      )
-      .subscribe({
-        next: (data) => {
-          this.servidor.set(data);
-          this.isLoading.set(false);
-          servidorName = data.nome;
-        },
-        error: (err) => {
-          this.errorHandlerService.handle(err, 'Buscar');
-          servidorName = '';
-          this.goBack(); // Volta para a tabela se o ID não existir
-        }
-      });
-  }
-
 }

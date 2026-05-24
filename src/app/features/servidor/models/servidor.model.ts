@@ -4,6 +4,23 @@ export type TipoAtividade = 'PRESENCIAL' | 'REMOTO' | 'HIBRIDO' | null;
 // Tipagem para consultar as roles do usuário e evitar erros de digitação
 export type UserRole = 'admin' | 'rh' | 'guest';
 
+export interface IServidorQueryParams {
+  page: number;
+  size: number;
+  cpf?: string;
+  matricula?: string;
+  nome?: string;
+  statusId?: number | null;
+  cargoId?: number | null;
+  setorId?: number | null;
+}
+
+export interface IServidorExcludedQueryParams {
+  page: number;
+  size: number;
+  term?: string;
+}
+
 // Interfaces auxiliares de Resposta
 export interface BaseEntityDTO {
   id: number;

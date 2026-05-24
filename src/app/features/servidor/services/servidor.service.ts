@@ -3,7 +3,12 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { catchError, Observable } from 'rxjs';
 import { PageResponse } from '../../../shared/model/pagination.model';
-import { ServidorRequestDTO, ServidorResponseDTO } from '../models/servidor.model';
+import {
+  IServidorExcludedQueryParams,
+  IServidorQueryParams,
+  ServidorRequestDTO,
+  ServidorResponseDTO
+} from '../models/servidor.model';
 import { customHandlerError } from '../../../shared/utils/custom-handler-error';
 
 @Injectable({
@@ -13,7 +18,6 @@ export class ServidorService {
   // Injeções de dependências
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/api/v1/servidores`;
-
 
   // 1. MÉTODOS PARA GERENCIAMENTO DE CADASTROS ATIVOS
   // Cria um novo cadastro
@@ -30,15 +34,8 @@ export class ServidorService {
 
   // Pesquisa avançada paginada por CPF, Matrícula ou Nome
   searchFilter(
-    page: number,
-    size: number,
-    cpf?: string,
-    matricula?: string,
-    nome?: string,
-    statusId?: number | null,
-    cargoId?: number | null,
-    setorId?: number | null
-  ): Observable<PageResponse<ServidorResponseDTO[]>> {
+    { page, size, cpf, matricula, nome, statusId, cargoId, setorId }: IServidorQueryParams
+  ): Observable<PageResponse<ServidorResponseDTO>> {
     let params = new HttpParams().set('page', page).set('size', size);
 
     if (statusId !== null && statusId !== undefined) {
@@ -65,16 +62,8 @@ export class ServidorService {
       params = params.set('nome', nome.trim());
     }
 
-    return this.http.get<PageResponse<ServidorResponseDTO[]>>(`${this.apiUrl}/searchFilter`, {
-      params
-    })
-      .pipe(catchError(customHandlerError));
-  }
-
-  // Busca todos os cadastros
-  findAll(page: number = 0, size: number = 10): Observable<PageResponse<ServidorResponseDTO>> {
-    const params = new HttpParams().set('page', page).set('size', size);
-    return this.http.get<PageResponse<ServidorResponseDTO>>(this.apiUrl, { params })
+    return this.http
+      .get<PageResponse<ServidorResponseDTO>>(`${this.apiUrl}/searchFilter`, { params })
       .pipe(catchError(customHandlerError));
   }
 
@@ -98,19 +87,16 @@ export class ServidorService {
   }
 
   // Pesquisa avançada paginada por CPF ou Nome
-  searchExcluded(term: string, page: number, size: number): Observable<PageResponse<ServidorResponseDTO>> {
-    let params = new HttpParams().set('term', term).set('page', page).set('size', size);
+  searchExcluded({ term, page, size }: IServidorExcludedQueryParams
+  ): Observable<PageResponse<ServidorResponseDTO>> {
+    let params = new HttpParams().set('page', page).set('size', size);
+
+    if (term && term.trim() !== '') {
+      params = params.set('term', term);
+    }
 
     return this.http.get<PageResponse<ServidorResponseDTO>>(
       `${this.apiUrl}/searchExcluded`, { params }
-    )
-      .pipe(catchError(customHandlerError));
-  }
-
-  // Busca todos os cadastros excluídos
-  getExcluded(page: number, size: number): Observable<PageResponse<ServidorResponseDTO>> {
-    return this.http.get<PageResponse<ServidorResponseDTO>>(
-      `${this.apiUrl}/excluded?page=${page}&size=${size}`
     )
       .pipe(catchError(customHandlerError));
   }
@@ -121,7 +107,6 @@ export class ServidorService {
     )
       .pipe(catchError(customHandlerError));
   }
-
 
   // Envia a foto para o backend
   uploadProfilePicture(servidorId: number, photo: File): Observable<void> {

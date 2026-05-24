@@ -631,7 +631,7 @@ export class ServidorFormComponent implements OnInit {
           );
         }
 
-        // this.dialogRef.close(true);
+        this.dialogRef.close(dataPayload);
       } catch (err) {
         this.errorHandlerService.handle(err, `${this.isReactivate
           ? 'Readmissão' : (this.isEdit ? 'Atualização' : 'Cadastro')}`);

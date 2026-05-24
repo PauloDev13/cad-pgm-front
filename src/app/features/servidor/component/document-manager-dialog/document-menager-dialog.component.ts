@@ -2,9 +2,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   ElementRef,
   inject,
-  OnInit,
   signal,
   ViewChild
 } from '@angular/core';
@@ -22,6 +22,7 @@ import { ErrorHandlerService } from '../../../../shared/service/error-handler.se
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CustomDeleteService } from '../../../../shared/service/custom-delete.service';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { rxResource } from '@angular/core/rxjs-interop';
 
 
 // Definição dos limites em Bytes
@@ -361,12 +362,12 @@ const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 20 MB
   `
 })
 
-export class DocumentManagerDialogComponent implements OnInit {
+export class DocumentManagerDialogComponent {
   /* =========================================
                     INJEÇÃO DE DEPENDÊNCIAS
      ========================================= */
   // Recebe o ID do servidor através do DATA do MatDialog
-  data = inject(MAT_DIALOG_DATA);
+  protected data = inject(MAT_DIALOG_DATA);
   private uploadService = inject(UploadService);
   private customDeleteService = inject(CustomDeleteService);
   private notificationService = inject(NotificationService);
@@ -383,13 +384,9 @@ export class DocumentManagerDialogComponent implements OnInit {
   /* =========================================
                     SIGNALS
      ========================================= */
-  documents = signal<DocumentUploadModel[]>([]);
   isUploading = signal(false);
-  isLoadingList = signal(false);
-
   // Signal para exclusão em lote
   selectedIds = signal<number[]>([]);
-
   // Signal para guardar a lista de arquivos na "Área de Preparação"
   stagedFiles = signal<StagedFile[]>([]);
 
@@ -438,8 +435,14 @@ export class DocumentManagerDialogComponent implements OnInit {
     !this.isUploading()
   );
 
-  ngOnInit() {
-    this.loadDocuments();
+  constructor() {
+    effect(() => {
+      const err = this.documentsResource.error();
+
+      if (err) {
+        this.errorHandlerService.handle(err, 'Arquivo PDF');
+      }
+    });
   }
 
   /* =========================================
@@ -447,12 +450,65 @@ export class DocumentManagerDialogComponent implements OnInit {
      ========================================= */
 
   // Carrega todos os documento PDF
-  loadDocuments() {
-    this.isLoadingList.set(true);
+  documentsResource = rxResource({
+    params: () => ({
+      id: Number(this.data.servidorId)
+    }),
+    stream: ({ params }) => {
+      return this.uploadService.listDocuments(params.id);
+    }
+  });
 
-    this.uploadService.listDocuments(this.data.servidorId)
-      .pipe(finalize(() => this.isLoadingList.set(false)))
-      .subscribe(docs => this.documents.set(docs));
+  documents = computed(() => this.documentsResource.value() ?? []);
+
+  isLoadingList = this.documentsResource.isLoading;
+
+  // Envia o arquivo PDF para o MinIO e grava os dados no banco
+  sendPdfFile() {
+    const filesToSend = this.stagedFiles().filter(f => f.isValid)
+      .map(f => f.file);
+
+    if (filesToSend.length === 0) return;
+
+    this.isUploading.set(true);
+
+    this.uploadService.uploadDocument(this.data.servidorId, filesToSend)
+      .pipe(finalize(() => this.isUploading.set(false)))
+      .subscribe({
+        next: () => {
+          this.notificationService.success(
+            `<strong>${filesToSend.length} arquivo(s)</strong> enviado com sucesso!`,
+            'Upload PDF'
+          );
+          this.documentsResource.reload();
+          this.clearSelection(); // Limpa o input com o arquivo
+        },
+        error: (err) => this.errorHandlerService.handle(err, 'Upload PDFs')
+      });
+  }
+
+  // Remove o lote de arquivos PDFs selecionados
+  deleteBatch() {
+    const idsToExclude = this.selectedIds();
+
+    // Se a lista de IDs está vazia, não faz nada
+    if (idsToExclude.length === 0) return;
+
+    // Chama o serviço que contem o dialog de confirmação
+    this.customDeleteService.execute(
+      () => this.uploadService.deleteDocumentBatch(idsToExclude),
+      () => {
+        this.selectedIds.set([]); // Limpa a seleção após excluir
+        this.documentsResource.reload();
+      },
+      {
+        title: 'Remoção PDF',
+        message: `Esta ação não poderá ser desfeita. Confirma a remoção de
+        <strong class="text-red-600">${idsToExclude.length} ${idsToExclude.length > 1 ? 'arquivos' : 'arquivo'}</strong>?`,
+        successMsg: `<strong>${idsToExclude.length}</strong> ${idsToExclude.length > 1 ? ' arquivos removidos' : ' arquivo removido'}
+                    com sucesso.`
+      }
+    );
   }
 
   // Seleciona os arquivos PDF que serão enviados
@@ -509,30 +565,6 @@ export class DocumentManagerDialogComponent implements OnInit {
       (_, i) => i !== index));
   }
 
-  // Envia o arquivo PDF para o MinIO e grava os dados no banco
-  sendPdfFile() {
-    const filesToSend = this.stagedFiles().filter(f => f.isValid)
-      .map(f => f.file);
-
-    if (filesToSend.length === 0) return;
-
-    this.isUploading.set(true);
-
-    this.uploadService.uploadDocument(this.data.servidorId, filesToSend)
-      .pipe(finalize(() => this.isUploading.set(false)))
-      .subscribe({
-        next: () => {
-          this.notificationService.success(
-            `<strong>${filesToSend.length} arquivo(s)</strong> enviado com sucesso!`,
-            'Upload PDF'
-          );
-          this.loadDocuments(); // Atualiza a lista
-          this.clearSelection(); // Limpa o input com o arquivo
-        },
-        error: (err) => this.errorHandlerService.handle(err, 'Upload PDFs')
-      });
-  }
-
   // Gera o link para a visualização do arquivo PDF
   documentView(docId: number) {
     this.uploadService.getDocumentPreviewLink(docId).subscribe(url => {
@@ -561,37 +593,12 @@ export class DocumentManagerDialogComponent implements OnInit {
     });
   }
 
-  // Remove o lote de arquivos PDFs selecionados
-  deleteBatch() {
-    const idsToExclude = this.selectedIds();
-
-    // Se a lista de IDs está vazia, não faz nada
-    if (idsToExclude.length === 0) return;
-
-    // Chama o serviço que contem o dialog de confirmação
-    this.customDeleteService.execute(
-      () => this.uploadService.deleteDocumentBatch(idsToExclude),
-      () => {
-        this.isLoadingList.set(true);
-        this.selectedIds.set([]); // Limpa a seleção após excluir
-        this.loadDocuments();
-      },
-      {
-        title: 'Remoção PDF',
-        message: `Esta ação não poderá ser desfeita. Confirma a remoção de
-        <strong class="text-red-600">${idsToExclude.length} ${idsToExclude.length > 1 ? 'arquivos' : 'arquivo'}</strong>?`,
-        successMsg: `<strong>${idsToExclude.length}</strong> ${idsToExclude.length > 1 ? ' arquivos removidos' : ' arquivo removido'}
-                    com sucesso.`
-      }
-    );
-  }
-
   // Exclui um documento PDF por vez
   deleteDocument(payload: DocumentUploadModel) {
     this.customDeleteService.execute(
       () => this.uploadService.deleteDocument(payload.id),
       () => {
-        this.loadDocuments();
+        this.documentsResource.reload();
       },
       {
         title: 'Remoção PDF',

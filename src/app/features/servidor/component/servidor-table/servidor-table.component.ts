@@ -272,11 +272,10 @@ export class ServidorTableComponent {
 
   // INPUTS (Dados que vêm do Pai)
   data = input.required<ServidorResponseDTO[]>();
+  isLoading = input.required<boolean>();
   totalElements = input.required<number>();
   pageSize = input.required<number>();
   currentPage = input.required<number>();
-  isLoading = input.required<boolean>();
-
   status = input.required<number | null>();
 
   // NOVO: Define se a tabela é normal ou de lixeira (padrão é NORMAL)
@@ -306,8 +305,8 @@ export class ServidorTableComponent {
     return ['matricula', 'nome', 'email', 'setor', 'cargo', 'acoes']; // Array para Desktop
   });
 
+  // Se o usuário logado tiver role "admin" ou "rh", retorna verdadeiro
   canEdit = this.authService.canEdit();
-  canManager = this.authService.canManager();
 
   // navega para a página que exibe relatório de detalhes
   viewDetail(id: number, currentTab: 'ativo' | 'desligado') {
