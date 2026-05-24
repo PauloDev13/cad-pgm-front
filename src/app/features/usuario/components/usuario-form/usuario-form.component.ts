@@ -185,7 +185,8 @@ export class UsuarioFormComponent implements OnInit {
           `${this.isEdit ? 'Atualização' : 'Cadastro'}`
         );
 
-        this.dialogRef.close(true);
+        // Repassa o novo usuário ou o usuário atualizado para quem chamou o dialog
+        this.dialogRef.close(payload);
       } catch (err) {
         this.errorHandlerService.handle(err, `${this.isEdit ? 'Atualização' : 'Cadastro'}`);
       }

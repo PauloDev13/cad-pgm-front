@@ -4,6 +4,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { catchError, Observable, of } from 'rxjs';
 import {
   IRoles,
+  IUserQueryParams,
   IUsuarioRequest,
   IUsuarioResponse,
   roles,
@@ -45,12 +46,9 @@ export class UsuarioService {
 
   // Pesquisa de usuários com filtro
   searchFilter(
-    page: number,
-    size: number,
-    name?: string,
-    userName?: string,
-    email?: string
-  ): Observable<PageResponse<IUsuarioResponse[]>> {
+    {
+      page, size, name, userName, email
+    }: IUserQueryParams): Observable<PageResponse<IUsuarioResponse>> {
     let params = new HttpParams().set('page', page).set('size', size);
 
     if (name !== null && name !== undefined) {
@@ -65,9 +63,9 @@ export class UsuarioService {
       params = params.set('email', email.trim());
     }
 
-    return this.http.get<PageResponse<IUsuarioResponse[]>>(`${this.API_URL}/searchFilter`, {
-      params
-    }).pipe(catchError(customHandlerError));
+    return this.http
+      .get<PageResponse<IUsuarioResponse>>(`${this.API_URL}/searchFilter`, { params })
+      .pipe(catchError(customHandlerError));
   }
 
   // lê o array com as permissões para usuários

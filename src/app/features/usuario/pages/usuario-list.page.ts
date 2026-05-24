@@ -1,12 +1,11 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PageEvent } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { PageResponse } from '../../../shared/model/pagination.model';
-import { debounceTime, distinctUntilChanged, finalize, Subject } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { IUsuarioResponse } from '../models/usuario.model';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { IUserQueryParams, IUsuarioResponse } from '../models/usuario.model';
 import { UsuarioService } from '../services/usuario.service';
 import { UsuarioTableComponent } from '../components/usuario-table/usuario-table.component';
 import { UsuarioFilterComponent } from '../components/usuario-filter/usuario-filter.component';
@@ -17,7 +16,6 @@ import { AuthService } from '../../../core/auth/services/auth.service';
 import {
   TemporaryPasswordDialogComponent
 } from '../../../core/auth/component/temporary -password-dialog/temporary-password-dialog.component';
-import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 import { CustomDeleteService } from '../../../shared/service/custom-delete.service';
 import { ErrorHandlerService } from '../../../shared/service/error-handler.service';
 
@@ -78,21 +76,21 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
     UsuarioFilterComponent
   ]
 })
-export default class UsuarioListPage implements OnInit {
+export default class UsuarioListPage {
   // Injeções de dependências
   private readonly usuarioService = inject(UsuarioService);
-  private readonly notificationService = inject(NotificationService);
+  // private readonly notificationService = inject(NotificationService);
   private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly authService = inject(AuthService);
   private readonly customDeleteService = inject(CustomDeleteService);
   private readonly dialog = inject(MatDialog);
 
   //Signals para Estado
-  usuarios = signal<IUsuarioResponse[]>([]);
-  totalElements = signal<number>(0);
+  // usuarios = signal<IUsuarioResponse[]>([]);
+  // totalElements = signal<number>(0);
   pageSize = signal<number>(10);
   currentPage = signal<number>(0);
-  isLoading = signal<boolean>(true);
+  // isLoading = signal<boolean>(true);
 
   // Estado do formulário de busca no HTML
   selectedNameId = signal<number | null>(null);
@@ -104,39 +102,78 @@ export default class UsuarioListPage implements OnInit {
   // O Angular nos dá uma referência da destruição deste componente
   private destroyRef = inject(DestroyRef);
 
-  ngOnInit(): void {
-    this.loadData();
-    this.configurarDebounceDePesquisa(); // Inicializa o nosso escutador
+  constructor() {
+    effect(() => {
+      const err = this.usuariosResource.error();
+      if (err) {
+        this.errorHandlerService.handle(err, 'Pesquisa Usuário');
+      }
+      // this.loadData();
+      this.configurarDebounceDePesquisa(); // Inicializa o nosso escutador
+
+    });
   }
+
+  // ngOnInit(): void {
+  // }
+
+  usuariosResource = rxResource({
+    params: () => {
+      const termo = this.searchTerm();
+      const tipo = this.searchType();
+
+      const queryParams: IUserQueryParams = {
+        page: this.currentPage(),
+        size: this.pageSize(),
+
+        // Mapeia o termo de pesquisa para o parâmetro correto
+        name: tipo === 'NOME' && termo ? termo : undefined,
+        userName: tipo === 'LOGIN' && termo ? termo : undefined,
+        email: tipo === 'EMAIL' && termo ? termo : undefined
+      };
+      return queryParams;
+    },
+    stream: ({ params }) => {
+      return this.usuarioService.searchFilter(params);
+    }
+  });
+
+  usuarios = computed(
+    () => this.usuariosResource.value()?.content ?? []);
+
+  totalElements = computed(
+    () => this.usuariosResource.value()?.page?.totalElements ?? 0);
+
+  isLoading = this.usuariosResource.isLoading;
 
   // centralizador: Decide qual endpoint chamar com base nos filtros
-  loadData() {
-    this.isLoading.set(true);
-
-    const page = this.currentPage();
-    const size = this.pageSize();
-
-    const termo = this.searchTerm();
-    const tipo = this.searchType();
-
-    // Mapeia o termo de pesquisa para o parâmetro correto
-    const name = tipo === 'NOME' && termo ? termo : undefined;
-    const userName = tipo === 'LOGIN' && termo ? termo : undefined;
-    const email = tipo === 'EMAIL' && termo ? termo : undefined;
-
-    // Chama o NOVO ENDPOINT no Service (searchFilter)
-    this.usuarioService
-      .searchFilter(page, size, name, userName, email)
-      .pipe(finalize(() => this.isLoading.set(false)))
-      .subscribe({
-        next: (pageData) => {
-          this.setPageData(pageData);
-        },
-        error: (err) => {
-          this.errorHandlerService.handle(err, 'Pesquisa Usuários');
-        }
-      });
-  }
+  // loadData() {
+  // this.isLoading.set(true);
+  //
+  // const page = this.currentPage();
+  // const size = this.pageSize();
+  //
+  // const termo = this.searchTerm();
+  // const tipo = this.searchType();
+  //
+  // // Mapeia o termo de pesquisa para o parâmetro correto
+  // const name = tipo === 'NOME' && termo ? termo : undefined;
+  // const userName = tipo === 'LOGIN' && termo ? termo : undefined;
+  // const email = tipo === 'EMAIL' && termo ? termo : undefined;
+  //
+  // // Chama o NOVO ENDPOINT no Service (searchFilter)
+  // this.usuarioService
+  //   .searchFilter(page, size, name, userName, email)
+  //   .pipe(finalize(() => this.isLoading.set(false)))
+  //   .subscribe({
+  //     next: (pageData) => {
+  //       this.setPageData(pageData);
+  //     },
+  //     error: (err) => {
+  //       this.errorHandlerService.handle(err, 'Pesquisa Usuários');
+  //     }
+  //   });
+  // }
 
   // abre o modal com o formulário de cadastro de usuário
   openForm(usuario?: IUsuarioResponse) {
@@ -149,12 +186,24 @@ export default class UsuarioListPage implements OnInit {
       disableClose: true
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().subscribe((payload) => {
+      // Se tiver payload atualiza o usuarioResource
+      if (payload) {
+        this.usuariosResource.update((currentUser) => {
+          if (!currentUser) return currentUser;
 
-      if (result) {
-        this.loadData(); // Recarrega se houve alteração
+          return {
+            ...currentUser,
+            content: currentUser.content.map(
+              user => user.id === payload?.id
+                ? payload
+                : user
+            )
+          };
+        });
       }
     });
+    // this.loadData();
   }
 
   // abre o modal com as informações para gerar senha temporária
@@ -192,7 +241,7 @@ export default class UsuarioListPage implements OnInit {
   delete(payload: IUsuarioResponse) {
     this.customDeleteService.execute(
       () => this.usuarioService.delete(payload),
-      () => this.loadData(),
+      () => this.usuariosResource.reload(),
       {
         title: 'Usuário',
         message: `Esta ação não poderá ser desfeita.
@@ -206,7 +255,7 @@ export default class UsuarioListPage implements OnInit {
   onPageChange(event: PageEvent) {
     this.currentPage.set(event.pageIndex);
     this.pageSize.set(event.pageSize);
-    this.loadData();
+    // this.loadData();
   }
 
   // É o chamado pelo HTML quando o usuário troca o Status
@@ -215,7 +264,7 @@ export default class UsuarioListPage implements OnInit {
     // Limpa o input de texto (CPF/Matrícula)
     this.searchTerm.set('');
     this.currentPage.set(0); // Reseta para a primeira página
-    this.loadData(); //Dispara a busca limpa no backend
+    // this.loadData(); //Dispara a busca limpa no backend
   }
 
   // É chamado pelo HTML quando o usuário digita no campo de busca
@@ -236,7 +285,7 @@ export default class UsuarioListPage implements OnInit {
     this.searchSubject.next('');
 
     this.currentPage.set(0); // Volta para página 1
-    this.loadData(); //Recarrega a tabela mostrando todos os registros novamente!
+    // this.loadData(); //Recarrega a tabela mostrando todos os registros novamente!
   }
 
   //  NOVO MÉTHOD PARA BUSCA DINÂMICA
@@ -253,7 +302,7 @@ export default class UsuarioListPage implements OnInit {
           // this.selectedNameId.set(null); // Volta para "Todos os Status"
           this.searchTerm.set(''); // Limpa o termo no Signal
           this.currentPage.set(0); // Volta para página 1
-          this.loadData(); // Recarrega a tabela completa!
+          // this.loadData(); // Recarrega a tabela completa!
           return;
         }
 
@@ -261,15 +310,17 @@ export default class UsuarioListPage implements OnInit {
         if (termoDigitado.trim().length >= 3) {
           this.searchTerm.set(termoDigitado.trim());
           this.currentPage.set(0);
-          this.loadData();
+          // this.loadData();
         }
       });
   }
 
   // Helper para centralizar a atualização dos signals da tabela
-  private setPageData(response: PageResponse<any>) {
-    this.usuarios.set(response.content);
-    this.totalElements.set(response.page.totalElements);
-    this.currentPage.set(response.page.number);
-  }
+  // private setPageData(response: PageResponse<any>) {
+  //   this.usuarios.set(response.content);
+  //   this.totalElements.set(response.page.totalElements);
+  //   this.currentPage.set(response.page.number);
+  // }
+
+
 }

@@ -27,6 +27,14 @@ export interface IRoles {
   roles: string[];
 }
 
+export interface IUserQueryParams {
+  page: number;
+  size: number;
+  name?: string;
+  userName?: string;
+  email?: string;
+}
+
 /*==================================
             TYPES
 ==================================== */
