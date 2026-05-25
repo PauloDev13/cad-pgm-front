@@ -5,13 +5,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { form, FormField, minLength, required, submit, validate } from '@angular/forms/signals';
+import { form, FormField, submit } from '@angular/forms/signals';
 import { AuthService } from '../services/auth.service';
 import { HeaderLoginComponent } from './header-login.component';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper/field-wrapper.component';
 import { finalize } from 'rxjs';
 import { ErrorHandlerService } from '../../../shared/service/error-handler.service';
+import { authFormModel, subscriptionSchema } from '../utils/subscription-auth';
 
 @Component({
   selector: 'app-reset-password',
@@ -30,7 +31,9 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
   ],
   template: `
     <div
-      class="w-full flex flex-col bg-white rounded-xl shadow-xl p-6 sm:p-8 border border-gray-100 lg:border-none lg:shadow-lg">
+      class="w-full max-w-[450px] flex flex-col bg-white rounded-xl shadow-xl p-6 sm:p-8 border
+             border-gray-100 lg:border-none lg:shadow-lg">
+
       <app-header-login
         title="Criar Nova Senha"
         subtitle="Digite e confirme sua nova senha de acesso."
@@ -38,7 +41,8 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
 
       @if (isValidatingToken()) {
         <div
-          class="flex items-center justify-center gap-3 mb-6 p-4 bg-blue-50 text-blue-700 rounded-lg border border-blue-100">
+          class="flex items-center justify-center gap-3 mb-6 p-4 bg-blue-50 text-blue-700
+                 rounded-lg border border-blue-100">
           <mat-spinner diameter="20"></mat-spinner>
           <span class="text-sm font-medium">Analisando segurança do link...</span>
         </div>
@@ -51,9 +55,15 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
             <app-field-wrapper [field]="resetForm.password()">
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                 <mat-label>Nova Senha</mat-label>
-                <input autocomplete="new-password" [type]="hidePassword() ? 'password' : 'text'" matInput
-                       [formField]="resetForm.password" />
-                <button tabindex="-1" mat-icon-button matSuffix class="!mr-1 text-gray-500 hover:text-gray-700"
+                <input
+                  matInput
+                  autocomplete="new-password"
+                  [type]="hidePassword() ? 'password' : 'text'"
+                  [formField]="resetForm.password"
+                />
+                <button tabindex="-1"
+                        mat-icon-button matSuffix
+                        class="!mr-1 text-gray-500 hover:text-gray-700"
                         (click)="togglePassword($event)" type="button">
                   <mat-icon class="transition-transform duration-200 hover:scale-110">
                     {{ hidePassword() ? 'visibility_off' : 'visibility' }}
@@ -65,10 +75,16 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
             <app-field-wrapper [field]="resetForm.confirmPassword()">
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                 <mat-label>Confirmar Nova Senha</mat-label>
-                <input autocomplete="new-password" [type]="hideConfirm() ? 'password' : 'text'" matInput
-                       [formField]="resetForm.confirmPassword" />
-                <button tabindex="-1" mat-icon-button matSuffix class="!mr-1 text-gray-500 hover:text-gray-700"
-                        (click)="toggleConfirm($event)" type="button">
+                <input
+                  matInput
+                  autocomplete="new-password"
+                  [type]="hideConfirm() ? 'password' : 'text'"
+                  [formField]="resetForm.confirmPassword" />
+                <button tabindex="-1"
+                        mat-icon-button
+                        type="button"
+                        matSuffix class="!mr-1 text-gray-500 hover:text-gray-700"
+                        (click)="toggleConfirm($event)">
                   <mat-icon class="transition-transform duration-200 hover:scale-110">
                     {{ hideConfirm() ? 'visibility_off' : 'visibility' }}
                   </mat-icon>
@@ -77,7 +93,8 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
             </app-field-wrapper>
           </div>
           <div class="flex justify-end items-center mb-4 px-1 mt-1">
-            <a tabindex="-1" routerLink="/auth/login"
+            <a tabindex="-1"
+               routerLink="/auth/login"
                class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
               Voltar para o Login
             </a>
@@ -86,7 +103,9 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
           <button
             type="submit"
             [disabled]="resetForm().invalid() || isLoading()"
-            class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all flex justify-center items-center gap-2 h-12 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:text-gray-500"
+            class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700
+                   transition-all flex justify-center items-center gap-2 h-12 disabled:bg-gray-300
+                   disabled:cursor-not-allowed disabled:text-gray-500"
           >
             @if (isLoading()) {
               <mat-spinner diameter="20" class="custom-spinner"></mat-spinner>
@@ -95,7 +114,6 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
               <span>Redefinir Senha</span>
             }
           </button>
-
         </fieldset>
       </form>
     </div>
@@ -110,38 +128,22 @@ export class ResetPasswordComponent {
 
   // Estado da tela
   isLoading = signal(<boolean>false);
+
   // O Angular ler ?token=XYZ da URL e joga aqui dentro automaticamente.
   token = input<string>('');
+
   // Controle dos ícones visuais
   hidePassword = signal(true);
   hideConfirm = signal(true);
 
   // Exibe um spinner inicial
   isValidatingToken = signal(true);
+
   // Bloqueia o formulário se o token for ruim
   isTokenInvalid = signal(false);
 
-  // Modelo do Formulário
-  resetModel = signal({
-    password: '',
-    confirmPassword: ''
-  });
-
   // Configuração e Validação (A mesma arquitetura de Ouro que usamos no Cadastro!)
-  resetForm = form(this.resetModel, (path) => {
-    required(path.password, { message: 'A nova senha é obrigatória' });
-    minLength(path.password, 6, { message: 'A senha deve ter no mínimo 6 caracteres' });
-
-    required(path.confirmPassword, { message: 'A confirmação é obrigatória' });
-
-    validate(path.confirmPassword, (valorAtual) => {
-      const senhaOriginal = this.resetModel().password;
-      if (valorAtual.value() !== senhaOriginal) {
-        return { kind: 'passwordMismatch', message: 'As senhas não conferem' };
-      }
-      return null;
-    });
-  });
+  resetForm = form(authFormModel, subscriptionSchema);
 
   constructor() {
     effect(() => {
@@ -160,6 +162,7 @@ export class ResetPasswordComponent {
   }
 
   // Métodos de UX
+  // Exibe e esconde os caracteres da senha
   togglePassword(event: MouseEvent) {
     event.preventDefault();
     this.hidePassword.set(!this.hidePassword());
@@ -170,7 +173,7 @@ export class ResetPasswordComponent {
     this.hideConfirm.set(!this.hideConfirm());
   }
 
-  // Submissão ao Backend Real
+  // Submissão ao Backend
   async onSubmit(event: Event) {
     event.preventDefault();
 
@@ -215,6 +218,7 @@ export class ResetPasswordComponent {
     });
   }
 
+  // Métodos privados
   private checkToken(token: string) {
     this.authService.validateResetToken(token).pipe(
       finalize(() => {

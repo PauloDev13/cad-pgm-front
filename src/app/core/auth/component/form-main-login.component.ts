@@ -33,19 +33,22 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
   template: `
     <div
       class="w-full flex flex-col bg-white rounded-xl shadow-xl p-6 sm:p-8 border border-gray-100
-            lg:border-none lg:shadow-lg">
+             lg:border-none lg:shadow-lg">
       <app-header-login
         title="Bem-vindo de volta"
         subtitle="Insira suas credenciais para acessar o painel."
       />
 
       <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col w-full">
-
         <div class="flex flex-col gap-y-3">
           <app-field-wrapper [field]="loginForm.userName()">
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
               <mat-label>Login do Usuário</mat-label>
-              <input matInput [formField]="loginForm.userName" autocomplete="off" placeholder="Ex: jonh.river" />
+              <input
+                matInput
+                [formField]="loginForm.userName"
+                autocomplete="off"
+                placeholder="Ex: jonh.river" />
             </mat-form-field>
           </app-field-wrapper>
 
@@ -64,16 +67,24 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
           </app-field-wrapper>
         </div>
         <div class="flex justify-between items-center mb-4 px-1 mt-1">
-          <a tabindex="-1" routerLink="/auth/esqueci-senha"
-             class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">Esqueceu a senha?</a>
-          <a tabindex="-1" routerLink="/auth/register"
-             class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">Não é cadastrado?</a>
+          <a tabindex="-1"
+             routerLink="/auth/esqueci-senha"
+             class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
+            Esqueceu a senha?
+          </a>
+          <a tabindex="-1"
+             routerLink="/auth/register"
+             class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
+            Não é cadastrado?
+          </a>
         </div>
 
         <button
           type="submit"
           [disabled]="loginForm().invalid() || isLoading()"
-          class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all flex justify-center items-center gap-2 h-12 disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
+          class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700
+                 transition-all flex justify-center items-center gap-2 h-12 disabled:bg-gray-200
+                 disabled:text-gray-500 disabled:cursor-not-allowed"
         >
           @if (isLoading()) {
             <mat-spinner diameter="20" class="custom-spinner"></mat-spinner>
@@ -95,6 +106,7 @@ export class FormMainLoginComponent {
 
   // Signals
   isLoading = signal<boolean>(false);
+
   // Signals para exibir/ocultar senha
   hidePassword = signal<boolean>(true);
 

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { form, FormField, minLength, required, validate } from '@angular/forms/signals';
+import { form, FormField } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,6 +13,7 @@ import { FieldWrapperComponent } from '../../../shared/layout/component/field-wr
 import { LoginStateService } from '../services/login-state.service';
 import { finalize } from 'rxjs';
 import { ErrorHandlerService } from '../../../shared/service/error-handler.service';
+import { authFormModel, subscriptionSchema } from '../utils/subscription-auth';
 
 @Component({
   selector: 'app-force-password-change',
@@ -31,7 +32,7 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="w-full flex flex-col bg-white rounded-xl shadow-xl p-6 sm:p-8 border border-gray-100
+      class="w-full max-w-[450px] flex flex-col bg-white rounded-xl shadow-xl p-6 sm:p-8 border border-gray-100
              lg:border-none lg:shadow-lg">
       <app-header-login
         title="Troca obrigatória"
@@ -40,14 +41,14 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
 
       <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col w-full">
         <div class="flex flex-col gap-y-3">
-          <app-field-wrapper [field]="form.password()">
+          <app-field-wrapper [field]="changeForm.password()">
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
               <mat-label>Nova Senha</mat-label>
               <input
+                matInput
+                [formField]="changeForm.password"
                 autocomplete="new-password"
                 [type]="hidePassword() ? 'password' : 'text'"
-                matInput
-                [formField]="form.password"
               />
 
               <button
@@ -65,14 +66,14 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
             </mat-form-field>
           </app-field-wrapper>
 
-          <app-field-wrapper [field]="form.confirmPassword()">
+          <app-field-wrapper [field]="changeForm.confirmPassword()">
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
               <mat-label>Confirmar Nova Senha</mat-label>
               <input
-                autocomplete="new-password"
-                [type]="hideConfirm() ? 'password' : 'text'"
                 matInput
-                [formField]="form.confirmPassword"
+                autocomplete="new-password"
+                [formField]="changeForm.confirmPassword"
+                [type]="hideConfirm() ? 'password' : 'text'"
               />
               <button
                 tabindex="-1"
@@ -90,11 +91,9 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
           </app-field-wrapper>
         </div>
         <div class="flex justify-end items-center mb-4 px-1 mt-1">
-          <a
-            tabindex="-1"
-            href="#"
-            routerLink="/auth/login"
-            class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+          <a tabindex="-1"
+             routerLink="/auth/login"
+             class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
           >
             Voltar para o Login</a
           >
@@ -102,7 +101,7 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
 
         <button
           type="submit"
-          [disabled]="form().invalid() || isLoading()"
+          [disabled]="changeForm().invalid() || isLoading()"
           class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700
                 transition-all flex justify-center items-center gap-2 h-12 disabled:bg-gray-300
                 disabled:cursor-not-allowed disabled:text-gray-500"
@@ -126,47 +125,28 @@ export class ForcePasswordChangeComponent {
   private readonly router = inject(Router);
 
   isLoading = signal(false);
+
   // Controle dos ícones visuais
   hidePassword = signal(true);
   hideConfirm = signal(true);
 
-  // Modelo do Formulário
-  resetModel = signal({
-    password: '',
-    confirmPassword: ''
-  });
-
   // Aqui você instancia o seu formulário de troca (igual ao que usamos no reset)
-  form = form(this.resetModel, (path) => {
-    required(path.password, { message: 'A nova senha é obrigatória' });
-    minLength(path.password, 6, { message: 'A senha deve ter no mínimo 6 caracteres' });
-
-    required(path.confirmPassword, { message: 'A confirmação é obrigatória' });
-
-    validate(path.confirmPassword, (valorAtual: any) => {
-      const senhaOriginal = this.resetModel().password;
-      if (valorAtual.value() !== senhaOriginal) {
-        return { kind: 'passwordMismatch', message: 'As senhas não conferem' };
-      }
-      return null;
-    });
-  });
+  changeForm = form(authFormModel, subscriptionSchema);
 
   onSubmit(event: Event) {
     event.preventDefault();
-    if (this.form().invalid()) return;
+    if (this.changeForm().invalid()) return;
 
     this.isLoading.set(true);
 
     // O backend precisa do userName. Podemos pegar do Token que já está no storage!
     const userName = this.authService.getStoredLoggedUser()?.userName;
-    const newPassword = this.form.password().value();
+    const newPassword = this.changeForm.password().value();
 
     this.authService.forcePasswordChange(userName!, newPassword).pipe(
       finalize(() => this.isLoading.set(false))
     ).subscribe({
       next: () => {
-        // this.isLoading.set(false);
         // Pega o nome do usuário logado do Signal currentUser
         const userLogged: string | undefined = this.authService.currentUser()?.userName;
 
@@ -190,13 +170,11 @@ export class ForcePasswordChangeComponent {
       },
       error: (err) => {
         this.errorHandlerService.handle(err, 'Senha');
-        // this.isLoading.set(false);
-        // this.notificationService.error(err.message, 'Senha');
       }
     });
   }
 
-  // Métodos de UX
+  // Métodos de UX para exibir/ocultar caracteres da senha
   togglePassword(event: MouseEvent) {
     event.preventDefault();
     this.hidePassword.set(!this.hidePassword());

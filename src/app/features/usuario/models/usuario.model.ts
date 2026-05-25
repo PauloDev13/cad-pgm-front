@@ -1,7 +1,3 @@
-/*==================================
-            INTERFACES
-====================================*/
-
 export interface IUsuarioRequest {
   name: string;
   userName: string;
@@ -35,22 +31,12 @@ export interface IUserQueryParams {
   email?: string;
 }
 
-/*==================================
-            TYPES
-==================================== */
-
 export type TUsuarioUpdate = Omit<IUsuarioRequest, 'confirmPassword' | 'password'>;
 
 export type TUsuarioUpdatePut = Omit<IUsuarioRequest, 'password'>;
 
-export type TRegisterNewUser = Omit<
-  IUsuarioRequest,
-  'activated' | 'permissions' | 'forcePasswordChange'
->;
-
-/*==================================
-            CONSTANTS
-==================================== */
+export type TRegisterNewUser = Omit<IUsuarioRequest,
+  'activated' | 'permissions' | 'forcePasswordChange'>;
 
 export const roles: IRoles = {
   roles: ['admin', 'rh', 'gabinete', 'guest']

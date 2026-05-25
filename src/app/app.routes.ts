@@ -26,7 +26,7 @@ export const routes: Routes = [
       {
         path: 'register',
         title: 'Cadastro Usuário| Gestão de Servidores PGM Natal',
-        loadComponent: () => import('./core/auth/component/form-register-usuario.component')
+        loadComponent: () => import('./features/usuario/components/form-register-usuario/form-register-usuario.component')
           .then((m) => m.FormRegisterUsuarioComponent)
       },
       {

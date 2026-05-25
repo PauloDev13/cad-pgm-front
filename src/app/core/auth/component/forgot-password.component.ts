@@ -28,7 +28,8 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
   ],
   template: `
     <div
-      class="w-full max-w-[500px] flex flex-col bg-white rounded-xl shadow-xl p-6 sm:p-8 border border-gray-100 lg:border-none lg:shadow-lg">
+      class="w-full max-w-[500px] flex flex-col bg-white rounded-xl shadow-xl p-6 sm:p-8 border
+             border-gray-100 lg:border-none lg:shadow-lg">
       <app-header-login
         title="Recuperar Senha"
         subtitle="Digite seu e-mail cadastrado e enviaremos um link para redefinir sua senha."
@@ -40,13 +41,20 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
           <app-field-wrapper [field]="forgotForm.email()">
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
               <mat-label>E-mail</mat-label>
-              <input matInput type="email" [formField]="forgotForm.email" placeholder="exemplo@email.com" />
+              <input
+                matInput
+                type="email"
+                [formField]="forgotForm.email"
+                placeholder="exemplo@email.com" />
             </mat-form-field>
           </app-field-wrapper>
         </div>
         <div class="flex justify-end items-center mb-4 px-1 mt-1">
-          <a tabindex="-1" routerLink="/auth/login"
-             class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">Voltar para o Login</a>
+          <a tabindex="-1"
+             routerLink="/auth/login"
+             class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
+            Voltar para o Login
+          </a>
         </div>
 
         <button
@@ -97,8 +105,6 @@ export class ForgotPasswordComponent {
         finalize(() => this.isLoading.set(false))
       ).subscribe({
         next: () => {
-          // this.isLoading.set(false);
-          // Mensagem enviamos que mesmo se o email não existir para não vazar dados)
           this.notificationService.success(
             `
               Você receberá um <strong>link</strong> de redefinição no E-mail informado.

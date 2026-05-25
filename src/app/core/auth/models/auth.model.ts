@@ -58,3 +58,8 @@ export interface IRegisterUserResponse {
   email: string;
   password: string;
 }
+
+export interface IAuthForm {
+  password: string;
+  confirmPassword: string;
+}
