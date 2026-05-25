@@ -23,7 +23,7 @@ import { FieldWrapperComponent } from '../../../../shared/layout/component/field
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
 import { DateTime } from 'luxon';
-import { DocumentManagerDialogComponent } from '../document-manager-dialog/document-menager-dialog.component';
+import { DocumentManagerDialogComponent } from '../document-manager-dialog/document-manager-dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { initialDataServidor, subscriptionSchema } from '../../utils/subscription-servidor';
