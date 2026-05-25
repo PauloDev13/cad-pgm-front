@@ -22,7 +22,7 @@ import {
   AuditoriaButtonsSearchComponent
 } from '../../components/auditoria-buttons-search/auditoria-buttons-search.component';
 import { rxResource, toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { debounceTime } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-audit.page',
@@ -95,7 +95,10 @@ export default class AuditPage {
 
   // Modelo de formulário reativo
   debouncedFormModel = toSignal(
-    toObservable(this.auditFormModel).pipe(debounceTime(500)),
+    toObservable(this.auditFormModel).pipe(
+      debounceTime(500),
+      distinctUntilChanged()
+    ),
     { initialValue: this.auditFormModel() }
   );
 
@@ -215,7 +218,6 @@ export default class AuditPage {
   onPageChange(event: PageEvent) {
     this.currentPage.set(event.pageIndex);
     this.pageSize.set(event.pageSize);
-    // this.generateReport();
   }
 
   cleanFilters() {
@@ -225,7 +227,6 @@ export default class AuditPage {
       startDate: null,
       endDate: null
     });
-    this.generateReport(true); // Busca tudo limpo e volta para página 1
   }
 
   printReport() {

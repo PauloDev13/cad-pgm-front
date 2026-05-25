@@ -269,8 +269,9 @@ export default class ServidorListPage {
     });
 
     dialogRef.afterClosed().subscribe((payload) => {
-      // Se tiver payload atualiza o servidoresResource
-      if (payload) {
+      const isEdit = !!payload.id;
+      // Se for edição, atualiza o servidoresResource
+      if (isEdit) {
         this.servidoresResource.update((currentServidor) => {
           if (!currentServidor) return currentServidor;
 
@@ -281,6 +282,9 @@ export default class ServidorListPage {
             )
           };
         });
+      } else {
+        // Se não, faz o reload para atualizar os dados após o insert
+        this.servidoresResource.reload();
       }
     });
   }

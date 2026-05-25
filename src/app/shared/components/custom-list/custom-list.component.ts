@@ -274,6 +274,7 @@ export class CustomListComponent implements OnInit {
       });
   }
 
+  // Seta os subtítulos dos componentes para as entidades de domínio
   subtitle = computed(() => {
     switch (this.title()) {
       case 'Procurador':
