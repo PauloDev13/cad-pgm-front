@@ -6,14 +6,11 @@ import { form, FormField, submit } from '@angular/forms/signals';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { TRegisterNewUser } from '../../models/usuario.model';
-import { LoginStateService } from '../../../../core/auth/services/login-state.service';
 import { HeaderLoginComponent } from '../../../../core/auth/component/header-login.component';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper/field-wrapper.component';
-import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
-import { AuthService } from '../../../../core/auth/services/auth.service';
-import { finalize } from 'rxjs';
 import { initialDataRegisterUsuario, subscriptionSchemaRegisterUsuario } from '../../utils/subscription-usuario';
+import { AuthStore } from '../../../../core/auth/store/auth.store';
 
 @Component({
   selector: 'app-form-register-login',
@@ -152,14 +149,11 @@ import { initialDataRegisterUsuario, subscriptionSchemaRegisterUsuario } from '.
   `
 })
 export class FormRegisterUsuarioComponent {
-  // Injeções
-  private readonly notificationService = inject(NotificationService);
-  private readonly authService = inject(AuthService);
-  private readonly loginStateService = inject(LoginStateService);
-  private readonly router = inject(Router);
+  // Injeção do authStore
+  protected readonly authStore = inject(AuthStore);
 
   //Signals
-  isLoading = signal<boolean>(false);
+  isLoading = this.authStore.isLoading;
   // Signals para exibir/ocultar senha/confirmar senha
   hidePassword = signal<boolean>(true);
   hideConfirm = signal<boolean>(true);
@@ -167,7 +161,7 @@ export class FormRegisterUsuarioComponent {
   // Modelo do formulário para cadastro
   registerFormModel =
     signal<TRegisterNewUser>(initialDataRegisterUsuario);
-  
+
   // Formulário de cadastro com validações
   registerFormLogin =
     form(this.registerFormModel, subscriptionSchemaRegisterUsuario);
@@ -175,48 +169,22 @@ export class FormRegisterUsuarioComponent {
   // Métodos para alternar a visualização
   togglePassword(event: MouseEvent) {
     event.preventDefault(); // Evita que o formulário submeta ao clicar no botão do ícone
-    this.hidePassword.set(!this.hidePassword());
+    // this.hidePassword.set(!this.hidePassword());
+    this.hideConfirm.update(v => !v);
   }
 
   toggleConfirm(event: MouseEvent) {
     event.preventDefault();
-    this.hideConfirm.set(!this.hideConfirm());
+    // this.hideConfirm.set(!this.hideConfirm());
+    this.hidePassword.update(v => !v);
   }
 
   async onSubmit(event: Event) {
     event.preventDefault();
-    this.isLoading.set(true);
 
     await submit(this.registerFormLogin, async () => {
-      // pega os valores de todos os campos do fomulário
-      const dataRegister = this.registerFormLogin().value();
-
-      // Retira o campo confirmPassword do objeto que será enviado para o backend
-      const { confirmPassword, ...payload } = dataRegister;
-
-      // Chama o service para realizar enviar os dados de cadastro
-      this.authService.registerNewUserPublic(payload).pipe(
-        finalize(() => this.isLoading.set(false))
-      ).subscribe({
-        next: (response) => {
-          this.isLoading.set(false);
-
-          // Atualiza o signal do service com o nome do usuário recém-cadastrado
-          this.loginStateService.newUserName.set(response.userName);
-
-          this.notificationService.success(
-            `Usuário <strong>${response.userName}</strong> cadastrado.`,
-            'Register'
-          );
-
-          // Redireciona o novo usuário para a tela de login
-          this.router.navigate(['/auth/login']).then();
-        },
-        error: (err: Error) => {
-          // this.isLoading.set(false);
-          this.notificationService.error(err.message, 'Register');
-        }
-      });
+      const { confirmPassword, ...payload } = this.registerFormLogin().value();
+      this.authStore.registerUser(payload);
     });
   }
 }

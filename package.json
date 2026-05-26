@@ -21,6 +21,8 @@
     "@angular/material-luxon-adapter": "^21.2.10",
     "@angular/platform-browser": "^21.2.0",
     "@angular/router": "^21.2.0",
+    "@ngrx/operators": "^21.1.0",
+    "@ngrx/signals": "^21.1.0",
     "@types/luxon": "^3.7.1",
     "autoprefixer": "^10.4.27",
     "chart.js": "^4.5.1",
