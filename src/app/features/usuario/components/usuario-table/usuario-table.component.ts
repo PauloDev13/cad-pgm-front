@@ -8,7 +8,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { LoadingComponent } from '../../../../shared/components/loading.component/loading.component';
-import { IUsuarioResponse } from '../../models/usuario.model';
+import { IUsuarioResponse, TUsuarioDelete } from '../../models/usuario.model';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
@@ -148,7 +148,7 @@ import { map } from 'rxjs';
                   matTooltip="Excluir"
                   class="group !w-8 !h-8 !leading-none disabled:!cursor-not-allowed
                      disabled:!pointer-events-auto"
-                  (click)="delete.emit(u)"
+                  (click)="deleteUser.emit({ id: u.id, name: u.name })"
                 >
                   <mat-icon
                     class="!text-red-600 transition-transform duration-200
@@ -238,7 +238,7 @@ export class UsuarioTableComponent {
   // OUTPUTS (Eventos que avisam o Pai)
   edit = output<IUsuarioResponse>();
   confirmResetPassword = output<IUsuarioResponse>();
-  delete = output<IUsuarioResponse>();
+  deleteUser = output<TUsuarioDelete>();
   pageChange = output<PageEvent>();
 
   // Avalia linha por linha se os botões devem estar desabilitados

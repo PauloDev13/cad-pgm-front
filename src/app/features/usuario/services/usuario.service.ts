@@ -8,6 +8,7 @@ import {
   IUsuarioRequest,
   IUsuarioResponse,
   roles,
+  TUsuarioDelete,
   TUsuarioUpdate,
   TUsuarioUpdatePut
 } from '../models/usuario.model';
@@ -39,7 +40,7 @@ export class UsuarioService {
       .pipe(catchError(customHandlerError));
   }
 
-  delete(payload: IUsuarioResponse): Observable<void> {
+  delete(payload: TUsuarioDelete): Observable<void> {
     return this.http.delete<void>(`${this.API_URL}/${payload.id}`)
       .pipe(catchError(customHandlerError));
   }

@@ -81,7 +81,7 @@ import { UsersStore } from '../../store/user.store';
                   <mat-select
                     multiple="true"
                     placeholder="Adicione permissões" [formField]="$any(usuarioForm.permissions)">
-                    @for (role of roles(); track role) {
+                    @for (role of usersStore.roles(); track role) {
                       <mat-option [value]="role">{{ role }}</mat-option>
                     }
                   </mat-select>
@@ -114,10 +114,6 @@ import { UsersStore } from '../../store/user.store';
 })
 export class UsuarioFormComponent implements OnInit {
   // Injeções de dependência
-  // private readonly usuarioService = inject(UsuarioService);
-  // private readonly notificationService = inject(NotificationService);
-  // private readonly errorHandlerService = inject(ErrorHandlerService);
-
   protected readonly usersStore = inject(UsersStore);
   private readonly dialogRef = inject(MatDialogRef<UsuarioFormComponent>);
   protected readonly data =
@@ -128,8 +124,6 @@ export class UsuarioFormComponent implements OnInit {
   // Signals para armazenar os dados que virão da API
   usuarios = signal<IUsuarioResponse[]>([]);
 
-  roles = signal<string[]>([]);
-
   // Modelo do formulário para cadastro
   userFormModel = signal<TUsuarioUpdate>(initialDataUsuario);
 
@@ -137,7 +131,6 @@ export class UsuarioFormComponent implements OnInit {
 
   ngOnInit() {
     this.usersStore.loadRoles();
-    // this.loadRoles();
     this.isEdit = !!this.data;
 
     if (this.isEdit && this.data) {
@@ -164,56 +157,4 @@ export class UsuarioFormComponent implements OnInit {
       });
     });
   }
-
-  // Salva ou Atualiza um registro com todos os dados de um funcionário
-  // async salvar() {
-  //   // e checa o valid() automaticamente antes de engatilhar o callback.
-  //   await submit(this.usuarioForm, async () => {
-  //     try {
-  //       // Obtemos os valores diretos do Signal de Modelo Atualizado
-  //       const requestData = this.userFormModel() as IUsuarioRequest;
-  //
-  //       // Cria o objeto payload sem o atributo confirmPassword
-  //       const { confirmPassword, ...payload } = requestData;
-  //
-  //       // Transformamos as chamadas Observable em Promise com firstValueFrom
-  //       if (this.isEdit) {
-  //         // se é edição, retira os campos senha e confirme senha
-  //
-  //         // se for edição e a opção trocar senha estiver MARCADA,
-  //         if (payload.forcePasswordChange) {
-  //           // cria uma senha padrão
-  //           payload.password = 'pgm@1234';
-  //           // usa o endpoint de atualização com PUT
-  //           await firstValueFrom(this.usuarioService.updatePut(this.data!.id, payload));
-  //         } else {
-  //           // se for edição e a opção trocar senha estiver DESMARCADA,
-  //           // Cria o objeto payloadPatch sem o atributo senha, pois ela não deve ser alterada
-  //           const { password, ...payloadPatch } = payload;
-  //           // usa o endpoint de atualização com PATCH
-  //           await firstValueFrom(this.usuarioService.updatePatch(this.data!.id, payloadPatch));
-  //         }
-  //       } else {
-  //         // se não é edição, cria uma senha padrão para um novo usuário
-  //         payload.password = 'pgm@1234';
-  //         await firstValueFrom(this.usuarioService.create(payload));
-  //       }
-  //
-  //       this.notificationService.success(
-  //         `Usuário ${this.isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`,
-  //         `${this.isEdit ? 'Atualização' : 'Cadastro'}`
-  //       );
-  //
-  //       // Repassa o novo usuário ou o usuário atualizado para quem chamou o dialog
-  //       this.dialogRef.close(payload);
-  //     } catch (err) {
-  //       this.errorHandlerService.handle(err, `${this.isEdit ? 'Atualização' : 'Cadastro'}`);
-  //     }
-  //   });
-  // }
-
-  // lê as permissões e seta o signal com o array
-  // loadRoles() {
-  //   this.usuarioService.getRoles().subscribe((res) => this.roles.set(res.roles));
-  // }
 }

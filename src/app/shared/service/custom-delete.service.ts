@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
 import { NotificationService } from './NotificationSnackbar.service';
 import { ErrorHandlerService } from './error-handler.service';
@@ -48,5 +48,23 @@ export class CustomDeleteService {
         });
       }
     });
+  }
+
+  async confirm(options?: Messages): Promise<boolean> {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '500px',
+      disableClose: true,
+      data: {
+        title: options?.title ?? 'Remover registro',
+        message: options?.message ?? 'Esta ação não poderá ser desfeita. Tem certeza que quer prosseguir?'
+      }
+    });
+
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    return !!result;
+  }
+
+  showSuccessNotification(msg: string) {
+    this.notificationService.success(msg, 'Exclusão');
   }
 }

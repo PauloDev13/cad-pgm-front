@@ -19,6 +19,9 @@ export interface IUsuarioResponse {
   forcePasswordChange: boolean;
 }
 
+export type TUsuarioDelete = Pick<IUsuarioResponse, 'id' | 'name'>
+
+
 export interface IRoles {
   roles: string[];
 }

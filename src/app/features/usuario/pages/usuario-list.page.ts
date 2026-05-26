@@ -1,12 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PageEvent } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
-import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { IUserQueryParams, IUsuarioResponse } from '../models/usuario.model';
-import { UsuarioService } from '../services/usuario.service';
+import { IUsuarioResponse, TUsuarioDelete } from '../models/usuario.model';
 import { UsuarioTableComponent } from '../components/usuario-table/usuario-table.component';
 import { UsuarioFilterComponent } from '../components/usuario-filter/usuario-filter.component';
 import { UsuarioFormComponent } from '../components/usuario-form/usuario-form.component';
@@ -18,6 +14,7 @@ import {
 } from '../../../core/auth/component/temporary -password-dialog/temporary-password-dialog.component';
 import { CustomDeleteService } from '../../../shared/service/custom-delete.service';
 import { ErrorHandlerService } from '../../../shared/service/error-handler.service';
+import { UsersStore } from '../store/user.store';
 
 @Component({
   selector: 'app-servidor-list',
@@ -47,24 +44,23 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
 
       <!-- Chama o componente de pesquisa-->
       <app-usuario-filter
-        [searchType]="searchType()"
-        [searchTerm]="searchTerm()"
-        (statusChange)="onStatusChange($event)"
-        (searchTypeChange)="onSearchTypeChange($event)"
+        [searchType]="usersStore.searchType()"
+        [searchTerm]="usersStore.searchTerm()"
+        (searchTypeChange)="usersStore.updateSearchType($event)"
         (searchInput)="onSearchInput($event)"
       />
 
       <!-- Chama o componente que tem a tabela para listar usuários-->
       <app-usuario-table
-        [data]="usuarios()"
-        [isLoading]="isLoading()"
-        [totalElements]="totalElements()"
-        [pageSize]="pageSize()"
-        [currentPage]="currentPage()"
+        [data]="usersStore.usuarios()"
+        [isLoading]="usersStore.isLoading()"
+        [totalElements]="usersStore.totalElements()"
+        [pageSize]="usersStore.pageSize()"
+        [currentPage]="usersStore.currentPage()"
         (edit)="openForm($event)"
         (confirmResetPassword)="onResetPassword($event)"
-        (delete)="delete($event)"
-        (pageChange)="onPageChange($event)"
+        (deleteUser)="deleteUser($event)"
+        (pageChange)="onPageChangeStore($event)"
       />
     </div>
   `,
@@ -78,66 +74,12 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
 })
 export default class UsuarioListPage {
   // Injeções de dependências
-  private readonly usuarioService = inject(UsuarioService);
-  // private readonly notificationService = inject(NotificationService);
+  protected readonly usersStore = inject(UsersStore);
   private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly authService = inject(AuthService);
   private readonly customDeleteService = inject(CustomDeleteService);
   private readonly dialog = inject(MatDialog);
 
-  //Signals para Estado
-  pageSize = signal<number>(10);
-  currentPage = signal<number>(0);
-
-  // Estado do formulário de busca no HTML
-  selectedNameId = signal<number | null>(null);
-  searchType = signal<'NOME' | 'LOGIN' | 'EMAIL'>('NOME');
-  searchTerm = signal<string>('');
-
-  //O funil de eventos de digitação
-  private searchSubject = new Subject<string>();
-  // O Angular nos dá uma referência da destruição deste componente
-  private destroyRef = inject(DestroyRef);
-
-  constructor() {
-    effect(() => {
-      const err = this.usuariosResource.error();
-      if (err) {
-        this.errorHandlerService.handle(err, 'Pesquisa Usuário');
-      }
-      this.configurarDebounceDePesquisa(); // Inicializa o nosso escutador
-
-    });
-  }
-
-  usuariosResource = rxResource({
-    params: () => {
-      const termo = this.searchTerm();
-      const tipo = this.searchType();
-
-      const queryParams: IUserQueryParams = {
-        page: this.currentPage(),
-        size: this.pageSize(),
-
-        // Mapeia o termo de pesquisa para o parâmetro correto
-        name: tipo === 'NOME' && termo ? termo : undefined,
-        userName: tipo === 'LOGIN' && termo ? termo : undefined,
-        email: tipo === 'EMAIL' && termo ? termo : undefined
-      };
-      return queryParams;
-    },
-    stream: ({ params }) => {
-      return this.usuarioService.searchFilter(params);
-    }
-  });
-
-  usuarios = computed(
-    () => this.usuariosResource.value()?.content ?? []);
-
-  totalElements = computed(
-    () => this.usuariosResource.value()?.page?.totalElements ?? 0);
-
-  isLoading = this.usuariosResource.isLoading;
 
   // abre o modal com o formulário de cadastro de usuário
   openForm(usuario?: IUsuarioResponse) {
@@ -151,24 +93,15 @@ export default class UsuarioListPage {
     });
 
     dialogRef.afterClosed().subscribe((payload) => {
-      const isEdit = !!payload.id;
-      // Se for edição, atualiza o usuarioResource
-      if (isEdit) {
-        this.usuariosResource.update((currentUser) => {
-          if (!currentUser) return currentUser;
+      if (!payload) return;
 
-          return {
-            ...currentUser,
-            content: currentUser.content.map(
-              user => user.id === payload?.id
-                ? payload
-                : user
-            )
-          };
-        });
+      const isEdit = !!payload.id;
+      // Se for edição, atualiza
+      if (isEdit) {
+        this.usersStore.updateLocalUser(payload);
       } else {
         // Se não, faz o reload para atualizar após uma inserção
-        this.usuariosResource.reload();
+        this.usersStore.reloadList();
       }
     });
   }
@@ -205,75 +138,36 @@ export default class UsuarioListPage {
     });
   }
 
-  delete(payload: IUsuarioResponse) {
-    this.customDeleteService.execute(
-      () => this.usuarioService.delete(payload),
-      () => this.usuariosResource.reload(),
-      {
-        title: 'Usuário',
-        message: `Esta ação não poderá ser desfeita.
-                  Excluir o perfil de: <strong class="text-red-600">${payload.name.toUpperCase()}</strong>?`,
-        successMsg: `Perfil de: <strong>${payload.name.toUpperCase()}</strong> foi removido`
-      }
-    );
+  async deleteUser(payload: TUsuarioDelete) {
+    const confirmed = await this.customDeleteService.confirm({
+      title: 'Usuário',
+      message: `Esta ação não poderá ser desfeita.<br>Excluir o perfil de:
+                <strong class="text-red-600">${payload.name.toUpperCase()}</strong>?`
+    });
+
+    if (confirmed) {
+      this.usersStore.deleteUser({
+        payload,
+        onSuccess: () => {
+          this.customDeleteService.showSuccessNotification(
+            `Perfil de: <strong>${payload.name.toUpperCase()}</strong> foi removido`
+          );
+          this.usersStore.reloadList();
+        }
+      });
+    }
   }
 
-  // controla a paginação
-  onPageChange(event: PageEvent) {
-    this.currentPage.set(event.pageIndex);
-    this.pageSize.set(event.pageSize);
-  }
-
-  // É o chamado pelo HTML quando o usuário troca o Status
-  onStatusChange(id: number | null) {
-    this.selectedNameId.set(id);
-    // Limpa o input de texto (CPF/Matrícula)
-    this.searchTerm.set('');
-    this.currentPage.set(0); // Reseta para a primeira página
+  onPageChangeStore(event: any) {
+    this.usersStore.updatePagination(event.pageIndex, event.pageSize);
   }
 
   // É chamado pelo HTML quando o usuário digita no campo de busca
   // ALTERAÇÃO: O HTML não atualiza mais o Signal direto, ele alimenta o Subject
   onSearchInput(event: Event) {
-    let value = (event.target as HTMLInputElement).value;
-    // Joga o valor digitado no "funil" do RxJS.
-    // O subscribe ali em cima vai decidir quando disparar a busca.
-    this.searchSubject.next(value);
-  }
-
-  // É chamado quando o usuário troca entre Nome, CPF ou Matrícula
-  onSearchTypeChange(newType: 'NOME' | 'LOGIN' | 'EMAIL') {
-    this.searchType.set(newType);
-    this.searchTerm.set(''); // Limpa a memória oficial
-
-    // Esvazia o "funil" do RxJS para garantir que nenhuma busca fantasma aconteça
-    this.searchSubject.next('');
-
-    this.currentPage.set(0); // Volta para página 1
-  }
-
-  //  NOVO MÉTHOD PARA BUSCA DINÂMICA
-  private configurarDebounceDePesquisa() {
-    this.searchSubject
-      .pipe(
-        debounceTime(500), // Espera o usuário parar de digitar por 500ms
-        distinctUntilChanged(), // Só continua se a palavra final for diferente da última busca
-        takeUntilDestroyed(this.destroyRef) // Dizemos pro fluxo morrer com o componente
-      )
-      .subscribe((termoDigitado) => {
-        // Se o usuário apagou tudo (Cenário 1)
-        if (termoDigitado.trim() === '') {
-          // this.selectedNameId.set(null); // Volta para "Todos os Status"
-          this.searchTerm.set(''); // Limpa o termo no Signal
-          this.currentPage.set(0); // Volta para página 1
-          return;
-        }
-
-        //  Só busca se tiver 3 caracteres ou mais (Cenário 2)
-        if (termoDigitado.trim().length >= 3) {
-          this.searchTerm.set(termoDigitado.trim());
-          this.currentPage.set(0);
-        }
-      });
+    const value = (event.target as HTMLInputElement).value;
+    // Jogamos o valor diretamente no método reativo da Store!
+    // A Store vai esperar os 500ms e checar as regras antes de buscar.
+    this.usersStore.updateSearchTermDebounced(value);
   }
 }

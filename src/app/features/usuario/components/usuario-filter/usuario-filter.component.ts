@@ -60,7 +60,6 @@ export class UsuarioFilterComponent {
   searchTerm = input<string>('');
 
   // OUTPUTS: O que vamos avisar ao Pai
-  statusChange = output<number | null>();
   searchTypeChange = output<'NOME' | 'LOGIN' | 'EMAIL'>();
   searchInput = output<Event>();
 }
