@@ -130,7 +130,7 @@ export class UsuarioFormComponent implements OnInit {
   usuarioForm = form(this.userFormModel, subscriptionSchema);
 
   ngOnInit() {
-    this.usersStore.loadRoles();
+    // this.usersStore.loadRoles();
     this.isEdit = !!this.data;
 
     if (this.isEdit && this.data) {

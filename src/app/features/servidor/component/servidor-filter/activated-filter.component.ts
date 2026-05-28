@@ -87,13 +87,13 @@ export class ActivatedFilterComponent {
   selectedStatusId = model<number | null>(null);
 
   cargoList = input.required<BaseEntityDTO[]>();
-  selectedCargoId = model<number | null>(null);
+  selectedCargoId = input<number | null>(null);
 
   setorList = input.required<BaseEntityDTO[]>();
-  selectedSetorId = model<number | null>(null);
+  selectedSetorId = input<number | null>(null);
 
   searchType = input<'CPF' | 'MATRICULA' | 'NOME'>('NOME');
-  searchTerm = model<string>('');
+  searchTerm = input<string>('');
 
   // OUTPUTS: O que vamos avisar ao Pai
   statusChange = output<number | null>();

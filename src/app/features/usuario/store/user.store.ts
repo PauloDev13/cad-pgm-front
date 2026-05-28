@@ -77,6 +77,7 @@ export const UsersStore = signalStore(
         )
       }));
     },
+
     // Atualiza os filtros e volta para a primeira página
     updateSearchType(type: 'NOME' | 'LOGIN' | 'EMAIL') {
       patchState(store, { searchType: type, searchTerm: '', currentPage: 0 });
@@ -208,6 +209,7 @@ export const UsersStore = signalStore(
   withHooks({
     onInit(store) {
       store.loadUsers(store.queryParams);
+      store.loadRoles();
     }
   })
 );

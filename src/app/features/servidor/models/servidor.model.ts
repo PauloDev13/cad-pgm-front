@@ -78,3 +78,5 @@ export interface ServidorResponseDTO {
   aliases?: BaseEntityDTO[];
   procuradores?: BaseEntityDTO[];
 }
+
+export type TServidorDelete = Pick<ServidorResponseDTO, 'id' | 'nome'>

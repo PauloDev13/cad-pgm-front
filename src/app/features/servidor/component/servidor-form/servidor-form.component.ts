@@ -1,10 +1,19 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, signal, untracked } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  OnInit,
+  signal,
+  untracked
+} from '@angular/core';
 import { ServidorService } from '../../services/servidor.service';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { BaseEntityDTO, ServidorRequestDTO, ServidorResponseDTO } from '../../models/servidor.model';
-import { form, FormField, submit } from '@angular/forms/signals';
-import { finalize, firstValueFrom, switchMap } from 'rxjs';
-import { DominioService } from '../../services/dominio.service';
+import { ServidorRequestDTO, ServidorResponseDTO } from '../../models/servidor.model';
+import { form, FormField } from '@angular/forms/signals';
+import { finalize, switchMap } from 'rxjs';
 import { AutocompleteComponent } from '../../../../shared/components/autocomplete/autocomplete.component';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,10 +21,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { CustomSelectComponent } from '../../../../shared/components/custom-select/custom-select.component';
-import {
-  PermissoesDialogComponent,
-  PermissoesDialogData
-} from '../../../../shared/components/permissoes-dialog/permissoes-dialog.component';
 import { MatIconModule } from '@angular/material/icon';
 import { NgxMaskDirective } from 'ngx-mask';
 import { AuthService } from '../../../../core/auth/services/auth.service';
@@ -23,10 +28,14 @@ import { FieldWrapperComponent } from '../../../../shared/layout/component/field
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
 import { DateTime } from 'luxon';
-import { DocumentManagerDialogComponent } from '../document-manager-dialog/document-manager-dialog.component';
+// import { DocumentManagerComponent } from '../document-manager-dialog/document-manager-dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { initialDataServidor, subscriptionSchema } from '../../utils/subscription-servidor';
+import { ServidoresStore } from '../../store/servidor.store';
+import { MatTabsModule } from '@angular/material/tabs';
+import { DocumentManagerComponent } from '../document-manager-dialog/document-manager.component';
+import { VinculosPermissoesComponent } from '../vinculos-permissoes/vinculos-permissoes.component';
 
 export type FormModel = Required<ServidorRequestDTO>;
 
@@ -46,355 +55,393 @@ export type FormModel = Required<ServidorRequestDTO>;
     AutocompleteComponent,
     CustomSelectComponent,
     NgxMaskDirective,
-    FieldWrapperComponent
+    FieldWrapperComponent,
+    MatTabsModule,
+    DocumentManagerComponent,
+    VinculosPermissoesComponent
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex justify-between items-center px-6 pt-2 pb-1">
-      <h2 mat-dialog-title class="!font-bold !text-xl !text-blue-700 !m-0 !p-0">
-        @if (isReactivate) {
-          Readmitir: <span class="text-gray-600 font-medium">{{ payload?.nome }}</span>
-        } @else if (isEdit) {
-          Editar Servidor
-        } @else {
-          Novo Servidor
-        }
-      </h2>
-      <button
-        mat-icon-button
-        (click)="closeModal()"
-        aria-label="Fechar"
-        class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500
-              !transition-colors !duration-300"
+    <mat-tab-group
+      animationDuration="0ms"
+      class="sm:h-[760px] w-full p-2 custom-folder-tabs">
       >
-        <mat-icon class="!text-white !scale-90 !leading-none !m-0 !p-0">close</mat-icon>
-      </button>
-    </div>
+      <mat-tab label="Dados Pessoais e Funcionais">
 
-    <mat-dialog-content class="!px-6 !pb-1 !pt-1">
-      <form autocomplete="off" class="flex flex-col gap-6">
+        <div class="flex justify-between items-center px-6 pt-2 pb-1">
+          <h2 mat-dialog-title class="!font-bold !text-xl !text-blue-700 !m-0 !p-0">
+            @if (isReactivate) {
+              Readmitir: <span class="text-gray-600 font-medium">{{ payload?.nome }}</span>
+            } @else if (isEdit) {
+              Editar Servidor
+            } @else {
+              Novo Servidor
+            }
+          </h2>
+        </div>
 
-        <div>
-          <h3
-            class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 border-b
+        <mat-dialog-content class="!px-6 !pb-1 !pt-1">
+          <form autocomplete="off" class="flex flex-col gap-6">
+
+            <div>
+              <h3
+                class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 border-b
                   pb-1 mt-0">
-            Dados Pessoais
-          </h3>
+                Dados Pessoais
+              </h3>
 
-          <div class="flex flex-col gap-y-3">
-            <div class="flex flex-col sm:flex-row gap-3">
-              <!-- input de seleção da foto-->
-              <input
-                type="file"
-                #fileInput
-                class="hidden"
-                accept=".jpg,.jpeg,.png"
-                (change)="onSelectedPhoto($event)">
+              <div class="flex flex-col gap-y-3">
+                <div class="flex flex-col sm:flex-row gap-3">
+                  <!-- input de seleção da foto-->
+                  <input
+                    type="file"
+                    #fileInput
+                    class="hidden"
+                    accept=".jpg,.jpeg,.png"
+                    (change)="onSelectedPhoto($event)">
 
-              <div class="shrink-0 flex items-start justify-center sm:justify-start">
-                <div
-                  class="w-[2.5cm] h-[3.5cm] rounded-xl border border-gray-300 overflow-hidden
+                  <div class="shrink-0 flex items-start justify-center sm:justify-start">
+                    <div
+                      class="w-[2.5cm] h-[3.5cm] rounded-xl border border-gray-300 overflow-hidden
                         relative shadow-sm bg-white group cursor-pointer transition-all
                          duration-300 hover:shadow-md hover:border-blue-400 active:scale-95"
-                  (click)="fileInput.click()"
-                  matTooltip="Clique para alterar a foto"
-                >
-                  <img
-                    [src]="photoUrl()"
-                    alt="Foto do Servidor"
-                    class="object-cover w-full h-full"
-                  />
-                  <div
-                    class="hidden sm:flex absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100
+                      (click)="fileInput.click()"
+                      matTooltip="Clique para alterar a foto"
+                    >
+                      <img
+                        [src]="photoUrl()"
+                        alt="Foto do Servidor"
+                        class="object-cover w-full h-full"
+                      />
+                      <div
+                        class="hidden sm:flex absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100
                           transition-opacity duration-300 items-center justify-center">
-                    <mat-icon class="!text-white scale-150">photo_camera</mat-icon>
-                  </div>
+                        <mat-icon class="!text-white scale-150">photo_camera</mat-icon>
+                      </div>
 
-                  <div
-                    class="sm:hidden absolute bottom-0 inset-x-0 bg-black/50 py-0.5 flex
+                      <div
+                        class="sm:hidden absolute bottom-0 inset-x-0 bg-black/50 py-0.5 flex
                            justify-center items-center">
-                    <mat-icon class="!text-white scale-75 !m-0 !p-0">photo_camera</mat-icon>
+                        <mat-icon class="!text-white scale-75 !m-0 !p-0">photo_camera</mat-icon>
+                      </div>
+
+                      @if (isUploadingPhoto()) {
+                        <div class="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
+                          <mat-spinner diameter="30"></mat-spinner>
+                        </div>
+                      }
+                    </div>
                   </div>
 
-                  @if (isUploadingPhoto()) {
-                    <div class="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
-                      <mat-spinner diameter="30"></mat-spinner>
-                    </div>
-                  }
+                  <!-- Nome-->
+                  <div class="flex-1 flex flex-col gap-y-3 justify-center">
+                    <app-field-wrapper [field]="servidorForm.nome()">
+                      <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                        <mat-label>Nome Completo</mat-label>
+                        <input matInput [formField]="servidorForm.nome" placeholder="Ex: João da Silva" />
+                      </mat-form-field>
+                    </app-field-wrapper>
+
+                    <!-- Filiação-->
+                    <app-field-wrapper [field]="servidorForm.filiacao()">
+                      <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                        <mat-label>Filiação (Nome da Mãe/Pai)</mat-label>
+                        <input matInput [formField]="servidorForm.filiacao" />
+                      </mat-form-field>
+                    </app-field-wrapper>
+                  </div>
                 </div>
-              </div>
 
-              <!-- Nome-->
-              <div class="flex-1 flex flex-col gap-y-3 justify-center">
-                <app-field-wrapper [field]="servidorForm.nome()">
-                  <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                    <mat-label>Nome Completo</mat-label>
-                    <input matInput [formField]="servidorForm.nome" placeholder="Ex: João da Silva" />
-                  </mat-form-field>
-                </app-field-wrapper>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-3">
+                  <!-- CPF-->
+                  <app-field-wrapper [field]="servidorForm.cpf()">
+                    <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                      <mat-label>CPF</mat-label>
+                      <input
+                        matInput
+                        [formField]="servidorForm.cpf"
+                        placeholder="Somente números"
+                        mask="000.000.000-00" />
+                    </mat-form-field>
+                  </app-field-wrapper>
 
-                <!-- Filiação-->
-                <app-field-wrapper [field]="servidorForm.filiacao()">
-                  <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                    <mat-label>Filiação (Nome da Mãe/Pai)</mat-label>
-                    <input matInput [formField]="servidorForm.filiacao" />
-                  </mat-form-field>
-                </app-field-wrapper>
-              </div>
-            </div>
+                  <!-- Data Nascimento-->
+                  <app-field-wrapper [field]="servidorForm.dataNascimento()">
+                    <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                      <mat-label>Data de Nascimento</mat-label>
+                      <input
+                        matInput
+                        class="text-right"
+                        [formField]="servidorForm.dataNascimento"
+                        mask="00/00/0000"
+                        [dropSpecialCharacters]="false"
+                        placeHolder="Data como 'DD/MM/YYYY'" />
+                    </mat-form-field>
+                  </app-field-wrapper>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-3">
-              <!-- CPF-->
-              <app-field-wrapper [field]="servidorForm.cpf()">
+                  <!-- gênero-->
+                  <app-custom-select
+                    label="Gênero"
+                    placeholder="Selecione..."
+                    [field]="servidorForm.genero()"
+                    [options]="servidoresStore.generos()" />
+
+                  <!-- Celular-->
+                  <app-field-wrapper [field]="servidorForm.telefone()">
+                    <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                      <mat-label>Celular</mat-label>
+                      <input mask="(00) 0 0000-0000" matInput [formField]="servidorForm.telefone" />
+                    </mat-form-field>
+                  </app-field-wrapper>
+                </div>
+
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-3">
+                  <!-- E-mail pessoal-->
+                  <app-field-wrapper [field]="servidorForm.emailPessoal()">
+                    <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                      <mat-label>E-mail Pessoal</mat-label>
+                      <input matInput [formField]="servidorForm.emailPessoal" type="email" />
+                    </mat-form-field>
+                  </app-field-wrapper>
+
+                  <!-- E-mail institucional-->
+                  <app-field-wrapper [field]="servidorForm.emailInstitucional()">
+                    <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                      <mat-label>E-mail Institucional</mat-label>
+                      <input matInput [formField]="servidorForm.emailInstitucional" type="email" />
+                    </mat-form-field>
+                  </app-field-wrapper>
+                </div>
+
+                <!-- Endereço-->
                 <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                  <mat-label>CPF</mat-label>
+                  <mat-label>Endereço Completo</mat-label>
                   <input
                     matInput
-                    [formField]="servidorForm.cpf"
-                    placeholder="Somente números"
-                    mask="000.000.000-00" />
+                    [formField]="servidorForm.endereco"
+                    placeholder="Rua, Número, Bairro, Cidade, UF, CEP" />
                 </mat-form-field>
-              </app-field-wrapper>
-
-              <!-- Data Nascimento-->
-              <app-field-wrapper [field]="servidorForm.dataNascimento()">
-                <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                  <mat-label>Data de Nascimento</mat-label>
-                  <input
-                    matInput
-                    class="text-right"
-                    [formField]="servidorForm.dataNascimento"
-                    mask="00/00/0000"
-                    [dropSpecialCharacters]="false"
-                    placeHolder="Data como 'DD/MM/YYYY'" />
-                </mat-form-field>
-              </app-field-wrapper>
-
-              <!-- gênero-->
-              <app-custom-select
-                label="Gênero"
-                placeholder="Selecione..."
-                [field]="servidorForm.genero()"
-                [options]="generos()" />
-
-              <!-- Celular-->
-              <app-field-wrapper [field]="servidorForm.telefone()">
-                <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                  <mat-label>Celular</mat-label>
-                  <input mask="(00) 0 0000-0000" matInput [formField]="servidorForm.telefone" />
-                </mat-form-field>
-              </app-field-wrapper>
+              </div>
             </div>
 
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-3">
-              <!-- E-mail pessoal-->
-              <app-field-wrapper [field]="servidorForm.emailPessoal()">
-                <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                  <mat-label>E-mail Pessoal</mat-label>
-                  <input matInput [formField]="servidorForm.emailPessoal" type="email" />
-                </mat-form-field>
-              </app-field-wrapper>
-
-              <!-- E-mail institucional-->
-              <app-field-wrapper [field]="servidorForm.emailInstitucional()">
-                <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                  <mat-label>E-mail Institucional</mat-label>
-                  <input matInput [formField]="servidorForm.emailInstitucional" type="email" />
-                </mat-form-field>
-              </app-field-wrapper>
-            </div>
-
-            <!-- Endereço-->
-            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>Endereço Completo</mat-label>
-              <input
-                matInput
-                [formField]="servidorForm.endereco"
-                placeholder="Rua, Número, Bairro, Cidade, UF, CEP" />
-            </mat-form-field>
-          </div>
-        </div>
-
-        <div>
-          <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 border-b
+            <div>
+              <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 border-b
                     pb-1 mt-0">
-            Vínculo Funcional
-          </h3>
+                Vínculo Funcional
+              </h3>
 
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-x-3 mb-2">
-            <!-- Vínculo-->
-            <app-list-autocomplete
-              class="md:col-span-4"
-              [data]="vinculos()"
-              label="Vínculo"
-              placeholder="Pesquisar..."
-              [selectedId]="servidorModel().vinculoId"
-              (selectedIdChange)="onAutocompeteChange('vinculoId', $event)"
-              [hasExternalError]="servidorForm.vinculoId().invalid()"
-              [errorMessage]="servidorForm.vinculoId().invalid()
+              <div class="grid grid-cols-1 md:grid-cols-12 gap-x-3 mb-2">
+                <!-- Vínculo-->
+                <app-list-autocomplete
+                  class="md:col-span-4"
+                  [data]="servidoresStore.vinculos()"
+                  label="Vínculo"
+                  placeholder="Pesquisar..."
+                  [selectedId]="servidorModel().vinculoId"
+                  (selectedIdChange)="onAutocompleteChange('vinculoId', $event)"
+                  [hasExternalError]="servidorForm.vinculoId().invalid()"
+                  [errorMessage]="servidorForm.vinculoId().invalid()
                   ? servidorForm.vinculoId().errors()[0]?.message
                   : ''"
-              [externalTouched]="servidorForm.vinculoId().touched()" />
+                  [externalTouched]="servidorForm.vinculoId().touched()" />
 
-            <!-- Matrícula-->
-            <app-field-wrapper
-              class="md:col-span-2"
-              [field]="servidorForm.matricula()">
-              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                <mat-label>Matrícula</mat-label>
-                @if (isTerceirizado) {
-                  <input
-                    matInput
-                    [formField]="servidorForm.matricula"
-                    placeholder="Ex: T032"
-                  />
+                <!-- Matrícula-->
+                <app-field-wrapper
+                  class="md:col-span-2"
+                  [field]="servidorForm.matricula()">
+                  <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                    <mat-label>Matrícula</mat-label>
+                    @if (isTerceirizado) {
+                      <input
+                        matInput
+                        [formField]="servidorForm.matricula"
+                        placeholder="Ex: T032"
+                      />
 
-                } @else {
-                  <input
-                    matInput
-                    [formField]="servidorForm.matricula"
-                    [mask]="'0.000-0||00.000-0||000.000-0||0000.000-0'"
-                    [dropSpecialCharacters]="true"
-                  />
-                }
-              </mat-form-field>
-            </app-field-wrapper>
+                    } @else {
+                      <input
+                        matInput
+                        [formField]="servidorForm.matricula"
+                        [mask]="'0.000-0||00.000-0||000.000-0||0000.000-0'"
+                        [dropSpecialCharacters]="true"
+                      />
+                    }
+                  </mat-form-field>
+                </app-field-wrapper>
 
-            <!-- Setor-->
-            <app-list-autocomplete
-              class="md:col-span-6"
-              [data]="setores()"
-              label="Setor"
-              placeholder="Pesquisar..."
-              [selectedId]="servidorModel().setorId"
-              (selectedIdChange)="onAutocompeteChange('setorId', $event)"
-              [hasExternalError]="servidorForm.setorId().invalid()"
-              [errorMessage]="servidorForm.setorId().invalid()
+                <!-- Setor-->
+                <app-list-autocomplete
+                  class="md:col-span-6"
+                  [data]="servidoresStore.setores()"
+                  label="Setor"
+                  placeholder="Pesquisar..."
+                  [selectedId]="servidorModel().setorId"
+                  (selectedIdChange)="onAutocompleteChange('setorId', $event)"
+                  [hasExternalError]="servidorForm.setorId().invalid()"
+                  [errorMessage]="servidorForm.setorId().invalid()
                   ? servidorForm.setorId().errors()[0]?.message
                   : ''"
-              [externalTouched]="servidorForm.setorId().touched()" />
-          </div>
+                  [externalTouched]="servidorForm.setorId().touched()" />
+              </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-x-3 mb-2">
-            <!-- Cargo-->
-            <app-list-autocomplete
-              class="md:col-span-5"
-              [data]="cargos()"
-              label="Cargo"
-              placeholder="Pesquisar..."
-              [selectedId]="servidorModel().cargoId"
-              (selectedIdChange)="onAutocompeteChange('cargoId', $event)"
-              [hasExternalError]="servidorForm.cargoId().invalid()"
-              [errorMessage]="servidorForm.cargoId().invalid()
+              <div class="grid grid-cols-1 md:grid-cols-12 gap-x-3 mb-2">
+                <!-- Cargo-->
+                <app-list-autocomplete
+                  class="md:col-span-5"
+                  [data]="servidoresStore.cargos()"
+                  label="Cargo"
+                  placeholder="Pesquisar..."
+                  [selectedId]="servidorModel().cargoId"
+                  (selectedIdChange)="onAutocompleteChange('cargoId', $event)"
+                  [hasExternalError]="servidorForm.cargoId().invalid()"
+                  [errorMessage]="servidorForm.cargoId().invalid()
                   ? servidorForm.cargoId().errors()[0]?.message
                   : ''"
-              [externalTouched]="servidorForm.cargoId().touched()" />
+                  [externalTouched]="servidorForm.cargoId().touched()" />
 
-            <!-- Lotação-->
-            <app-custom-select
-              class="md:col-span-2"
-              label="Lotação"
-              placeholder="Selecione..."
-              [field]="servidorForm.lotacaoId()"
-              [options]="lotacaoList()" />
+                <!-- Lotação-->
+                <app-custom-select
+                  class="md:col-span-2"
+                  label="Lotação"
+                  placeholder="Selecione..."
+                  [field]="servidorForm.lotacaoId()"
+                  [options]="servidoresStore.lotacoes()" />
 
-            <!-- Se for ADMIN, ver o select e pode editar-->
-            @if (isAdminLogged()) {
-              <!-- Atividade-->
-              <app-custom-select
-                class="md:col-span-2"
-                label="Atividade"
-                placeholder="Selecione..."
-                [field]="servidorForm.tipoAtividade()"
-                [options]="atividades()" />
+                <!-- Se for ADMIN, ver o select e pode editar-->
+                @if (isAdminLogged()) {
+                  <!-- Atividade-->
+                  <app-custom-select
+                    class="md:col-span-2"
+                    label="Atividade"
+                    placeholder="Selecione..."
+                    [field]="servidorForm.tipoAtividade()"
+                    [options]="servidoresStore.atividades()" />
 
-            } @else {
-              <!-- Se não, aparece o input com a informação e bloqueado para edição-->
-              <mat-form-field appearance="outline" class="md:col-span-2 w-full">
-                <mat-label>Atividade</mat-label>
-                <input
-                  matInput
-                  class="w-full bg-transparent border-none text-gray-800 font-medium
+                } @else {
+                  <!-- Se não, aparece o input com a informação e bloqueado para edição-->
+                  <mat-form-field appearance="outline" class="md:col-span-2 w-full">
+                    <mat-label>Atividade</mat-label>
+                    <input
+                      matInput
+                      class="w-full bg-transparent border-none text-gray-800 font-medium
                           focus:outline-none focus:ring-0 cursor-default"
-                  type="text"
-                  readonly
-                  [value]="servidorForm.tipoAtividade().value()"
-                />
-              </mat-form-field>
-            }
+                      type="text"
+                      readonly
+                      [value]="servidorForm.tipoAtividade().value()"
+                    />
+                  </mat-form-field>
+                }
 
-            <!-- Status-->
-            <app-custom-select
-              class="md:col-span-3"
-              label="Status"
-              placeholder="Selecione..."
-              [field]="servidorForm.statusId()"
-              [options]="statusList()" />
+                <!-- Status-->
+                <app-custom-select
+                  class="md:col-span-3"
+                  label="Status"
+                  placeholder="Selecione..."
+                  [field]="servidorForm.statusId()"
+                  [options]="servidoresStore.status()" />
 
-          </div>
-        </div>
-      </form>
-    </mat-dialog-content>
+              </div>
+            </div>
+          </form>
+        </mat-dialog-content>
 
-    <mat-dialog-actions
-      class="!px-6 !pb-4 !pt-0 flex flex-col sm:flex-row sm:justify-between items-center gap-3">
-      <button
-        class="w-full sm:w-auto !border-blue-600 !text-blue-600 !transition-transform duration-300
+        <mat-dialog-actions
+          class="!px-6 !pb-4 !pt-0 flex flex-col sm:flex-row sm:justify-between items-center gap-3">
+          <button
+            class="w-full sm:w-auto !border-blue-600 !text-blue-600 !transition-transform duration-300
               hover:!scale-105 disabled:!border-gray-300 disabled:!text-gray-400 !h-12 sm:!h-10
               order-3 sm:order-1"
-        mat-stroked-button
-        [disabled]="!currentServidorId()"
-        (click)="openDocumentManager()">
-        <mat-icon>attachment</mat-icon>
-        Documentos
-      </button>
+            mat-stroked-button
+            mat-dialog-close
+          >
+            <mat-icon>exit_to_app</mat-icon>
+            Sair
+          </button>
 
-      <button
-        mat-stroked-button
-        type="button"
-        class="w-full sm:w-auto !border-blue-600 !text-blue-600 !transition-transform duration-300
-              hover:!scale-105 disabled:!border-gray-300 disabled:!text-gray-400 !h-12 sm:!h-10
-              order-2 sm:order-2"
-        [disabled]="servidorForm().invalid() || !isAdminLogged()"
-        (click)="openPermissions()"
-      >
-        <mat-icon class="mr-2">security</mat-icon>
-        Vínculos e Permissões
-      </button>
-
-      <button
-        mat-flat-button
-        class="w-full sm:w-auto !transition-transform duration-300 hover:!scale-105 !h-12 sm:!h-10
+          <button
+            mat-flat-button
+            class="w-full sm:w-auto !transition-transform duration-300 hover:!scale-105 !h-12 sm:!h-10
               order-1 sm:order-3"
-        (click)="salvar()"
-        [disabled]="servidorForm().invalid()"
-      >
-        <mat-icon class="mr-2">{{ isReactivate ? 'settings_backup_restore' : 'save' }}</mat-icon>
-        {{ isReactivate ? 'Confirmar Readmissão' : (isEdit ? 'Atualizar' : 'Salvar') }}
-      </button>
-    </mat-dialog-actions>
+            (click)="salvar()"
+            [disabled]="servidorForm().invalid()"
+          >
+            <mat-icon class="mr-2">{{ isReactivate ? 'settings_backup_restore' : 'save' }}</mat-icon>
+            {{ isReactivate ? 'Confirmar Readmissão' : (isEdit ? 'Atualizar' : 'Salvar') }}
+          </button>
+        </mat-dialog-actions>
+      </mat-tab>
+
+      <mat-tab label="Vínculos e Permissões" [disabled]="!currentServidorId()">
+        <ng-template matTabContent>
+          <div class="w-full h-[650px] md:h-[680px] p-2">
+            @if (currentServidorId()) {
+              <app-vinculos-permissoes
+                class="block w-full h-full"
+                [initialSistemas]="servidorModel().sistemaIds || []"
+                [initialProcuradores]="servidorModel().procuradorIds || []"
+                [initialAliases]="servidorModel().aliasIds || []"
+                (permissionsChanged)="atualizarPermissoesNoModeloPai($event)"
+              />
+            } @else {
+              <div class="flex flex-col items-center justify-center p-8 text-gray-500">
+                <mat-icon class="text-4xl mb-2">lock</mat-icon>
+                <p>Salve os dados do servidor para desbloquear o gerenciamento de permissões.</p>
+              </div>
+            }
+
+          </div>
+        </ng-template>
+      </mat-tab>
+
+      <mat-tab label="Documentos" [disabled]="!currentServidorId()">
+        <ng-template matTabContent>
+          <div class="w-full h-[650px] md:h-[680px] block bg-gray-50 rounded-xl overflow-hidden">
+            @if (currentServidorId()!) {
+              <app-document-manager
+                class="block w-full h-full"
+                [servidorId]="currentServidorId()!"
+              />
+            } @else {
+              <div class="flex flex-col items-center justify-center p-8 text-gray-500">
+                <mat-icon class="text-4xl mb-2">lock</mat-icon>
+                <p>Salve os dados do servidor para desbloquear a anexação de documentos.</p>
+              </div>
+            }
+          </div>
+        </ng-template>
+      </mat-tab>
+    </mat-tab-group>
   `
 })
 export class ServidorFormComponent implements OnInit {
   // Injeções de dependência
   private readonly servidorService = inject(ServidorService);
-  private readonly dominioService = inject(DominioService);
+  protected readonly servidoresStore = inject(ServidoresStore);
   private readonly notificationService = inject(NotificationService);
   private readonly errorHandlerService = inject(ErrorHandlerService);
+  private readonly authService = inject(AuthService);
   private readonly dialogRef = inject(MatDialogRef<ServidorFormComponent>);
   private readonly dialog = inject(MatDialog);
-  private readonly authService = inject(AuthService);
+  private destroyRef = inject(DestroyRef);
 
   constructor() {
+    // Remove a foto que estiver na memória ao fechar o formn
+    this.destroyRef.onDestroy(() => {
+      const currentUrl = this.photoUrl();
+      if (currentUrl && currentUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(currentUrl);
+      }
+    });
+
     effect(() => {
       // Atribui valores as variáveis locais effect
       const selectedId = this.servidorForm.vinculoId().value();
-      const vinculoList = this.vinculos();
+      const vinculoList = this.servidoresStore.vinculos();
 
       untracked(() => {
-        if (!selectedId) return;
+        if (!selectedId || vinculoList.length === 0) return;
         // atribui valores as variáveis locais do untracked
         const selectedVinculo = vinculoList.find(
           opt => opt.id === selectedId
@@ -402,27 +449,36 @@ export class ServidorFormComponent implements OnInit {
         const vinculoName = (selectedVinculo?.nome || '').toLowerCase();
         const currentMatricula = this.servidorForm.matricula().value();
 
+        const isManualMatricula = vinculoName
+          .includes('comissionado') || vinculoName.includes('efetivo');
+
         // --- CENÁRIO: MUDOU PARA TERCEIRIZADO ---
-        if (vinculoName !== 'comissionado' && vinculoName !== 'efetivo') {
+        if (!isManualMatricula) {
 
           // Se a matrícula atual ainda não é "T", guardamos ela como original caso não tenha sido salva
           if (currentMatricula && !currentMatricula.startsWith('T') && !this.originMatricula) {
             this.originMatricula = currentMatricula;
-            this.originVinculoId = this.servidorForm.vinculoId().value();
+            this.originVinculoId = selectedId;
           }
 
+          const novaMatricula = this.cacheMatriculaTerceirizado || this.gerarMatriculaTerceirizado();
+          this.cacheMatriculaTerceirizado = novaMatricula;
+
+          this.servidorForm.matricula().controlValue.set(novaMatricula);
+
           // Se já temos um "T" no cache, restauramos. Senão, geramos um novo.
-          if (this.cacheMatriculaTerceirizado) {
-            this.servidorForm.matricula().controlValue.set(this.cacheMatriculaTerceirizado);
-            // this.servidorForm.matricula().value.set(this.cacheMatriculaTerceirizado);
-          } else if (!currentMatricula?.startsWith('T')) {
-            const newMatricula = this.gerarMatriculaTerceirizado();
-            this.cacheMatriculaTerceirizado = newMatricula;
-            this.servidorForm.matricula().value.set(newMatricula);
-          }
+          // if (this.cacheMatriculaTerceirizado) {
+          //   this.servidorForm.matricula().controlValue.set(this.cacheMatriculaTerceirizado);
+          //   // this.servidorForm.matricula().value.set(this.cacheMatriculaTerceirizado);
+          // } else if (!currentMatricula?.startsWith('T')) {
+          //   const newMatricula = this.gerarMatriculaTerceirizado();
+          //   this.cacheMatriculaTerceirizado = newMatricula;
+          //   this.servidorForm.matricula().value.set(newMatricula);
+          // }
 
           // --- CENÁRIO: MUDOU PARA QUALQUER OUTRO VÍNCULO ---
         } else {
+
           // 1. Se ele voltou para o vínculo que tinha no início (Ex: Efetivo)
           if (selectedId === this.originVinculoId) {
             this.servidorForm.matricula().controlValue.set(this.originMatricula || '');
@@ -465,17 +521,8 @@ export class ServidorFormComponent implements OnInit {
   private originVinculoId: number | undefined = this.payload?.vinculo?.id;
   private cacheMatriculaTerceirizado: string | null = null;
 
-  // Signals para armazenar os dados que virão da API
-  cargos = signal<BaseEntityDTO[]>([]);
-  setores = signal<BaseEntityDTO[]>([]);
-  vinculos = signal<BaseEntityDTO[]>([]);
-  statusList = signal<BaseEntityDTO[]>([]);
-  generos = signal<BaseEntityDTO[]>([]);
-  lotacaoList = signal<BaseEntityDTO[]>([]);
-  atividades = signal<BaseEntityDTO[]>([]);
-
   // Recebe o ID do usuário atual e caso não exista, recebe null
-  currentServidorId = signal<number | null>(this.payload?.id || null);
+  currentServidorId = signal<number | undefined>(this.payload?.id || undefined);
 
   // Signals de controle da foto
   photoUrl = signal<string>(this.DEFAULT_PHOTO);
@@ -507,7 +554,7 @@ export class ServidorFormComponent implements OnInit {
   });
 
   // Método genérico que controla mudanças nos campos autocomplete
-  onAutocompeteChange(field: keyof ServidorRequestDTO, id: number | null) {
+  onAutocompleteChange(field: keyof ServidorRequestDTO, id: number | null) {
     this.servidorModel.update((m) => ({
       ...m,
       [field]: id as number
@@ -515,8 +562,6 @@ export class ServidorFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Carrega os dados das tabelas de domínio (Cargo, Setor, Alias, etc)
-    this.loadDomains();
     // Se não houver ID, não faz nada
     if (!this.currentServidorId()) return;
 
@@ -524,38 +569,7 @@ export class ServidorFormComponent implements OnInit {
     this.loadPhotoServidor(this.currentServidorId()!);
 
     if (this.payload) {
-      // this.loadPhotoServidor(this.payload.id);
-
-      try {
-        this.servidorModel.update((m) => ({
-          ...m,
-          ...this.payload,
-          // CONVERSÃO DA DATA
-          // Se existir a data no DTO, criamos o objeto Date. O 'T00:00:00' evita
-          // bugs de fuso horário que poderiam fazer o dia voltar 1 número.
-          // Usamos 'as any' temporariamente para o TypeScript não reclamar do tipo inicial 'string'.
-          // dataNascimento: this.payload?.dataNascimento
-          dataNascimento: this.payload?.dataNascimento
-            ? DateTime.fromISO(this.payload.dataNascimento).toFormat('dd/MM/yyyy') : '',
-
-          // BLINDAGEM 3: O "|| null" impede que o modelo receba undefined e apague o controle
-          cargoId: this.payload?.cargo?.id || null as unknown as number,
-          setorId: this.payload?.setor?.id || null as unknown as number,
-          lotacaoId: this.payload?.lotacao?.id || null as unknown as number,
-          statusId: this.payload?.status?.id || null as unknown as number,
-          vinculoId: this.payload?.vinculo?.id || null as unknown as number,
-
-          // RELACIONAMENTOS MÚLTIPLOS (N para N) <---
-          // O backend manda um array de objetos [{id: 1, nome: 'X'}].
-          // O map() extrai só os IDs para o DTO de envio: [1]. Se for nulo, devolve [] vazio.
-          sistemaIds: this.payload?.sistemas?.map((s) => s.id) || [],
-          procuradorIds: this.payload?.procuradores?.map((p) => p.id) || [],
-          aliasIds: this.payload?.aliases?.map((a) => a.id) || []
-        }));
-      } catch (err) {
-        this.errorHandlerService.handle(err, 'Dados');
-        console.log('Dados problemáticos recebidos:', this.payload);
-      }
+      this.inicializarFormularioComPayload();
     }
 
     // Seta o signal com os dados que vieram do backend
@@ -566,145 +580,75 @@ export class ServidorFormComponent implements OnInit {
 
   // Salva ou Atualiza um registro com todos os dados de um funcionário
   async salvar() {
-    // e checa o valid() automaticamente antes de engatilhar o callback.
-    await submit(this.servidorForm, async () => {
-      try {
+    if (this.isEdit && !this.isReactivate && !this.hasCreateds()) {
+      this.notificationService.info('Nenhum dado foi alterado.', 'Atualização');
+      this.dialogRef.close(false);
+      return;
+    }
+    // Obtemos os valores diretos do Signal de Modelo Atualizado
+    const requestData = this.servidorModel() as ServidorRequestDTO;
 
-        if (this.isEdit && !this.isReactivate && !this.hasCreateds()) {
-          this.notificationService.info('Nenhum dado foi alterado.', 'Atualização');
-          this.dialogRef.close(false);
-          return;
-        }
-        // Obtemos os valores diretos do Signal de Modelo Atualizado
-        const requestData = this.servidorModel() as ServidorRequestDTO;
+    // Preparamos a variável no tipo exato que o seu DTO aceita
+    let dataFormated: string | undefined = undefined;
 
-        // Preparamos a variável no tipo exato que o seu DTO aceita
-        let dataFormated: string | undefined = undefined;
+    // Só tentamos converter se o usuário de fato preencheu a data
+    if (requestData.dataNascimento) {
+      // 1. Lemos a string do input (DD/MM/YYYY) usando fromFormat
+      // 2. Convertemos para o padrão do banco (YYYY-MM-DD) usando toISODate()
+      const conversationLuxon =
+        DateTime.fromFormat(requestData.dataNascimento, 'dd/MM/yyyy').toISODate();
 
-        // Só tentamos converter se o usuário de fato preencheu a data
-        if (requestData.dataNascimento) {
-          // 1. Lemos a string do input (DD/MM/YYYY) usando fromFormat
-          // 2. Convertemos para o padrão do banco (YYYY-MM-DD) usando toISODate()
-          const conversationLuxon =
-            DateTime.fromFormat(requestData.dataNascimento, 'dd/MM/yyyy').toISODate();
+      // Garantimos que não passaremos 'null' para satisfazer o TypeScript
+      dataFormated = conversationLuxon !== null ? conversationLuxon : undefined;
+    }
 
-          // Garantimos que não passaremos 'null' para satisfazer o TypeScript
-          dataFormated = conversationLuxon !== null ? conversationLuxon : undefined;
-        }
+    const dataPayload = {
+      ...requestData,
+      dataNascimento: dataFormated
+    };
 
-        const dataPayload = {
-          ...requestData,
-          dataNascimento: dataFormated
-        };
+    // 3. Define qual é a ação que a Store deve tomar
+    const actionType
+      = this.isReactivate ? 'REACTIVATE' : (this.isEdit ? 'UPDATE' : 'CREATE');
 
-        // Transformamos as chamadas Observable em Promise com firstValueFrom
-        if (this.isReactivate) {
-          await firstValueFrom(this.servidorService.reactivate(this.currentServidorId()!, dataPayload));
-          this.dialogRef.close(true);
-        } else if (this.isEdit) {
-          await firstValueFrom(this.servidorService.update(this.currentServidorId()!, dataPayload));
-          this.dialogRef.close(true);
-        } else {
-          // Esperamos o backend devolver o objeto criado (que contém o novo ID)
-          const response =
-            await firstValueFrom(this.servidorService.create(dataPayload));
+    const servId = this.currentServidorId(); // Lê o ID atual do signal
+
+    // 4. DELEGAÇÃO: A Store faz o trabalho pesado
+    this.servidoresStore.saveServidor({
+      action: actionType,
+      servidorId: servId,
+      payload: dataPayload,
+
+      onSuccess: (response) => {
+        // Callback executado apenas se a API retornou sucesso(200/201)
+
+        if (actionType === 'CREATE') {
+          // Atualiza estado local da UI para liberar abas de anexos
           this.hasCreated = true;
           this.currentServidorId.set(response.id);
           this.isEdit = true;
-        }
 
-        const msgAction =
-          this.isReactivate ? 'readmitido' : (this.isEdit ? 'atualizado' : 'cadastrado');
-        const msgTitle =
-          this.isReactivate ? 'Readmissão' : (this.isEdit ? 'Atualização' : 'Cadastro');
-
-        if (this.hasCreated) {
-          this.notificationService.success(
-            `Servidor <strong>${requestData.nome} ${msgAction}</strong>  com sucesso!<br>
-            Você já pode gerenciar as permissões e anexar documentos`,
-            `${msgTitle}`, { duration: 5000 }
-          );
+          // IMPORTANTE: Removi o dialogRef.close() daqui para que
+          // o modal continue aberto e o usuário anexe os documentos!
+          // Caso a regra seja fechar mesmo, basta adicionar this.dialogRef.close(response);
         } else {
-          this.notificationService.success(
-            `Servidor <strong>${requestData.nome} ${msgAction}</strong>  com sucesso!`,
-            `${msgTitle}`, { duration: 3000 }
-          );
+          // Se for update ou reactivate, fecha o modal
+          this.dialogRef.close(response);
         }
-
-        this.dialogRef.close(dataPayload);
-      } catch (err) {
-        this.errorHandlerService.handle(err, `${this.isReactivate
-          ? 'Readmissão' : (this.isEdit ? 'Atualização' : 'Cadastro')}`);
       }
     });
   }
 
-  // ✨ MÉTODO QUE ABRE O GERENCIADOR
-  openDocumentManager() {
-    const id = this.currentServidorId();
-    if (!id) return; // Segurança extra
-
-    this.dialog.open(DocumentManagerDialogComponent, {
-      width: '80vw', // Um tamanho confortável para a tabela
-      maxWidth: '800px',
-      height: '70vh',
-      maxHeight: '500px',
-      disableClose: true, // Obriga a clicar no 'X' para fechar (evita fechar ao clicar fora por acidente)
-      data: { servidorId: id } // Passa o ID para o Modal carregar a lista certa
-    });
-  }
-
-  openPermissions() {
-    const dialogRef = this.dialog.open(PermissoesDialogComponent, {
-      width: '500px',
-      disableClose: true,
-      data: {
-        sistemaIds: this.servidorModel().sistemaIds || [],
-        procuradorIds: this.servidorModel().procuradorIds || [],
-        aliasIds: this.servidorModel().aliasIds || []
-      }
-    });
-    dialogRef.afterClosed().subscribe((result: PermissoesDialogData | undefined) => {
-      if (result) {
-        // Se o usuário confirmou, nós mesclamos os arrays no modelo principal
-        this.servidorModel.update((model) => ({
-          ...model,
-          sistemaIds: result.sistemaIds,
-          procuradorIds: result.procuradorIds,
-          aliasIds: result.aliasIds
-        }));
-      }
-    });
+  atualizarPermissoesNoModeloPai(event: { sistemaIds: number[], procuradorIds: number[], aliasIds: number[] }) {
+    this.servidorModel.update(modeloAtual => ({
+      ...modeloAtual,
+      ...event
+    }));
   }
 
   // Fecha o modal ServidorForm
   closeModal() {
     this.dialogRef.close(this.hasCreated);
-  }
-
-  // Busca os dados na API e seta os signals
-  loadDomains() {
-    this.dominioService.getCargos()
-      .subscribe((res) => this.cargos.set(res));
-
-    this.dominioService.getSetores()
-      .subscribe((res) => this.setores.set(res));
-
-    this.dominioService.getStatus()
-      .subscribe((res) => this.statusList.set(res));
-
-    this.dominioService.getVinculos()
-      .subscribe((res) => this.vinculos.set(res));
-
-    // Busca dados estáticos e simula uma requisição a API
-    this.dominioService.getLotacaoList()
-      .subscribe((res) => this.lotacaoList.set(res));
-
-    this.dominioService.getGeneros()
-      .subscribe((res) => this.generos.set(res));
-
-    this.dominioService.getAtividades()
-      .subscribe((res) => this.atividades.set(res));
   }
 
   loadPhotoServidor(id: number) {
@@ -790,7 +734,6 @@ export class ServidorFormComponent implements OnInit {
         },
         error: (err) => {
           this.errorHandlerService.handle(err, 'Upload de Foto');
-          alert('ERROR ' + err);
           // Se der erro, volta para a foto original/padrão
           this.loadPhotoServidor(id);
         }
@@ -804,9 +747,46 @@ export class ServidorFormComponent implements OnInit {
     return `T${randomNumber}`;
   }
 
+  private inicializarFormularioComPayload() {
+    try {
+      // 1. Extração simplificada de relacionamentos múltiplos
+      const sistemaIds = this.payload?.sistemas?.map((s: any) => s.id) || [];
+      const procuradorIds = this.payload?.procuradores?.map((p: any) => p.id) || [];
+      const aliasIds = this.payload?.aliases?.map((a: any) => a.id) || [];
+
+      // 2. Conversão da Data com Luxon (Preservando sua excelente blindagem de fuso horário)
+      const dataNascimentoFormatada = this.payload?.dataNascimento
+        ? DateTime.fromISO(this.payload.dataNascimento).toFormat('dd/MM/yyyy')
+        : '';
+
+      // 3. Atualiza o seu modelo de formulário baseado em Signals
+      this.servidorModel.update((m) => ({
+        ...m,
+        ...this.payload,
+        dataNascimento: dataNascimentoFormatada,
+
+        // Mapeamento limpo usando o operador de coalescência nula (??) do TypeScript moderno
+        // Substitui o "as unknown as number" que era usado para burlar o compilador
+        cargoId: this.payload?.cargo?.id ?? null as any,
+        setorId: this.payload?.setor?.id ?? null as any,
+        lotacaoId: this.payload?.lotacao?.id ?? null as any,
+        statusId: this.payload?.status?.id ?? null as any,
+        vinculoId: this.payload?.vinculo?.id ?? null as any,
+
+        sistemaIds,
+        procuradorIds,
+        aliasIds
+      }));
+
+    } catch (err) {
+      this.errorHandlerService.handle(err, 'Carregamento de Dados');
+      console.error('Dados problemáticos recebidos no formulário:', this.payload);
+    }
+  };
+
   get isTerceirizado(): boolean {
     const idSelecionado = this.servidorForm.vinculoId().value();
-    const vinculo = this.vinculos()
+    const vinculo = this.servidoresStore.vinculos()
       .find(v => v.id === idSelecionado);
 
     const name = vinculo?.nome.toLowerCase();
@@ -815,4 +795,6 @@ export class ServidorFormComponent implements OnInit {
       name !== 'comissionado' && name !== 'efetivo'
     );
   }
+
+  protected readonly Number = Number;
 }

@@ -5,6 +5,7 @@ import {
   effect,
   ElementRef,
   inject,
+  input,
   signal,
   ViewChild
 } from '@angular/core';
@@ -13,7 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { UploadService } from '../../services/upload.service';
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 import { DocumentUploadModel, StagedFile } from '../../models/document-upload.model';
@@ -30,7 +31,7 @@ import { DocumentListTableComponent } from './document-list-table/document-list-
 const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 20 MB
 
 @Component({
-  selector: 'app-document-manager-dialog',
+  selector: 'app-document-manager',
   imports: [
     CommonModule,
     MatButtonModule,
@@ -46,25 +47,19 @@ const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 20 MB
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex flex-col h-full">
+    <div class="flex flex-col h-full w-full bg-white overflow-hidden rounded-xl">
       <!-- TÍTULO E BOTÃO FECHAR-->
       <div class="flex justify-between items-center px-4 md:px-6 py-4 border-b border-gray-200 shrink-0">
         <h2 class="text-lg md:text-xl font-bold text-blue-700 m-0">Anexos</h2>
-        <button
-          mat-icon-button
-          mat-dialog-close
-          aria-label="Fechar"
-          class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500
-                  !transition-colors !duration-300"
-        >
-          <mat-icon class="!text-white !scale-90 !leading-none !m-0 !p-0">close</mat-icon>
-        </button>
       </div>
 
-      <div class="p-4 md:p-4 flex flex-1 flex-col bg-gray-50 min-h-0">
+      <div class="flex flex-col flex-1 p-4 md:p-3 bg-gray-50 gap-3 min-h-0">
         @if (!selectedIds().length) {
           <!-- CHAMA O COMPONENTE QUE GUARDA OS ARQUIVOS PDF A SEREM ENVIADOS-->
           <app-document-upload-stage
+            [class]="stagedFiles().length === 0 
+              ? 'block w-full shrink-0'
+              : 'flex flex-col flex-1 min-h-0 w-full'"
             [stagedFiles]="stagedFiles()"
             [isUploading]="isUploading()"
             [hasInvalidFiles]="hasInvalidFiles()"
@@ -81,29 +76,42 @@ const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 20 MB
         }
         @if (stagedFiles().length === 0) {
           <!-- CHAMA O COMPONENTE QUE EXIBE OS ARQUIVOS PDF ENVIADOS E SALVOS-->
-          <app-document-list-table
-            [documents]="documents()"
-            [selectedIds]="selectedIds()"
-            [isLoading]="isLoadingList()"
-            [isAllSelected]="isAllSelected()"
-            [isSomeSelected]="isSomeSelected()"
+          <div class="flex-1 relative min-h-0 w-full">
+            <app-document-list-table
+              [documents]="documents()"
+              [selectedIds]="selectedIds()"
+              [isLoading]="isLoadingList()"
+              [isAllSelected]="isAllSelected()"
+              [isSomeSelected]="isSomeSelected()"
 
-            (toggleAll)="toggleAll($event)"
-            (toggleRow)="toggleRow($event.id, $event.checked)"
-            (deleteBatch)="deleteBatch()"
-            (viewDocument)="documentView($event)"
-          />
+              (toggleAll)="toggleAll($event)"
+              (toggleRow)="toggleRow($event.id, $event.checked)"
+              (deleteBatch)="deleteBatch()"
+              (viewDocument)="documentView($event)"
+            />
+          </div>
         }
+      </div>
+      <div class="flex justify-end p-4 bg-white border-t border-gray-200 shrink-0 relative z-20">
+        <button
+          class="!border-blue-600 !text-blue-600 !transition-transform duration-300
+                hover:!scale-105 disabled:!border-gray-300 disabled:!text-gray-400 !h-12 sm:!h-10"
+          mat-stroked-button
+          mat-dialog-close
+        >
+          <mat-icon>exit_to_app</mat-icon>
+          Sair
+        </button>
       </div>
     </div>
   `
 })
 
-export class DocumentManagerDialogComponent {
+export class DocumentManagerComponent {
 
   // ================ INJEÇÃO DE DEPENDÊNCIAS ========================
   // Recebe o ID do servidor através do DATA do MatDialog
-  protected data = inject(MAT_DIALOG_DATA);
+  // protected data = inject(MAT_DIALOG_DATA);
   private uploadService = inject(UploadService);
   private customDeleteService = inject(CustomDeleteService);
   private notificationService = inject(NotificationService);
@@ -112,6 +120,7 @@ export class DocumentManagerDialogComponent {
   // Para limpar o input nativo caso o usuário cancele
   @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
 
+  servidorId = input.required<number>();
   // SIGNALS
   isUploading = signal(false);
   // Signal para exclusão em lote
@@ -177,12 +186,13 @@ export class DocumentManagerDialogComponent {
   // Carrega todos os documento PDF
   documentsResource = rxResource({
     params: () => ({
-      id: Number(this.data.servidorId)
+      id: Number(this.servidorId())
     }),
     stream: ({ params }) => {
       return this.uploadService.listDocuments(params.id);
     }
   });
+
 
   documents = computed(() => this.documentsResource.value() ?? []);
 
@@ -197,7 +207,7 @@ export class DocumentManagerDialogComponent {
 
     this.isUploading.set(true);
 
-    this.uploadService.uploadDocument(this.data.servidorId, filesToSend)
+    this.uploadService.uploadDocument(this.servidorId(), filesToSend)
       .pipe(finalize(() => this.isUploading.set(false)))
       .subscribe({
         next: () => {

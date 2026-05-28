@@ -7,7 +7,8 @@ import {
   IServidorExcludedQueryParams,
   IServidorQueryParams,
   ServidorRequestDTO,
-  ServidorResponseDTO
+  ServidorResponseDTO,
+  TServidorDelete
 } from '../models/servidor.model';
 import { customHandlerError } from '../../../shared/utils/custom-handler-error';
 
@@ -74,7 +75,7 @@ export class ServidorService {
   }
 
   // Remove um cadastro
-  delete(payload: ServidorResponseDTO): Observable<void> {
+  delete(payload: TServidorDelete): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${payload.id}`)
       .pipe(catchError(customHandlerError));
   }

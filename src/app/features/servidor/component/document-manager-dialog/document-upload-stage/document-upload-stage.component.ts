@@ -21,8 +21,8 @@ const MAX_FILE_SIZE = 1.5 * 1024 * 1024; // 1.5 MB
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="bg-white p-0 rounded-lg border border-gray-200 mb-2 shrink-0 transition-all
-                 duration-300">
+      class="bg-white p-0 rounded-lg border border-gray-200 mb-0 transition-all duration-300 flex flex-col h-full min-h-0 w-full">
+
       <input
         type="file"
         multiple
@@ -34,8 +34,8 @@ const MAX_FILE_SIZE = 1.5 * 1024 * 1024; // 1.5 MB
       @if (stagedFiles().length === 0) {
         <div
           class="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4
-                    bg-blue-50 px-4 py-4 sm:py-2 rounded-md border border-blue-100 flex-1 w-full
-                    text-center sm:text-left">
+             bg-blue-50 px-4 py-4 sm:py-2 rounded-md border border-blue-100 flex-1 w-full
+             text-center sm:text-left">
           <div>
             <h3 class="font-semibold text-blue-700 text-sm">Anexar Arquivos (lote)</h3>
             <p class="text-xs text-gray-500 mt-1 sm:mt-0">
@@ -45,103 +45,119 @@ const MAX_FILE_SIZE = 1.5 * 1024 * 1024; // 1.5 MB
 
           <button
             mat-flat-button
-            class="w-full sm:w-auto !bg-blue-500 gap-2 !transition-transform duration-300
-                      hover:!scale-105"
+            class="w-full sm:w-auto !bg-blue-500 gap-2 !transition-transform duration-300 hover:!scale-105"
             (click)="fileInput.click()">
             <mat-icon>add_photo_alternate</mat-icon>
             Selecionar PDFs
           </button>
         </div>
       } @else {
-        <div class="flex flex-col gap-4">
-          <div class="flex items-center justify-between border-b pb-2">
-            <h3 class="font-semibold text-gray-700">
-              Total de {{ stagedFiles().length }} anexos no lote
+
+        <div class="flex flex-col flex-1 min-h-0 gap-4 p-2">
+          <div
+            class="flex flex-col sm:flex-row rounded p-2 items-start sm:items-center justify-between
+                  pb-2 bg-blue-50 shrink-0 gap-4">
+
+            <div class="flex items-center flex-wrap gap-2 text-sm md:text-base">
+              <h3 class="font-semibold text-gray-700 m-0">
+                Total de {{ stagedFiles().length }} anexos no lote
+              </h3>
 
               @if (totalFileInvalid() > 0) {
-                - {{
-                  totalFileInvalid() > 1
-                    ? 'Inválidos:'
-                    : 'Inválido:'
-                }} {{ totalFileInvalid() }} - Válidos: {{ stagedFiles().length - totalFileInvalid() }}
+                <div class="flex items-center gap-1.5">
+                  <span class="text-gray-400 font-medium">(</span>
+
+                  <span class="text-red-600 font-semibold">
+                    {{ totalFileInvalid() > 1 ? 'Inválidos:' : 'Inválido:' }} {{ totalFileInvalid() }}
+                  </span>
+
+                  <span class="text-gray-400 mx-1">-</span>
+
+                  <span class="text-green-600 font-semibold">
+                    Válidos: {{ stagedFiles().length - totalFileInvalid() }}
+                   </span>
+
+                  <span class="text-gray-400 font-medium">)</span>
+                </div>
               }
-            </h3>
+            </div>
+
             <button
               mat-stroked-button
-              class="w-full sm:w-auto !border-blue-600 !text-blue-600 !transition-transform duration-300
-                        hover:!scale-105 disabled:!border-gray-300 disabled:!text-gray-400"
+              class="w-full sm:w-auto shrink-0 !border-blue-600 !text-blue-600 !transition-transform duration-300
+                    hover:!scale-105 disabled:!border-gray-300 disabled:!text-gray-400"
               (click)="fileInput.click()"
               [disabled]="isUploading()">
               <mat-icon>add</mat-icon>
               Adicionar mais
             </button>
+
           </div>
 
-          <!-- ÁREA PARA VALIDAÇÃO DOS ARQUIVOS PDF QUE SERÃO ENVIADOS-->
-          <div class="flex flex-col gap-2 max-h-70 overflow-y-auto pr-2">
-            @for (item of stagedFiles(); track $index) {
+          <div class="flex-1 relative min-h-0 w-full">
+            <div class="absolute inset-0 overflow-y-auto flex flex-col gap-2 pr-1">
 
-              <div class="flex items-center justify-between px-4 py-2 rounded-md border"
-                   [class]="item.isValid ? 'bg-blue-50 border-blue-100' : 'bg-red-50 border-red-200'">
+              @for (item of stagedFiles(); track $index) {
+                <div class="flex items-center justify-between px-4 py-2 rounded-md border shrink-0"
+                     [class]="item.isValid ? 'bg-green-50 border-blue-100' : 'bg-red-50 border-red-200'">
 
-                <div class="flex items-center gap-3 overflow-hidden">
-                  <mat-icon [class]="item.isValid ? '!text-blue-500' : '!text-red-500'">
-                    {{ item.isValid ? 'picture_as_pdf' : 'error' }}
-                  </mat-icon>
-                  <div class="flex flex-col overflow-hidden">
-                        <span class="font-semibold text-sm truncate"
-                              [class]="item.isValid ? 'text-gray-700' : 'text-gray-500'"
-                              [matTooltip]="item.file.name">
-                          {{ item.file.name }}
-                        </span>
+                  <div class="flex items-center gap-3 overflow-hidden">
+                    <mat-icon [class]="item.isValid ? '!text-green-700' : '!text-red-500'">
+                      {{ item.isValid ? 'picture_as_pdf' : 'error' }}
+                    </mat-icon>
+                    <div class="flex flex-col overflow-hidden">
+                  <span class="font-semibold text-sm truncate"
+                        [class]="item.isValid ? 'text-gray-700' : 'text-gray-500'"
+                        [matTooltip]="item.file.name">
+                    {{ item.file.name }}
+                  </span>
 
-                    @if (item.isValid) {
-                      <span class="text-xs text-gray-500">
-                            {{ (item.file.size / 1024 / 1024).toFixed(2) }} MB
-                          </span>
-                    } @else {
-                      <span class="text-xs font-bold text-red-600">
-                            {{ item.errorMessage }}
-                          </span>
-                    }
+                      @if (item.isValid) {
+                        <span class="text-xs text-gray-500">
+                      {{ (item.file.size / 1024 / 1024).toFixed(2) }} MB
+                    </span>
+                      } @else {
+                        <span class="text-xs font-bold text-red-600">
+                      {{ item.errorMessage }}
+                    </span>
+                      }
+                    </div>
                   </div>
-                </div>
 
-                <button
-                  mat-icon-button
-                  class="!scale-80 !bg-blue-400 hover:!scale-90 !text-white hover:!bg-red-400
-                            !transition-transform duration-300 "
-                  (click)="removeFile.emit($index)"
-                  matTooltip="Remover"
-                  [disabled]="isUploading()">
-                  <mat-icon>close</mat-icon>
-                </button>
-              </div>
-            }
+                  <button
+                    mat-icon-button
+                    class="!scale-80 !bg-blue-400 hover:!scale-90 !text-white hover:!bg-red-400 !transition-transform duration-300 "
+                    (click)="removeFile.emit($index)"
+                    matTooltip="Remover"
+                    [disabled]="isUploading()">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              }
+
+            </div>
           </div>
 
-          <div class="flex flex-col sm:flex-row items-center justify-between pt-2 gap-3 border-t">
+          <div class="flex flex-col sm:flex-row items-center justify-between pt-2 gap-3 border-t shrink-0">
             <div class="text-sm flex flex-col gap-1">
               @if (hasInvalidFiles()) {
                 <span class="text-red-600 font-semibold flex items-center gap-1">
-                      <mat-icon class="scale-75">report_problem </mat-icon>
-                      Remova os arquivos marcados em vermelho.
-                    </span>
+              <mat-icon class="scale-75">report_problem</mat-icon>
+              Remova os arquivos marcados em vermelho.
+            </span>
               } @else if (isTotalSizeExceeded()) {
                 <span class="text-red-600 font-semibold flex items-center gap-1">
-                      <mat-icon class="scale-75">warning</mat-icon>
-                      Lote muito grande. {{ (totalSizeFilesValid() / 1024 / 1024).toFixed(2) }}
-                  Máximo permitido é 20MB
-                    </span>
+              <mat-icon class="scale-75">warning</mat-icon>
+              Lote muito grande. {{ (totalSizeFilesValid() / 1024 / 1024).toFixed(2) }} Máximo permitido é 20MB
+            </span>
               } @else {
                 <span class="flex items-center text-green-600 font-semibold text-xs">
-                      <mat-icon class="scale-75 !text-green-600">checked</mat-icon>
-                        Total do lote: {{ (totalSizeFilesValid() / 1024 / 1024).toFixed(2) }} MB / 20 MB
-                     </span>
+              <mat-icon class="scale-75 !text-green-600">check_circle</mat-icon>
+              Total do lote: {{ (totalSizeFilesValid() / 1024 / 1024).toFixed(2) }} MB / 20 MB
+            </span>
               }
             </div>
 
-            <!-- ÁREA PARA ENVIO DOS ARQUIVOS PDF AO BD-->
             <div class="flex items-center gap-2">
               @if (isUploading()) {
                 <div class="flex items-center text-blue-600 text-sm font-medium gap-2 mr-2">
@@ -151,15 +167,13 @@ const MAX_FILE_SIZE = 1.5 * 1024 * 1024; // 1.5 MB
               } @else {
                 <button
                   mat-stroked-button
-                  class="w-full sm:w-auto !border-blue-600 !text-blue-600 !transition-transform
-                            duration-300 hover:!scale-105"
+                  class="w-full sm:w-auto !border-blue-600 !text-blue-600 !transition-transform duration-300 hover:!scale-105"
                   (click)="clearSelection.emit()">
                   Cancelar Lote
                 </button>
                 <button
                   mat-flat-button
-                  class="!bg-green-600 gap-2 !transition-transform duration-300 hover:!scale-105
-                            disabled:!bg-gray-100"
+                  class="!bg-green-600 gap-2 !transition-transform duration-300 hover:!scale-105 disabled:!bg-gray-100"
                   (click)="sendBatch.emit()"
                   [disabled]="!canUpload()">
                   <mat-icon>cloud_upload</mat-icon>
@@ -168,6 +182,7 @@ const MAX_FILE_SIZE = 1.5 * 1024 * 1024; // 1.5 MB
               }
             </div>
           </div>
+
         </div>
       }
     </div>
