@@ -23,7 +23,6 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { CustomSelectComponent } from '../../../../shared/components/custom-select/custom-select.component';
 import { MatIconModule } from '@angular/material/icon';
 import { NgxMaskDirective } from 'ngx-mask';
-import { AuthService } from '../../../../core/auth/services/auth.service';
 import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper/field-wrapper.component';
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
@@ -36,6 +35,7 @@ import { ServidoresStore } from '../../store/servidor.store';
 import { MatTabsModule } from '@angular/material/tabs';
 import { DocumentManagerComponent } from '../document-manager-dialog/document-manager.component';
 import { VinculosPermissoesComponent } from '../vinculos-permissoes/vinculos-permissoes.component';
+import { AuthStore } from '../../../../core/auth/store/auth.store';
 
 export type FormModel = Required<ServidorRequestDTO>;
 
@@ -419,9 +419,9 @@ export class ServidorFormComponent implements OnInit {
   // Injeções de dependência
   private readonly servidorService = inject(ServidorService);
   protected readonly servidoresStore = inject(ServidoresStore);
+  protected readonly authStore = inject(AuthStore);
   private readonly notificationService = inject(NotificationService);
   private readonly errorHandlerService = inject(ErrorHandlerService);
-  private readonly authService = inject(AuthService);
   private readonly dialogRef = inject(MatDialogRef<ServidorFormComponent>);
   private readonly dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
@@ -548,9 +548,9 @@ export class ServidorFormComponent implements OnInit {
 
   // Computed para ocultar partes do html (botões, divs, etc) se o usuário não for administrador
   isAdminLogged = computed(() => {
-    const user = this.authService.currentUser();
+    const user = this.authStore.currentUser();
     if (!user) return;
-    return user.roles.some((p) => p === 'admin');
+    return user.roles?.some((p) => p === 'admin');
   });
 
   // Método genérico que controla mudanças nos campos autocomplete

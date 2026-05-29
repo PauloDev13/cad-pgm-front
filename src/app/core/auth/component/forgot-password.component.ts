@@ -1,16 +1,13 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { AuthService } from '../services/auth.service';
-import { Router, RouterModule } from '@angular/router';
-import { email, form, FormField, required, submit } from '@angular/forms/signals';
+import { RouterModule } from '@angular/router';
+import { email, form, FormField, required } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HeaderLoginComponent } from './header-login.component';
-import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper/field-wrapper.component';
-import { finalize } from 'rxjs';
-import { ErrorHandlerService } from '../../../shared/service/error-handler.service';
+import { AuthStore } from '../store/auth.store';
 
 @Component({
   selector: 'app-forgot-password',
@@ -59,10 +56,10 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
 
         <button
           type="submit"
-          [disabled]="forgotForm().invalid() || isLoading()"
+          [disabled]="forgotForm().invalid() || authStore.isLoading()"
           class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all flex justify-center items-center gap-2 h-12 disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
         >
-          @if (isLoading()) {
+          @if (authStore.isLoading()) {
             <mat-spinner diameter="20" class="custom-spinner"></mat-spinner>
             <span>Enviando...</span>
           } @else {
@@ -75,14 +72,7 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
 })
 export class ForgotPasswordComponent {
   // Injeção de dependências
-  private readonly authService = inject(AuthService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly errorHandlerService = inject(ErrorHandlerService);
-  private readonly router = inject(Router);
-
-  // Signals de estado
-  isLoading = signal(false);
-  mensagemErro = signal('');
+  protected readonly authStore = inject(AuthStore);
 
   // Modelo do formulário
   formModel = signal({ email: '' });
@@ -95,29 +85,8 @@ export class ForgotPasswordComponent {
 
   async onSubmit(event: Event) {
     event.preventDefault();
-    this.mensagemErro.set('');
 
-    await submit(this.forgotForm, async () => {
-      this.isLoading.set(true);
-      const payload = this.forgotForm().value();
-
-      this.authService.forgotPassword(payload.email).pipe(
-        finalize(() => this.isLoading.set(false))
-      ).subscribe({
-        next: () => {
-          this.notificationService.success(
-            `
-              Você receberá um <strong>link</strong> de redefinição no E-mail informado.
-            `,
-            'E-mail'
-          );
-
-          this.router.navigate(['auth/login']);
-        },
-        error: (err) => {
-          this.errorHandlerService.handle(err, 'E-mail');
-        }
-      });
-    });
+    const payload = this.forgotForm().controlValue().email;
+    this.authStore.forgotPassword(payload);
   }
 }

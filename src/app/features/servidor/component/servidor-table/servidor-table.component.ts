@@ -9,11 +9,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ServidorResponseDTO } from '../../models/servidor.model';
 import { LoadingComponent } from '../../../../shared/components/loading.component/loading.component';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../../core/auth/services/auth.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { map } from 'rxjs';
 import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
+import { AuthStore } from '../../../../core/auth/store/auth.store';
 
 @Component({
   selector: 'app-servidor-table',
@@ -267,7 +267,7 @@ import { MatriculaPipe } from '../../../../shared/pipes/matricula.pipe';
 export class ServidorTableComponent {
   // injete o router no ServidorListComponent ou ServidorTableComponent
   private readonly router = inject(Router);
-  private readonly authService = inject(AuthService);
+  protected readonly authStore = inject(AuthStore);
   private readonly breakpointObserver = inject(BreakpointObserver);
 
   // INPUTS (Dados que vêm do Pai)
@@ -306,7 +306,7 @@ export class ServidorTableComponent {
   });
 
   // Se o usuário logado tiver role "admin" ou "rh", retorna verdadeiro
-  canEdit = this.authService.canEdit();
+  canEdit = this.authStore.canEdit();
 
   // navega para a página que exibe relatório de detalhes
   viewDetail(id: number, currentTab: 'ativo' | 'desligado') {

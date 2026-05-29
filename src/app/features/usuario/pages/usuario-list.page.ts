@@ -8,13 +8,12 @@ import { UsuarioFilterComponent } from '../components/usuario-filter/usuario-fil
 import { UsuarioFormComponent } from '../components/usuario-form/usuario-form.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { AuthService } from '../../../core/auth/services/auth.service';
 import {
   TemporaryPasswordDialogComponent
 } from '../../../core/auth/component/temporary -password-dialog/temporary-password-dialog.component';
 import { CustomDeleteService } from '../../../shared/service/custom-delete.service';
-import { ErrorHandlerService } from '../../../shared/service/error-handler.service';
 import { UsersStore } from '../store/user.store';
+import { AuthStore } from '../../../core/auth/store/auth.store';
 
 @Component({
   selector: 'app-servidor-list',
@@ -75,8 +74,7 @@ import { UsersStore } from '../store/user.store';
 export default class UsuarioListPage {
   // Injeções de dependências
   protected readonly usersStore = inject(UsersStore);
-  private readonly errorHandlerService = inject(ErrorHandlerService);
-  private readonly authService = inject(AuthService);
+  protected readonly authStore = inject(AuthStore);
   private readonly customDeleteService = inject(CustomDeleteService);
   private readonly dialog = inject(MatDialog);
 
@@ -116,8 +114,9 @@ export default class UsuarioListPage {
     });
     dialogRef.afterClosed().subscribe((confirm) => {
       if (confirm) {
-        this.authService.resetPasswordByAdmin(usuario?.id).subscribe({
-          next: (response) => {
+        this.authStore.resetPasswordByAdmin({
+          userId: usuario?.id,
+          onSuccess: (temporaryPassword: string) => {
             this.dialog.open(TemporaryPasswordDialogComponent, {
               data: {
                 title: 'Senha',
@@ -125,13 +124,10 @@ export default class UsuarioListPage {
                   Copie e informe esta senha ao usuário.
                   Ele será obrigado a trocá-la no próximo login
                 `,
-                password: response.temporaryPassword
+                password: temporaryPassword
               },
               disableClose: true
             });
-          },
-          error: (err) => {
-            this.errorHandlerService.handle(err, 'Senha');
           }
         });
       }

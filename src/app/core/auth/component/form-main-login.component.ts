@@ -4,16 +4,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { form, FormField, required, submit } from '@angular/forms/signals';
 import { MatInputModule } from '@angular/material/input';
-import { IAuthRequest, IDecodedToken } from '../models/auth.model';
-import { AuthService } from '../services/auth.service';
-import { Router, RouterLink } from '@angular/router';
+import { IAuthRequest } from '../models/auth.model';
+import { RouterLink } from '@angular/router';
 import { MatIconButton } from '@angular/material/button';
-import { LoginStateService } from '../services/login-state.service';
 import { HeaderLoginComponent } from './header-login.component';
 import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper/field-wrapper.component';
-import { jwtDecode } from 'jwt-decode';
-import { finalize } from 'rxjs';
-import { ErrorHandlerService } from '../../../shared/service/error-handler.service';
+import { AuthStore } from '../store/auth.store';
 
 @Component({
   selector: 'app-form-main-login',
@@ -81,12 +77,12 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
 
         <button
           type="submit"
-          [disabled]="loginForm().invalid() || isLoading()"
+          [disabled]="loginForm().invalid() || authStore.isLoading()"
           class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700
                  transition-all flex justify-center items-center gap-2 h-12 disabled:bg-gray-200
                  disabled:text-gray-500 disabled:cursor-not-allowed"
         >
-          @if (isLoading()) {
+          @if (authStore.isLoading()) {
             <mat-spinner diameter="20" class="custom-spinner"></mat-spinner>
             <span>Autenticando...</span>
           } @else {
@@ -99,10 +95,7 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
 })
 export class FormMainLoginComponent {
   // Injeções de dependências
-  private readonly authService = inject(AuthService);
-  private readonly errorHandlerService = inject(ErrorHandlerService);
-  private readonly router = inject(Router);
-  private readonly loginStateService = inject(LoginStateService);
+  protected readonly authStore = inject(AuthStore);
 
   // Signals
   isLoading = signal<boolean>(false);
@@ -112,7 +105,7 @@ export class FormMainLoginComponent {
 
   // Modelo do formulário
   formLoginModel = signal<IAuthRequest>({
-    userName: this.loginStateService.newUserName(),
+    userName: this.authStore.rememberedUsername(),
     password: ''
   });
 
@@ -123,7 +116,7 @@ export class FormMainLoginComponent {
   });
 
   constructor() {
-    this.loginStateService.newUserName.set('');
+    // this.loginStateService.newUserName.set('');
   }
 
   // Métodos para alternar a visualização
@@ -134,31 +127,12 @@ export class FormMainLoginComponent {
 
   async onSubmit(event: Event) {
     event.preventDefault();
-    this.isLoading.set(true);
+
     await submit(this.loginForm, async () => {
       // pega os valores de todos os campos do fomulário
       const dataLogin = this.loginForm().value();
 
-      // Chama o service para realizar enviar os dados de login
-      this.authService.login(dataLogin)
-        .pipe(finalize(() => this.isLoading.set(false)))
-        .subscribe({
-          next: (response) => {
-            // Decodifica o token retornado da API
-            const decoded = jwtDecode<IDecodedToken>(response.token);
-
-            if (decoded.isForcePasswordChange) {
-              this.router.navigate(['/auth/troca-obrigatoria']);
-            } else {
-              // Se o login foi bem-sucedido, vai para a página home
-              this.router.navigate(['home']);
-            }
-            this.isLoading.set(false);
-          },
-          error: (err) => {
-            this.errorHandlerService.handle(err, 'Login');
-          }
-        });
+      this.authStore.login(dataLogin);
     });
   }
 }

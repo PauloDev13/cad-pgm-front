@@ -2,13 +2,13 @@ import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angu
 import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AuthService } from '../../../core/auth/services/auth.service';
 import { LinkSidebarComponent } from './link-sidebar/link-sidebar.component';
 import { ButtonSidebarComponent } from './button-sidebar/button-sidebar.component';
 import { MatDialog } from '@angular/material/dialog';
 import {
   MesAniversarioModalComponent
 } from '../../../features/relatorios/components/mes-aniversario-modal.component/mes-aniversario-modal.component';
+import { AuthStore } from '../../../core/auth/store/auth.store';
 
 @Component({
   selector: 'app-sidebar',
@@ -206,7 +206,7 @@ import {
   `
 })
 export class SidebarComponent {
-  private readonly authService = inject(AuthService);
+  protected readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
 
@@ -220,10 +220,10 @@ export class SidebarComponent {
     permissoes: false
   });
 
-  canEdit = this.authService.canEdit();
+  canEdit = this.authStore.canEdit();
 
   // Retorna verdadeiro se o usuário logado é admin
-  canManager = this.authService.canManager();
+  canManager = this.authStore.canManager();
 
   // Função que inverte o estado do submenu clicado
   toggleSubmenu(menu: string) {

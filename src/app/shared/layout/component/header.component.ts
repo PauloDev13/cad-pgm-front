@@ -4,8 +4,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
-import { AuthService } from '../../../core/auth/services/auth.service';
 import { RouterLink } from '@angular/router';
+import { AuthStore } from '../../../core/auth/store/auth.store';
 
 @Component({
   selector: 'app-header',
@@ -77,16 +77,16 @@ import { RouterLink } from '@angular/router';
   `
 })
 export class HeaderComponent {
-  private readonly authService = inject(AuthService);
+  protected readonly authStore = inject(AuthStore);
 
   // Emite o evento de clique para o layout principal
   toggleSidebar = output<void>();
 
   // Retorna o usuário logado
-  loggedUserName = computed(() => this.authService.currentUser()?.userName || '');
+  loggedUserName = computed(() => this.authStore.currentUser()?.sub || '');
 
   // Sai da aplicação e apaga o token
   logout() {
-    this.authService.logout();
+    this.authStore.logout();
   }
 }

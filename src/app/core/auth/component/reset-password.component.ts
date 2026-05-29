@@ -1,18 +1,16 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { form, FormField, submit } from '@angular/forms/signals';
-import { AuthService } from '../services/auth.service';
 import { HeaderLoginComponent } from './header-login.component';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper/field-wrapper.component';
-import { finalize } from 'rxjs';
-import { ErrorHandlerService } from '../../../shared/service/error-handler.service';
 import { authFormModel, subscriptionSchema } from '../utils/subscription-auth';
+import { AuthStore } from '../store/auth.store';
 
 @Component({
   selector: 'app-reset-password',
@@ -102,12 +100,12 @@ import { authFormModel, subscriptionSchema } from '../utils/subscription-auth';
 
           <button
             type="submit"
-            [disabled]="resetForm().invalid() || isLoading()"
+            [disabled]="resetForm().invalid() || isValidatingToken()"
             class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700
                    transition-all flex justify-center items-center gap-2 h-12 disabled:bg-gray-300
                    disabled:cursor-not-allowed disabled:text-gray-500"
           >
-            @if (isLoading()) {
+            @if (isValidatingToken()) {
               <mat-spinner diameter="20" class="custom-spinner"></mat-spinner>
               <span>Salvando...</span>
             } @else {
@@ -121,26 +119,21 @@ import { authFormModel, subscriptionSchema } from '../utils/subscription-auth';
 })
 export class ResetPasswordComponent {
   //Injeção de dependência
-  private readonly authService = inject(AuthService);
+  protected readonly authStore = inject(AuthStore);
   private readonly notificationService = inject(NotificationService);
-  private readonly errorHandlerService = inject(ErrorHandlerService);
-  private readonly router = inject(Router);
-
-  // Estado da tela
-  isLoading = signal(<boolean>false);
 
   // O Angular ler ?token=XYZ da URL e joga aqui dentro automaticamente.
   token = input<string>('');
+  isValidatingToken = computed(() =>
+    this.authStore.resetTokenStatus() === 'validating');
+  isTokenInvalid = computed(() =>
+    this.authStore.resetTokenStatus() === 'invalid');
 
   // Controle dos ícones visuais
   hidePassword = signal(true);
   hideConfirm = signal(true);
 
-  // Exibe um spinner inicial
-  isValidatingToken = signal(true);
-
   // Bloqueia o formulário se o token for ruim
-  isTokenInvalid = signal(false);
 
   // Configuração e Validação (A mesma arquitetura de Ouro que usamos no Cadastro!)
   resetForm = form(authFormModel, subscriptionSchema);
@@ -150,10 +143,9 @@ export class ResetPasswordComponent {
       const tokenValue = this.token();
 
       if (tokenValue) {
-        this.checkToken(tokenValue);
+        this.authStore.validateResetToken(tokenValue);
       } else {
-        this.isValidatingToken.set(false);
-        this.isTokenInvalid.set(true);
+        this.authStore.setResetTokenInvalid();
         this.notificationService.warning(
           'Token de segurança não encontrado.', 'Senha'
         );
@@ -186,49 +178,18 @@ export class ResetPasswordComponent {
                   enviado para o seu e-mail.`,
         'Token'
       );
-
       return;
     }
 
     await submit(this.resetForm, async () => {
-      this.isLoading.set(true);
 
       // Extraímos apenas a senha final (o confirmPassword não vai pro backend)
       const { password } = this.resetForm().value();
 
-      this.authService.resetPassword(this.token(), password)
-        .pipe(finalize(() => this.isLoading.set(false)))
-        .subscribe({
-          next: () => {
-            this.isLoading.set(false);
-
-            this.notificationService.success(
-              `Senha atualizada com sucesso! Você já pode acessar o sistema.
-              `,
-              'Senha'
-            );
-
-            this.router.navigate(['auth/login']);
-
-          },
-          error: (err) => {
-            this.errorHandlerService.handle(err, 'Link');
-          }
-        });
-    });
-  }
-
-  // Métodos privados
-  private checkToken(token: string) {
-    this.authService.validateResetToken(token).pipe(
-      finalize(() => {
-        this.isValidatingToken.set(false);
-        this.isLoading.set(false);
-      })
-    ).subscribe({
-      error: (err) => {
-        this.errorHandlerService.handle(err, 'Link');
-      }
+      this.authStore.resetPassword({
+        token: this.token(),
+        password
+      });
     });
   }
 }

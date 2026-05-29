@@ -25,10 +25,10 @@ export interface IAuthResponse {
 
 // O que nós vamos ler "escondido" dentro do Token (Payload do JWT)
 export interface IDecodedToken {
-  sub: string; // É aqui que o backend costuma guardar o userName/login
-  roles: string[]; // As permissões ("ROLE_ADMIN", "ROLE_USER")
-  isForcePasswordChange: boolean; // Indica se é obrigatório trocar a senha
-  exp: number; // Data de expiração
+  sub?: string; // É aqui que o backend costuma guardar o userName/login
+  roles?: string[]; // As permissões ("ROLE_ADMIN", "ROLE_USER")
+  isForcePasswordChange?: boolean; // Indica se é obrigatório trocar a senha
+  exp?: number; // Data de expiração
 }
 
 // Só interessa o Claim username dentro do Token (Payload do JWT)

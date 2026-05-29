@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../services/auth.service';
+import { RouterModule } from '@angular/router';
 import { form, FormField } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -8,12 +7,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HeaderLoginComponent } from './header-login.component';
-import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper/field-wrapper.component';
-import { LoginStateService } from '../services/login-state.service';
-import { finalize } from 'rxjs';
-import { ErrorHandlerService } from '../../../shared/service/error-handler.service';
 import { authFormModel, subscriptionSchema } from '../utils/subscription-auth';
+import { AuthStore } from '../store/auth.store';
 
 @Component({
   selector: 'app-force-password-change',
@@ -101,12 +97,12 @@ import { authFormModel, subscriptionSchema } from '../utils/subscription-auth';
 
         <button
           type="submit"
-          [disabled]="changeForm().invalid() || isLoading()"
+          [disabled]="changeForm().invalid() || authStore.isLoading()"
           class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700
                 transition-all flex justify-center items-center gap-2 h-12 disabled:bg-gray-300
                 disabled:cursor-not-allowed disabled:text-gray-500"
         >
-          @if (isLoading()) {
+          @if (authStore.isLoading()) {
             <mat-spinner diameter="20" class="custom-spinner"></mat-spinner>
             <span>Salvando...</span>
           } @else {
@@ -118,13 +114,7 @@ import { authFormModel, subscriptionSchema } from '../utils/subscription-auth';
   `
 })
 export class ForcePasswordChangeComponent {
-  private readonly authService = inject(AuthService);
-  private readonly loginStateService = inject(LoginStateService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly errorHandlerService = inject(ErrorHandlerService);
-  private readonly router = inject(Router);
-
-  isLoading = signal(false);
+  protected readonly authStore = inject(AuthStore);
 
   // Controle dos ícones visuais
   hidePassword = signal(true);
@@ -135,43 +125,13 @@ export class ForcePasswordChangeComponent {
 
   onSubmit(event: Event) {
     event.preventDefault();
+
+    // Se o formulário tem dados inválidos, aborta
     if (this.changeForm().invalid()) return;
 
-    this.isLoading.set(true);
-
-    // O backend precisa do userName. Podemos pegar do Token que já está no storage!
-    const userName = this.authService.getStoredLoggedUser()?.userName;
+    // Dispara a requisição na Store passando apenas a nova senha
     const newPassword = this.changeForm.password().value();
-
-    this.authService.forcePasswordChange(userName!, newPassword).pipe(
-      finalize(() => this.isLoading.set(false))
-    ).subscribe({
-      next: () => {
-        // Pega o nome do usuário logado do Signal currentUser
-        const userLogged: string | undefined = this.authService.currentUser()?.userName;
-
-        // Se houver usuário logado
-        if (userLogged) {
-          // Seta o Signal newUserName usado para exibir o nome do usuário na tela de login
-          this.loginStateService.newUserName.set(userLogged);
-        }
-
-        // Realiza o logout para limpar o localstorage
-        this.authService.logout();
-
-        // Avisamos o usuário que deu tudo certo
-        this.notificationService.success(
-          'Senha atualizada com sucesso! Por favor, faça login com a nova senha.',
-          'Senha'
-        );
-
-        // Agora sim! O Angular sabe que a flag é falsa, e a navegação será permitida!
-        this.router.navigate(['/auth/home']).then();
-      },
-      error: (err) => {
-        this.errorHandlerService.handle(err, 'Senha');
-      }
-    });
+    this.authStore.forcePasswordChange(newPassword);
   }
 
   // Métodos de UX para exibir/ocultar caracteres da senha

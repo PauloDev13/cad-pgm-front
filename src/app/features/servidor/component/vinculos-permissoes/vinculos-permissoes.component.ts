@@ -8,7 +8,6 @@ import { ServidoresStore } from '../../store/servidor.store';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-vinculos-permissoes',
@@ -20,8 +19,7 @@ import { NgClass } from '@angular/common';
     MatIconModule,
     MatCheckboxModule,
     MatDividerModule,
-    MatTooltipModule,
-    NgClass
+    MatTooltipModule
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

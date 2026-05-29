@@ -1,29 +1,28 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { AuthService } from '../services/auth.service';
-import { ILoggedUser } from '../models/auth.model';
 import { catchError, EMPTY, throwError } from 'rxjs';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 import { Router } from '@angular/router';
+import { AuthStore } from '../store/auth.store';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // Injeções de dependência
-  const authService = inject(AuthService);
+  const authStore = inject(AuthStore);
   const notificationService = inject(NotificationService);
   const router = inject(Router);
 
   // Pega o usuário logado
-  const user: ILoggedUser | null = authService.currentUser();
+  const token: string | null = authStore.token();
 
   // Cria uma variável que recebe uma cópia requisição (Req e imutável)
   let authReq = req;
 
   // Se houver usuário logado e token
-  if (user && user.token) {
+  if (token) {
     // Faz um clone da requisição e passar o token no cabeçalho com o prefixo "Bearer"
     authReq = req.clone({
       setHeaders: {
-        Authorization: `Bearer ${user.token}`
+        Authorization: `Bearer ${token}`
       }
     });
   }
@@ -38,7 +37,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       // =========================================================================
       if ((error.status === 401 || error.status === 403) && !isLoginRequest) {
         // Sai da aplicação
-        authService.logout();
+        authStore.logout();
 
         // Exibe mensagem na tela
         notificationService.warning('Sua sessão expirou. Faça login novamente');

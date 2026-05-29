@@ -6,12 +6,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AuthService } from '../../../../core/auth/services/auth.service';
+// import { AuthService } from '../../../../core/auth/services/auth.service';
 import { LoadingComponent } from '../../../../shared/components/loading.component/loading.component';
 import { IUsuarioResponse, TUsuarioDelete } from '../../models/usuario.model';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
+import { AuthStore } from '../../../../core/auth/store/auth.store';
 
 @Component({
   selector: 'app-usuario-table',
@@ -208,7 +209,8 @@ import { map } from 'rxjs';
     </div>`
 })
 export class UsuarioTableComponent {
-  private readonly authService = inject(AuthService);
+  // private readonly authService = inject(AuthService);
+  private readonly authStore = inject(AuthStore);
   private readonly breakpointObserver = inject(BreakpointObserver);
 
   // Cria um Signal reativo que será true em telas menores que 768px
@@ -243,20 +245,21 @@ export class UsuarioTableComponent {
 
   // Avalia linha por linha se os botões devem estar desabilitados
   isActionDisabled(rowUser: IUsuarioResponse): boolean {
-    const loggedUser = this.authService.currentUser();
+    // const loggedUser = this.authService.currentUser();
+    const loggedUser = this.authStore.currentUser();
 
     // Fail-safe: Se não houver usuário logado no storage, bloqueia tudo.
     if (!loggedUser) return true;
 
     // REGRA DE OURO (Proteção do Procurador Geral):
     // Se a linha desenhada for do 'procurador.geral' E o usuário logado NÃO for ele mesmo, bloqueia!
-    if (rowUser.userName === 'pgmnet' && loggedUser.userName !== 'pgmnet') {
+    if (rowUser.userName === 'pgmnet' && loggedUser.sub !== 'pgmnet') {
       return true;
     }
 
     // REGRA ORIGINAL (Proteção de Papel):
     // Se passou da regra acima, avalia se o usuário logado é 'admin'
-    const isAdmin = loggedUser.roles.includes('admin');
+    const isAdmin = loggedUser.roles?.includes('admin');
 
     // Se NÃO for admin, retorna true (desabilita).
     return !isAdmin;

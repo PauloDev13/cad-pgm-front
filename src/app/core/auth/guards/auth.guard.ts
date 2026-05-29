@@ -1,15 +1,15 @@
 import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
-import { AuthService } from '../services/auth.service';
-import { ILoggedUser } from '../models/auth.model';
+import { IDecodedToken } from '../models/auth.model';
+import { AuthStore } from '../store/auth.store';
 
 // Protege as rotas privadas (Exige estar logado)
 export const authGuard: CanActivateFn = (route, state) => {
-  const authService = inject(AuthService);
+  const authStore = inject(AuthStore);
   const router = inject(Router);
 
   // Pega o usuário logado no signal
-  const user: ILoggedUser | null = authService.currentUser();
+  const user: IDecodedToken | null = authStore.currentUser();
 
   // Se houve usuário logado
   if (user) {
@@ -29,9 +29,10 @@ export const authGuard: CanActivateFn = (route, state) => {
 
 // Protege a tela de Login (Impede logados de verem o login)
 export const publicGuard: CanActivateFn = (route, state) => {
-  const authService = inject(AuthService);
+  // const authService = inject(AuthService);
+  const authStore = inject(AuthStore);
   const router = inject(Router);
-  const user: ILoggedUser | null = authService.currentUser();
+  const user: IDecodedToken | null = authStore.currentUser();
 
   // Se tem usuário logado,
   if (user) {
@@ -59,14 +60,15 @@ export const publicGuard: CanActivateFn = (route, state) => {
 
 // Verifica se o usuário tem a permissão necessária
 export const roleGuard: CanActivateFn = (route) => {
-  const authService = inject(AuthService);
+  // const authService = inject(AuthService);
+  const authStore = inject(AuthStore);
   const router = inject(Router);
 
   // Pega qual é a permissão que a rota exige (vamos configurar isso nas rotas no passo 2)
   const expectedRole = route.data['role'];
 
   // Pega o usuário logado
-  const user: ILoggedUser | null = authService.currentUser();
+  const user: IDecodedToken | null = authStore.currentUser();
 
   // Se por algum motivo não tiver usuário, bloqueia
   if (!user) {
@@ -74,7 +76,7 @@ export const roleGuard: CanActivateFn = (route) => {
   }
 
   // Verifica se dentro do array de permissões do usuário existe a permissão exigida
-  const hasPermission = user.roles.some((p) => p === expectedRole);
+  const hasPermission = user.roles?.some((p) => p === expectedRole);
 
   if (hasPermission) {
     return true; // Pode entrar!
