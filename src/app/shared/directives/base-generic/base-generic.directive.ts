@@ -13,13 +13,8 @@ import { rxResource } from '@angular/core/rxjs-interop';
 
 @Directive()
 export abstract class BaseGenericDirective<T> {
-  // Estado (Renomeamos de "cargos" para um nome genérico "dataList")
-  // dataList = signal<T[]>([]);
-
-  // isLoading = signal<boolean>(false);
 
   searchTerm = signal<string>('');
-  // totalElements = signal<number>(0);
   pageSize = signal<number>(10);
   currentPage = signal<number>(0);
 

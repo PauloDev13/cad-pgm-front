@@ -10,7 +10,7 @@ import {
   untracked
 } from '@angular/core';
 import { ServidorService } from '../../services/servidor.service';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { ServidorRequestDTO, ServidorResponseDTO } from '../../models/servidor.model';
 import { form, FormField } from '@angular/forms/signals';
 import { finalize, switchMap } from 'rxjs';
@@ -27,7 +27,6 @@ import { FieldWrapperComponent } from '../../../../shared/layout/component/field
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
 import { DateTime } from 'luxon';
-// import { DocumentManagerComponent } from '../document-manager-dialog/document-manager-dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { initialDataServidor, subscriptionSchema } from '../../utils/subscription-servidor';
@@ -354,7 +353,7 @@ export type FormModel = Required<ServidorRequestDTO>;
               hover:!scale-105 disabled:!border-gray-300 disabled:!text-gray-400 !h-12 sm:!h-10
               order-3 sm:order-1"
             mat-stroked-button
-            mat-dialog-close
+            (click)="closeModal()"
           >
             <mat-icon>exit_to_app</mat-icon>
             Sair
@@ -423,7 +422,6 @@ export class ServidorFormComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly dialogRef = inject(MatDialogRef<ServidorFormComponent>);
-  private readonly dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
 
   constructor() {

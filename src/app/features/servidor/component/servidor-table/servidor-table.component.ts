@@ -312,7 +312,7 @@ export class ServidorTableComponent {
   viewDetail(id: number, currentTab: 'ativo' | 'desligado') {
     this.router.navigate(['/servidores/detalhes', id], {
       queryParams: { type: currentTab }
-    }).then();
+    });
   }
 
   // Seleciona a legenda do status na mensagem quando não há

@@ -176,43 +176,6 @@ export default class AuditPage {
     if (resetPage) {
       this.currentPage.set(0);
     }
-    // const currentModel = this.auditFormModel();
-    //
-    // // 1. Validação de Datas (Regra de Negócio Frontend)
-    // const startDate = currentModel.startDate;
-    // const endDate = currentModel.endDate;
-    //
-    // if (startDate && endDate && endDate < startDate) {
-    //   this.notificationService.error(
-    //     'A data final não pode ser menor que a data inicial.', 'Filtro Inválido'
-    //   );
-    //   return; // Aborta a requisição!
-    // }
-    //
-    // this.isLoading.set(true);
-    //
-    // // 2. Formatação das datas para YYYY-MM-DD
-    // const isoStartDate = startDate ? this.formatDateToISO(startDate) : null;
-    // const isoEndDate = endDate ? this.formatDateToISO(endDate) : null;
-    //
-    // // 3. Chamada à API
-    // this.auditoriaService.searchAuditFilter({
-    //   page: this.currentPage(),
-    //   size: this.pageSize(),
-    //   username: currentModel.username,
-    //   typeAction: currentModel.typeAction,
-    //   startDate: isoStartDate,
-    //   endDate: isoEndDate
-    // })
-    //   .pipe(finalize(() => this.isLoading.set(false)))
-    //   .subscribe({
-    //     next: (response) => {
-    //       this.dataAudit.set(response.content);
-    //       this.totalElements.set(response.page.totalElements);
-    //       this.currentPage.set(response.page.number);
-    //     },
-    //     error: (err) => this.errorHandlerService.handle(err, 'Relatório')
-    //   });
   }
 
   onPageChange(event: PageEvent) {

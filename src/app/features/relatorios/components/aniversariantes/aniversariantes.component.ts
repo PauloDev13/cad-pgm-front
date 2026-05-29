@@ -250,7 +250,7 @@ export default class AniversariantesComponent {
     }
   }
 
-  // ✨ Método auxiliar privado para garantir a cópia em ambientes sem HTTPS
+  //  Método auxiliar privado para garantir a cópia em ambientes sem HTTPS
   private fallbackCopyClipboard(texto: string) {
     // Cria um <textarea> fantasma no HTML
     const textArea = document.createElement('textarea');

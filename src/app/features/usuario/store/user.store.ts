@@ -39,7 +39,6 @@ const initialState: UserState = {
 };
 
 export const UsersStore = signalStore(
-  { providedIn: 'root' },
   withState(initialState),
 
   // SELECTORS COMPUTADOS

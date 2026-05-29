@@ -95,8 +95,6 @@ const initialState: ServidorState = {
 };
 
 export const ServidoresStore = signalStore(
-  { providedIn: 'root' },
-
   withState(initialState),
 
   withComputed((store) => ({

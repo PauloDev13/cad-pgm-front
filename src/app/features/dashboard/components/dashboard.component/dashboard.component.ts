@@ -1,12 +1,14 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { DashboardService } from '../../services/dashboard.service';
-import { DashboardResumoDTO } from '../../models/dashboard.model';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { rxResource, toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { delay, filter } from 'rxjs';
+import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -93,22 +95,27 @@ import { MatIconModule } from '@angular/material/icon';
     </div>
   `
 })
-export default class DashboardComponent implements OnInit {
-  private dashboardService = inject(DashboardService);
+export default class DashboardComponent {
+  // Injeções de dependência
+  private readonly dashboardService = inject(DashboardService);
+  private readonly errorHandlerService = inject(ErrorHandlerService);
+  protected readonly Date = Date;
 
+  constructor() {
+    effect(() => {
+      const error = this.dashboardResource.error();
+
+      if (error) {
+        this.errorHandlerService.handle(error, 'Gráfico');
+      }
+    });
+  }
+
+  // Array das cores usadas nos gráficos
   private readonly colors = [
     '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
     '#06b6d4', '#f43f5e', '#14b8a6', '#6366f1', '#ec4899'
   ];
-
-  isLoading = signal<boolean>(true);
-  summary = signal<DashboardResumoDTO | null>(null);
-
-  // Configurações e Dados dos Gráficos (Serão preenchidos após o carregamento)
-  graphVinculoData = signal<ChartData<'doughnut'>>(
-    { labels: [], datasets: [{ data: [] }] });
-  graphStatusData = signal<ChartData<'bar'>>(
-    { labels: [], datasets: [{ data: [] }] });
 
   // Opções visuais globais (Pode customizar como quiser)
   optionsGraph: ChartConfiguration['options'] = {
@@ -126,47 +133,52 @@ export default class DashboardComponent implements OnInit {
     }
   };
 
-  ngOnInit(): void {
-    this.loadData();
-  }
+  // Resource que busca os dados
+  dashboardResource = rxResource(({
+    stream: () => this.dashboardService.getResumoServidores()
+  }));
 
-  print() {
-    window.print();
-  }
+  // Dados extraídos do resource
+  isLoading = this.dashboardResource.isLoading;
+  summary = computed(() =>
+    this.dashboardResource.value() ?? null);
 
-  // Carrega os gráficos
-  private loadData() {
-    this.dashboardService.getResumoServidores().subscribe({
-      next: (dados) => {
-        this.summary.set(dados);
+  // Convertemos o valor do resource para Observable, filtramos apenas os
+  // dados válidos, aplicamos os 100ms de delay e devolvemos como Signal!
+  delayedSummary = toSignal(
+    toObservable(this.dashboardResource.value).pipe(
+      // Só aplica o delay quando o dado real chegar do backend
+      filter(dados => !!dados),
+      delay(100)
+    ),
+    { initialValue: null }
+  );
 
-        setTimeout(() => {
-          this.createGraph(dados);
-        }, 100);
+  // Monta o gráfico com os dados de Vínculos
+  graphVinculoData = computed<ChartData<'doughnut'>>(() => {
+    const dados = this.delayedSummary();
 
-        this.isLoading.set(false);
-      },
-      error: (err) => {
-        console.error('Erro ao carregar dashboard', err);
-        this.isLoading.set(false);
-      }
-    });
-  }
+    // Estado vazio inicial
+    if (!dados) return { labels: [], datasets: [{ data: [] }] };
 
-  // Desenha os gráficos
-  private createGraph(dados: DashboardResumoDTO) {
-    this.graphVinculoData.set({
-      // Gráfico de Rosca (Doughnut) para Vínculo
+    return {
       labels: dados.distributionByVinculo.map(i => `${i.label}: ${i.quantity}`),
       datasets: [{
         data: dados.distributionByVinculo.map(i => i.quantity),
         backgroundColor: this.colors,
         hoverOffset: 10
       }]
-    });
+    };
+  });
 
-    this.graphStatusData.set({
-      labels: dados.distributionByStatus.map(i => i.label),
+  // Monta o gráfico com os dados de Status
+  graphStatusData = computed<ChartData<'bar'>>(() => {
+    const dados = this.delayedSummary();
+
+    if (!dados) return { labels: [], datasets: [{ data: [] }] };
+
+    return {
+      labels: dados.distributionByStatus.map(s => s.label),
       datasets: [{
         label: 'Quantidade:',
         data: dados.distributionByStatus.map(i => i.quantity),
@@ -175,8 +187,12 @@ export default class DashboardComponent implements OnInit {
         borderWidth: 1,
         borderRadius: 8
       }]
-    });
-  }
+    };
+  });
 
-  protected readonly Date = Date;
+  // Imprime/salava o grático em PDF
+  print() {
+    window.print();
+  };
+
 }

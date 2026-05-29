@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -69,12 +69,14 @@ import { AuthStore } from '../../../core/auth/store/auth.store';
     MatButtonModule,
     UsuarioTableComponent,
     UsuarioFilterComponent
-  ]
+  ],
+  providers: [UsersStore]
 })
 export default class UsuarioListPage {
   // Injeções de dependências
   protected readonly usersStore = inject(UsersStore);
   protected readonly authStore = inject(AuthStore);
+  private readonly injector = inject(Injector);
   private readonly customDeleteService = inject(CustomDeleteService);
   private readonly dialog = inject(MatDialog);
 
@@ -87,7 +89,8 @@ export default class UsuarioListPage {
       maxWidth: '95vw',
       maxHeight: '90vw',
       data: usuario,
-      disableClose: true
+      disableClose: true,
+      injector: this.injector // Injeta uma a mesma instância do provider do pai para o filho
     });
 
     dialogRef.afterClosed().subscribe((payload) => {
@@ -110,7 +113,8 @@ export default class UsuarioListPage {
       data: {
         title: 'Senha',
         message: `Gerar nova senha para ${usuario?.name.toUpperCase()}?`
-      }
+      },
+      injector: this.injector // Injeta uma a mesma instância do provider do pai para o filho
     });
     dialogRef.afterClosed().subscribe((confirm) => {
       if (confirm) {

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Injector, signal } from '@angular/core';
 import { ServidorResponseDTO, TServidorDelete } from '../models/servidor.model';
 import { MatDialog } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
@@ -122,11 +122,13 @@ import { ServidoresStore } from '../store/servidor.store';
     ServidorTableComponent,
     MatTabsModule,
     DeletedFilterComponent
-  ]
+  ],
+  providers: [ServidoresStore]
 })
 export default class ServidorListPage {
   // Injeções de dependências
   protected readonly servidoresStore = inject(ServidoresStore);
+  private readonly injector = inject(Injector);
   private readonly dialog = inject(MatDialog);
   private readonly customDeleteService = inject(CustomDeleteService);
 
@@ -153,17 +155,21 @@ export default class ServidorListPage {
       maxWidth: '95vw',
       maxHeight: '90vw',
       data: servidor,
-      disableClose: true
+      disableClose: true,
+      injector: this.injector // Injeta uma a mesma instância do provider do pai para o filho
     });
 
     dialogRef.afterClosed().subscribe((payload) => {
-      const isEdit = !!payload.id;
-      // Se for edição, atualiza o servidoresResource
-      if (isEdit) {
-        this.servidoresStore.updateLocalServidor(payload);
-      } else {
-        // Se não, faz o reload para atualizar os dados após o insert
-        this.servidoresStore.reloadList();
+      if (payload) {
+        const isEdit = !!payload.id;
+        // Se for edição, atualiza o servidoresResource
+        if (isEdit) {
+          this.servidoresStore.updateLocalServidor(payload);
+        } else {
+          // Se não, faz o reload para atualizar os dados após o insert
+          // this.servidoresStore.reloadList();
+          this.servidoresStore.reloadBothList();
+        }
       }
     });
   }
@@ -176,7 +182,8 @@ export default class ServidorListPage {
       maxHeight: '90vw',
       // Passamos o payload e a intenção
       data: { payload: servidor, action: 'REACTIVATE' },
-      disableClose: true
+      disableClose: true,
+      injector: this.injector // Injeta uma a mesma instância do provider do pai para o filho
     });
 
     dialogRef.afterClosed().subscribe((payload) => {

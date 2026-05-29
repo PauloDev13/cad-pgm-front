@@ -51,10 +51,10 @@ export const AuthStore = signalStore(
 
   withMethods((
     store,
-    authService = inject(AuthService),
-    notificationService = inject(NotificationService),
-    // loginStateService = inject(LoginStateService),
     errorHandlerService = inject(ErrorHandlerService),
+    notificationService = inject(NotificationService),
+    authService = inject(AuthService),
+    platformId = inject(PLATFORM_ID),
     router = inject(Router)
   ) => ({
     login: rxMethod<IAuthRequest>(
@@ -70,6 +70,12 @@ export const AuthStore = signalStore(
                 token: response.token,
                 currentUser: decodedToken
               });
+
+              if (isPlatformBrowser(platformId)) {
+                // Guardamos o token do usuário logado no local storage
+                localStorage.setItem('jwt-token', response.token);
+              }
+
               // Centraliza o redirecionamento com base nas regras do Token
               if (decodedToken.isForcePasswordChange) {
                 router.navigate(['auth/troca-obrigatoria']);
@@ -215,6 +221,9 @@ export const AuthStore = signalStore(
     ),
 
     logout() {
+      if (isPlatformBrowser(platformId)) {
+        localStorage.removeItem('jwt-token'); // Limpa ao sair
+      }
       patchState(store, initialState);
       authService.logout();
       router.navigate(['/auth/login']);
