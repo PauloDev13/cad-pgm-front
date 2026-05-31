@@ -153,6 +153,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/relatorios/components/aniversariantes/aniversariantes.component')
       },
       {
+        path: 'relatorios/folha-ponto',
+        title: 'Folha de Ponto | Gestão de Servidores PGM Natal',
+        loadComponent: () =>
+          import('./features/relatorios/components/folha-ponto/folha-ponto-relatorio.component/folha-ponto-relatorio.component')
+      },
+      {
         // tela para visualização de detalhes do servidor
         path: 'servidores/detalhes/:id',
         title: 'Detalhes do servidor | Gestão de Servidores PGM Natal',

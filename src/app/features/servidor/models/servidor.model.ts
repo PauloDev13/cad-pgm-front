@@ -4,6 +4,10 @@ export type TipoAtividade = 'PRESENCIAL' | 'REMOTO' | 'HIBRIDO' | null;
 // Tipagem para consultar as roles do usuário e evitar erros de digitação
 export type UserRole = 'admin' | 'rh' | 'guest';
 
+// Tipagem para exclusão de servidor com os atributos ID e Nome
+export type TServidorDelete = Pick<ServidorResponseDTO, 'id' | 'nome'>
+
+// Interface para a pesquisa dinâmica de servidores Ativos
 export interface IServidorQueryParams {
   page: number;
   size: number;
@@ -15,13 +19,14 @@ export interface IServidorQueryParams {
   setorId?: number | null;
 }
 
+// Interface para pesquisa dinâmica de servidores Desligados
 export interface IServidorExcludedQueryParams {
   page: number;
   size: number;
   term?: string;
 }
 
-// Interfaces auxiliares de Resposta
+// Interfaces  de Resposta das entidades de domínio
 export interface BaseEntityDTO {
   id: number;
   nome: string;
@@ -29,7 +34,7 @@ export interface BaseEntityDTO {
   email?: string; // Para alias_servidor
 }
 
-// DTO do envio (request)
+// Servidor DTO do envio (request)
 export interface ServidorRequestDTO {
   nome: string;
   matricula: string;
@@ -52,7 +57,7 @@ export interface ServidorRequestDTO {
   procuradorIds?: number[];
 }
 
-// DTO de Recebimento (Response)
+// Servidor DTO de Recebimento (Response)
 export interface ServidorResponseDTO {
   id: number;
   nome: string;
@@ -78,5 +83,3 @@ export interface ServidorResponseDTO {
   aliases?: BaseEntityDTO[];
   procuradores?: BaseEntityDTO[];
 }
-
-export type TServidorDelete = Pick<ServidorResponseDTO, 'id' | 'nome'>

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Injector, input, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -9,6 +9,10 @@ import {
   MesAniversarioModalComponent
 } from '../../../features/relatorios/components/mes-aniversario-modal.component/mes-aniversario-modal.component';
 import { AuthStore } from '../../../core/auth/store/auth.store';
+import {
+  FolhaPontoModalComponent
+} from '../../../features/relatorios/components/folha-ponto/folha-ponto-modal.component/folha-ponto-modal.component';
+import { ServidoresStore } from '../../../features/servidor/store/servidor.store';
 
 @Component({
   selector: 'app-sidebar',
@@ -200,13 +204,23 @@ import { AuthStore } from '../../../core/auth/store/auth.store';
             [onOpen]="isOpen()"
             (actionClick)="openBirthdayReport()"
           />
+
+          <app-link-sidebar
+            toolTip="Rel. Folha de Ponto"
+            label="Folha de Ponto"
+            icon="demography"
+            [onOpen]="isOpen()"
+            (actionClick)="openFolhaPontoReport()"
+          />
         </div>
       </div>
     </nav>
-  `
+  `,
+  providers: [ServidoresStore]
 })
 export class SidebarComponent {
   protected readonly authStore = inject(AuthStore);
+  private readonly injector = inject(Injector);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
 
@@ -220,7 +234,7 @@ export class SidebarComponent {
     permissoes: false
   });
 
-  canEdit = this.authStore.canEdit();
+  // canEdit = this.authStore.canEdit();
 
   // Retorna verdadeiro se o usuário logado é admin
   canManager = this.authStore.canManager();
@@ -244,6 +258,28 @@ export class SidebarComponent {
         this.router.navigate(['/relatorios/aniversariantes'], {
           queryParams: { month: month }
         }).then();
+      }
+    });
+  }
+
+  openFolhaPontoReport() {
+    const dialogRef = this.dialog.open(FolhaPontoModalComponent,
+      {
+        width: '450px',
+        injector: this.injector
+      }
+    );
+
+    dialogRef.afterClosed().subscribe((filtros) => {
+      if (filtros) {
+        // Redireciona e injeta Mês, Ano e Setor na URL do navegador
+        this.router.navigate(['/relatorios/folha-ponto'], {
+          queryParams: {
+            mes: filtros.mes,
+            ano: filtros.ano,
+            setorId: filtros.setorId
+          }
+        });
       }
     });
   }

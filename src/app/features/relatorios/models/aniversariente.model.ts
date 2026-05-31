@@ -1,9 +1,11 @@
+// Interface para o relatório de aniversariantes
 export interface AniversarianteModel {
   diaMes: string;
   nome: string;
   setor: string;
 }
 
+// Array com os meses do ano
 export const MESES_DO_ANO = [
   { id: 1, nome: 'Janeiro' },
   { id: 2, nome: 'Fevereiro' },
