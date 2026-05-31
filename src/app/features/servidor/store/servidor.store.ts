@@ -1,5 +1,4 @@
 import {
-  BaseEntityDTO,
   IServidorExcludedQueryParams,
   IServidorQueryParams,
   ServidorRequestDTO,
@@ -18,18 +17,6 @@ import { tapResponse } from '@ngrx/operators';
 
 
 type ServidorState = {
-  // State do conteúdo dos combos
-  status: BaseEntityDTO[];
-  cargos: BaseEntityDTO[];
-  setores: BaseEntityDTO[];
-  vinculos: BaseEntityDTO[],
-  lotacoes: BaseEntityDTO[],
-  sistemas: BaseEntityDTO[],
-  procuradores: BaseEntityDTO[],
-  aliases: BaseEntityDTO[],
-  atividades: BaseEntityDTO[],
-  generos: BaseEntityDTO[]
-
   // State da seleção feita nos combos
   selectedStatusId: number | null;
   selectedCargoId: number | null;
@@ -62,16 +49,6 @@ type ServidorState = {
 
 const initialState: ServidorState = {
   // Inicialização do State para Ativos
-  status: [],
-  cargos: [],
-  setores: [],
-  vinculos: [],
-  lotacoes: [],
-  sistemas: [],
-  procuradores: [],
-  aliases: [],
-  atividades: [],
-  generos: [],
   selectedStatusId: null,
   selectedCargoId: null,
   selectedSetorId: null,
@@ -97,7 +74,7 @@ const initialState: ServidorState = {
 export const ServidoresStore = signalStore(
   withState(initialState),
 
-  withComputed((store) => ({
+  withComputed((store, dominioService = inject(DominioService)) => ({
     // Método computado para filtro em Ativos
     queryParams: computed((): IServidorQueryParams => {
       const termo = store.searchTerm();
@@ -130,197 +107,29 @@ export const ServidoresStore = signalStore(
         size: store.excludedPageSize(),
         term: term ? term : undefined
       };
-    })
+    }),
+
+    // Métodos computado que carregam dados das entidades de domínio
+    setores: computed(() => dominioService.setoresResource.value() ?? []),
+    status: computed(() => dominioService.statusResource.value() ?? []),
+    cargos: computed(() => dominioService.cargosResource.value() ?? []),
+    vinculos: computed(() => dominioService.vinculosResource.value() ?? []),
+    lotacoes: computed(() => dominioService.lotacoesResource.value() ?? []),
+    sistemas: computed(() => dominioService.sistemasResource.value() ?? []),
+    procuradores: computed(() => dominioService.procuradoresResource.value() ?? []),
+    generos: computed(() => dominioService.generosResource.value() ?? []),
+    aliases: computed(() => dominioService.aliasesResource.value() ?? []),
+    atividades: computed(() => dominioService.atividadesResource.value() ?? [])
+
+
   })),
 
   withMethods((
     store,
     servidorService = inject(ServidorService),
-    dominioService = inject(DominioService),
     notificationService = inject(NotificationService),
     errorHandlerService = inject(ErrorHandlerService)
   ) => ({
-    // Métodos que carregam dados das entidades de domínio
-    loadStatus: rxMethod<void>(
-      pipe(
-        tap(() => patchState(store, { isLoading: true })),
-        switchMap(() => dominioService.getStatus().pipe(
-          tapResponse({
-            next: (response) => patchState(store, {
-              status: response,
-              isLoading: false
-            }),
-            error: (err) => {
-              patchState(store, { isLoading: false, status: [] });
-              errorHandlerService.handle(err, 'Buscar Status');
-            }
-          })
-        ))
-      )
-    ),
-
-    loadCargos: rxMethod<void>(
-      pipe(
-        tap(() => patchState(store, { isLoading: true })),
-        switchMap(() => dominioService.getCargos().pipe(
-          tapResponse({
-            next: (response) => patchState(store, {
-              cargos: response,
-              isLoading: false
-            }),
-            error: (err) => {
-              patchState(store, { isLoading: false, cargos: [] });
-              errorHandlerService.handle(err, 'Buscar Cargos');
-            }
-          })
-        ))
-      )
-    ),
-
-    loadSetores: rxMethod<void>(
-      pipe(
-        tap(() => patchState(store, { isLoading: true })),
-        switchMap(() => dominioService.getSetores().pipe(
-          tapResponse({
-            next: (response) => patchState(store, {
-              setores: response,
-              isLoading: false
-            }),
-            error: (err) => {
-              patchState(store, { isLoading: false, setores: [] });
-              errorHandlerService.handle(err, 'Buscar Setores');
-            }
-          })
-        ))
-      )
-    ),
-
-    loadVinculos: rxMethod<void>(
-      pipe(
-        tap(() => patchState(store, { isLoading: true })),
-        switchMap(() => dominioService.getVinculos().pipe(
-          tapResponse({
-            next: (response) => patchState(store, {
-              vinculos: response,
-              isLoading: false
-            }),
-            error: (err) => {
-              patchState(store, { isLoading: false, vinculos: [] });
-              errorHandlerService.handle(err, 'Buscar Vínculos');
-            }
-          })
-        ))
-      )
-    ),
-
-    loadLotacoes: rxMethod<void>(
-      pipe(
-        tap(() => patchState(store, { isLoading: true })),
-        switchMap(() => dominioService.getLotacaoList().pipe(
-          tapResponse({
-            next: (response) => patchState(store, {
-              lotacoes: response,
-              isLoading: false
-            }),
-            error: (err) => {
-              patchState(store, { isLoading: false, lotacoes: [] });
-              errorHandlerService.handle(err, 'Buscar Lotações');
-            }
-          })
-        ))
-      )
-    ),
-
-    loadSistemas: rxMethod<void>(
-      pipe(
-        tap(() => patchState(store, { isLoading: true })),
-        switchMap(() => dominioService.getSistemas().pipe(
-          tapResponse({
-            next: (response) => patchState(store, {
-              sistemas: response,
-              isLoading: false
-            }),
-            error: (err) => {
-              patchState(store, { isLoading: false, sistemas: [] });
-              errorHandlerService.handle(err, 'Buscar Sistemas');
-            }
-          })
-        ))
-      )
-    ),
-
-    loadProcuradores: rxMethod<void>(
-      pipe(
-        tap(() => patchState(store, { isLoading: true })),
-        switchMap(() => dominioService.getProcuradores().pipe(
-          tapResponse({
-            next: (response) => patchState(store, {
-              procuradores: response,
-              isLoading: false
-            }),
-            error: (err) => {
-              patchState(store, { isLoading: false, procuradores: [] });
-              errorHandlerService.handle(err, 'Buscar Procuradores');
-            }
-          })
-        ))
-      )
-    ),
-
-    loadGeneros: rxMethod<void>(
-      pipe(
-        tap(() => patchState(store, { isLoading: true })),
-        switchMap(() => dominioService.getGeneros().pipe(
-          tapResponse({
-            next: (response) => patchState(store, {
-              generos: response,
-              isLoading: false
-            }),
-            error: (err) => {
-              patchState(store, { isLoading: false, generos: [] });
-              errorHandlerService.handle(err, 'Buscar Gêneros');
-            }
-          })
-        ))
-      )
-    ),
-
-    loadAliases: rxMethod<void>(
-      pipe(
-        tap(() => patchState(store, { isLoading: true })),
-        switchMap(() => dominioService.getAliases().pipe(
-          tapResponse({
-            next: (response) => patchState(store, {
-              aliases: response,
-              isLoading: false
-            }),
-            error: (err) => {
-              patchState(store, { isLoading: false, aliases: [] });
-              errorHandlerService.handle(err, 'Buscar Alias(E-mail)');
-            }
-          })
-        ))
-      )
-    ),
-
-    loadAtividades: rxMethod<void>(
-      pipe(
-        tap(() => patchState(store, { isLoading: true })),
-        switchMap(() => dominioService.getAtividades().pipe(
-          tapResponse({
-            next: (response) => patchState(store, {
-              atividades: response,
-              isLoading: false
-            }),
-            error: (err) => {
-              patchState(store, { isLoading: false, atividades: [] });
-              errorHandlerService.handle(err, 'Buscar Atividades');
-            }
-          })
-        ))
-      )
-    ),
-
     // MÉTODOS DE GERENCIAMENTO DO STATE DOS DADOS DE ATIVOS
     // ========================================================
     saveServidor: rxMethod<{
@@ -355,7 +164,7 @@ export const ServidoresStore = signalStore(
             tapResponse({
               next: (response) => {
                 patchState(store, { isLoading: false });
-                // Mensagem dinâmica de acordo com a ação
+                // Mensagem dinâmica conforme a ação
                 const extraMsg = action === 'CREATE'
                   ? '<br>Você já pode gerenciar as permissões e anexar documentos.'
                   : '';
@@ -546,16 +355,6 @@ export const ServidoresStore = signalStore(
     onInit(store) {
       store.loadServidores(store.queryParams);
       store.loadExcludedServidores(store.excludedQueryParams);
-      store.loadStatus();
-      store.loadCargos();
-      store.loadSetores();
-      store.loadVinculos();
-      store.loadSistemas();
-      store.loadLotacoes();
-      store.loadAliases();
-      store.loadProcuradores();
-      store.loadGeneros();
-      store.loadAtividades();
     }
   })
 );

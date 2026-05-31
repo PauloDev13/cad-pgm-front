@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { CustomSearchFilterService } from '../custom-search-filter.service';
 import { environment } from '../../../../environments/environment';
-import { catchError, Observable, tap } from 'rxjs';
+import { catchError, Observable } from 'rxjs';
 import { PageResponse } from '../../model/pagination.model';
 import { customHandlerError } from '../../utils/custom-handler-error';
 
@@ -16,8 +16,8 @@ export abstract class BaseGenericService<TReq, TRes> {
   protected abstract get endpoint(): string;
 
   // O Gancho (Hook): Um método vazio que os filhos PODEM implementar se quiserem
-  protected onDataMutated(): void {
-  };
+  // protected onDataMutated(): void {
+  // };
 
   findAll(page: number, size: number): Observable<PageResponse<TRes[]>> {
     let params = new HttpParams().set('page', page).set('size', size);
@@ -35,7 +35,7 @@ export abstract class BaseGenericService<TReq, TRes> {
     return this.http.post<TRes>(`${this.baseUrl}/${this.endpoint}`, payload)
       .pipe(
         // Em caso de sucesso, chama o hook que limpa o cache
-        tap(() => this.onDataMutated()),
+        // tap(() => this.onDataMutated()),
         catchError(customHandlerError)
       );
   }
@@ -44,7 +44,7 @@ export abstract class BaseGenericService<TReq, TRes> {
     return this.http.put<TRes>(`${this.baseUrl}/${this.endpoint}/${id}`, payload)
       .pipe(
         // Em caso de sucesso, chama o hook que limpa o cache
-        tap(() => this.onDataMutated()),
+        // tap(() => this.onDataMutated()),
         catchError(customHandlerError)
       );
   }

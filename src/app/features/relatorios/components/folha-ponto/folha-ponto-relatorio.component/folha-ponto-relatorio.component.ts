@@ -1,11 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RelatorioService } from '../../../services/relatorio.service';
-import { FolhaPontoDTO } from '../../../models/folha-ponto.model';
 import { CalendarUtils } from '../../../utils/calendar-utils';
 import { MESES_DO_ANO } from '../../../models/aniversariente.model';
 import { ErrorHandlerService } from '../../../../../shared/service/error-handler.service';
 import { CommonModule } from '@angular/common';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { of } from 'rxjs';
 
 @Component({
   selector: 'app-folha-ponto-relatorio.component',
@@ -94,14 +95,27 @@ import { CommonModule } from '@angular/common';
     }
   `]
 })
-export default class FolhaPontoRelatorioComponent implements OnInit {
+export default class FolhaPontoRelatorioComponent {
   private relatorioService = inject(RelatorioService);
   private errorHandlerService = inject(ErrorHandlerService);
   private readonly route = inject(ActivatedRoute);
 
-  servidores = signal<FolhaPontoDTO[]>([]);
-  mesSelecionado = signal<number>(1);
-  anoSelecionado = signal<number>(2026);
+  private queryParams = toSignal((this.route.queryParams));
+
+  mesSelecionado = computed(() => {
+    const mes = this.queryParams()?.['mes'];
+    return mes ? Number(mes) : 1;
+  });
+
+  anoSelecionado = computed(() => {
+    const ano = this.queryParams()?.['ano'];
+    return ano ? Number(ano) : 2026;
+  });
+
+  setorId = computed(() => {
+    const setorId = this.queryParams()?.['setorId'];
+    return setorId ? Number(setorId) : null;
+  });
 
   diasDaFolha = computed(() =>
     CalendarUtils.gerarDiasDoMes(this.anoSelecionado(), this.mesSelecionado())
@@ -113,24 +127,35 @@ export default class FolhaPontoRelatorioComponent implements OnInit {
     return mesObj ? mesObj.nome.toUpperCase() : '';
   });
 
-  ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
-      // Captura da URL
-      const mes = params['mes'];
-      const ano = params['ano'];
-      const setorId = params['setorId']; // Agora é esperado que sempre venha preenchido
+  folhaPontoResource = rxResource({
+    params: () => {
+      return {
+        setorId: this.setorId(),
+        mes: this.mesSelecionado(),
+        ano: this.anoSelecionado()
+      };
+    },
+    stream: ({ params }) => {
+      if (!params.setorId || isNaN(params.setorId)) {
+        return of([]);
+      }
 
-      if (mes && ano && setorId) {
-        // 1. Alimenta o Frontend com o Mês e Ano para a exibição visual e cálculo de dias
-        this.mesSelecionado.set(Number(mes));
-        this.anoSelecionado.set(Number(ano));
+      return this.relatorioService.gerarFolhaMes(params.setorId);
+    }
+  });
 
-        // 2. Chama a API passando APENAS a regra de negócio exigida por eles (O Setor)
-        this.relatorioService.gerarFolhaMes(Number(setorId))
-          .subscribe({
-            next: (dados) => this.servidores.set(dados),
-            error: (err) => this.errorHandlerService.handle(err, 'Folha de Ponto')
-          });
+
+  servidores = computed(() => {
+    return this.folhaPontoResource.value() ?? [];
+  });
+
+  isLoading = this.folhaPontoResource.isLoading;
+
+  constructor() {
+    effect(() => {
+      const error = this.folhaPontoResource.error();
+      if (error) {
+        this.errorHandlerService.handle(error, 'Folha Ponto');
       }
     });
   }

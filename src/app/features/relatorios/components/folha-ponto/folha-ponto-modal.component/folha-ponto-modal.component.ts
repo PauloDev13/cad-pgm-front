@@ -1,10 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MESES_DO_ANO } from '../../../models/aniversariente.model';
-import { ServidoresStore } from '../../../../servidor/store/servidor.store';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { DominioService } from '../../../../servidor/services/dominio.service';
 
 @Component({
   selector: 'app-folha-ponto-modal.component',
@@ -32,7 +32,7 @@ import { MatSelectModule } from '@angular/material/select';
         <mat-select
           [value]="setorSelecionado()"
           (selectionChange)="setorSelecionado.set($event.value)">
-          @for (setor of listaSetores(); track setor.id) {
+          @for (setor of setores(); track setor.id) {
             <mat-option [value]="setor.id">{{ setor.nome }}</mat-option>
           }
         </mat-select>
@@ -50,23 +50,20 @@ import { MatSelectModule } from '@angular/material/select';
     </mat-dialog-actions>
   `
 })
-export class FolhaPontoModalComponent implements OnInit {
-  protected readonly servidoresStore = inject(ServidoresStore);
+export class FolhaPontoModalComponent {
+  private readonly dominioService = inject(DominioService);
   protected readonly dialogRef = inject(MatDialogRef<FolhaPontoModalComponent>);
 
   meses = MESES_DO_ANO;
-  listaSetores = this.servidoresStore.setores; // Inicialize com os dados do banco
+  anoCorrente = new Date().getFullYear();
 
   mesSelecionado = signal<number | null>(null);
   setorSelecionado = signal<number | null>(null);
-  anoCorrente = new Date().getFullYear();
 
-  ngOnInit() {
-    // Carregue a lista de setores aqui
-    if (this.listaSetores.length === 0) {
-      this.servidoresStore.loadSetores();
-    }
-  }
+  setores = computed(() =>
+    this.dominioService.setoresResource.value() ?? []);
+
+  isLoading = this.dominioService.setoresResource.isLoading;
 
   confirmar() {
     // Devolve um objeto limpo para quem abriu o modal
