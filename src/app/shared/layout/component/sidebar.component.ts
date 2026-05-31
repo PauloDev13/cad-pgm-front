@@ -208,7 +208,7 @@ import { ServidoresStore } from '../../../features/servidor/store/servidor.store
           <app-link-sidebar
             toolTip="Rel. Folha de Ponto"
             label="Folha de Ponto"
-            icon="demography"
+            icon="assignment"
             [onOpen]="isOpen()"
             (actionClick)="openFolhaPontoReport()"
           />
@@ -266,6 +266,7 @@ export class SidebarComponent {
     const dialogRef = this.dialog.open(FolhaPontoModalComponent,
       {
         width: '450px',
+        disableClose: true,
         injector: this.injector
       }
     );

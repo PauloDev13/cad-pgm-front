@@ -8,6 +8,7 @@ import { ServidoresStore } from '../../store/servidor.store';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { CheckboxGridComponent } from './card.component/checkbox-grid.component';
 
 @Component({
   selector: 'app-vinculos-permissoes',
@@ -19,7 +20,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatIconModule,
     MatCheckboxModule,
     MatDividerModule,
-    MatTooltipModule
+    MatTooltipModule,
+    CheckboxGridComponent
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,24 +45,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
               <p class="text-sm text-gray-500 m-0">Selecione os sistemas que o servidor poderá operar.</p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-              @for (sistema of servidoresStore.sistemas(); track sistema.id) {
-                <div class="flex items-center px-3 py-2 border rounded-md transition-colors hover:bg-blue-50"
-                     [class.bg-blue-50]="selectedSistemas.includes(sistema.id)"
-                     [class.border-blue-300]="selectedSistemas.includes(sistema.id)">
-
-                  <mat-checkbox
-                    color="primary"
-                    [checked]="selectedSistemas.includes(sistema.id)"
-                    (change)="toggleSelection('sistemas', sistema.id, $event.checked)">
-                <span class="text-sm font-medium text-gray-700"
-                      [class.text-blue-800]="selectedSistemas.includes(sistema.id)">
-                  {{ sistema.nome }}
-                </span>
-                  </mat-checkbox>
-                </div>
-              }
-            </div>
+            <app-checkbox-grid
+              [items]="servidoresStore.sistemas()"
+              [selectedIds]="selectedSistemas"
+              (toggle)="toggleSelection('sistemas', $event.id, $event.checked)"
+            />
           </div>
 
           <mat-divider></mat-divider>
@@ -71,25 +60,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
               <p class="text-sm text-gray-500 m-0">Selecione as autoridades representadas.</p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-              @for (proc of servidoresStore.procuradores(); track proc.id) {
-                <div
-                  class="flex items-center px-3 py-2 border rounded-md transition-colors hover:bg-blue-50"
-                  [class.bg-blue-50]="selectedProcuradores.includes(proc.id)"
-                  [class.border-blue-300]="selectedProcuradores.includes(proc.id)">
-
-                  <mat-checkbox
-                    color="primary"
-                    [checked]="selectedProcuradores.includes(proc.id)"
-                    (change)="toggleSelection('procuradores', proc.id, $event.checked)">
-                <span class="text-sm font-medium text-gray-700"
-                      [class.text-blue-800]="selectedProcuradores.includes(proc.id)">
-                  {{ proc.nome }}
-                </span>
-                  </mat-checkbox>
-                </div>
-              }
-            </div>
+            <app-checkbox-grid
+              [items]="servidoresStore.procuradores()"
+              [selectedIds]="selectedProcuradores"
+              (toggle)="toggleSelection('procuradores', $event.id, $event.checked)"
+            />
           </div>
 
           <mat-divider></mat-divider>
@@ -100,29 +75,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
               <p class="text-sm text-gray-500 m-0">Selecione os e-mails e aliases de uso institucional.</p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-              @for (alias of servidoresStore.aliases(); track alias.id) {
-
-                <div
-                  class="flex items-center gap-2 px-3 py-2 border rounded-md transition-colors hover:bg-blue-50"
-                  [class.bg-blue-50]="selectedAliases.includes(alias.id)"
-                  [class.border-blue-300]="selectedAliases.includes(alias.id)">
-
-                  <mat-checkbox
-                    color="primary"
-                    [checked]="selectedAliases.includes(alias.id)"
-                    (change)="toggleSelection('aliases', alias.id, $event.checked)">
-                  </mat-checkbox>
-
-                  <span class="truncate block flex-1 min-w-0 text-sm font-medium text-gray-700"
-                        [class.text-blue-800]="selectedAliases.includes(alias.id)"
-                        [matTooltip]="alias.email"
-                        matTooltipPosition="below">
-                {{ alias.email }}
-              </span>
-                </div>
-              }
-            </div>
+            <app-checkbox-grid
+              [items]="servidoresStore.aliases()"
+              [selectedIds]="selectedAliases"
+              (toggle)="toggleSelection('aliases', $event.id, $event.checked)"
+            />
           </div>
         </div>
       </div>
@@ -157,17 +114,21 @@ export class VinculosPermissoesComponent implements OnInit {
 
   // Método inteligente para alternar itens nos arrays de permissão
   toggleSelection(listName: 'sistemas' | 'procuradores' | 'aliases', id: number, isChecked: boolean) {
-    let targetArray: number[];
+    // let targetArray: number[];
 
-    if (listName === 'sistemas') targetArray = this.selectedSistemas;
-    else if (listName === 'procuradores') targetArray = this.selectedProcuradores;
-    else targetArray = this.selectedAliases;
+    if (listName === 'sistemas') {
+      this.selectedSistemas = isChecked
+        ? [...this.selectedSistemas, id]
+        : this.selectedSistemas.filter(i => i !== id);
 
-    if (isChecked) {
-      if (!targetArray.includes(id)) targetArray.push(id);
+    } else if (listName === 'procuradores') {
+      this.selectedProcuradores = isChecked
+        ? [...this.selectedProcuradores, id]
+        : this.selectedProcuradores.filter(i => i !== id);
     } else {
-      const index = targetArray.indexOf(id);
-      if (index >= 0) targetArray.splice(index, 1);
+      this.selectedAliases = isChecked
+        ? [...this.selectedAliases, id]
+        : this.selectedAliases.filter(i => i !== id);
     }
 
     this.emitChanges();

@@ -5,18 +5,35 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { DominioService } from '../../../../servidor/services/dominio.service';
+import { AutocompleteComponent } from '../../../../../shared/components/autocomplete/autocomplete.component';
 
 @Component({
   selector: 'app-folha-ponto-modal.component',
-  imports: [MatDialogModule, MatButtonModule, MatFormFieldModule, MatSelectModule],
+  imports: [
+    MatDialogModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    AutocompleteComponent
+  ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <h2 mat-dialog-title class="text-gray-800 font-bold">Emitir Folhas de Ponto</h2>
+    <div mat-dialog-title class="!flex !justify-between !items-center !px-6 !pt-4 !pb-2 !m-0">
+      <h2 mat-dialog-title
+          class="!font-bold !text-lg sm:!text-xl !text-blue-800 !m-0 !p-0 !text-left flex-1">
+        Emitir Folhas de Ponto
+      </h2>
+    </div>
 
     <mat-dialog-content class="pt-4 flex flex-col gap-4">
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Mês de Referência</mat-label>
+      <p class="mb-4 text-base text-gray-600">Selecione o mês de referência e o Setor.</p>
+
+      <mat-form-field
+        appearance="outline"
+        subscriptSizing="dynamic"
+        class="w-full mb-8">
+        <mat-label>Mês</mat-label>
         <mat-select
           [value]="mesSelecionado()"
           (selectionChange)="mesSelecionado.set($event.value)">
@@ -27,16 +44,13 @@ import { DominioService } from '../../../../servidor/services/dominio.service';
         </mat-select>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Setor (Obrigatório)</mat-label>
-        <mat-select
-          [value]="setorSelecionado()"
-          (selectionChange)="setorSelecionado.set($event.value)">
-          @for (setor of setores(); track setor.id) {
-            <mat-option [value]="setor.id">{{ setor.nome }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+      <app-list-autocomplete
+        class="gap-8"
+        [data]="setores()"
+        label="Setor"
+        placeholder="Pesquisar Setor"
+        [(selectedId)]="setorSelecionado"
+      />
     </mat-dialog-content>
 
     <mat-dialog-actions align="end" class="pb-4 pr-4">
