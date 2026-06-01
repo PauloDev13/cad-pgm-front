@@ -63,6 +63,7 @@ import { CheckboxGridComponent } from './card.component/checkbox-grid.component'
             <app-checkbox-grid
               [items]="servidoresStore.procuradores()"
               [selectedIds]="selectedProcuradores"
+              tooltipKey="nome"
               (toggle)="toggleSelection('procuradores', $event.id, $event.checked)"
             />
           </div>
@@ -78,6 +79,8 @@ import { CheckboxGridComponent } from './card.component/checkbox-grid.component'
             <app-checkbox-grid
               [items]="servidoresStore.aliases()"
               [selectedIds]="selectedAliases"
+              displayKey="email"
+              tooltipKey="email"
               (toggle)="toggleSelection('aliases', $event.id, $event.checked)"
             />
           </div>

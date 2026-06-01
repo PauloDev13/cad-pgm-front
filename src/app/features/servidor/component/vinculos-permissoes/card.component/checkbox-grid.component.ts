@@ -13,7 +13,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
       @for (item of items(); track item[valueKey()]) {
         <div
-          class="flex items-center gap-2 px-3 py-2 border rounded-md transition-colors hover:bg-blue-50"
+          class="flex items-center gap-0 px-3 py-2 border rounded-md transition-colors hover:bg-blue-50"
           [class.bg-blue-50]="selectedIds().includes(item[valueKey()])"
           [class.border-blue-300]="selectedIds().includes(item[valueKey()])">
 
@@ -44,6 +44,7 @@ export class CheckboxGridComponent {
   // Configurações das chaves do objeto (com valores padrão)
   valueKey = input<string>('id');
   displayKey = input<string>('nome');
+  // displayKeyEmail = input<string>('email');
   tooltipKey = input<string | null>(null);
 
   // O evento que avisa o pai sobre a mudança

@@ -424,6 +424,12 @@ export class ServidorFormComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<ServidorFormComponent>);
   private destroyRef = inject(DestroyRef);
 
+  // Controle de estado para a Matrícula
+  private isFirstLoad = true;
+  private originMatriculaDb = '';
+  private originVinculoIdDb: number | null = null;
+  private cacheMatriculaAuto = '';
+
   constructor() {
     // Remove a foto que estiver na memória ao fechar o formn
     this.destroyRef.onDestroy(() => {
@@ -434,67 +440,71 @@ export class ServidorFormComponent implements OnInit {
     });
 
     effect(() => {
-      // Atribui valores as variáveis locais effect
+      // Rastreamos apenas o ID do Vínculo
       const selectedId = this.servidorForm.vinculoId().value();
       const vinculoList = this.servidoresStore.vinculos();
 
       untracked(() => {
         if (!selectedId || vinculoList.length === 0) return;
-        // atribui valores as variáveis locais do untracked
-        const selectedVinculo = vinculoList.find(
-          opt => opt.id === selectedId
-        );
+
+        const currentMatricula = this.servidorForm.matricula().value() || '';
+
+        // ====================================================================
+        // FOTOGRAFIA INICIAL (Roda apenas quando a tela abre)
+        // ====================================================================
+        if (this.isFirstLoad) {
+          this.originMatriculaDb = currentMatricula;
+          this.originVinculoIdDb = selectedId;
+
+          // Se a matrícula do banco já era automática, guardamos no cache
+          if (currentMatricula.startsWith('T')) {
+            this.cacheMatriculaAuto = currentMatricula;
+          }
+
+          this.isFirstLoad = false;
+          return; // Morre aqui. Nada pisca ou apaga na tela.
+        }
+
+        // ====================================================================
+        // LÓGICA DE TRANSIÇÃO (O usuário mudou o dropdown na tela)
+        // ====================================================================
+        const selectedVinculo = vinculoList.find(opt => opt.id === selectedId);
         const vinculoName = (selectedVinculo?.nome || '').toLowerCase();
-        const currentMatricula = this.servidorForm.matricula().value();
+        const isManualMatricula = vinculoName.includes('comissionado') || vinculoName.includes('efetivo');
 
-        const isManualMatricula = vinculoName
-          .includes('comissionado') || vinculoName.includes('efetivo');
+        // REGRA 1: "Se essa mudança for desfeita, o usuário retornou para o vínculo antigo..."
+        // Devolvemos a matrícula que veio do banco, independente do que seja!
+        if (selectedId === this.originVinculoIdDb) {
+          this.servidorForm.matricula().controlValue.set(this.originMatriculaDb);
+          return;
+        }
 
-        // --- CENÁRIO: MUDOU PARA TERCEIRIZADO ---
-        if (!isManualMatricula) {
+        // REGRA 2: "Se alterar no dropdown para Comissionado ou Efetivo, o campo deve ser limpo"
+        if (isManualMatricula) {
+          this.servidorForm.matricula().controlValue.set('');
+        }
 
-          // Se a matrícula atual ainda não é "T", guardamos ela como original caso não tenha sido salva
-          if (currentMatricula && !currentMatricula.startsWith('T') && !this.originMatricula) {
-            this.originMatricula = currentMatricula;
-            this.originVinculoId = selectedId;
+        // REGRA 3: "Se escolheu outro que não é Comissionado/Efetivo..."
+        else {
+          // 3A: "...a matrícula deve retornar para a que existia antes (veio do banco)"
+          if (this.originMatriculaDb && this.originMatriculaDb.startsWith('T')) {
+            this.servidorForm.matricula().controlValue.set(this.originMatriculaDb);
           }
-
-          const novaMatricula = this.cacheMatriculaTerceirizado || this.gerarMatriculaTerceirizado();
-          this.cacheMatriculaTerceirizado = novaMatricula;
-
-          this.servidorForm.matricula().controlValue.set(novaMatricula);
-
-          // Se já temos um "T" no cache, restauramos. Senão, geramos um novo.
-          // if (this.cacheMatriculaTerceirizado) {
-          //   this.servidorForm.matricula().controlValue.set(this.cacheMatriculaTerceirizado);
-          //   // this.servidorForm.matricula().value.set(this.cacheMatriculaTerceirizado);
-          // } else if (!currentMatricula?.startsWith('T')) {
-          //   const newMatricula = this.gerarMatriculaTerceirizado();
-          //   this.cacheMatriculaTerceirizado = newMatricula;
-          //   this.servidorForm.matricula().value.set(newMatricula);
-          // }
-
-          // --- CENÁRIO: MUDOU PARA QUALQUER OUTRO VÍNCULO ---
-        } else {
-
-          // 1. Se ele voltou para o vínculo que tinha no início (Ex: Efetivo)
-          if (selectedId === this.originVinculoId) {
-            this.servidorForm.matricula().controlValue.set(this.originMatricula || '');
-            // this.servidorForm.matricula().value.set(this.originMatricula || '');
+          // 3B: É uma INSERÇÃO de um novo servidor, ou ele era Efetivo e agora virou Terceirizado
+          else if (this.cacheMatriculaAuto) {
+            // Recupera do cache da sessão para não gerar números infinitos enquanto clica
+            this.servidorForm.matricula().controlValue.set(this.cacheMatriculaAuto);
           }
-          // 2. Se é um vínculo novo (nem o original, nem terceirizado), limpamos conforme sua regra
+          // 3C: Gera a primeira vez
           else {
-            this.servidorForm.matricula().controlValue.set('');
-            // this.servidorForm.matricula().value.set('');
-          }
-
-          // Se a matrícula que estava antes era um "T", salvamos no cache para não perder
-          if (currentMatricula && currentMatricula.startsWith('T')) {
-            this.cacheMatriculaTerceirizado = currentMatricula;
+            const novaMatricula = this.gerarMatriculaTerceirizado();
+            this.cacheMatriculaAuto = novaMatricula;
+            this.servidorForm.matricula().controlValue.set(novaMatricula);
           }
         }
       });
     });
+
   }
 
   // Recebemos um "any" para suportar o DTO direto (legado) ou o novo wrapper
@@ -513,11 +523,6 @@ export class ServidorFormComponent implements OnInit {
 
   // Controle para avisar a tabela pai se precisamos recarregar o grid
   private hasCreated = false;
-
-  //  Atualizado para buscar do this.payload ao invés do this.data
-  private originMatricula: string | undefined = this.payload?.matricula;
-  private originVinculoId: number | undefined = this.payload?.vinculo?.id;
-  private cacheMatriculaTerceirizado: string | null = null;
 
   // Recebe o ID do usuário atual e caso não exista, recebe null
   currentServidorId = signal<number | undefined>(this.payload?.id || undefined);
