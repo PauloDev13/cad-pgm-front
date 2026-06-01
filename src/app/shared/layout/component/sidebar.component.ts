@@ -7,7 +7,7 @@ import { ButtonSidebarComponent } from './button-sidebar/button-sidebar.componen
 import { MatDialog } from '@angular/material/dialog';
 import {
   MesAniversarioModalComponent
-} from '../../../features/relatorios/components/mes-aniversario-modal.component/mes-aniversario-modal.component';
+} from '../../../features/relatorios/components/aniversariantes/mes-aniversario-modal.component/mes-aniversario-modal.component';
 import { AuthStore } from '../../../core/auth/store/auth.store';
 import {
   FolhaPontoModalComponent

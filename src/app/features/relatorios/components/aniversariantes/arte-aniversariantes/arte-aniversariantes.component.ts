@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ElementRef, inject, input, ViewChild } from '@angular/core';
-import { AniversarianteModel } from '../../models/aniversariente.model';
-import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
-import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
+import { AniversarianteModel } from '../../../models/aniversariente.model';
+import { NotificationService } from '../../../../../shared/service/NotificationSnackbar.service';
+import { ErrorHandlerService } from '../../../../../shared/service/error-handler.service';
 import { toPng } from 'html-to-image';
 import { MatIconModule } from '@angular/material/icon';
 

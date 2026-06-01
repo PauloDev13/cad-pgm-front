@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, viewChild } from '@angular/core';
 import { RelatorioService } from '../../services/relatorio.service';
-import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
 import { MESES_DO_ANO } from '../../models/aniversariente.model';
 import { of } from 'rxjs';
@@ -9,7 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Location } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ArteAniversariantesComponent } from '../arte-aniversariantes/arte-aniversariantes.component';
+import { ArteAniversariantesComponent } from './arte-aniversariantes/arte-aniversariantes.component';
 import { ActivatedRoute } from '@angular/router';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 
@@ -160,7 +159,6 @@ import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 })
 export default class AniversariantesComponent {
   private readonly relatorioService = inject(RelatorioService);
-  private notificationService = inject(NotificationService); // Seu serviço de Toast
   private errorHandlerService = inject(ErrorHandlerService);
   private location = inject(Location);
   private readonly route = inject(ActivatedRoute);
@@ -219,67 +217,5 @@ export default class AniversariantesComponent {
   // Método para o botão Voltar
   goBack() {
     this.location.back();
-  }
-
-
-  copyClipboard() {
-    const LisBirthday = this.aniversariantes();
-
-    if (LisBirthday.length === 0) return;
-
-    // Formata cada linha: "05/05 - José Antônio - Contabilidade"
-    // O '\n' garante a quebra de linha entre os servidores
-    const formatedText = LisBirthday
-      .map(item => `${item.diaMes} - ${item.nome} - ${item.setor}`)
-      .join('\n');
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      // API nativa do navegador para copiar para o Clipboard
-      navigator.clipboard.writeText(formatedText)
-        .then(() => {
-          this.notificationService.success(
-            'Lista copiada!', 'Copiar');
-        })
-        .catch((err) => {
-          this.errorHandlerService.handle(err, 'Erro Cópia');
-        });
-    } else {
-      this.fallbackCopyClipboard(formatedText);
-    }
-  }
-
-  //  Método auxiliar privado para garantir a cópia em ambientes sem HTTPS
-  private fallbackCopyClipboard(texto: string) {
-    // Cria um <textarea> fantasma no HTML
-    const textArea = document.createElement('textarea');
-    textArea.value = texto;
-
-    // Esconde o elemento no canto superior da tela para não causar rolagem nem piscar
-    textArea.style.top = '0';
-    textArea.style.left = '0';
-    textArea.style.position = 'fixed';
-    textArea.style.opacity = '0';
-
-    // Injeta no DOM
-    document.body.appendChild(textArea);
-
-    // Foca e seleciona o conteúdo inteiro do textarea
-    textArea.focus();
-    textArea.select();
-
-    try {
-      // Executa o comando de cópia legado do navegador
-      const sucesso = document.execCommand('copy');
-      if (sucesso) {
-        this.notificationService.success('Lista copiada!', 'Copiar');
-      } else {
-        this.errorHandlerService.handle(new Error('Navegador bloqueou a ação'), 'Erro Cópia');
-      }
-    } catch (err: any) {
-      this.errorHandlerService.handle(err, 'Erro Cópia');
-    } finally {
-      // Limpeza rigorosa: remove o textarea fantasma do DOM
-      document.body.removeChild(textArea);
-    }
   }
 }

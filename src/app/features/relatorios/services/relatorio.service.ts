@@ -4,7 +4,7 @@ import { environment } from '../../../../environments/environment';
 import { catchError, Observable } from 'rxjs';
 import { AniversarianteModel } from '../models/aniversariente.model';
 import { customHandlerError } from '../../../shared/utils/custom-handler-error';
-import { FolhaPontoDTO } from '../models/folha-ponto.model';
+import { FolhaPontoSetorDTO } from '../models/folha-ponto.model';
 
 @Injectable({
   providedIn: 'root'
@@ -21,9 +21,7 @@ export class RelatorioService {
     }).pipe(catchError(customHandlerError));
   }
 
-  gerarFolhaMes(setorId: number) {
-    // Monta os parâmetros obrigatórios
-    let params = new HttpParams().set('setorId', setorId);
-    return this.http.get<FolhaPontoDTO[]>(`${this.apiUrl}/folha-ponto`, { params });
+  gerarFolhaMes(): Observable<FolhaPontoSetorDTO[]> {
+    return this.http.get<FolhaPontoSetorDTO[]>(`${this.apiUrl}/folha-ponto`);
   }
 }

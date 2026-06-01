@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MESES_DO_ANO } from '../../../models/aniversariente.model';
 import { MatButtonModule } from '@angular/material/button';
@@ -27,7 +27,7 @@ import { AutocompleteComponent } from '../../../../../shared/components/autocomp
     </div>
 
     <mat-dialog-content class="pt-4 flex flex-col gap-4">
-      <p class="mb-4 text-base text-gray-600">Selecione o mês de referência e o Setor.</p>
+      <p class="mb-4 text-base text-gray-600">Selecione o mês de referência.</p>
 
       <mat-form-field
         appearance="outline"
@@ -43,21 +43,13 @@ import { AutocompleteComponent } from '../../../../../shared/components/autocomp
           }
         </mat-select>
       </mat-form-field>
-
-      <app-list-autocomplete
-        class="gap-8"
-        [data]="setores()"
-        label="Setor"
-        placeholder="Pesquisar Setor"
-        [(selectedId)]="setorSelecionado"
-      />
     </mat-dialog-content>
 
     <mat-dialog-actions align="end" class="pb-4 pr-4">
       <button mat-button mat-dialog-close>Cancelar</button>
       <button
         mat-flat-button color="primary"
-        [disabled]="!mesSelecionado() || !setorSelecionado()"
+        [disabled]="!mesSelecionado()"
         (click)="confirmar()">
         Continuar
       </button>
@@ -72,10 +64,6 @@ export class FolhaPontoModalComponent {
   anoCorrente = new Date().getFullYear();
 
   mesSelecionado = signal<number | null>(null);
-  setorSelecionado = signal<number | null>(null);
-
-  setores = computed(() =>
-    this.dominioService.setoresResource.value() ?? []);
 
   isLoading = this.dominioService.setoresResource.isLoading;
 
@@ -83,7 +71,7 @@ export class FolhaPontoModalComponent {
     // Devolve um objeto limpo para quem abriu o modal
     this.dialogRef.close({
       mes: this.mesSelecionado(),
-      setorId: this.setorSelecionado(),
+      // setorId: this.setorSelecionado(),
       ano: this.anoCorrente
     });
   }

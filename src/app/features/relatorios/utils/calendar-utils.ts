@@ -1,7 +1,7 @@
 // Define a estrutura exata de como cada dia será representado na tela
 export interface DiaPonto {
   dia: number;
-  tipo: 'NORMAL' | 'SABADO' | 'DOMINGO' | 'FERIADO';
+  tipo: 'NORMAL' | 'SÁBADO' | 'DOMINGO' | 'FERIADO';
   nomeFeriado?: string;
 }
 
@@ -30,7 +30,7 @@ export class CalendarUtils {
       } else if (diaDaSemana === 0) {
         dias.push({ dia, tipo: 'DOMINGO' });
       } else if (diaDaSemana === 6) {
-        dias.push({ dia, tipo: 'SABADO' });
+        dias.push({ dia, tipo: 'SÁBADO' });
       } else {
         dias.push({ dia, tipo: 'NORMAL' });
       }
@@ -41,14 +41,19 @@ export class CalendarUtils {
   // Método privado com o motor matemático
   private static calcularFeriadosNacionais(ano: number) {
     const feriadosFixos = [
-      { data: '01-01', nome: 'Confraternização Universal' },
-      { data: '04-21', nome: 'Tiradentes' },
-      { data: '05-01', nome: 'Dia do Trabalhador' },
-      { data: '09-07', nome: 'Independência' },
-      { data: '10-12', nome: 'Nossa Sr.a Aparecida' },
-      { data: '11-02', nome: 'Finados' },
-      { data: '11-15', nome: 'Proclamação da República' },
-      { data: '12-25', nome: 'Natal' }
+      { data: '01-01', nome: 'FERIADO - Confraternização Universal' },
+      { data: '04-21', nome: 'FERIADO - Tiradentes' },
+      { data: '05-01', nome: 'FERIADO - Dia do Trabalhador' },
+      { data: '06-05', nome: 'PONTO FACULTATIVO' },
+      { data: '06-29', nome: 'PONTO FACULTATIVO - São Pedro' },
+      { data: '09-07', nome: 'FERIADO - Independência' },
+      { data: '10-03', nome: 'FERIADO ESTADUAL - Mártires de Cunhaú e Uruaçú' },
+      { data: '10-12', nome: 'FERIADO - Nossa Senhora Aparecida' },
+      { data: '10-28', nome: 'PONTO FACULTATIVO - Dia do Servidor Público' },
+      { data: '11-02', nome: 'FERIADO - Finados' },
+      { data: '11-15', nome: 'FERIADO - Proclamação da República' },
+      { data: '11-20', nome: 'FERIADO - Dia da Consciência Negra' },
+      { data: '12-25', nome: 'FERIADO - Natal' }
       // Insiram aqui feriados estaduais/municipais fixos (Ex: data: '10-03', nome: 'Mártires de Cunhaú')
     ];
 
@@ -77,13 +82,14 @@ export class CalendarUtils {
     const corpusChristi = new Date(pascoa);
     corpusChristi.setDate(pascoa.getDate() + 60);
 
-    const format = (d: Date) => `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const format = (d: Date) => `${String(d.getMonth() + 1)
+      .padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
     return [
       ...feriadosFixos,
-      { data: format(sextaSanta), nome: 'Sexta-feira Santa' },
-      { data: format(carnaval), nome: 'Carnaval' },
-      { data: format(corpusChristi), nome: 'Corpus Christi' }
+      { data: format(sextaSanta), nome: 'FERIADO - Sexta-feira Santa' },
+      { data: format(carnaval), nome: 'FERIADO - Carnaval' },
+      { data: format(corpusChristi), nome: 'FERIADO - Corpus Christi' }
     ];
   }
 }

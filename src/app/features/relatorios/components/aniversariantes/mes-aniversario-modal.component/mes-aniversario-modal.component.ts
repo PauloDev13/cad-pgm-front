@@ -3,7 +3,7 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
-import { MESES_DO_ANO } from '../../models/aniversariente.model';
+import { MESES_DO_ANO } from '../../../models/aniversariente.model';
 
 
 @Component({

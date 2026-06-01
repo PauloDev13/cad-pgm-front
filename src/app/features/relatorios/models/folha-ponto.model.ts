@@ -1,8 +1,11 @@
-// Interface para o relatório da folha de ponto
-export interface FolhaPontoDTO {
-  id: number;
+export interface FolhaPontoServidorDTO {
   nome: string;
-  setor: string;
   vinculo: string;
-  formaTrabalho: 'PRESENCIAL' | 'HIBRIDO' | 'REMOTO';
+  tipoAtividade: string | null; // Pode vir nulo conforme aviso do backend
+}
+
+export interface FolhaPontoSetorDTO {
+  nomeSetor: string;
+  totalServidores: number;
+  servidores: FolhaPontoServidorDTO[];
 }
