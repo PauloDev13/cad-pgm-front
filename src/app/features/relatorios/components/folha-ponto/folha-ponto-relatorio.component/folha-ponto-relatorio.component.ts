@@ -60,8 +60,11 @@ import { LoadingComponent } from '../../../../../shared/components/loading.compo
           <div
             class="hidden print:flex flex-col items-center justify-center h-screen w-full break-after-page text-center">
             <img src="/img/logo.png" alt="Logo" class="h-24 object-contain mb-6">
-            <h1 class="text-2xl font-bold uppercase text-gray-800 mb-3">SETOR: {{ setor.nomeSetor }}</h1>
-            <h2 class="text-xl font-semibold text-gray-700 mb-3">MÊS/ANO: {{ nomeMesCorrente() }}
+            <h1 class="text-[22px] font-bold uppercase text-gray-800 mb-1">
+              FOLHA DE PONTO
+            </h1>
+            <h1 class="text-[22px] font-bold uppercase text-gray-800 mb-1">{{ setor.nomeSetor }}</h1>
+            <h2 class="text-xl font-semibold text-gray-700 mb-1">MÊS/ANO: {{ nomeMesCorrente() }}
               /{{ anoSelecionado() }}</h2>
             <h3 class="text-lg text-gray-600 font-medium">
               TOTAL DE SERVIDORES NO SETOR: {{ setor.totalServidores }}

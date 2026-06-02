@@ -56,7 +56,7 @@ import { CheckboxGridComponent } from './card.component/checkbox-grid.component'
 
           <div class="flex flex-col gap-3">
             <div>
-              <h3 class="text-lg font-bold text-blue-800 m-0">Procuradores Vinculados</h3>
+              <h3 class="text-lg font-bold text-blue-800 m-0">Certificados Digitais Vinculados</h3>
               <p class="text-sm text-gray-500 m-0">Selecione as autoridades representadas.</p>
             </div>
 

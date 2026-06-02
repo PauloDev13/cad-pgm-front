@@ -5,7 +5,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { DominioService } from '../../../../servidor/services/dominio.service';
-import { AutocompleteComponent } from '../../../../../shared/components/autocomplete/autocomplete.component';
 
 @Component({
   selector: 'app-folha-ponto-modal.component',
@@ -13,8 +12,7 @@ import { AutocompleteComponent } from '../../../../../shared/components/autocomp
     MatDialogModule,
     MatButtonModule,
     MatFormFieldModule,
-    MatSelectModule,
-    AutocompleteComponent
+    MatSelectModule
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -71,8 +69,8 @@ export class FolhaPontoModalComponent {
     // Devolve um objeto limpo para quem abriu o modal
     this.dialogRef.close({
       mes: this.mesSelecionado(),
-      // setorId: this.setorSelecionado(),
       ano: this.anoCorrente
     });
+
   }
 }

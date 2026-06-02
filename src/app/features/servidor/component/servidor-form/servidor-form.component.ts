@@ -372,27 +372,29 @@ export type FormModel = Required<ServidorRequestDTO>;
         </mat-dialog-actions>
       </mat-tab>
 
-      <mat-tab label="Vínculos e Permissões" [disabled]="!currentServidorId()">
-        <ng-template matTabContent>
-          <div class="w-full h-[650px] md:h-[680px] p-2">
-            @if (currentServidorId()) {
-              <app-vinculos-permissoes
-                class="block w-full h-full"
-                [initialSistemas]="servidorModel().sistemaIds || []"
-                [initialProcuradores]="servidorModel().procuradorIds || []"
-                [initialAliases]="servidorModel().aliasIds || []"
-                (permissionsChanged)="atualizarPermissoesNoModeloPai($event)"
-              />
-            } @else {
-              <div class="flex flex-col items-center justify-center p-8 text-gray-500">
-                <mat-icon class="text-4xl mb-2">lock</mat-icon>
-                <p>Salve os dados do servidor para desbloquear o gerenciamento de permissões.</p>
-              </div>
-            }
+      @if (isAdminLogged()) {
+        <mat-tab label="Vínculos e Permissões" [disabled]="!currentServidorId()">
+          <ng-template matTabContent>
+            <div class="w-full h-[650px] md:h-[680px] p-2">
+              @if (currentServidorId()) {
+                <app-vinculos-permissoes
+                  class="block w-full h-full"
+                  [initialSistemas]="servidorModel().sistemaIds || []"
+                  [initialProcuradores]="servidorModel().procuradorIds || []"
+                  [initialAliases]="servidorModel().aliasIds || []"
+                  (permissionsChanged)="atualizarPermissoesNoModeloPai($event)"
+                />
+              } @else {
+                <div class="flex flex-col items-center justify-center p-8 text-gray-500">
+                  <mat-icon class="text-4xl mb-2">lock</mat-icon>
+                  <p>Salve os dados do servidor para desbloquear o gerenciamento de permissões.</p>
+                </div>
+              }
 
-          </div>
-        </ng-template>
-      </mat-tab>
+            </div>
+          </ng-template>
+        </mat-tab>
+      }
 
       <mat-tab label="Documentos" [disabled]="!currentServidorId()">
         <ng-template matTabContent>

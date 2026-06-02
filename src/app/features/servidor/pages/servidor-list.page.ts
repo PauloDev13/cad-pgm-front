@@ -167,7 +167,6 @@ export default class ServidorListPage {
           this.servidoresStore.updateLocalServidor(payload);
         } else {
           // Se não, faz o reload para atualizar os dados após o insert
-          // this.servidoresStore.reloadList();
           this.servidoresStore.reloadBothList();
         }
       }
