@@ -121,7 +121,7 @@ import { LoadingComponent } from '../../../../../shared/components/loading.compo
                 <tbody>
                   @for (dia of diasDaFolha(); track dia.dia) {
 
-                    <tr class="h-[32px] print:h-[28px]">
+                    <tr class="h-[32px] print:h-[27px]">
 
                       <td class="border border-black px-1 print:px-0 font-bold">{{ dia.dia | number:'2.0' }}</td>
 
