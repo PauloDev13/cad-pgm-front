@@ -83,7 +83,7 @@ import { AuthStore } from '../store/auth.store';
                  disabled:text-gray-500 disabled:cursor-not-allowed"
         >
           @if (authStore.isLoading()) {
-            <mat-spinner diameter="20" class="custom-spinner"></mat-spinner>
+            <mat-spinner diameter="20" color="primary"></mat-spinner>
             <span>Autenticando...</span>
           } @else {
             <span>Entrar no Sistema</span>

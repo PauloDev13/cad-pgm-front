@@ -60,7 +60,7 @@ import { AuthStore } from '../store/auth.store';
           class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all flex justify-center items-center gap-2 h-12 disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
         >
           @if (authStore.isLoading()) {
-            <mat-spinner diameter="20" class="custom-spinner"></mat-spinner>
+            <mat-spinner diameter="20" color="primary"></mat-spinner>
             <span>Enviando...</span>
           } @else {
             <span>Enviar Link</span>

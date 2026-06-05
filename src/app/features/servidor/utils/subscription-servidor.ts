@@ -35,7 +35,7 @@ export const subscriptionSchema = schema<FormModel>((path) => {
   });
 
   // validações para o campo Matrícula
-  required(path.matricula, { message: 'Campo obrigatório' });
+  required(path.matricula, { message: 'É obrigatório' });
   maxLength(path.matricula, 20, {
     message: 'A matrícula deve ter no máximo 20 caracteres'
   });

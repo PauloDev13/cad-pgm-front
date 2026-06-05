@@ -454,7 +454,7 @@ export class ServidorFormComponent implements OnInit {
         // ====================================================================
         // FOTOGRAFIA INICIAL (Roda apenas quando a tela abre)
         // ====================================================================
-        if (this.isFirstLoad) {
+        if (this.currentServidorId() && this.isFirstLoad) {
           this.originMatriculaDb = currentMatricula;
           this.originVinculoIdDb = selectedId;
 

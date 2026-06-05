@@ -106,7 +106,7 @@ import { AuthStore } from '../store/auth.store';
                    disabled:cursor-not-allowed disabled:text-gray-500"
           >
             @if (isValidatingToken()) {
-              <mat-spinner diameter="20" class="custom-spinner"></mat-spinner>
+              <mat-spinner diameter="20" color="primary"></mat-spinner>
               <span>Salvando...</span>
             } @else {
               <span>Redefinir Senha</span>

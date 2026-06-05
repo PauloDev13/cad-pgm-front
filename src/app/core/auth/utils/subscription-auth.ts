@@ -16,10 +16,12 @@ export const subscriptionSchema = schema<IAuthForm>((path) => {
 
   required(path.confirmPassword, { message: 'A confirmação é obrigatória' });
 
-  validate(path.confirmPassword, (confirm: any) => {
-    const senhaOriginal = authFormModel().password;
+  validate(path.confirmPassword, ({ value, valueOf }) => {
+    // const senhaOriginal = authFormModel().password;
+    const password = valueOf(path.password);
+    const confirmPassword = value();
 
-    if (confirm.value() !== senhaOriginal) {
+    if (confirmPassword !== password && confirmPassword.length) {
       return { kind: 'passwordMismatch', message: 'As senhas não conferem' };
     }
     return null;
