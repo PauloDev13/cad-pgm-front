@@ -53,11 +53,11 @@ const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 20 MB
         <h2 class="text-lg md:text-xl font-bold text-blue-700 m-0">Anexos</h2>
       </div>
 
-      <div class="flex flex-col flex-1 p-4 md:p-3 bg-gray-50 gap-3 min-h-0">
+      <div class="flex flex-col h-[calc(100vh-50%)]  p-4 md:p-3 bg-gray-50 gap-3 min-h-0">
         @if (!selectedIds().length) {
           <!-- CHAMA O COMPONENTE QUE GUARDA OS ARQUIVOS PDF A SEREM ENVIADOS-->
           <app-document-upload-stage
-            [class]="stagedFiles().length === 0 
+            [class]="stagedFiles().length === 0
               ? 'block w-full shrink-0'
               : 'flex flex-col flex-1 min-h-0 w-full'"
             [stagedFiles]="stagedFiles()"
@@ -91,17 +91,6 @@ const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 20 MB
             />
           </div>
         }
-      </div>
-      <div class="flex justify-end p-4 bg-white border-t border-gray-200 shrink-0 relative z-20">
-        <button
-          class="!border-blue-600 !text-blue-600 !transition-transform duration-300
-                hover:!scale-105 disabled:!border-gray-300 disabled:!text-gray-400 !h-12 sm:!h-10"
-          mat-stroked-button
-          mat-dialog-close
-        >
-          <mat-icon>exit_to_app</mat-icon>
-          Sair
-        </button>
       </div>
     </div>
   `

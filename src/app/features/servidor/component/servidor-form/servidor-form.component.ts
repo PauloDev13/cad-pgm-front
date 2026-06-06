@@ -62,358 +62,362 @@ export type FormModel = Required<ServidorRequestDTO>;
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <mat-tab-group
-      animationDuration="0ms"
-      class="sm:h-[760px] w-full p-2 custom-folder-tabs">
-      >
-      <mat-tab label="Dados Pessoais e Funcionais">
+    <div class="flex flex-col w-full h-[calc(100vh-60px)] sm:h-[750px] overflow-hidden bg-white rounded-xl">
+      <div class="flex-1 min-h-0 w-full overflow-hidden">
+        <mat-tab-group
+          [(selectedIndex)]="activeTabIndex"
+          animationDuration="0ms"
+          class="sm:h-[760px] w-full p-2 custom-folder-tabs">
+          >
+          <mat-tab label="Dados Pessoais e Funcionais">
 
-        <div class="flex justify-between items-center px-6 pt-2 pb-1">
-          <h2 mat-dialog-title class="!font-bold !text-xl !text-blue-700 !m-0 !p-0">
-            @if (isReactivate) {
-              Readmitir: <span class="text-gray-600 font-medium">{{ payload?.nome }}</span>
-            } @else if (isEdit) {
-              Editar Servidor
-            } @else {
-              Novo Servidor
-            }
-          </h2>
-        </div>
+            <div class="flex justify-between items-center px-6 pt-2 pb-1">
+              <h2 mat-dialog-title class="!font-bold !text-xl !text-blue-700 !m-0 !p-0">
+                @if (isReactivate) {
+                  Readmitir: <span class="text-gray-600 font-medium">{{ payload?.nome }}</span>
+                } @else if (isEdit) {
+                  Editar Servidor
+                } @else {
+                  Novo Servidor
+                }
+              </h2>
+            </div>
 
-        <mat-dialog-content class="!px-6 !pb-1 !pt-1">
-          <form autocomplete="off" class="flex flex-col gap-6">
+            <mat-dialog-content class="!px-6 !pb-1 !pt-1">
+              <form autocomplete="off" class="flex flex-col gap-6">
 
-            <div>
-              <h3
-                class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 border-b
+                <div>
+                  <h3
+                    class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 border-b
                   pb-1 mt-0">
-                Dados Pessoais
-              </h3>
+                    Dados Pessoais
+                  </h3>
 
-              <div class="flex flex-col gap-y-3">
-                <div class="flex flex-col sm:flex-row gap-3">
-                  <!-- input de seleção da foto-->
-                  <input
-                    type="file"
-                    #fileInput
-                    class="hidden"
-                    accept=".jpg,.jpeg,.png"
-                    (change)="onSelectedPhoto($event)">
+                  <div class="flex flex-col gap-y-3">
+                    <div class="flex flex-col sm:flex-row gap-3">
+                      <!-- input de seleção da foto-->
+                      <input
+                        type="file"
+                        #fileInput
+                        class="hidden"
+                        accept=".jpg,.jpeg,.png"
+                        (change)="onSelectedPhoto($event)">
 
-                  <div class="shrink-0 flex items-start justify-center sm:justify-start">
-                    <div
-                      class="w-[2.5cm] h-[3.5cm] rounded-xl border border-gray-300 overflow-hidden
+                      <div class="shrink-0 flex items-start justify-center sm:justify-start">
+                        <div
+                          class="w-[2.5cm] h-[3.5cm] rounded-xl border border-gray-300 overflow-hidden
                         relative shadow-sm bg-white group cursor-pointer transition-all
                          duration-300 hover:shadow-md hover:border-blue-400 active:scale-95"
-                      (click)="fileInput.click()"
-                      matTooltip="Clique para alterar a foto"
-                    >
-                      <img
-                        [src]="photoUrl()"
-                        alt="Foto do Servidor"
-                        class="object-cover w-full h-full"
-                      />
-                      <div
-                        class="hidden sm:flex absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100
+                          (click)="fileInput.click()"
+                          matTooltip="Clique para alterar a foto"
+                        >
+                          <img
+                            [src]="photoUrl()"
+                            alt="Foto do Servidor"
+                            class="object-cover w-full h-full"
+                          />
+                          <div
+                            class="hidden sm:flex absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100
                           transition-opacity duration-300 items-center justify-center">
-                        <mat-icon class="!text-white scale-150">photo_camera</mat-icon>
-                      </div>
+                            <mat-icon class="!text-white scale-150">photo_camera</mat-icon>
+                          </div>
 
-                      <div
-                        class="sm:hidden absolute bottom-0 inset-x-0 bg-black/50 py-0.5 flex
+                          <div
+                            class="sm:hidden absolute bottom-0 inset-x-0 bg-black/50 py-0.5 flex
                            justify-center items-center">
-                        <mat-icon class="!text-white scale-75 !m-0 !p-0">photo_camera</mat-icon>
+                            <mat-icon class="!text-white scale-75 !m-0 !p-0">photo_camera</mat-icon>
+                          </div>
+
+                          @if (isUploadingPhoto()) {
+                            <div class="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
+                              <mat-spinner diameter="30"></mat-spinner>
+                            </div>
+                          }
+                        </div>
                       </div>
 
-                      @if (isUploadingPhoto()) {
-                        <div class="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
-                          <mat-spinner diameter="30"></mat-spinner>
-                        </div>
-                      }
+                      <!-- Nome-->
+                      <div class="flex-1 flex flex-col gap-y-3 justify-center">
+                        <app-field-wrapper [field]="servidorForm.nome()">
+                          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                            <mat-label>Nome Completo</mat-label>
+                            <input matInput [formField]="servidorForm.nome" placeholder="Ex: João da Silva" />
+                          </mat-form-field>
+                        </app-field-wrapper>
+
+                        <!-- Filiação-->
+                        <app-field-wrapper [field]="servidorForm.filiacao()">
+                          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                            <mat-label>Filiação (Nome da Mãe/Pai)</mat-label>
+                            <input matInput [formField]="servidorForm.filiacao" />
+                          </mat-form-field>
+                        </app-field-wrapper>
+                      </div>
                     </div>
-                  </div>
 
-                  <!-- Nome-->
-                  <div class="flex-1 flex flex-col gap-y-3 justify-center">
-                    <app-field-wrapper [field]="servidorForm.nome()">
-                      <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                        <mat-label>Nome Completo</mat-label>
-                        <input matInput [formField]="servidorForm.nome" placeholder="Ex: João da Silva" />
-                      </mat-form-field>
-                    </app-field-wrapper>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-3">
+                      <!-- CPF-->
+                      <app-field-wrapper [field]="servidorForm.cpf()">
+                        <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                          <mat-label>CPF</mat-label>
+                          <input
+                            matInput
+                            [formField]="servidorForm.cpf"
+                            placeholder="Somente números"
+                            mask="000.000.000-00" />
+                        </mat-form-field>
+                      </app-field-wrapper>
 
-                    <!-- Filiação-->
-                    <app-field-wrapper [field]="servidorForm.filiacao()">
-                      <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                        <mat-label>Filiação (Nome da Mãe/Pai)</mat-label>
-                        <input matInput [formField]="servidorForm.filiacao" />
-                      </mat-form-field>
-                    </app-field-wrapper>
-                  </div>
-                </div>
+                      <!-- Data Nascimento-->
+                      <app-field-wrapper [field]="servidorForm.dataNascimento()">
+                        <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                          <mat-label>Data de Nascimento</mat-label>
+                          <input
+                            matInput
+                            class="text-right"
+                            [formField]="servidorForm.dataNascimento"
+                            mask="00/00/0000"
+                            [dropSpecialCharacters]="false"
+                            placeHolder="Data como 'DD/MM/YYYY'" />
+                        </mat-form-field>
+                      </app-field-wrapper>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-3">
-                  <!-- CPF-->
-                  <app-field-wrapper [field]="servidorForm.cpf()">
+                      <!-- gênero-->
+                      <app-custom-select
+                        label="Gênero"
+                        placeholder="Selecione..."
+                        [field]="servidorForm.genero()"
+                        [options]="servidoresStore.generos()" />
+
+                      <!-- Celular-->
+                      <app-field-wrapper [field]="servidorForm.telefone()">
+                        <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                          <mat-label>Celular</mat-label>
+                          <input mask="(00) 0 0000-0000" matInput [formField]="servidorForm.telefone" />
+                        </mat-form-field>
+                      </app-field-wrapper>
+                    </div>
+
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-3">
+                      <!-- E-mail pessoal-->
+                      <app-field-wrapper [field]="servidorForm.emailPessoal()">
+                        <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                          <mat-label>E-mail Pessoal</mat-label>
+                          <input matInput [formField]="servidorForm.emailPessoal" type="email" />
+                        </mat-form-field>
+                      </app-field-wrapper>
+
+                      <!-- E-mail institucional-->
+                      <app-field-wrapper [field]="servidorForm.emailInstitucional()">
+                        <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                          <mat-label>E-mail Institucional</mat-label>
+                          <input matInput [formField]="servidorForm.emailInstitucional" type="email" />
+                        </mat-form-field>
+                      </app-field-wrapper>
+                    </div>
+
+                    <!-- Endereço-->
                     <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                      <mat-label>CPF</mat-label>
+                      <mat-label>Endereço Completo</mat-label>
                       <input
                         matInput
-                        [formField]="servidorForm.cpf"
-                        placeholder="Somente números"
-                        mask="000.000.000-00" />
+                        [formField]="servidorForm.endereco"
+                        placeholder="Rua, Número, Bairro, Cidade, UF, CEP" />
                     </mat-form-field>
-                  </app-field-wrapper>
-
-                  <!-- Data Nascimento-->
-                  <app-field-wrapper [field]="servidorForm.dataNascimento()">
-                    <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                      <mat-label>Data de Nascimento</mat-label>
-                      <input
-                        matInput
-                        class="text-right"
-                        [formField]="servidorForm.dataNascimento"
-                        mask="00/00/0000"
-                        [dropSpecialCharacters]="false"
-                        placeHolder="Data como 'DD/MM/YYYY'" />
-                    </mat-form-field>
-                  </app-field-wrapper>
-
-                  <!-- gênero-->
-                  <app-custom-select
-                    label="Gênero"
-                    placeholder="Selecione..."
-                    [field]="servidorForm.genero()"
-                    [options]="servidoresStore.generos()" />
-
-                  <!-- Celular-->
-                  <app-field-wrapper [field]="servidorForm.telefone()">
-                    <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                      <mat-label>Celular</mat-label>
-                      <input mask="(00) 0 0000-0000" matInput [formField]="servidorForm.telefone" />
-                    </mat-form-field>
-                  </app-field-wrapper>
+                  </div>
                 </div>
 
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-3">
-                  <!-- E-mail pessoal-->
-                  <app-field-wrapper [field]="servidorForm.emailPessoal()">
-                    <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                      <mat-label>E-mail Pessoal</mat-label>
-                      <input matInput [formField]="servidorForm.emailPessoal" type="email" />
-                    </mat-form-field>
-                  </app-field-wrapper>
-
-                  <!-- E-mail institucional-->
-                  <app-field-wrapper [field]="servidorForm.emailInstitucional()">
-                    <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                      <mat-label>E-mail Institucional</mat-label>
-                      <input matInput [formField]="servidorForm.emailInstitucional" type="email" />
-                    </mat-form-field>
-                  </app-field-wrapper>
-                </div>
-
-                <!-- Endereço-->
-                <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                  <mat-label>Endereço Completo</mat-label>
-                  <input
-                    matInput
-                    [formField]="servidorForm.endereco"
-                    placeholder="Rua, Número, Bairro, Cidade, UF, CEP" />
-                </mat-form-field>
-              </div>
-            </div>
-
-            <div>
-              <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 border-b
+                <div>
+                  <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 border-b
                     pb-1 mt-0">
-                Vínculo Funcional
-              </h3>
+                    Vínculo Funcional
+                  </h3>
 
-              <div class="grid grid-cols-1 md:grid-cols-12 gap-x-3 mb-2">
-                <!-- Vínculo-->
-                <app-list-autocomplete
-                  class="md:col-span-4"
-                  [data]="servidoresStore.vinculos()"
-                  label="Vínculo"
-                  placeholder="Pesquisar..."
-                  [selectedId]="servidorModel().vinculoId"
-                  (selectedIdChange)="onAutocompleteChange('vinculoId', $event)"
-                  [hasExternalError]="servidorForm.vinculoId().invalid()"
-                  [errorMessage]="servidorForm.vinculoId().invalid()
+                  <div class="grid grid-cols-1 md:grid-cols-12 gap-x-3 mb-2">
+                    <!-- Vínculo-->
+                    <app-list-autocomplete
+                      class="md:col-span-4"
+                      [data]="servidoresStore.vinculos()"
+                      label="Vínculo"
+                      placeholder="Pesquisar..."
+                      [selectedId]="servidorModel().vinculoId"
+                      (selectedIdChange)="onAutocompleteChange('vinculoId', $event)"
+                      [hasExternalError]="servidorForm.vinculoId().invalid()"
+                      [errorMessage]="servidorForm.vinculoId().invalid()
                   ? servidorForm.vinculoId().errors()[0]?.message
                   : ''"
-                  [externalTouched]="servidorForm.vinculoId().touched()" />
+                      [externalTouched]="servidorForm.vinculoId().touched()" />
 
-                <!-- Matrícula-->
-                <app-field-wrapper
-                  class="md:col-span-2"
-                  [field]="servidorForm.matricula()">
-                  <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                    <mat-label>Matrícula</mat-label>
-                    @if (isTerceirizado) {
-                      <input
-                        matInput
-                        [formField]="servidorForm.matricula"
-                        placeholder="Ex: T032"
-                      />
+                    <!-- Matrícula-->
+                    <app-field-wrapper
+                      class="md:col-span-2"
+                      [field]="servidorForm.matricula()">
+                      <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                        <mat-label>Matrícula</mat-label>
+                        @if (isTerceirizado) {
+                          <input
+                            matInput
+                            [formField]="servidorForm.matricula"
+                            placeholder="Ex: T032"
+                          />
 
-                    } @else {
-                      <input
-                        matInput
-                        [formField]="servidorForm.matricula"
-                        [mask]="'0.000-0||00.000-0||000.000-0||0000.000-0'"
-                        [dropSpecialCharacters]="true"
-                      />
-                    }
-                  </mat-form-field>
-                </app-field-wrapper>
+                        } @else {
+                          <input
+                            matInput
+                            [formField]="servidorForm.matricula"
+                            [mask]="'0.000-0||00.000-0||000.000-0||0000.000-0'"
+                            [dropSpecialCharacters]="true"
+                          />
+                        }
+                      </mat-form-field>
+                    </app-field-wrapper>
 
-                <!-- Setor-->
-                <app-list-autocomplete
-                  class="md:col-span-6"
-                  [data]="servidoresStore.setores()"
-                  label="Setor"
-                  placeholder="Pesquisar..."
-                  [selectedId]="servidorModel().setorId"
-                  (selectedIdChange)="onAutocompleteChange('setorId', $event)"
-                  [hasExternalError]="servidorForm.setorId().invalid()"
-                  [errorMessage]="servidorForm.setorId().invalid()
+                    <!-- Setor-->
+                    <app-list-autocomplete
+                      class="md:col-span-6"
+                      [data]="servidoresStore.setores()"
+                      label="Setor"
+                      placeholder="Pesquisar..."
+                      [selectedId]="servidorModel().setorId"
+                      (selectedIdChange)="onAutocompleteChange('setorId', $event)"
+                      [hasExternalError]="servidorForm.setorId().invalid()"
+                      [errorMessage]="servidorForm.setorId().invalid()
                   ? servidorForm.setorId().errors()[0]?.message
                   : ''"
-                  [externalTouched]="servidorForm.setorId().touched()" />
-              </div>
+                      [externalTouched]="servidorForm.setorId().touched()" />
+                  </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-12 gap-x-3 mb-2">
-                <!-- Cargo-->
-                <app-list-autocomplete
-                  class="md:col-span-5"
-                  [data]="servidoresStore.cargos()"
-                  label="Cargo"
-                  placeholder="Pesquisar..."
-                  [selectedId]="servidorModel().cargoId"
-                  (selectedIdChange)="onAutocompleteChange('cargoId', $event)"
-                  [hasExternalError]="servidorForm.cargoId().invalid()"
-                  [errorMessage]="servidorForm.cargoId().invalid()
+                  <div class="grid grid-cols-1 md:grid-cols-12 gap-x-3 mb-2">
+                    <!-- Cargo-->
+                    <app-list-autocomplete
+                      class="md:col-span-5"
+                      [data]="servidoresStore.cargos()"
+                      label="Cargo"
+                      placeholder="Pesquisar..."
+                      [selectedId]="servidorModel().cargoId"
+                      (selectedIdChange)="onAutocompleteChange('cargoId', $event)"
+                      [hasExternalError]="servidorForm.cargoId().invalid()"
+                      [errorMessage]="servidorForm.cargoId().invalid()
                   ? servidorForm.cargoId().errors()[0]?.message
                   : ''"
-                  [externalTouched]="servidorForm.cargoId().touched()" />
+                      [externalTouched]="servidorForm.cargoId().touched()" />
 
-                <!-- Lotação-->
-                <app-custom-select
-                  class="md:col-span-2"
-                  label="Lotação"
-                  placeholder="Selecione..."
-                  [field]="servidorForm.lotacaoId()"
-                  [options]="servidoresStore.lotacoes()" />
+                    <!-- Lotação-->
+                    <app-custom-select
+                      class="md:col-span-2"
+                      label="Lotação"
+                      placeholder="Selecione..."
+                      [field]="servidorForm.lotacaoId()"
+                      [options]="servidoresStore.lotacoes()" />
 
-                <!-- Se for ADMIN, ver o select e pode editar-->
-                @if (isAdminLogged()) {
-                  <!-- Atividade-->
-                  <app-custom-select
-                    class="md:col-span-2"
-                    label="Atividade"
-                    placeholder="Selecione..."
-                    [field]="servidorForm.tipoAtividade()"
-                    [options]="servidoresStore.atividades()" />
+                    <!-- Se for ADMIN, ver o select e pode editar-->
+                    @if (isAdminLogged()) {
+                      <!-- Atividade-->
+                      <app-custom-select
+                        class="md:col-span-2"
+                        label="Atividade"
+                        placeholder="Selecione..."
+                        [field]="servidorForm.tipoAtividade()"
+                        [options]="servidoresStore.atividades()" />
 
-                } @else {
-                  <!-- Se não, aparece o input com a informação e bloqueado para edição-->
-                  <mat-form-field appearance="outline" class="md:col-span-2 w-full">
-                    <mat-label>Atividade</mat-label>
-                    <input
-                      matInput
-                      class="w-full bg-transparent border-none text-gray-800 font-medium
+                    } @else {
+                      <!-- Se não, aparece o input com a informação e bloqueado para edição-->
+                      <mat-form-field appearance="outline" class="md:col-span-2 w-full">
+                        <mat-label>Atividade</mat-label>
+                        <input
+                          matInput
+                          class="w-full bg-transparent border-none text-gray-800 font-medium
                           focus:outline-none focus:ring-0 cursor-default"
-                      type="text"
-                      readonly
-                      [value]="servidorForm.tipoAtividade().value()"
+                          type="text"
+                          readonly
+                          [value]="servidorForm.tipoAtividade().value()"
+                        />
+                      </mat-form-field>
+                    }
+
+                    <!-- Status-->
+                    <app-custom-select
+                      class="md:col-span-3"
+                      label="Status"
+                      placeholder="Selecione..."
+                      [field]="servidorForm.statusId()"
+                      [options]="servidoresStore.status()" />
+
+                  </div>
+                </div>
+              </form>
+            </mat-dialog-content>
+          </mat-tab>
+
+          @if (isAdminLogged()) {
+            <mat-tab label="Vínculos e Permissões" [disabled]="!currentServidorId()">
+              <ng-template matTabContent>
+                <div class="w-full h-[650px] md:h-[680px] p-2">
+                  @if (currentServidorId()) {
+                    <app-vinculos-permissoes
+                      class="block w-full h-full"
+                      [initialSistemas]="servidorModel().sistemaIds || []"
+                      [initialProcuradores]="servidorModel().procuradorIds || []"
+                      [initialAliases]="servidorModel().aliasIds || []"
+                      (permissionsChanged)="atualizarPermissoesNoModeloPai($event)"
                     />
-                  </mat-form-field>
+                  } @else {
+                    <div class="flex flex-col items-center justify-center p-8 text-gray-500">
+                      <mat-icon class="text-4xl mb-2">lock</mat-icon>
+                      <p>Salve os dados do servidor para desbloquear o gerenciamento de permissões.</p>
+                    </div>
+                  }
+                </div>
+              </ng-template>
+            </mat-tab>
+          }
+
+          <mat-tab label="Documentos" [disabled]="!currentServidorId()">
+            <ng-template matTabContent>
+              <div class="w-full h-[650px] md:h-[680px] block bg-gray-50 rounded-xl overflow-hidden">
+                @if (currentServidorId()!) {
+                  <app-document-manager
+                    class="block w-full h-full"
+                    [servidorId]="currentServidorId()!"
+                  />
+                } @else {
+                  <div class="flex flex-col items-center justify-center p-8 text-gray-500">
+                    <mat-icon class="text-4xl mb-2">lock</mat-icon>
+                    <p>Salve os dados do servidor para desbloquear a anexação de documentos.</p>
+                  </div>
                 }
-
-                <!-- Status-->
-                <app-custom-select
-                  class="md:col-span-3"
-                  label="Status"
-                  placeholder="Selecione..."
-                  [field]="servidorForm.statusId()"
-                  [options]="servidoresStore.status()" />
-
               </div>
-            </div>
-          </form>
-        </mat-dialog-content>
+            </ng-template>
+          </mat-tab>
+        </mat-tab-group>
+      </div>
+      <div class="shrink-0 gap-2 flex flex-col sm:flex-row justify-end items-center p-4 bg-white z-20 relative">
 
-        <mat-dialog-actions
-          class="!px-6 !pb-4 !pt-0 flex flex-col sm:flex-row sm:justify-between items-center gap-3">
-          <button
-            class="w-full sm:w-auto !border-blue-600 !text-blue-600 !transition-transform duration-300
-              hover:!scale-105 disabled:!border-gray-300 disabled:!text-gray-400 !h-12 sm:!h-10
-              order-3 sm:order-1"
-            mat-stroked-button
-            (click)="closeModal()"
-          >
-            <mat-icon>exit_to_app</mat-icon>
-            Sair
-          </button>
-
+        <!-- Não o botão de salvar/atualizar na aba Documentos-->
+        @if (activeTabIndex !== 2) {
           <button
             mat-flat-button
             class="w-full sm:w-auto !transition-transform duration-300 hover:!scale-105 !h-12 sm:!h-10
-              order-1 sm:order-3"
+                   order-1 sm:order-2"
             (click)="salvar()"
             [disabled]="servidorForm().invalid()"
           >
             <mat-icon class="mr-2">{{ isReactivate ? 'settings_backup_restore' : 'save' }}</mat-icon>
             {{ isReactivate ? 'Confirmar Readmissão' : (isEdit ? 'Atualizar' : 'Salvar') }}
           </button>
-        </mat-dialog-actions>
-      </mat-tab>
-
-      @if (isAdminLogged()) {
-        <mat-tab label="Vínculos e Permissões" [disabled]="!currentServidorId()">
-          <ng-template matTabContent>
-            <div class="w-full h-[650px] md:h-[680px] p-2">
-              @if (currentServidorId()) {
-                <app-vinculos-permissoes
-                  class="block w-full h-full"
-                  [initialSistemas]="servidorModel().sistemaIds || []"
-                  [initialProcuradores]="servidorModel().procuradorIds || []"
-                  [initialAliases]="servidorModel().aliasIds || []"
-                  (permissionsChanged)="atualizarPermissoesNoModeloPai($event)"
-                />
-              } @else {
-                <div class="flex flex-col items-center justify-center p-8 text-gray-500">
-                  <mat-icon class="text-4xl mb-2">lock</mat-icon>
-                  <p>Salve os dados do servidor para desbloquear o gerenciamento de permissões.</p>
-                </div>
-              }
-
-            </div>
-          </ng-template>
-        </mat-tab>
-      }
-
-      <mat-tab label="Documentos" [disabled]="!currentServidorId()">
-        <ng-template matTabContent>
-          <div class="w-full h-[650px] md:h-[680px] block bg-gray-50 rounded-xl overflow-hidden">
-            @if (currentServidorId()!) {
-              <app-document-manager
-                class="block w-full h-full"
-                [servidorId]="currentServidorId()!"
-              />
-            } @else {
-              <div class="flex flex-col items-center justify-center p-8 text-gray-500">
-                <mat-icon class="text-4xl mb-2">lock</mat-icon>
-                <p>Salve os dados do servidor para desbloquear a anexação de documentos.</p>
-              </div>
-            }
-          </div>
-        </ng-template>
-      </mat-tab>
-    </mat-tab-group>
+        }
+        <button
+          class="!border-blue-600 !text-blue-600 !transition-transform duration-300 hover:!scale-105
+                 w-full sm:w-auto !h-12 sm:!h-10 order-2 sm:order-1"
+          mat-stroked-button
+          (click)="closeModal()"
+        >
+          <mat-icon>exit_to_app</mat-icon>
+          Fechar
+        </button>
+      </div>
+    </div>
   `
 })
 export class ServidorFormComponent implements OnInit {
@@ -514,6 +518,7 @@ export class ServidorFormComponent implements OnInit {
   readonly DEFAULT_PHOTO = '/img/default_photo.jpg';
 
   isReactivate = this.dialogData?.action === 'REACTIVATE';
+  activeTabIndex = 0;
 
   // Lógica de extração de dados e estado do formulário
   payload: ServidorResponseDTO | undefined = this.isReactivate

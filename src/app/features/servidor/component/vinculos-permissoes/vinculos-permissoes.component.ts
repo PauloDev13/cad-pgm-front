@@ -26,7 +26,7 @@ import { CheckboxGridComponent } from './card.component/checkbox-grid.component'
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="relative w-full h-full pb-8">
+    <div class="relative w-full h-[calc(100vh-47%)] pb-8">
 
       <div
         class="absolute inset-x-0 top-0 bottom-2 flex flex-col bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
