@@ -57,6 +57,7 @@ export const AuthStore = signalStore(
     platformId = inject(PLATFORM_ID),
     router = inject(Router)
   ) => ({
+    // Entra na no Sistema RH
     login: rxMethod<IAuthRequest>(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
@@ -91,6 +92,7 @@ export const AuthStore = signalStore(
       )
     ),
 
+    // Força a redinfição de uma nova senha
     forcePasswordChange: rxMethod<string>(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
@@ -177,6 +179,7 @@ export const AuthStore = signalStore(
       )
     ),
 
+    // Envia email com link para redifinição de senha
     forgotPassword: rxMethod<string>(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
@@ -200,6 +203,7 @@ export const AuthStore = signalStore(
       )
     ),
 
+    // Resete de senha realizado pelo Adminsitrador do Sistema
     resetPasswordByAdmin: rxMethod<{
       userId?: number; onSuccess: (temporaryPassword: string) => void
     }>(
@@ -220,14 +224,26 @@ export const AuthStore = signalStore(
       )
     ),
 
-    logout() {
-      if (isPlatformBrowser(platformId)) {
-        localStorage.removeItem('jwt-token'); // Limpa ao sair
-      }
-      patchState(store, initialState);
-      authService.logout();
-      router.navigate(['/auth/login']);
-    },
+    // Saí do Sistema RH
+    logout: rxMethod<void>(
+      pipe(
+        switchMap(() => authService.logout().pipe(
+          tapResponse({
+            next: () => notificationService.success('Você saiu do Sistema RH', 'Logout'),
+            error: (err) => {
+              errorHandlerService.handle(err, 'Logout');
+            }
+          }),
+          finalize(() => {
+            if (isPlatformBrowser(platformId)) {
+              localStorage.removeItem('jwt-token'); // Limpa ao sair
+            }
+            patchState(store, initialState);
+            router.navigate(['/auth/login']);
+          })
+        ))
+      )
+    ),
 
     // Utilidade para o componente forçar o estado de inválido se não vier token na URL
     setResetTokenInvalid() {
