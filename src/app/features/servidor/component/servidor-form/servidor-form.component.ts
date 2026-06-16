@@ -283,8 +283,8 @@ export type FormModel = Required<ServidorRequestDTO>;
                       (selectedIdChange)="onAutocompleteChange('setorId', $event)"
                       [hasExternalError]="servidorForm.setorId().invalid()"
                       [errorMessage]="servidorForm.setorId().invalid()
-                  ? servidorForm.setorId().errors()[0]?.message
-                  : ''"
+                      ? servidorForm.setorId().errors()[0]?.message
+                      : ''"
                       [externalTouched]="servidorForm.setorId().touched()" />
                   </div>
 
@@ -356,6 +356,7 @@ export type FormModel = Required<ServidorRequestDTO>;
                 <div class="w-full h-[650px] md:h-[680px] p-2">
                   @if (currentServidorId()) {
                     <app-vinculos-permissoes
+                      servidorName="{{ payload?.nome }}"
                       class="block w-full h-full"
                       [initialSistemas]="servidorModel().sistemaIds || []"
                       [initialProcuradores]="servidorModel().procuradorIds || []"
@@ -379,6 +380,7 @@ export type FormModel = Required<ServidorRequestDTO>;
                 @if (currentServidorId()!) {
                   <app-document-manager
                     class="block w-full h-full"
+                    servidorName="{{ payload?.nome }}"
                     [servidorId]="currentServidorId()!"
                   />
                 } @else {

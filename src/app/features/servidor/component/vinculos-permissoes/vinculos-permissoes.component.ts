@@ -33,7 +33,7 @@ import { CheckboxGridComponent } from './card.component/checkbox-grid.component'
 
         <div class="flex justify-between items-center px-4 pt-4 pb-3 border-b border-gray-200 shrink-0 bg-white z-10">
           <h2 class="!font-bold !text-lg sm:!text-xl !text-blue-700 !m-0 !p-0">
-            Gerenciar Permissões e Vínculos
+            Gerenciar Permissões e Vínculos ({{ servidorName() }})
           </h2>
         </div>
 
@@ -98,6 +98,8 @@ export class VinculosPermissoesComponent implements OnInit {
   initialSistemas = input.required<number[]>();
   initialProcuradores = input.required<number[]>();
   initialAliases = input.required<number[]>();
+
+  servidorName = input.required<string>();
 
   // 3Emite as alterações de volta em tempo real para o Pai salvar tudo no submit único!
   permissionsChanged = output<{ sistemaIds: number[], procuradorIds: number[], aliasIds: number[] }>();

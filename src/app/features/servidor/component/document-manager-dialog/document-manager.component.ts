@@ -1,14 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  ElementRef,
-  inject,
-  input,
-  signal,
-  ViewChild
-} from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, input, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -45,12 +35,11 @@ const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 20 MB
     DocumentListTableComponent
   ],
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col h-full w-full bg-white overflow-hidden rounded-xl">
       <!-- TÍTULO E BOTÃO FECHAR-->
       <div class="flex justify-between items-center px-4 md:px-6 py-4 border-b border-gray-200 shrink-0">
-        <h2 class="text-lg md:text-xl font-bold text-blue-700 m-0">Anexos</h2>
+        <h2 class="text-lg md:text-xl font-bold text-blue-700 m-0">Anexos ({{ servidorName() }})</h2>
       </div>
 
       <div class="flex flex-col h-[calc(100vh-50%)]  p-4 md:p-3 bg-gray-50 gap-3 min-h-0">
@@ -110,6 +99,7 @@ export class DocumentManagerComponent {
   @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
 
   servidorId = input.required<number>();
+  servidorName = input.required<string>();
   // SIGNALS
   isUploading = signal(false);
   // Signal para exclusão em lote

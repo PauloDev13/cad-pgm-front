@@ -6,6 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { BaseEntityDTO } from '../../models/servidor.model';
 import { MatButtonModule } from '@angular/material/button';
+import { AutocompleteComponent } from '../../../../shared/components/autocomplete/autocomplete.component';
 
 
 @Component({
@@ -16,54 +17,58 @@ import { MatButtonModule } from '@angular/material/button';
     MatSelectModule,
     MatInputModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    AutocompleteComponent
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-4 bg-white md:bg-gray-50 p-2 md:p-4 rounded-xl border border-gray-200">
+      class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-4 bg-white md:bg-gray-50 pt-3 px-3
+             pb-0 md:pt-4 md:px-4 md:pb-0 rounded-xl border border-gray-200 items-start">
 
       <button
         mat-stroked-button
         (click)="cleanFilters.emit($event)"
-        class="md:col-span-1 w-full sm:w-auto !border-blue-600 !text-blue-600 !transition-transform duration-300 hover:!scale-105 order-3 sm:order-1">
+        class="md:col-span-1 w-full sm:w-auto !border-blue-600 !text-blue-600 !transition-transform
+               duration-300 hover:!scale-105 order-3 sm:order-1">
         Limpar
         <mat-icon>delete_sweep</mat-icon>
       </button>
 
-      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2">
-        <mat-label>Status</mat-label>
-        <mat-select [value]="selectedStatusId()" (selectionChange)="statusChange.emit($event.value)">
-          <mat-option [value]="null">Todos os Status</mat-option>
-          @for (status of statusList(); track status.id) {
-            <mat-option [value]="status.id">{{ status.descricao }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+      <div class="md:col-span-2 w-full">
+        <app-list-autocomplete
+          class="md:col-span-6"
+          [data]="statusList()"
+          label="status"
+          placeholder="Pesquisar por status..."
+          displayKey="descricao"
+          [selectedId]="selectedStatusId()"
+          (selectedIdChange)="statusChange.emit($event)" />
+      </div>
 
-      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2 w-full">
-        <mat-label>Cargo</mat-label>
-        <mat-select [value]="selectedCargoId()" (selectionChange)="cargoChange.emit($event.value)">
-          <mat-option [value]="null">Todos os Cargos</mat-option>
-          @for (cargo of cargoList(); track cargo.id) {
-            <mat-option [value]="cargo.id">{{ cargo.nome }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+      <div class="md:col-span-2 w-full">
+        <app-list-autocomplete
+          class="md:col-span-6"
+          [data]="cargoList()"
+          label="Cargo"
+          placeholder="Pesquisar por cargo..."
+          [selectedId]="selectedCargoId()"
+          (selectedIdChange)="cargoChange.emit($event)" />
+      </div>
 
-      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-4 w-full">
-        <mat-label>Setor</mat-label>
-        <mat-select [value]="selectedSetorId()" (selectionChange)="setorChange.emit($event.value)">
-          <mat-option [value]="null">Todos os Setores</mat-option>
-          @for (setor of setorList(); track setor.id) {
-            <mat-option [value]="setor.id">{{ setor.nome }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+      <div class="md:col-span-4 w-full">
+        <app-list-autocomplete
+          class="md:col-span-6"
+          [data]="setorList()"
+          label="Setor"
+          placeholder="Pesquisar por setor..."
+          [selectedId]="selectedSetorId()"
+          (selectedIdChange)="setorChange.emit($event)" />
+      </div>
 
       <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-1 w-full">
-        <mat-label>Filtrar por</mat-label>
+        <mat-label>Filtro por</mat-label>
         <mat-select [value]="searchType()" (selectionChange)="searchTypeChange.emit($event.value)">
           <mat-option value="NOME">NOME</mat-option>
           <mat-option value="CPF">CPF</mat-option>
@@ -74,7 +79,11 @@ import { MatButtonModule } from '@angular/material/button';
       <mat-form-field appearance="outline" subscriptSizing="dynamic" class="md:col-span-2 w-full">
         <mat-label>Digite para buscar...</mat-label>
         <input matInput [value]="searchTerm()" (input)="searchInput.emit($event)"
-               [placeholder]="searchType() === 'CPF' ? 'Apenas dígitos' : searchType() === 'NOME' ? 'Ex: João Morais' : 'Ex: T0001'"
+               [placeholder]="searchType() === 'CPF'
+               ? 'Apenas dígitos'
+               : searchType() === 'NOME'
+               ? 'Ex: João Morais'
+               : 'Ex: T0001'"
         />
         <mat-icon matIconPrefix class="text-gray-500">search</mat-icon>
       </mat-form-field>
