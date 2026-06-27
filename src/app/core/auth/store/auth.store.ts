@@ -245,6 +245,18 @@ export const AuthStore = signalStore(
       )
     ),
 
+    forceLobout: () => {
+      if (isPlatformBrowser(platformId)) {
+        // Limpa o token do navegador sem fazer requisição para a API
+        localStorage.removeItem('jwt-token');
+      }
+      // Reseta o estado global da store
+      patchState(store, initialState);
+
+      // Manda para a tela de login
+      router.navigate(['/auth/login']);
+    },
+
     // Utilidade para o componente forçar o estado de inválido se não vier token na URL
     setResetTokenInvalid() {
       patchState(store, { resetTokenStatus: 'invalid' });

@@ -2,14 +2,14 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, EMPTY, throwError } from 'rxjs';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
-import { Router } from '@angular/router';
+// import { Router } from '@angular/router';
 import { AuthStore } from '../store/auth.store';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // Injeções de dependência
   const authStore = inject(AuthStore);
   const notificationService = inject(NotificationService);
-  const router = inject(Router);
+  // const router = inject(Router);
 
   // Pega o usuário logado
   const token: string | null = authStore.token();
@@ -37,7 +37,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       // =========================================================================
       if ((error.status === 401 || error.status === 403) && !isLoginRequest) {
         // Sai da aplicação
-        authStore.logout();
+        authStore.forceLobout();
 
         // Exibe mensagem na tela
         notificationService.warning('Sua sessão expirou. Faça login novamente');
