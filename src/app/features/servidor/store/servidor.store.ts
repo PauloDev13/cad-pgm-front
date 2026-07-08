@@ -6,7 +6,7 @@ import {
   TServidorDelete
 } from '../models/servidor.model';
 import { patchState, signalStore, withComputed, withHooks, withMethods, withState } from '@ngrx/signals';
-import { computed, inject } from '@angular/core';
+import { computed, effect, inject } from '@angular/core';
 import { ServidorService } from '../services/servidor.service';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 import { ErrorHandlerService } from '../../../shared/service/error-handler.service';
@@ -14,6 +14,7 @@ import { DominioService } from '../services/dominio.service';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { debounceTime, distinctUntilChanged, pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
+import { Router } from '@angular/router';
 
 
 type ServidorState = {
@@ -27,6 +28,9 @@ type ServidorState = {
 
   // Estado da listagem
   servidores: ServidorResponseDTO[];
+
+  // Estado do número de registro cujo status está como pendente
+  totalPendentes: number;
 
   // Estado dos filtros e paginação
   searchTerm: string;
@@ -60,6 +64,7 @@ const initialState: ServidorState = {
   totalElements: 0,
   pageSize: 10,
   reloadTrigger: 0,
+  totalPendentes: 0,
 
   // Inicialização do State para Desligados
   excludedServidores: [],
@@ -72,6 +77,7 @@ const initialState: ServidorState = {
 };
 
 export const ServidoresStore = signalStore(
+  { providedIn: 'root' },
   withState(initialState),
 
   withComputed((store, dominioService = inject(DominioService)) => ({
@@ -127,8 +133,30 @@ export const ServidoresStore = signalStore(
   withMethods((
     store,
     servidorService = inject(ServidorService),
+    errorHandlerService = inject(ErrorHandlerService)) => ({
+
+    loadTotalPendentes: rxMethod<void>(
+      pipe(
+        switchMap(() => servidorService.searchFilter({
+          statusId: 4, page: 0, size: 1
+        }).pipe(
+          tapResponse({
+            next: (response) => patchState(store, {
+              totalPendentes: response.page.totalElements ?? 0
+            }),
+            error: (err) => errorHandlerService.handle(err, 'Erro ao buscar registros pendentes')
+          })
+        ))
+      )
+    )
+  })),
+
+  withMethods((
+    store,
+    servidorService = inject(ServidorService),
     notificationService = inject(NotificationService),
-    errorHandlerService = inject(ErrorHandlerService)
+    errorHandlerService = inject(ErrorHandlerService),
+    router = inject(Router)
   ) => ({
     // MÉTODOS DE GERENCIAMENTO DO STATE DOS DADOS DE ATIVOS
     // ========================================================
@@ -163,7 +191,14 @@ export const ServidoresStore = signalStore(
           return request$.pipe(
             tapResponse({
               next: (response) => {
-                patchState(store, { isLoading: false });
+                patchState(store, {
+                  isLoading: false,
+                  reloadTrigger: store.reloadTrigger() + 1
+                });
+
+                // Atualiza o número de registro com Status como "pendente"
+                store.loadTotalPendentes();
+
                 // Mensagem dinâmica conforme a ação
                 const extraMsg = action === 'CREATE'
                   ? '<br>Você já pode gerenciar as permissões e anexar documentos.'
@@ -207,7 +242,6 @@ export const ServidoresStore = signalStore(
         ))
       )
     ),
-
     // Atualiza os parâmetros do filtro quando uma opção é selecionada no combo
     updateDropdownFilter(
       filterParams: {
@@ -328,6 +362,12 @@ export const ServidoresStore = signalStore(
         searchType: 'NOME',
         currentPage: 0
       });
+
+      // Limpa a URL apagando o parâmetro fantasma
+      router.navigate([], {
+        queryParams: { statusId: null }, // Passar null remove o parâmetro da URL
+        queryParamsHandling: 'merge' // Garante que não vai quebrar a rota atual
+      });
     },
 
     // Exclui (soft delete) registros dos Ativos
@@ -355,6 +395,23 @@ export const ServidoresStore = signalStore(
     onInit(store) {
       store.loadServidores(store.queryParams);
       store.loadExcludedServidores(store.excludedQueryParams);
+      store.loadTotalPendentes();
+
+      // O effect age como um observador silencioso monitorando o total de pendentes
+      effect(() => {
+        const total = store.totalPendentes();
+        const currentStatus = store.selectedStatusId();
+
+        // Se a contagem bater zero e o usuário estiver na tela de pendentes (status = 4)
+        if (total === 0 && currentStatus === 4) {
+
+          // Chama o clearAllFilters
+          store.clearAllFilters();
+
+          // O clearAllFilters limpa tudo, e como a Store é reativa,
+          // a tabela vai recarregar automaticamente mostrando todos os servidores!
+        }
+      });
     }
   })
 );

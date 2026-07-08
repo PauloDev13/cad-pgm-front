@@ -18,7 +18,7 @@ export const initialDataServidor: FormModel = {
   cargoId: null as unknown as number,
   setorId: null as unknown as number,
   lotacaoId: 1,
-  statusId: 1,
+  statusId: 4,
   vinculoId: null as unknown as number,
 
   procuradorIds: [],

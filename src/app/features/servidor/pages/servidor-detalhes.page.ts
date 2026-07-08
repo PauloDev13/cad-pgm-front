@@ -213,7 +213,6 @@ import { rxResource } from '@angular/core/rxjs-interop';
       }
     </div>
   `
-
 })
 export default class ServidorDetalhesPage {
   // O Angular injeta o id do Servidor que vem na URL direto aqui!

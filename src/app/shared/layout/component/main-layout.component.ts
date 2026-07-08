@@ -1,9 +1,12 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { HeaderComponent } from './header.component';
 import { SidebarComponent } from './sidebar.component';
 import { FooterComponent } from './footer.component';
+import { ServidoresStore } from '../../../features/servidor/store/servidor.store';
+import { NotificationService } from '../../service/NotificationSnackbar.service';
+import { AuthStore } from '../../../core/auth/store/auth.store';
 
 @Component({
   selector: 'app-main-layout',
@@ -42,7 +45,40 @@ import { FooterComponent } from './footer.component';
   `
 })
 export class MainLayoutComponent {
+  private readonly servidorStore = inject(ServidoresStore);
+  private readonly authStore = inject(AuthStore);
+  private readonly notificationService = inject(NotificationService);
+
+  // Garante que a mensagem será exibida apenas uma vez
+  private hasNotified: boolean = false;
+
   isSidebarOpen = signal(true);
+
+  constructor() {
+    effect(() => {
+      // Pega o total de registros com o Status igual a "pendente"
+      const total = this.servidorStore.totalPendentes();
+
+      const isAdmin = this.authStore.canManager();
+
+      // Quando o total for maior que zero e a mensagem não foi exibida nenhuma vez
+      if (total > 0 && !this.hasNotified && isAdmin) {
+        // Cria a mensagem
+        const msg = total > 1
+          ? `Existem <strong>(${total})</strong> novos cadastros de servidores`
+          : 'Existe <strong>(1)</strong> novo cadastro de servidor';
+
+        // Exibe a mensagem
+        this.notificationService.info(
+          `${msg} aguardando a sua avaliação.`,
+          'Aviso de Pendências', { duration: 5000 }
+        );
+
+        // Avisa que a mensagem já foi exibida e não permite nova exibição
+        this.hasNotified = true;
+      }
+    });
+  }
 
   toggle() {
     this.isSidebarOpen.update((v) => !v);

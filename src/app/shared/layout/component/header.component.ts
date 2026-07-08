@@ -4,12 +4,22 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthStore } from '../../../core/auth/store/auth.store';
+import { MatBadgeModule } from '@angular/material/badge';
+import { ServidoresStore } from '../../../features/servidor/store/servidor.store';
 
 @Component({
   selector: 'app-header',
-  imports: [MatToolbarModule, MatButtonModule, MatIconModule, MatMenuModule, MatDividerModule, RouterLink],
+  imports: [
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    MatDividerModule,
+    RouterLink,
+    MatBadgeModule
+  ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -33,14 +43,22 @@ import { AuthStore } from '../../../core/auth/store/auth.store';
       </div>
 
       <div class="flex items-center gap-1 sm:gap-2">
-        <button
-          class="group !w-10 !h-10 sm:!w-12 sm:!h-12 flex justify-center items-center !text-gray-50"
-          mat-icon-button
-          aria-label="Notificações">
-          <mat-icon class="group-hover:!text-white group-hover:scale-125 transition-all duration-200">
-            notifications
-          </mat-icon>
-        </button>
+        @if (canManager) {
+          <button
+            (click)="navegarParaPendentes()"
+            class="group !w-10 !h-10 sm:!w-12 sm:!h-12 flex justify-center items-center !text-gray-50"
+            mat-icon-button
+            aria-label="Notificações">
+            <mat-icon
+              aria-hidden="false"
+              [matBadge]="servidoresStore.totalPendentes()"
+              [matBadgeHidden]="servidoresStore.totalPendentes() === 0"
+              matBadgeColor="warn"
+              class="group-hover:!text-white group-hover:scale-125 transition-all duration-200">
+              notifications
+            </mat-icon>
+          </button>
+        }
 
         <button mat-button [matMenuTriggerFor]="userMenu"
                 class="flex items-center gap-1 sm:gap-2 group !px-2 sm:!px-4 !min-w-0 !text-gray-50">
@@ -78,12 +96,25 @@ import { AuthStore } from '../../../core/auth/store/auth.store';
 })
 export class HeaderComponent {
   protected readonly authStore = inject(AuthStore);
+  protected readonly servidoresStore = inject(ServidoresStore);
+  private readonly router = inject(Router);
 
   // Emite o evento de clique para o layout principal
   toggleSidebar = output<void>();
 
   // Retorna o usuário logado
   loggedUserName = computed(() => this.authStore.currentUser()?.sub || '');
+
+  // Retorna verdadeiro se o usuário logado é admin
+  canManager = this.authStore.canManager();
+
+  navegarParaPendentes(): void {
+    if (this.servidoresStore.totalPendentes() > 0) {
+      this.router.navigate(['servidores'], {
+        queryParams: { statusId: 4 }
+      });
+    }
+  }
 
   // Sai da aplicação e apaga o token
   logout() {

@@ -312,7 +312,7 @@ export type FormModel = Required<ServidorRequestDTO>;
                       [options]="servidoresStore.lotacoes()" />
 
                     <!-- Se for ADMIN, ver o select e pode editar-->
-                    @if (isAdminLogged()) {
+                    @if (canManager) {
                       <!-- Atividade-->
                       <app-custom-select
                         class="md:col-span-2"
@@ -350,7 +350,7 @@ export type FormModel = Required<ServidorRequestDTO>;
             </mat-dialog-content>
           </mat-tab>
 
-          @if (isAdminLogged()) {
+          @if (canManager) {
             <mat-tab label="Vínculos e Permissões" [disabled]="!currentServidorId()">
               <ng-template matTabContent>
                 <div class="w-full h-[650px] md:h-[680px] p-2">
@@ -439,7 +439,7 @@ export class ServidorFormComponent implements OnInit {
   private cacheMatriculaAuto = '';
 
   constructor() {
-    // Remove a foto que estiver na memória ao fechar o formn
+    // Remove a foto que estiver na memória ao fechar o form
     this.destroyRef.onDestroy(() => {
       const currentUrl = this.photoUrl();
       if (currentUrl && currentUrl.startsWith('blob:')) {
@@ -494,7 +494,7 @@ export class ServidorFormComponent implements OnInit {
 
         // REGRA 3: "Se escolheu outro que não é Comissionado/Efetivo..."
         else {
-          // 3A: "...a matrícula deve retornar para a que existia antes (veio do banco)"
+          // 3A: "... a matrícula deve retornar para a que existia antes (veio do banco)"
           if (this.originMatriculaDb && this.originMatriculaDb.startsWith('T')) {
             this.servidorForm.matricula().controlValue.set(this.originMatriculaDb);
           }
@@ -527,8 +527,11 @@ export class ServidorFormComponent implements OnInit {
     ? this.dialogData?.payload
     : this.dialogData;
 
-  // É edição se tem payload mas NÃO é readmissão
+  // É edição se tem payload, mas NÃO é readmissão
   isEdit = !!this.payload && !this.isReactivate;
+
+  // Retorna verdadeiro se o usuário logado é admin
+  canManager = this.authStore.canManager();
 
   // Controle para avisar a tabela pai se precisamos recarregar o grid
   private hasCreated = false;
@@ -559,11 +562,11 @@ export class ServidorFormComponent implements OnInit {
   });
 
   // Computed para ocultar partes do html (botões, divs, etc) se o usuário não for administrador
-  isAdminLogged = computed(() => {
-    const user = this.authStore.currentUser();
-    if (!user) return;
-    return user.roles?.some((p) => p === 'admin');
-  });
+  // isAdminLogged = computed(() => {
+  //   const user = this.authStore.currentUser();
+  //   if (!user) return;
+  //   return user.roles?.some((p) => p === 'admin');
+  // });
 
   // Método genérico que controla mudanças nos campos autocomplete
   onAutocompleteChange(field: keyof ServidorRequestDTO, id: number | null) {
@@ -727,8 +730,8 @@ export class ServidorFormComponent implements OnInit {
     this.servidorService.uploadProfilePicture(id, file)
       .pipe(
         switchMap(() => {
-          const chacheBuster = Date.now();
-          return this.servidorService.downloadPhoto(id, chacheBuster);
+          const cacheBuster = Date.now();
+          return this.servidorService.downloadPhoto(id, cacheBuster);
         }),
         finalize(() => this.isUploadingPhoto.set(false))
       )

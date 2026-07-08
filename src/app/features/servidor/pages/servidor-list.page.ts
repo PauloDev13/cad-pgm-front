@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, Injector, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, Injector, input, signal } from '@angular/core';
 import { ServidorResponseDTO, TServidorDelete } from '../models/servidor.model';
 import { MatDialog } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
@@ -122,8 +122,7 @@ import { ServidoresStore } from '../store/servidor.store';
     ServidorTableComponent,
     MatTabsModule,
     DeletedFilterComponent
-  ],
-  providers: [ServidoresStore]
+  ]
 })
 export default class ServidorListPage {
   // Injeções de dependências
@@ -134,6 +133,21 @@ export default class ServidorListPage {
 
   // Signal que controla qual aba está ativa (ativos ou lixeira)
   activeTableIndex = signal(0);
+
+  // O Angular injeta o id do Status que vem na URL direto aqui!
+  statusId = input<number | null>(null);
+
+  constructor() {
+    effect(() => {
+      const statusIdUrl = this.statusId();
+
+      if (statusIdUrl) {
+        this.servidoresStore.updateDropdownFilter({
+          selectedStatusId: Number(statusIdUrl)
+        });
+      }
+    });
+  }
 
   // MÉTODO PARA OS DADOS ATIVOS
   // É chamado pelo HTML quando o usuário digita no campo de busca
