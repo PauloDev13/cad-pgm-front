@@ -37,7 +37,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       // =========================================================================
       if ((error.status === 401 || error.status === 403) && !isLoginRequest) {
         // Sai da aplicação
-        authStore.forceLobout();
+        authStore.forceLogout();
 
         // Exibe mensagem na tela
         notificationService.warning('Sua sessão expirou. Faça login novamente');

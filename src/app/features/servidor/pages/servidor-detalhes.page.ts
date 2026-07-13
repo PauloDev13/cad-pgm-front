@@ -15,6 +15,7 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
 import { of } from 'rxjs';
 import { PhotoComponent } from '../component/photo.component/photo.component';
 import { rxResource } from '@angular/core/rxjs-interop';
+import { AuthStore } from '../../../core/auth/store/auth.store';
 
 @Component({
   selector: 'app-servidor-detalhes',
@@ -99,10 +100,21 @@ import { rxResource } from '@angular/core/rxjs-interop';
                   class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 print:grid-cols-4 gap-4 md:gap-6 print:gap-4">
                   <app-data-display class="md:col-span-2 print:col-span-2" label="Nome" [fieldData]="s.nome" />
 
-                  <app-data-display
-                    label="CPF"
-                    [fieldData]="(s.cpf | slice: 0 : 3) + '.###.##-' + (s.cpf | slice: 9 : 11)"
-                  />
+                  @if (authStore.canEdit()) {
+                    <app-data-display
+                      label="CPF"
+                      [fieldData]="(s.cpf | slice: 0 : 3) + '.' +
+                                   (s.cpf | slice: 3 : 6) + '.' +
+                                   (s.cpf | slice: 6 : 9) + '-' +
+                                   (s.cpf | slice: 9 : 11)"
+                    />
+                  } @else {
+
+                    <app-data-display
+                      label="CPF"
+                      [fieldData]="(s.cpf | slice: 0 : 3) + '.###.###-' + (s.cpf | slice: 9 : 11)"
+                    />
+                  }
 
                   <app-data-display
                     label="Data de Nascimento"
@@ -221,6 +233,7 @@ export default class ServidorDetalhesPage {
   type = input<string>(); // 'ativos' | 'excluídos'
 
   // Injeções
+  protected authStore = inject(AuthStore);
   private readonly servidorService = inject(ServidorService);
   private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly location = inject(Location); // Para o botão voltar

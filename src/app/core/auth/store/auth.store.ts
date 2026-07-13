@@ -92,7 +92,7 @@ export const AuthStore = signalStore(
       )
     ),
 
-    // Força a redinfição de uma nova senha
+    // Força a redefinição de uma nova senha
     forcePasswordChange: rxMethod<string>(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
@@ -179,7 +179,7 @@ export const AuthStore = signalStore(
       )
     ),
 
-    // Envia email com link para redifinição de senha
+    // Envia email com link para redefinição de senha
     forgotPassword: rxMethod<string>(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
@@ -203,7 +203,7 @@ export const AuthStore = signalStore(
       )
     ),
 
-    // Resete de senha realizado pelo Adminsitrador do Sistema
+    // Reset de senha realizado pelo Administrador do Sistema
     resetPasswordByAdmin: rxMethod<{
       userId?: number; onSuccess: (temporaryPassword: string) => void
     }>(
@@ -245,7 +245,7 @@ export const AuthStore = signalStore(
       )
     ),
 
-    forceLobout: () => {
+    forceLogout: () => {
       if (isPlatformBrowser(platformId)) {
         // Limpa o token do navegador sem fazer requisição para a API
         localStorage.removeItem('jwt-token');
@@ -304,7 +304,7 @@ export const AuthStore = signalStore(
             const expirationTime = (decoded.exp || 0) * 1000;
             const currentTime = new Date().getTime();
 
-            // Se expirou, destrói e manda pro login
+            // Se expirou, destrói e manda para o login
             if (currentTime >= expirationTime) {
               localStorage.removeItem('jwt-token');
               // O store.logout() (se definido nos métodos) garante a rota e limpeza
