@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, inject, Injector, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, Injector, input, OnInit, signal } from '@angular/core';
 import { ServidorResponseDTO, TServidorDelete } from '../models/servidor.model';
 import { MatDialog } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
@@ -12,6 +12,7 @@ import { ServidorTableComponent } from '../component/servidor-table/servidor-tab
 import { MatTabsModule } from '@angular/material/tabs';
 import { DeletedFilterComponent } from '../component/servidor-filter/deleted-filter.component';
 import { ServidoresStore } from '../store/servidor.store';
+import { DominioService } from '../services/dominio.service';
 
 @Component({
   selector: 'app-servidor-list',
@@ -124,9 +125,10 @@ import { ServidoresStore } from '../store/servidor.store';
     DeletedFilterComponent
   ]
 })
-export default class ServidorListPage {
+export default class ServidorListPage implements OnInit {
   // Injeções de dependências
   protected readonly servidoresStore = inject(ServidoresStore);
+  private readonly dominioService = inject(DominioService);
   private readonly injector = inject(Injector);
   private readonly dialog = inject(MatDialog);
   private readonly customDeleteService = inject(CustomDeleteService);
@@ -147,6 +149,14 @@ export default class ServidorListPage {
         });
       }
     });
+  }
+
+  ngOnInit() {
+    // Força a releitura das listas que preenchem os Dropdowns de pesquisa
+    this.dominioService.statusResource.reload();
+    this.dominioService.cargosResource.reload();
+    this.dominioService.setoresResource.reload();
+
   }
 
   // MÉTODO PARA OS DADOS ATIVOS

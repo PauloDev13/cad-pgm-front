@@ -35,6 +35,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { DocumentManagerComponent } from '../document-manager-dialog/document-manager.component';
 import { VinculosPermissoesComponent } from '../vinculos-permissoes/vinculos-permissoes.component';
 import { AuthStore } from '../../../../core/auth/store/auth.store';
+import { DominioService } from '../../services/dominio.service';
 
 export type FormModel = Required<ServidorRequestDTO>;
 
@@ -515,6 +516,7 @@ export class ServidorFormComponent implements OnInit {
 
   }
 
+  private readonly dominioService = inject(DominioService);
   // Recebemos um "any" para suportar o DTO direto (legado) ou o novo wrapper
   readonly dialogData = inject<any>(MAT_DIALOG_DATA, { optional: true });
   readonly DEFAULT_PHOTO = '/img/default_photo.jpg';
@@ -577,6 +579,14 @@ export class ServidorFormComponent implements OnInit {
   }
 
   ngOnInit() {
+    // Força a releitura das listas que preenchem os Dropdowns
+    this.dominioService.vinculosResource.reload();
+    this.dominioService.setoresResource.reload();
+    this.dominioService.cargosResource.reload();
+    this.dominioService.statusResource.reload();
+    this.dominioService.sistemasResource.reload();
+    this.dominioService.aliasesResource.reload();
+
     // Se não houver ID, não faz nada
     if (!this.currentServidorId()) return;
 

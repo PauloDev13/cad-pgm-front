@@ -38,6 +38,7 @@ type ServidorState = {
   currentPage: number;
   pageSize: number;
   totalElements: number;
+
   // Gatilho invisível para forçar recarregamento (ex: após deletar)
   reloadTrigger: number;
 
