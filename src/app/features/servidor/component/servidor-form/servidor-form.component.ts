@@ -322,6 +322,14 @@ export type FormModel = Required<ServidorRequestDTO>;
                         [field]="servidorForm.tipoAtividade()"
                         [options]="servidoresStore.atividades()" />
 
+                      <!-- Status-->
+                      <app-custom-select
+                        class="md:col-span-3"
+                        label="Status"
+                        placeholder="Selecione..."
+                        [field]="servidorForm.statusId()"
+                        [options]="servidoresStore.status()" />
+
                     } @else {
                       <!-- Se não, aparece o input com a informação e bloqueado para edição-->
                       <mat-form-field appearance="outline" class="md:col-span-2 w-full">
@@ -335,16 +343,21 @@ export type FormModel = Required<ServidorRequestDTO>;
                           [value]="servidorForm.tipoAtividade().value()"
                         />
                       </mat-form-field>
+
+                      <!-- Se não, aparece o input com a informação e bloqueado para edição-->
+                      <mat-form-field appearance="outline" class="md:col-span-3 w-full">
+                        <mat-label>Status</mat-label>
+                        <input
+                          matInput
+                          class="w-full bg-transparent border-none text-gray-800 font-medium
+                          focus:outline-none focus:ring-0 cursor-default"
+                          type="text"
+                          readonly
+                          [value]="servidorForm.statusId().value() === 4 ? 'PENDENTE' : ''"
+                        />
+                      </mat-form-field>
+
                     }
-
-                    <!-- Status-->
-                    <app-custom-select
-                      class="md:col-span-3"
-                      label="Status"
-                      placeholder="Selecione..."
-                      [field]="servidorForm.statusId()"
-                      [options]="servidoresStore.status()" />
-
                   </div>
                 </div>
               </form>
