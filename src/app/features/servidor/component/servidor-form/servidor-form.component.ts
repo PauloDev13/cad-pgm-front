@@ -353,7 +353,7 @@ export type FormModel = Required<ServidorRequestDTO>;
                           focus:outline-none focus:ring-0 cursor-default"
                           type="text"
                           readonly
-                          [value]="servidorForm.statusId().value() === 4 ? 'PENDENTE' : ''"
+                          [value]="statusDescription()"
                         />
                       </mat-form-field>
 
@@ -576,12 +576,17 @@ export class ServidorFormComponent implements OnInit {
     return JSON.stringify(this.initialValue()) !== JSON.stringify(this.servidorModel());
   });
 
-  // Computed para ocultar partes do html (botões, divs, etc) se o usuário não for administrador
-  // isAdminLogged = computed(() => {
-  //   const user = this.authStore.currentUser();
-  //   if (!user) return;
-  //   return user.roles?.some((p) => p === 'admin');
-  // });
+  // Retorna a descrição do status de acordo com o ID
+  statusDescription = computed(() => {
+    const currentId = this.servidorForm.statusId().value();
+    const statusList = this.servidoresStore.status();
+
+    if (!currentId || !statusList) return '';
+
+    const statusFound = statusList.find(status => status.id === currentId);
+
+    return statusFound ? statusFound.descricao : 'Desconhecido';
+  });
 
   // Método genérico que controla mudanças nos campos autocomplete
   onAutocompleteChange(field: keyof ServidorRequestDTO, id: number | null) {

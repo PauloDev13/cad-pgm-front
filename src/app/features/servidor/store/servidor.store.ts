@@ -15,6 +15,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { debounceTime, distinctUntilChanged, pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 
 
 type ServidorState = {
@@ -382,9 +383,12 @@ export const ServidoresStore = signalStore(
                 patchState(store, { isLoading: false });
                 onSuccess();
               },
-              error: (err) => {
+              error: (err: HttpErrorResponse) => {
                 patchState(store, { isLoading: false });
-                errorHandlerService.handle(err, 'Excluir');
+                // errorHandlerService.handle(err, 'Excluir');
+                notificationService.error(err.message, 'Desligar Servidor', {
+                  duration: 5000
+                });
               }
             })
           )

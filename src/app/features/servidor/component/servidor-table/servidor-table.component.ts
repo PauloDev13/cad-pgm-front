@@ -114,6 +114,19 @@ import { AuthStore } from '../../../../core/auth/store/auth.store';
             </td>
           </ng-container>
 
+          <ng-container matColumnDef="exclusao">
+            <th mat-header-cell *matHeaderCellDef
+                class="!font-semibold text-gray-800 !text-sm !px-3">
+              Data Exclusão
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let s"
+              class="!text-sm !px-3 text-gray-600">
+              {{ s.excludedDate | date: 'dd/MM/yyyy' }}
+            </td>
+          </ng-container>
+
           <ng-container matColumnDef="acoes">
             <th
               mat-header-cell
@@ -301,6 +314,9 @@ export class ServidorTableComponent {
   displayedColumns = computed(() => {
     if (this.isMobile()) {
       return ['nome', 'acoes']; // Array para Mobile
+    }
+    if (this.tableMode() === 'EXCLUDED') {
+      return ['matricula', 'nome', 'email', 'setor', 'cargo', 'exclusao', 'acoes'];
     }
     return ['matricula', 'nome', 'email', 'setor', 'cargo', 'acoes']; // Array para Desktop
   });
