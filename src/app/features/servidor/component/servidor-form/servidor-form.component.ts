@@ -312,7 +312,7 @@ export type FormModel = Required<ServidorRequestDTO>;
                       [field]="servidorForm.lotacaoId()"
                       [options]="servidoresStore.lotacoes()" />
 
-                    <!-- Se for ADMIN, ver o select e pode editar-->
+                    <!-- Se for ADMIN, ver os select e pode editar-->
                     @if (canManager) {
                       <!-- Atividade-->
                       <app-custom-select
@@ -344,19 +344,29 @@ export type FormModel = Required<ServidorRequestDTO>;
                         />
                       </mat-form-field>
 
-                      <!-- Se não, aparece o input com a informação e bloqueado para edição-->
-                      <mat-form-field appearance="outline" class="md:col-span-3 w-full">
-                        <mat-label>Status</mat-label>
-                        <input
-                          matInput
-                          class="w-full bg-transparent border-none text-gray-800 font-medium
-                          focus:outline-none focus:ring-0 cursor-default"
-                          type="text"
-                          readonly
-                          [value]="statusDescription()"
-                        />
-                      </mat-form-field>
-
+                      @if (servidorForm.statusId().value() === 4) {
+                        <!-- Se o status for igual a PENDENTE, aparece o input
+                        com a informação e bloqueado para edição-->
+                        <mat-form-field appearance="outline" class="md:col-span-3 w-full">
+                          <mat-label>Status</mat-label>
+                          <input
+                            matInput
+                            class="w-full bg-transparent border-none text-gray-800 font-medium
+                            focus:outline-none focus:ring-0 cursor-default"
+                            type="text"
+                            readonly
+                            [value]="statusDescription()"
+                          />
+                        </mat-form-field>
+                      } @else {
+                        <!-- Se não, é exibida o select para edição-->
+                        <app-custom-select
+                          class="md:col-span-3"
+                          label="Status"
+                          placeholder="Selecione..."
+                          [field]="servidorForm.statusId()"
+                          [options]="servidoresStore.status()" />
+                      }
                     }
                   </div>
                 </div>

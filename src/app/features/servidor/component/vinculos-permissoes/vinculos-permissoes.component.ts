@@ -35,6 +35,16 @@ import { CheckboxGridComponent } from './card.component/checkbox-grid.component'
           <h2 class="!font-bold !text-lg sm:!text-xl !text-blue-700 !m-0 !p-0">
             Gerenciar Permissões e Vínculos ({{ servidorName() }})
           </h2>
+
+          <button
+            mat-stroked-button
+            (click)="clearAll()"
+            matTooltip="Desmarcar todas as permissões e vínculos"
+            class="!border-blue-600 !text-blue-600 !transition-transform duration-300 hover:!scale-105
+                 w-full sm:w-auto !h-12 sm:!h-10 order-2 sm:order-1">
+            <mat-icon>clear_all</mat-icon>
+            Desmarcar Todos
+          </button>
         </div>
 
         <div class="flex flex-col flex-1 min-h-0 overflow-y-auto gap-8 px-4 pt-4 pb-8 bg-gray-50/30">
@@ -101,7 +111,7 @@ export class VinculosPermissoesComponent implements OnInit {
 
   servidorName = input.required<string>();
 
-  // 3Emite as alterações de volta em tempo real para o Pai salvar tudo no submit único!
+  // Emite as alterações de volta em tempo real para o Pai salvar tudo no submit único!
   permissionsChanged = output<{ sistemaIds: number[], procuradorIds: number[], aliasIds: number[] }>();
 
   // Arrays de controle local para o binding bidirecional do componente de tela
@@ -117,10 +127,14 @@ export class VinculosPermissoesComponent implements OnInit {
     this.selectedAliases = [...this.initialAliases()];
   }
 
+  clearAll() {
+    this.selectedProcuradores = [];
+    this.selectedSistemas = [];
+    this.selectedAliases = [];
+  }
+
   // Método inteligente para alternar itens nos arrays de permissão
   toggleSelection(listName: 'sistemas' | 'procuradores' | 'aliases', id: number, isChecked: boolean) {
-    // let targetArray: number[];
-
     if (listName === 'sistemas') {
       this.selectedSistemas = isChecked
         ? [...this.selectedSistemas, id]
