@@ -543,14 +543,24 @@ export class ServidorFormComponent implements OnInit {
   // Recebemos um "any" para suportar o DTO direto (legado) ou o novo wrapper
   readonly dialogData = inject<any>(MAT_DIALOG_DATA, { optional: true });
   readonly DEFAULT_PHOTO = '/img/default_photo.jpg';
-
-  isReactivate = this.dialogData?.action === 'REACTIVATE';
   activeTabIndex = 0;
 
+  // Se não vier action, mas vier um objeto, assume que é o 'EDIT' legado. Senão é CREATE.
+  readonly currentAction = this.dialogData?.action || (this.dialogData ? 'EDIT' : 'CREATE');
+
+  // isReactivate = this.dialogData?.action === 'REACTIVATE';
+  isReactivate = this.currentAction === 'REACTIVATE';
+
+  // payload: ServidorResponseDTO | undefined = this.isReactivate
+  //   ? this.dialogData?.payload
+  //   : this.dialogData;
+
   // Lógica de extração de dados e estado do formulário
-  payload: ServidorResponseDTO | undefined = this.isReactivate
+  // Se existir a propriedade 'payload', o objeto veio envelopado (Novo padrão).
+  // Se não, avalia se o dialogData tem um 'id', significando que é o DTO direto (Legado).
+  payload: ServidorResponseDTO | undefined = this.dialogData?.payload !== undefined
     ? this.dialogData?.payload
-    : this.dialogData;
+    : (this.dialogData?.id ? this.dialogData : undefined);
 
   // É edição se tem payload, mas NÃO é readmissão
   isEdit = !!this.payload && !this.isReactivate;
@@ -662,7 +672,9 @@ export class ServidorFormComponent implements OnInit {
 
     // 3. Define qual é a ação que a Store deve tomar
     const actionType
-      = this.isReactivate ? 'REACTIVATE' : (this.isEdit ? 'UPDATE' : 'CREATE');
+      = this.isReactivate
+      ? 'REACTIVATE'
+      : (this.isEdit ? 'UPDATE' : 'CREATE');
 
     const servId = this.currentServidorId(); // Lê o ID atual do signal
 

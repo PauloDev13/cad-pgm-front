@@ -236,8 +236,10 @@ import { AuthStore } from '../../../../core/auth/store/auth.store';
           <tr
             mat-row
             *matRowDef="let row; columns: displayedColumns()"
-            [class]="tableMode() !== 'NORMAL'
+            [class]="tableMode() !== 'NORMAL' && row.status.descricao === 'Desligado'
               ? '!bg-red-100 hover:!bg-red-200 [&>td]:!text-red-800'
+              : row.status.descricao === 'Inativo'
+              ? '!bg-green-100 hover:!bg-green-200 [&>td]:!text-green-800'
               : 'odd:!bg-white even:!bg-gray-50 hover:!bg-blue-50'"
             class="!min-h-[40px] !h-[40px] transition-colors cursor-pointer border-gray-100">
           </tr>
@@ -349,5 +351,8 @@ export class ServidorTableComponent {
         return 'ATIVO';
     }
   });
+
+  canInativo = computed(() => this.data()
+    .map(s => s.status?.descricao === 'Inativo')[0]);
 
 }

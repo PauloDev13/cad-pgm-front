@@ -128,8 +128,6 @@ export const ServidoresStore = signalStore(
     generos: computed(() => dominioService.generosResource.value() ?? []),
     aliases: computed(() => dominioService.aliasesResource.value() ?? []),
     atividades: computed(() => dominioService.atividadesResource.value() ?? [])
-
-
   })),
 
   withMethods((

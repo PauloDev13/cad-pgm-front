@@ -199,12 +199,16 @@ export default class ServidorListPage implements OnInit {
 
   // Abre o formulário em modo de readmissão
   openReactivateForm(servidor: ServidorResponseDTO) {
+    const action = servidor.status?.descricao === 'Inativo'
+      ? 'UPDATE'
+      : 'REACTIVATE';
+
     const dialogRef = this.dialog.open(ServidorFormComponent, {
       width: '1000px',
       maxWidth: '95vw',
       maxHeight: '90vw',
       // Passamos o payload e a intenção
-      data: { payload: servidor, action: 'REACTIVATE' },
+      data: { payload: servidor, action: action },
       disableClose: true,
       injector: this.injector // Injeta uma a mesma instância do provider do pai para o filho
     });
