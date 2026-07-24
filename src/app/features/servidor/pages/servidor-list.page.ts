@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component, effect, inject, Injector, input, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  effect,
+  inject,
+  Injector,
+  input,
+  OnInit,
+  signal
+} from '@angular/core';
 import { ServidorResponseDTO, TServidorDelete } from '../models/servidor.model';
 import { MatDialog } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
@@ -13,6 +23,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { DeletedFilterComponent } from '../component/servidor-filter/deleted-filter.component';
 import { ServidoresStore } from '../store/servidor.store';
 import { DominioService } from '../services/dominio.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-servidor-list',
@@ -49,7 +60,8 @@ import { DominioService } from '../services/dominio.service';
       </div>
 
       <mat-tab-group
-        (selectedIndexChange)="activeTableIndex.set($event)"
+        [selectedIndex]="activeTableIndex()"
+        (selectedIndexChange)="onTabChange($event)"
         animationDuration="0ms"
         class="w-full custom-folder-tabs">
         <mat-tab label="Quadro Ativo">
@@ -132,21 +144,29 @@ export default class ServidorListPage implements OnInit {
   private readonly injector = inject(Injector);
   private readonly dialog = inject(MatDialog);
   private readonly customDeleteService = inject(CustomDeleteService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   // Signal que controla qual aba está ativa (ativos ou lixeira)
   activeTableIndex = signal(0);
 
-  // O Angular injeta o id do Status que vem na URL direto aqui!
+  // O Angular injeta o ID do Status que vem na URL direto aqui!
   statusId = input<number | null>(null);
 
   constructor() {
     effect(() => {
       const statusIdUrl = this.statusId();
 
+      // Se o ID do Status existe, atualiza o Dropdown Status com o ID,
+      // que nesse caso, sempre será 4 que é o ID do Status Pendente
       if (statusIdUrl) {
         this.servidoresStore.updateDropdownFilter({
           selectedStatusId: Number(statusIdUrl)
         });
+
+        // Vai para a aba quadro ativo
+        this.activeTableIndex.set(0);
       }
     });
   }
@@ -157,6 +177,22 @@ export default class ServidorListPage implements OnInit {
     this.dominioService.cargosResource.reload();
     this.dominioService.setoresResource.reload();
 
+    // Limpa os filtros de pesquisa de servidores quando sair da página
+    this.destroyRef.onDestroy(() => {
+      this.servidoresStore.clearAllFilters();
+    });
+  }
+
+  // Navega para a aba Ativos quando o botão notificações é clicado.
+  onTabChange(index: number) {
+    // Se a aba for a de Desligados, limpa o query param da URL
+    if (index !== 0) {
+      this.activeTableIndex.set(index);
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: {}
+      });
+    }
   }
 
   // MÉTODO PARA OS DADOS ATIVOS

@@ -69,7 +69,7 @@ export class MainLayoutComponent {
           : 'Existe <strong>(1)</strong> novo cadastro de servidor';
 
         // Exibe a mensagem
-        this.notificationService.info(
+        this.notificationService.warning(
           `${msg} aguardando a sua avaliação.`,
           'Aviso de Pendências', { duration: 5000 }
         );
