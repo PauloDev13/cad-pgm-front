@@ -49,11 +49,10 @@ export class MainLayoutComponent {
   private readonly authStore = inject(AuthStore);
   private readonly notificationService = inject(NotificationService);
 
-  // Garante que a mensagem será exibida apenas uma vez
-  // private hasNotified: boolean = false;
-
+  // Guarda o último valor do total de registro com Status = Pendente
   private lastValue = 0;
 
+  // Controla a abertura e fechamento da SideBar
   isSidebarOpen = signal(true);
 
   constructor() {
@@ -61,34 +60,48 @@ export class MainLayoutComponent {
       // Pega o total de registros com o Status igual a "pendente"
       const total = this.servidorStore.totalPendentes();
 
+
       // Retorna verdadeiro se o usuário logado é "admin"
       const isAdmin = this.authStore.canManager();
 
       // Se não é administrador, não faz nada
       if (!isAdmin) return;
 
-      // Se é Admin e o total for maior que o total anterior, a mensagem é exibida
-      if (isAdmin && total > this.lastValue) {
-        // Cria a mensagem
-        const msg = total > 1
-          ? `Existem <strong>(${total})</strong> novos cadastros de servidores`
-          : 'Existe <strong>(1)</strong> novo cadastro de servidor';
+      // Se é Admin e o total for diferente (maior ou menor)
+      // que o total anterior, a mensagem é exibida
+      if (isAdmin && total !== this.lastValue) {
+        // Se o total for maior que zero, exibe mensagem de
+        // alerta do total com Status = Pendente
+        if (total > 0) {
+          this.showNotification(total);
+        } else {
+          // Se for menor, exibe mensagem informando não haver mais pendências
+          this.notificationService.info(
+            `Não há mais Servidores com Status Pendente`,
+            'Aviso de Pendências', { duration: 3000 }
+          );
+        }
 
-        // Exibe a mensagem
-        this.notificationService.warning(
-          `${msg} aguardando a sua avaliação.`,
-          'Aviso de Pendências', { duration: 5000 }
-        );
-
+        // Atualiza o valor anterior do total
         this.lastValue = total;
-
-        // Avisa que a mensagem já foi exibida e não permite nova exibição
-        // this.hasNotified = true;
       }
     });
   }
 
   toggle() {
     this.isSidebarOpen.update((v) => !v);
+  }
+
+  private showNotification(total: number) {
+    // Cria a mensagem
+    const msg = total > 1
+      ? `Existem <strong>(${total})</strong> novos cadastros de servidores`
+      : 'Existe <strong>(1)</strong> novo cadastro de servidor';
+
+    // Exibe a mensagem
+    this.notificationService.warning(
+      `${msg} aguardando a sua avaliação.`,
+      'Alerta de Pendências', { duration: 5000 }
+    );
   }
 }
