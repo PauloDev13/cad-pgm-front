@@ -6,7 +6,7 @@ import {
   TServidorDelete
 } from '../models/servidor.model';
 import { patchState, signalStore, withComputed, withHooks, withMethods, withState } from '@ngrx/signals';
-import { computed, effect, inject } from '@angular/core';
+import { computed, DestroyRef, effect, inject, NgZone } from '@angular/core';
 import { ServidorService } from '../services/servidor.service';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 import { ErrorHandlerService } from '../../../shared/service/error-handler.service';
@@ -16,6 +16,8 @@ import { debounceTime, distinctUntilChanged, pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
+import { fetchEventSource } from '@microsoft/fetch-event-source';
 
 
 type ServidorState = {
@@ -197,7 +199,7 @@ export const ServidoresStore = signalStore(
                 });
 
                 // Atualiza o número de registro com Status como "pendente"
-                store.loadTotalPendentes();
+                // store.loadTotalPendentes();
 
                 // Mensagem dinâmica conforme a ação
                 const extraMsg = action === 'CREATE'
@@ -396,9 +398,59 @@ export const ServidoresStore = signalStore(
   })),
   withHooks({
     onInit(store) {
+      // Injeções necessárias para lidar com eventos externos e limpeza
+      const destroyRef = inject(DestroyRef);
+      const zone = inject(NgZone);
+      const token = localStorage.getItem('jwt-token');
+
+      // Cargas iniciais
       store.loadServidores(store.queryParams);
       store.loadExcludedServidores(store.excludedQueryParams);
       store.loadTotalPendentes();
+
+      /* ==============================================
+          IMPLEMENTAÇÃO PARA OUVIR NOTIFICAÇÕES DO
+          BACKEND QUANDO O STATUS MUDAR PARA 'PENDENTE'
+      ============================================== */
+
+      const sseUrl = `${environment.apiUrl}/api/notifications/stream`;
+
+      // O controlador que permite abortar a requisição quando o usuário sair
+      const ctrl = new AbortController();
+
+      // Conectando na "rádio" do backend COM segurança (Headers)
+      fetchEventSource(sseUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'text/event-stream'
+        },
+        signal: ctrl.signal,
+
+        // Quando receber uma mensagem do backend
+        onmessage(event) {
+          if (event.event === 'pendentes-update') {
+            zone.run(() => {
+              // Dispara a mini-requisição para atualizar o total e refletir na tela!
+              store.loadTotalPendentes();
+            });
+          }
+        },
+        // Tratamento de erros e reconexão automática
+        onerror(err) {
+          console.warn('Conexão SSE oscilou. O navegador tentará reconectar...', err);
+          return 5000;
+        }
+      });
+
+      // Prevenção de Memory Leak: Desliga o "rádio" e aborta o fetch
+      destroyRef.onDestroy(() => {
+        ctrl.abort();
+      });
+
+      /* =====================
+         FIM DA IMPLEMENTAÇÃO
+      // ===================== */
 
       // O effect age como um observador silencioso monitorando o total de pendentes
       effect(() => {

@@ -50,7 +50,9 @@ export class MainLayoutComponent {
   private readonly notificationService = inject(NotificationService);
 
   // Garante que a mensagem será exibida apenas uma vez
-  private hasNotified: boolean = false;
+  // private hasNotified: boolean = false;
+
+  private lastValue = 0;
 
   isSidebarOpen = signal(true);
 
@@ -59,10 +61,14 @@ export class MainLayoutComponent {
       // Pega o total de registros com o Status igual a "pendente"
       const total = this.servidorStore.totalPendentes();
 
+      // Retorna verdadeiro se o usuário logado é "admin"
       const isAdmin = this.authStore.canManager();
 
-      // Quando o total for maior que zero e a mensagem não foi exibida nenhuma vez
-      if (total > 0 && !this.hasNotified && isAdmin) {
+      // Se não é administrador, não faz nada
+      if (!isAdmin) return;
+
+      // Se é Admin e o total for maior que o total anterior, a mensagem é exibida
+      if (isAdmin && total > this.lastValue) {
         // Cria a mensagem
         const msg = total > 1
           ? `Existem <strong>(${total})</strong> novos cadastros de servidores`
@@ -74,8 +80,10 @@ export class MainLayoutComponent {
           'Aviso de Pendências', { duration: 5000 }
         );
 
+        this.lastValue = total;
+
         // Avisa que a mensagem já foi exibida e não permite nova exibição
-        this.hasNotified = true;
+        // this.hasNotified = true;
       }
     });
   }
