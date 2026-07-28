@@ -328,7 +328,7 @@ export type FormModel = Required<ServidorRequestDTO>;
                         label="Status"
                         placeholder="Selecione..."
                         [field]="servidorForm.statusId()"
-                        [options]="servidoresStore.status()" />
+                        [options]="listStatus()" />
 
                     } @else {
                       <!-- Se não, aparece o input com a informação e bloqueado para edição-->
@@ -365,7 +365,7 @@ export type FormModel = Required<ServidorRequestDTO>;
                           label="Status"
                           placeholder="Selecione..."
                           [field]="servidorForm.statusId()"
-                          [options]="servidoresStore.status()" />
+                          [options]="listStatus()" />
                       }
                     }
                   </div>
@@ -449,11 +449,14 @@ export type FormModel = Required<ServidorRequestDTO>;
 export class ServidorFormComponent implements OnInit {
   // Injeções de dependência
   private readonly servidorService = inject(ServidorService);
-  protected readonly servidoresStore = inject(ServidoresStore);
   protected readonly authStore = inject(AuthStore);
+  protected readonly servidoresStore = inject(ServidoresStore);
+  private readonly dominioService = inject(DominioService);
   private readonly notificationService = inject(NotificationService);
   private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly dialogRef = inject(MatDialogRef<ServidorFormComponent>);
+  // Recebemos um "any" para suportar o DTO direto (legado) ou o novo wrapper
+  private readonly dialogData = inject<any>(MAT_DIALOG_DATA, { optional: true });
   private destroyRef = inject(DestroyRef);
 
   // Controle de estado para a Matrícula
@@ -539,21 +542,13 @@ export class ServidorFormComponent implements OnInit {
 
   }
 
-  private readonly dominioService = inject(DominioService);
-  // Recebemos um "any" para suportar o DTO direto (legado) ou o novo wrapper
-  readonly dialogData = inject<any>(MAT_DIALOG_DATA, { optional: true });
-  readonly DEFAULT_PHOTO = '/img/default_photo.jpg';
-  activeTabIndex = 0;
 
   // Se não vier action, mas vier um objeto, assume que é o 'EDIT' legado. Senão é CREATE.
   readonly currentAction = this.dialogData?.action || (this.dialogData ? 'EDIT' : 'CREATE');
+  readonly DEFAULT_PHOTO = '/img/default_photo.jpg';
 
-  // isReactivate = this.dialogData?.action === 'REACTIVATE';
   isReactivate = this.currentAction === 'REACTIVATE';
-
-  // payload: ServidorResponseDTO | undefined = this.isReactivate
-  //   ? this.dialogData?.payload
-  //   : this.dialogData;
+  activeTabIndex = 0;
 
   // Lógica de extração de dados e estado do formulário
   // Se existir a propriedade 'payload', o objeto veio envelopado (Novo padrão).
@@ -567,6 +562,34 @@ export class ServidorFormComponent implements OnInit {
 
   // Retorna verdadeiro se o usuário logado é admin
   canManager = this.authStore.canManager();
+
+
+  // Retorna a lista do dropdown Status
+  listStatus = computed(() => {
+      // Pega a lista completa na ServidoresStored
+      const completedList = this.servidoresStore.status();
+
+      // Se o formulário foi aberto a partir da listagem dos Desligados e o Status = 'Inativo',
+      // preenche o dropdown apenas com os Status "Inativo' e 'Desligado'
+      if (this.payload?.excluded && this.payload.status?.descricao?.toLowerCase() === 'inativo') {
+        return completedList.filter(status =>
+          status.descricao?.toLowerCase() === 'inativo'
+          || status.descricao?.toLowerCase() === 'desligado');
+      }
+
+      // Se o formulário for aberto a partir da listagem dos Desligados,
+      // preenche o dropdown com o Status 'Desligado'
+      if (this.payload?.excluded) {
+        return completedList.filter(status =>
+          status.descricao?.toLowerCase() === 'desligado');
+      }
+
+      // Se o formulário for aberto a partir da listagem dos Ativos,
+      // preenche o dropdown com todos os Status exceto, o 'Desligado'
+      return completedList.filter(status =>
+        status.descricao?.toLowerCase() !== 'desligado');
+    }
+  );
 
   // Controle para avisar a tabela pai se precisamos recarregar o grid
   private hasCreated = false;

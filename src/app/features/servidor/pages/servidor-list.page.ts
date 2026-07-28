@@ -185,9 +185,9 @@ export default class ServidorListPage implements OnInit {
 
   // Navega para a aba Ativos quando o botão notificações é clicado.
   onTabChange(index: number) {
+    this.activeTableIndex.set(index);
     // Se a aba for a de Desligados, limpa o query param da URL
     if (index !== 0) {
-      this.activeTableIndex.set(index);
       this.router.navigate([], {
         relativeTo: this.route,
         queryParams: {}
