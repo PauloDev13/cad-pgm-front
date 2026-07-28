@@ -162,7 +162,7 @@ import { AuthStore } from '../../../core/auth/store/auth.store';
                 <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">Status</span>
 
                 <span class="flex items-center mt-1">
-                  @if (s.excluded) {
+                  @if (s.excluded && s.status?.descricao?.toLowerCase() === 'desligado') {
                     <span class="bg-red-600 px-2 py-1 rounded-full text-xs text-white font-bold">
                       Desligado em {{ s.excludedDate | date: 'dd/MM/yyyy' }}
                     </span>
@@ -295,7 +295,7 @@ export default class ServidorDetalhesPage {
       afastado: 'bg-cyan-600 text-black',
       ferias: 'bg-blue-600 text-white',
       pendente: 'bg-yellow-600 text-black',
-      inativo: 'bg-red-600 text-white'
+      inativo: 'bg-gray-600 text-white'
     };
     return mapColors[statusNormalizado] || 'bg-gray-700 text-white';
   }
