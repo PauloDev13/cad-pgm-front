@@ -18,6 +18,7 @@ import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { AuthStore } from '../../../core/auth/store/auth.store';
 
 
 type ServidorState = {
@@ -41,6 +42,9 @@ type ServidorState = {
   currentPage: number;
   pageSize: number;
   totalElements: number;
+
+  // Controla se houve mudanças nos dados no cadastro de um servidor
+  hasUpdateAvailable: boolean;
 
   // Gatilho invisível para forçar recarregamento (ex: após deletar)
   reloadTrigger: number;
@@ -69,6 +73,7 @@ const initialState: ServidorState = {
   pageSize: 10,
   reloadTrigger: 0,
   totalPendentes: 0,
+  hasUpdateAvailable: false,
 
   // Inicialização do State para Desligados
   excludedServidores: [],
@@ -137,6 +142,10 @@ export const ServidoresStore = signalStore(
     servidorService = inject(ServidorService),
     errorHandlerService = inject(ErrorHandlerService)) => ({
 
+    // Liga o aviso para monitorar os registros de servidores
+    setUpdateAvailable: () => patchState(store, { hasUpdateAvailable: true }),
+
+    // Atualiza o total de registros com o Status = Pendente
     loadTotalPendentes: rxMethod<void>(
       pipe(
         switchMap(() => servidorService.searchFilter({
@@ -349,6 +358,7 @@ export const ServidoresStore = signalStore(
     // Força o carregamento das duas listas (Ativos e Desligados)
     reloadBothList() {
       patchState(store, {
+        hasUpdateAvailable: false,
         reloadTrigger: store.reloadTrigger() + 1,
         excludedReloadTrigger: store.excludedReloadTrigger() + 1
       });
@@ -401,6 +411,7 @@ export const ServidoresStore = signalStore(
       // Injeções necessárias para lidar com eventos externos e limpeza
       const destroyRef = inject(DestroyRef);
       const zone = inject(NgZone);
+      const authStore = inject(AuthStore);
       const token = localStorage.getItem('jwt-token');
 
       // Cargas iniciais
@@ -413,7 +424,11 @@ export const ServidoresStore = signalStore(
           BACKEND QUANDO O STATUS MUDAR PARA 'PENDENTE'
       ============================================== */
 
+      // URL que dispara as notificações
       const sseUrl = `${environment.apiUrl}/api/notifications/stream`;
+
+      // Atribui a currentLoggedUser o usuário logado em cada aplicação aberta no navegador
+      const currentLoggedUser = authStore.currentUser()?.sub;
 
       // O controlador que permite abortar a requisição quando o usuário sair
       const ctrl = new AbortController();
@@ -429,13 +444,27 @@ export const ServidoresStore = signalStore(
 
         // Quando receber uma mensagem do backend
         onmessage(event) {
+          // Se o evento disparado pelo backend é do tipo 'pendentes-update'
           if (event.event === 'pendentes-update') {
             zone.run(() => {
               // Dispara a mini-requisição para atualizar o total e refletir na tela!
               store.loadTotalPendentes();
             });
           }
+
+          // Se o evento disparado pelo backend é do tipo 'servidores-changed'
+          if (event.event === 'servidores-changed') {
+            // Atribui a loggedUser o usuário logado enviado pelo backend
+            const loggedUser = event.data;
+
+            if (currentLoggedUser !== null && currentLoggedUser !== loggedUser) {
+              // Dispara a mini-requisição para exibir um botão flutuante
+              // na tela avisando que há dados novos!
+              zone.run(() => store.setUpdateAvailable());
+            }
+          }
         },
+
         // Tratamento de erros e reconexão automática
         onerror(err) {
           console.warn('Conexão SSE oscilou. O navegador tentará reconectar...', err);

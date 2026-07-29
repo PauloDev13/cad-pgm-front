@@ -128,7 +128,6 @@ export class ServidorService {
     if (cacheBuster) {
       url += `?t=${cacheBuster}`;
     }
-
     return this.http.get(url, { responseType: 'blob' });
   }
 }

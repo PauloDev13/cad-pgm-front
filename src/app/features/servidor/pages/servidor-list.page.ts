@@ -45,6 +45,19 @@ import { ActivatedRoute, Router } from '@angular/router';
           <p class="text-sm text-gray-600 mt-1 print:hidden">Gerencie os servidores do sistema</p>
         </div>
 
+
+        @if (servidoresStore.hasUpdateAvailable()) {
+          <div class="flex justify-center">
+            <button
+              mat-flat-button
+              class="!bg-blue-100 !text-blue-800 !rounded-full shadow-md animate-bounce hover:!bg-blue-200 transition-colors"
+              (click)="servidoresStore.reloadBothList()">
+              <mat-icon class="mr-2">refresh</mat-icon>
+              Novos dados disponíveis. Clique para atualizar.
+            </button>
+          </div>
+        }
+
         @if (activeTableIndex() === 0) {
           <button
             mat-flat-button
