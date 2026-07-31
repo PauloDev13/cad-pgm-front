@@ -60,19 +60,17 @@ export class MainLayoutComponent {
       // Pega o total de registros com o Status igual a "pendente"
       const total = this.servidorStore.totalPendentes();
 
-
       // Retorna verdadeiro se o usuário logado é "admin"
       const isAdmin = this.authStore.canManager();
 
-      // Se não é administrador, não faz nada
+      // CLÁUSULA DE GUARDA: Se o usuário não é ADMIN, aborta.
       if (!isAdmin) return;
 
-      // Se é Admin e o total for diferente (maior ou menor)
-      // que o total anterior, a mensagem é exibida
+      // CLÁUSULA DE GUARDA: Se o usuário não é ADMIN e o Total é igual a zero (0), aborta.
       if (isAdmin && total !== this.lastValue) {
-        // Se o total for maior que zero, exibe mensagem de
-        // alerta do total com Status = Pendente
+        // Se passou pela CLÁUSULA DE GUARDA, verifica se o total é maior que zero
         if (total > 0) {
+          // Se SIM, exibe a mensagem com o total
           this.showNotification(total);
         } else {
           // Se for menor, exibe mensagem informando não haver mais pendências
@@ -81,10 +79,10 @@ export class MainLayoutComponent {
             'Aviso de Pendências', { duration: 3000 }
           );
         }
-
-        // Atualiza o valor anterior do total
-        this.lastValue = total;
       }
+
+      // Atualiza o valor anterior do total
+      this.lastValue = total;
     });
   }
 

@@ -28,22 +28,6 @@ import { MatIconModule } from '@angular/material/icon';
         <mat-icon>print</mat-icon>
         Imprimir
       </button>
-      <!--      <button-->
-      <!--        mat-stroked-button-->
-      <!--        (click)="onPrintReport.emit()"-->
-      <!--        class="flex-1 sm:flex-none w-full sm:w-auto !border-blue-600 !text-blue-600-->
-      <!--              !transition-transform duration-300 hover:!scale-105 order-2 sm:order-2">-->
-      <!--        <mat-icon>print</mat-icon>-->
-      <!--        Imprimir-->
-      <!--      </button>-->
-      <!--      <button-->
-      <!--        mat-flat-button-->
-      <!--        (click)="onGenerateReport.emit(true)"-->
-      <!--        class="w-full sm:w-auto sm:gap-2 !transition-transform duration-300 hover:!scale-105-->
-      <!--              order-1 sm:order-3">-->
-      <!--        <mat-icon>search</mat-icon>-->
-      <!--        Gerar Relatório-->
-      <!--      </button>-->
     </div>
   `
 })

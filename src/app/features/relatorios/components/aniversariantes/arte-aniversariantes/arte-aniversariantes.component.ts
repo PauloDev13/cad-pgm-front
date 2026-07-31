@@ -13,7 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
   template: `
     <div class="fixed -left-[9999px] top-0">
 
-      <div #moldeImagem class="w-[950px] bg-[#FDF8ED] p-12 font-sans">
+      <div #moldeImagem class="w-[1200px] bg-[#FDF8ED] p-12 font-sans">
 
         <div class="flex items-center justify-center gap-8 mb-8">
           <mat-icon class="!w-[2.5cm] !h-[2.5cm] !text-[2.5cm] !text-[#0A1D3C] !leading-none">cake</mat-icon>
@@ -61,7 +61,7 @@ import { MatIconModule } from '@angular/material/icon';
                     <path stroke-linecap="round" stroke-linejoin="round"
                           d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                   </svg>
-                  ANIVERSARIANTE
+                  NOME
                 </div>
               </th>
               <th class="py-2 px-2 font-semibold text-left">
@@ -70,19 +70,19 @@ import { MatIconModule } from '@angular/material/icon';
                     <path stroke-linecap="round" stroke-linejoin="round"
                           d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.118v0H5.622c-1.085-.082-1.872-1.024-1.872-2.118v-4.25m16.5 0a2.18 2.18 0 0 0 .75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 0 0-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0 1 12 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 0 1-.673-.38m0 0A2.18 2.18 0 0 1 3 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 0 1 3.413-.387m7.5 0V5.25A2.25 2.25 0 0 0 13.5 3h-3a2.25 2.25 0 0 0-2.25 2.25v.894m7.5 0a48.667 48.667 0 0 0-7.5 0M12 12.75h.008v.008H12v-.008Z" />
                   </svg>
-                  SETOR
+                  LOTAÇÃO
                 </div>
               </th>
             </tr>
             </thead>
 
-            <tbody class="bg-white">
+            <tbody class="bg-transparent">
               @for (item of aniversariantes(); track item.nome) {
                 <tr class="border-b border-[#E8DFC8] last:border-0">
 
                   <td class="py-1 px-1.5 border-r border-[#E8DFC8]">
                     <div
-                      class="flex items-center gap-1.5 font-bold bg-[#FDF8ED] px-1 py-1 rounded-md w-fit mx-auto border border-[#E8DFC8]/60">
+                      class="flex items-center bg-transparent gap-1.5 font-bold text-[18px] bg-[#FDF8ED] px-1 py-1 rounded-md w-fit mx-auto border border-[#E8DFC8]/60">
                       <svg class="w-4 h-4 text-[#C29B57]" fill="none" viewBox="0 0 24 24" stroke-width="2"
                            stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -92,11 +92,11 @@ import { MatIconModule } from '@angular/material/icon';
                     </div>
                   </td>
 
-                  <td class="py-1 px-1.5 border-r border-[#E8DFC8] font-semibold text-left text-[14px]">
+                  <td class="py-1 px-1.5 border-r border-[#E8DFC8] font-semibold text-left text-[24px]">
                     {{ item.nome }}
                   </td>
 
-                  <td class="py-1 px-1.5 text-left">
+                  <td class="py-1 px-1.5 text-left font-semibold text-[24px]">
                     {{ item.setor }}
                   </td>
                 </tr>

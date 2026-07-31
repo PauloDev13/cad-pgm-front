@@ -135,20 +135,36 @@ export class VinculosPermissoesComponent implements OnInit {
 
   // Método inteligente para alternar itens nos arrays de permissão
   toggleSelection(listName: 'sistemas' | 'procuradores' | 'aliases', id: number, isChecked: boolean) {
-    if (listName === 'sistemas') {
-      this.selectedSistemas = isChecked
-        ? [...this.selectedSistemas, id]
-        : this.selectedSistemas.filter(i => i !== id);
+    // Regra de negócio isolada (Evita repetição de código)
+    const updateList = (currentList: number[]) => isChecked
+      ? [...currentList, id]
+      : currentList.filter(i => i !== id);
 
-    } else if (listName === 'procuradores') {
-      this.selectedProcuradores = isChecked
-        ? [...this.selectedProcuradores, id]
-        : this.selectedProcuradores.filter(i => i !== id);
-    } else {
-      this.selectedAliases = isChecked
-        ? [...this.selectedAliases, id]
-        : this.selectedAliases.filter(i => i !== id);
-    }
+    // O Padrão Object Literal: Mapeamos o nome da lista para a sua respectiva atualização
+    const actions = {
+      sistemas: () => this.selectedSistemas = updateList(this.selectedSistemas),
+      procuradores: () => this.selectedProcuradores = updateList(this.selectedProcuradores),
+      aliases: () => this.selectedAliases = updateList(this.selectedAliases)
+    };
+
+    // Execução cirúrgica: Busca a ação correta e já executa
+    actions[listName]();
+
+    // if (listName === 'sistemas') {
+    //   this.selectedSistemas = isChecked
+    //     ? [...this.selectedSistemas, id]
+    //     : this.selectedSistemas.filter(i => i !== id);
+    // }
+    //
+    // if (listName !== 'procuradores') {
+    //   this.selectedAliases = isChecked
+    //     ? [...this.selectedAliases, id]
+    //     : this.selectedAliases.filter(i => i !== id);
+    // }
+    //
+    // this.selectedProcuradores = isChecked
+    //   ? [...this.selectedProcuradores, id]
+    //   : this.selectedProcuradores.filter(i => i !== id);
 
     this.emitChanges();
   }

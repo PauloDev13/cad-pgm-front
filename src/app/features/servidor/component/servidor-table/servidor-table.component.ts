@@ -352,6 +352,7 @@ export class ServidorTableComponent {
     }
   });
 
+  // Retorna VERDADEIRO se o Status for igual a 'Inativo'
   canInativo = computed(() => this.data()
     .map(s => s.status?.descricao === 'Inativo')[0]);
 

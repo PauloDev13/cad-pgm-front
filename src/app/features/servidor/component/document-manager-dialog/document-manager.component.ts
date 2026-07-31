@@ -88,8 +88,6 @@ const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 20 MB
 export class DocumentManagerComponent {
 
   // ================ INJEÇÃO DE DEPENDÊNCIAS ========================
-  // Recebe o ID do servidor através do DATA do MatDialog
-  // protected data = inject(MAT_DIALOG_DATA);
   private uploadService = inject(UploadService);
   private customDeleteService = inject(CustomDeleteService);
   private notificationService = inject(NotificationService);
@@ -100,7 +98,8 @@ export class DocumentManagerComponent {
 
   servidorId = input.required<number>();
   servidorName = input.required<string>();
-  // SIGNALS
+
+  // =========== SIGNALS ===========
   isUploading = signal(false);
   // Signal para exclusão em lote
   selectedIds = signal<number[]>([]);
@@ -161,7 +160,6 @@ export class DocumentManagerComponent {
   }
 
   // =========== MÉTODOS ===============
-
   // Carrega todos os documento PDF
   documentsResource = rxResource({
     params: () => ({
@@ -249,23 +247,20 @@ export class DocumentManagerComponent {
 
   // Controla a seleção múltipla de arquivos PDF para a remoção em lote
   toggleAll(checked: boolean) {
-    if (checked) {
-      // Pega todos os IDs da tabela e joga no Signal
-      this.selectedIds.set(this.documents().map(doc => doc.id));
-    } else {
-      this.selectedIds.set([]); // Limpa tudo
-    }
+    // Se "checked' for VERDADEIRO, pega todos os IDs da tabela e joga no Signal,
+    // caso contrário, limpa todos os IDs.
+    this.selectedIds.set(
+      checked ? this.documents().map(doc => doc.id) : []
+    );
   }
 
   // Atualiza o signal que guarda os IDs dos documentos que serão removidos em lote
   toggleRow(id: number, checked: boolean) {
-    this.selectedIds.update(ids => {
-      if (checked) {
-        return [...ids, id]; // Adiciona o ID
-      } else {
-        return ids.filter(i => i !== id); // Remove o ID
-      }
-    });
+    this.selectedIds.update(ids =>
+      checked
+        ? [...ids, id] // Adiciona o ID
+        : ids.filter(i => i !== id) // Remove o ID
+    );
   }
 
   // Exclui um documento PDF por vez

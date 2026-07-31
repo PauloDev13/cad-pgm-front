@@ -312,9 +312,9 @@ export type FormModel = Required<ServidorRequestDTO>;
                       [field]="servidorForm.lotacaoId()"
                       [options]="servidoresStore.lotacoes()" />
 
-                    <!-- Se for ADMIN, ver os select e pode editar-->
+                    <!-- Se for usuário logado for ADMIN -->
                     @if (canManager) {
-                      <!-- Atividade-->
+                      <!-- Exibe os select Atividade e Status e libera para edição-->
                       <app-custom-select
                         class="md:col-span-2"
                         label="Atividade"
@@ -322,7 +322,6 @@ export type FormModel = Required<ServidorRequestDTO>;
                         [field]="servidorForm.tipoAtividade()"
                         [options]="servidoresStore.atividades()" />
 
-                      <!-- Status-->
                       <app-custom-select
                         class="md:col-span-3"
                         label="Status"
@@ -331,7 +330,7 @@ export type FormModel = Required<ServidorRequestDTO>;
                         [options]="listStatus()" />
 
                     } @else {
-                      <!-- Se não, aparece o input com a informação e bloqueado para edição-->
+                      <!-- Se não, exibe o input Atividade com a informação e bloqueia para edição-->
                       <mat-form-field appearance="outline" class="md:col-span-2 w-full">
                         <mat-label>Atividade</mat-label>
                         <input
@@ -344,9 +343,9 @@ export type FormModel = Required<ServidorRequestDTO>;
                         />
                       </mat-form-field>
 
+                      <!-- Se o Status for igual a (4) PENDENTE -->
                       @if (servidorForm.statusId().value() === 4) {
-                        <!-- Se o status for igual a PENDENTE, aparece o input
-                        com a informação e bloqueado para edição-->
+                        <!-- Exibe o input Status com a informação e bloqueia para edição -->
                         <mat-form-field appearance="outline" class="md:col-span-3 w-full">
                           <mat-label>Status</mat-label>
                           <input
@@ -358,8 +357,9 @@ export type FormModel = Required<ServidorRequestDTO>;
                             [value]="statusDescription()"
                           />
                         </mat-form-field>
+                        <!-- Se não -->
                       } @else {
-                        <!-- Se não, é exibida o select para edição-->
+                        <!-- Esibe o select e libera para edição-->
                         <app-custom-select
                           class="md:col-span-3"
                           label="Status"
@@ -707,9 +707,10 @@ export class ServidorFormComponent implements OnInit {
       servidorId: servId,
       payload: dataPayload,
 
+      // Callback executado apenas se a API retornou sucesso(200/201)
       onSuccess: (response) => {
-        // Callback executado apenas se a API retornou sucesso(200/201)
 
+        // Se o tipo de ação é igual a 'CREATE'
         if (actionType === 'CREATE') {
           // Atualiza estado local da UI para liberar abas de anexos
           this.hasCreated = true;
@@ -727,6 +728,7 @@ export class ServidorFormComponent implements OnInit {
     });
   }
 
+  // Atualiza os vínculos e permissões
   atualizarPermissoesNoModeloPai(event: { sistemaIds: number[], procuradorIds: number[], aliasIds: number[] }) {
     this.servidorModel.update(modeloAtual => ({
       ...modeloAtual,
@@ -739,6 +741,7 @@ export class ServidorFormComponent implements OnInit {
     this.dialogRef.close(this.hasCreated);
   }
 
+  // Lê a foto do servidor, caso ela exista
   loadPhotoServidor(id: number) {
     this.servidorService.downloadPhoto(id)
       .subscribe({
@@ -754,6 +757,7 @@ export class ServidorFormComponent implements OnInit {
       });
   }
 
+  // Seleciona a foto que será anexada ao cadastro do Servidor
   onSelectedPhoto(event: Event) {
     const input = event.target as HTMLInputElement;
 
@@ -828,13 +832,16 @@ export class ServidorFormComponent implements OnInit {
       });
   }
 
-  // MÉTHOD AUXILIAR: Gera um código no formato "T" + 3 ou 4 dígitos aleatórios
+  // ========== MÉTODOS AUXILIARES ==========
+
+  // Gera um código no formato "T" + 3 ou 4 dígitos aleatórios
   private gerarMatriculaTerceirizado(): string {
     // Gera um número entre 10000 e 99999
     const randomNumber = Math.floor(100 + Math.random() * 900);
     return `T${randomNumber}`;
   }
 
+  // Inicializa todos os atributos do formulário
   private inicializarFormularioComPayload() {
     try {
       // 1. Extração simplificada de relacionamentos múltiplos
@@ -872,6 +879,8 @@ export class ServidorFormComponent implements OnInit {
     }
   };
 
+  // Se o Vínculo do Servidor é diferente de "COMISSIONADO" OU "EFETIVO",
+  // retorna verdadeiro (o vínculo é terceirizado)
   get isTerceirizado(): boolean {
     const idSelecionado = this.servidorForm.vinculoId().value();
     const vinculo = this.servidoresStore.vinculos()

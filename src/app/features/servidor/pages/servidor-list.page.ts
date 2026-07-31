@@ -136,7 +136,6 @@ import { ActivatedRoute, Router } from '@angular/router';
             />
           </div>
         </mat-tab>
-
       </mat-tab-group>
     </div>
   `,
@@ -233,15 +232,16 @@ export default class ServidorListPage implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((payload) => {
-      if (payload) {
-        const isEdit = !!payload.id;
-        // Se for edição, atualiza o servidoresResource
-        if (isEdit) {
-          this.servidoresStore.updateLocalServidor(payload);
-        } else {
-          // Se não, faz o reload para atualizar os dados após o insert
-          this.servidoresStore.reloadBothList();
-        }
+      if (!payload) return;
+
+      const isEdit = !!payload.id;
+
+      // Se for edição, atualiza o servidoresResource
+      if (isEdit) {
+        this.servidoresStore.updateLocalServidor(payload);
+      } else {
+        // Se não, faz o reload para atualizar os dados após o insert
+        this.servidoresStore.reloadBothList();
       }
     });
   }

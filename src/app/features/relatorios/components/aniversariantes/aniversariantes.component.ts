@@ -18,7 +18,7 @@ import { rxResource, toSignal } from '@angular/core/rxjs-interop';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="p-4 md:p-6 max-w-screen-xl  mx-auto w-full flex flex-col h-full min-h-0 bg-gray-50">
+    <div class="p-4 md:p-6 max-w-screen-xl mx-auto w-full flex flex-col h-full min-h-0 bg-gray-50">
       <div
         class="flex flex-col md:flex-row bg-white p-2 md:p-3 rounded-xl border border-gray-100
               items-center justify-between shadow-sm gap-4 md:gap-4 mb-2 shrink-0 h-auto">
@@ -132,10 +132,10 @@ import { rxResource, toSignal } from '@angular/core/rxjs-interop';
                         </div>
                       </td>
                       <td
-                        class="py-2 px-2 md:px-3 border-r border-[#E8DFC8] font-semibold text-left text-xs md:text-[14px]">
+                        class="py-2 px-2 md:px-3 border-r border-[#E8DFC8] font-semibold text-left text-xs md:text-[18px]">
                         {{ item.nome }}
                       </td>
-                      <td class="py-2 px-2 md:px-3 text-left text-xs md:text-[14px]">
+                      <td class="py-2 px-2 md:px-3 text-left text-xs md:text-[18px]">
                         {{ item.setor }}
                       </td>
                     </tr>

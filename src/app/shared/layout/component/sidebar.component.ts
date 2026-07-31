@@ -234,8 +234,6 @@ export class SidebarComponent {
     permissoes: false
   });
 
-  // canEdit = this.authStore.canEdit();
-
   // Retorna verdadeiro se o usuário logado é admin
   canManager = this.authStore.canManager();
 

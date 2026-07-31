@@ -92,15 +92,6 @@ export class CustomValidators {
       return null;
     }
 
-    // 2. BLINDAGEM: Se por algum motivo o valor não for uma string (ex: resquício de Date/DateTime)
-    // Nós o convertemos forçosamente para string, evitando o erro do .trim()
-    // const textValue = typeof value === 'string' ? value : String(value);
-
-    // 3. Agora podemos usar o trim() com 100% de segurança
-    // if (textValue.trim() === '') {
-    //   return null;
-    // }
-
     // Se o valor convertido for um objeto gigante (ex: "Mon Apr 05 1982..."), barramos aqui
     if (value.trim().length > 10) {
       return { kind: 'invalidDate', message: 'Formato interno inválido.' };
