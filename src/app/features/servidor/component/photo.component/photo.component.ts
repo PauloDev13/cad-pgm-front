@@ -12,9 +12,9 @@ import { ServidorService } from '../../services/servidor.service';
   template: `
     <div class="w-full h-full flex items-center justify-center overflow-hidden bg-white">
       @if (photoUrl()) {
-        <mat-icon class="text-gray-300 scale-[3]">person</mat-icon>
-      } @else {
         <img [src]="photoUrl()" alt="Foto do Servidor" class="object-cover w-full h-full" />
+      } @else {
+        <mat-icon class="text-gray-300 scale-[3]">person</mat-icon>
       }
     </div>
   `
