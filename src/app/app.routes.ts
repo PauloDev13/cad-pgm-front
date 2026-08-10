@@ -25,7 +25,7 @@ export const routes: Routes = [
       },
       {
         path: 'register',
-        title: 'Cadastro Usuário| Gestão de Servidores PGM Natal',
+        title: 'Cadastro Usuário | Gestão de Servidores PGM Natal',
         loadComponent: () => import('./features/usuario/components/form-register-usuario/form-register-usuario.component')
           .then((m) => m.FormRegisterUsuarioComponent)
       },
@@ -72,7 +72,6 @@ export const routes: Routes = [
         title: 'Início | Gestão de Servidores PGM Natal',
         loadComponent: () => import(
           './features/dashboard/components/dashboard.component/dashboard.component')
-        // loadComponent: () => import('./features/home/pages/home.page')
       },
       {
         path: 'usuarios',

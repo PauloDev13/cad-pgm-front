@@ -5,7 +5,7 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
 import { Router } from '@angular/router';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { TRegisterNewUser } from '../../../features/usuario/models/usuario.model';
-import { finalize, pipe, switchMap, tap } from 'rxjs';
+import { finalize, pipe, switchMap, tap, EMPTY } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { IAuthRequest, IDecodedToken, IDecodedTokenUsername } from '../models/auth.model';
 import { jwtDecode } from 'jwt-decode';
@@ -102,13 +102,12 @@ export const AuthStore = signalStore(
           if (!userName) {
             patchState(store, { isLoading: false });
             notificationService.error('Usuário não encontrado na sessão');
+            return EMPTY;
           }
           return authService.forcePasswordChange(userName, newPassword).pipe(
             finalize(() => patchState(store, { isLoading: false })),
             tapResponse({
               next: () => {
-                // loginStateService.newUserName.set(userName);
-
                 notificationService.success(
                   'Senha atualizada com sucesso! Por favor, faça login com a nova senha.',
                   'Troca de Senha');
@@ -272,8 +271,6 @@ export const AuthStore = signalStore(
               next: (response) => {
 
                 patchState(store, { rememberedUsername: response.userName });
-
-                // loginStateService.newUserName.set(response.userName);
 
                 notificationService.success(
                   `Usuário <strong>${response.userName}</strong> cadastrado.`,

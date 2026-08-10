@@ -4,7 +4,6 @@ import { MESES_DO_ANO } from '../../../models/aniversariente.model';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { DominioService } from '../../../../servidor/services/dominio.service';
 
 @Component({
   selector: 'app-folha-ponto-modal.component',
@@ -55,15 +54,12 @@ import { DominioService } from '../../../../servidor/services/dominio.service';
   `
 })
 export class FolhaPontoModalComponent {
-  private readonly dominioService = inject(DominioService);
   protected readonly dialogRef = inject(MatDialogRef<FolhaPontoModalComponent>);
 
   meses = MESES_DO_ANO;
   anoCorrente = new Date().getFullYear();
 
   mesSelecionado = signal<number | null>(null);
-
-  isLoading = this.dominioService.setoresResource.isLoading;
 
   confirmar() {
     // Devolve um objeto limpo para quem abriu o modal

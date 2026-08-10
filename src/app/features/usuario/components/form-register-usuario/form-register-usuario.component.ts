@@ -169,14 +169,12 @@ export class FormRegisterUsuarioComponent {
   // Métodos para alternar a visualização
   togglePassword(event: MouseEvent) {
     event.preventDefault(); // Evita que o formulário submeta ao clicar no botão do ícone
-    // this.hidePassword.set(!this.hidePassword());
-    this.hideConfirm.update(v => !v);
+    this.hidePassword.update(v => !v);
   }
 
   toggleConfirm(event: MouseEvent) {
     event.preventDefault();
-    // this.hideConfirm.set(!this.hideConfirm());
-    this.hidePassword.update(v => !v);
+    this.hideConfirm.update(v => !v);
   }
 
   async onSubmit(event: Event) {

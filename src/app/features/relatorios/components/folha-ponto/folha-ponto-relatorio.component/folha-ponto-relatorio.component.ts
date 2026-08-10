@@ -18,7 +18,7 @@ import { LoadingComponent } from '../../../../../shared/components/loading.compo
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="relative flex flex-col w-full h-[calc(100vh-100px)] min-h-[600px] overflow-hidden bg-gray-50/50
+      class="relative flex flex-col w-full h-[calc(100dvh-100px)] min-h-0 overflow-hidden bg-gray-50/50
          print:h-auto print:bg-white print:block"
       style="-webkit-print-color-adjust: exact; print-color-adjust: exact;">
 

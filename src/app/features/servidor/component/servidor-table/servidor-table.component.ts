@@ -33,7 +33,7 @@ import { AuthStore } from '../../../../core/auth/store/auth.store';
   template: `
     <div
       class="flex flex-col w-full border border-gray-300 rounded-lg overflow-hidden
-             relative h-[calc(100vh-406px)] min-h-[505px]"
+             relative h-[calc(100dvh-406px)] min-h-[320px] md:min-h-[505px]"
     >
       <!-- Chama o componente de loading-->
       <div

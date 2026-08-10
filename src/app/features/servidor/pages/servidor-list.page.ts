@@ -45,19 +45,6 @@ import { ActivatedRoute, Router } from '@angular/router';
           <p class="text-sm text-gray-600 mt-1 print:hidden">Gerencie os servidores do sistema</p>
         </div>
 
-
-        @if (servidoresStore.hasUpdateAvailable()) {
-          <div class="flex justify-center">
-            <button
-              mat-flat-button
-              class="!bg-blue-100 !text-blue-800 !rounded-full shadow-md animate-bounce hover:!bg-blue-200 transition-colors"
-              (click)="servidoresStore.reloadBothList()">
-              <mat-icon class="mr-2">refresh</mat-icon>
-              Novos dados disponíveis. Clique para atualizar.
-            </button>
-          </div>
-        }
-
         @if (activeTableIndex() === 0) {
           <button
             mat-flat-button
@@ -184,6 +171,10 @@ export default class ServidorListPage implements OnInit {
   }
 
   ngOnInit() {
+    // Informa o store que a página de listagem está visível: a partir de
+    // agora, eventos SSE de outras instâncias recarregam as listas aqui.
+    this.servidoresStore.setServidorPageActive(true);
+
     // Força a releitura das listas que preenchem os Dropdowns de pesquisa
     this.dominioService.statusResource.reload();
     this.dominioService.cargosResource.reload();
@@ -191,6 +182,7 @@ export default class ServidorListPage implements OnInit {
 
     // Limpa os filtros de pesquisa de servidores quando sair da página
     this.destroyRef.onDestroy(() => {
+      this.servidoresStore.setServidorPageActive(false);
       this.servidoresStore.clearAllFilters();
     });
   }
@@ -225,7 +217,7 @@ export default class ServidorListPage implements OnInit {
     const dialogRef = this.dialog.open(ServidorFormComponent, {
       width: '1000px',
       maxWidth: '95vw',
-      maxHeight: '90vw',
+      maxHeight: '92vh',
       data: servidor,
       disableClose: true,
       injector: this.injector // Injeta uma a mesma instância do provider do pai para o filho
@@ -255,7 +247,7 @@ export default class ServidorListPage implements OnInit {
     const dialogRef = this.dialog.open(ServidorFormComponent, {
       width: '1000px',
       maxWidth: '95vw',
-      maxHeight: '90vw',
+      maxHeight: '92vh',
       // Passamos o payload e a intenção
       data: { payload: servidor, action: action },
       disableClose: true,

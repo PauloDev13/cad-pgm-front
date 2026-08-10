@@ -87,7 +87,7 @@ export default class UsuarioListPage {
       width: '700px',
       height: '400px',
       maxWidth: '95vw',
-      maxHeight: '90vw',
+      maxHeight: '92vh',
       data: usuario,
       disableClose: true,
       injector: this.injector // Injeta uma a mesma instância do provider do pai para o filho

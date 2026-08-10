@@ -14,12 +14,11 @@ export const initialDataServidor: FormModel = {
   endereco: '',
   filiacao: '',
   tipoAtividade: 'PRESENCIAL',
-  // Garantindo tipos compatíveis com numbers que iniciam vazios
-  cargoId: null as unknown as number,
-  setorId: null as unknown as number,
+  cargoId: null,
+  setorId: null,
   lotacaoId: 1,
   statusId: 4,
-  vinculoId: null as unknown as number,
+  vinculoId: null,
 
   procuradorIds: [],
   aliasIds: [],

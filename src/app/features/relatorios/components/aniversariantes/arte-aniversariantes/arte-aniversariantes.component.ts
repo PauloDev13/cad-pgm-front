@@ -11,7 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="fixed -left-[9999px] top-0">
+    <div class="absolute -left-[9999px] top-0">
 
       <div #moldeImagem class="w-[1200px] bg-[#FDF8ED] p-12 font-sans">
 

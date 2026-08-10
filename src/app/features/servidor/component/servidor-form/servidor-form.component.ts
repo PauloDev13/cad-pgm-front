@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { ServidorService } from '../../services/servidor.service';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { ServidorRequestDTO, ServidorResponseDTO } from '../../models/servidor.model';
+import { ServidorRequestDTO, ServidorResponseDTO, TabId, BaseEntityDTO } from '../../models/servidor.model';
 import { form, FormField } from '@angular/forms/signals';
 import { finalize, switchMap } from 'rxjs';
 import { AutocompleteComponent } from '../../../../shared/components/autocomplete/autocomplete.component';
@@ -37,7 +37,22 @@ import { VinculosPermissoesComponent } from '../vinculos-permissoes/vinculos-per
 import { AuthStore } from '../../../../core/auth/store/auth.store';
 import { DominioService } from '../../services/dominio.service';
 
-export type FormModel = Required<ServidorRequestDTO>;
+// Modelo do formulário: os IDs de relacionamento podem ficar null enquanto o usuário ainda não selecionou
+export type FormModel = Required<Omit<ServidorRequestDTO,
+  'cargoId' | 'setorId' | 'lotacaoId' | 'statusId' | 'vinculoId'>> & {
+  cargoId: number | null;
+  setorId: number | null;
+  lotacaoId: number | null;
+  statusId: number | null;
+  vinculoId: number | null;
+};
+
+// Dados que chegam ao dialog (action/payload legado/id)
+export interface ServidorFormDialogData {
+  action?: string;
+  payload?: ServidorResponseDTO;
+  id?: number;
+}
 
 @Component({
   selector: 'app-cad-form.component',
@@ -63,16 +78,18 @@ export type FormModel = Required<ServidorRequestDTO>;
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex flex-col w-full h-[calc(100vh-60px)] sm:h-[750px] overflow-hidden bg-white rounded-xl">
+    <div class="flex flex-col w-full h-[calc(100dvh-140px)] max-h-[calc(100dvh-140px)]
+                sm:h-[750px] sm:max-h-none overflow-hidden bg-white rounded-xl">
       <div class="flex-1 min-h-0 w-full overflow-hidden">
         <mat-tab-group
-          [(selectedIndex)]="activeTabIndex"
+          [selectedIndex]="activeTabIndex()"
+          (selectedIndexChange)="activeTabIndex.set($event)"
           animationDuration="0ms"
-          class="sm:h-[760px] w-full p-2 custom-folder-tabs">
+          class="w-full h-full min-h-0 p-2 custom-folder-tabs">
           >
           <mat-tab label="Dados Pessoais e Funcionais">
 
-            <div class="flex justify-between items-center px-6 pt-2 pb-1">
+            <div class="flex justify-between items-center px-6 pt-1 pb-0">
               <h2 mat-dialog-title class="!font-bold !text-xl !text-blue-700 !m-0 !p-0">
                 @if (isReactivate) {
                   Readmitir: <span class="text-gray-600 font-medium">{{ payload?.nome }}</span>
@@ -85,11 +102,11 @@ export type FormModel = Required<ServidorRequestDTO>;
             </div>
 
             <mat-dialog-content class="!px-6 !pb-1 !pt-1">
-              <form autocomplete="off" class="flex flex-col gap-6">
+              <form autocomplete="off" class="flex flex-col gap-4">
 
                 <div>
                   <h3
-                    class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 border-b
+                    class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2 border-b
                   pb-1 mt-0">
                     Dados Pessoais
                   </h3>
@@ -230,7 +247,7 @@ export type FormModel = Required<ServidorRequestDTO>;
                 </div>
 
                 <div>
-                  <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 border-b
+                  <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2 border-b
                     pb-1 mt-0">
                     Vínculo Funcional
                   </h3>
@@ -377,7 +394,7 @@ export type FormModel = Required<ServidorRequestDTO>;
           @if (canManager) {
             <mat-tab label="Vínculos e Permissões" [disabled]="!currentServidorId()">
               <ng-template matTabContent>
-                <div class="w-full h-[650px] md:h-[680px] p-2">
+                <div class="w-full h-full min-h-0 overflow-hidden p-2">
                   @if (currentServidorId()) {
                     <app-vinculos-permissoes
                       servidorName="{{ payload?.nome }}"
@@ -400,7 +417,7 @@ export type FormModel = Required<ServidorRequestDTO>;
 
           <mat-tab label="Documentos" [disabled]="!currentServidorId()">
             <ng-template matTabContent>
-              <div class="w-full h-[650px] md:h-[680px] block bg-gray-50 rounded-xl overflow-hidden">
+              <div class="w-full h-full min-h-0 block bg-gray-50 rounded-xl overflow-hidden">
                 @if (currentServidorId()!) {
                   <app-document-manager
                     class="block w-full h-full"
@@ -420,8 +437,8 @@ export type FormModel = Required<ServidorRequestDTO>;
       </div>
       <div class="shrink-0 gap-2 flex flex-col sm:flex-row justify-end items-center p-4 bg-white z-20 relative">
 
-        <!-- Não o botão de salvar/atualizar na aba Documentos-->
-        @if (activeTabIndex !== 2) {
+        <!-- Não EXIBE o botão de salvar/atualizar na aba Documentos-->
+        @if (showSaveButton()) {
           <button
             mat-flat-button
             class="w-full sm:w-auto !transition-transform duration-300 hover:!scale-105 !h-12 sm:!h-10
@@ -444,10 +461,30 @@ export type FormModel = Required<ServidorRequestDTO>;
         </button>
       </div>
     </div>
-  `
+  `,
+  styles: [`
+    :host ::ng-deep .custom-folder-tabs .mat-mdc-tab-body-wrapper {
+      height: 100%;
+    }
+    :host ::ng-deep .custom-folder-tabs .mat-mdc-tab-body {
+      height: 100%;
+    }
+    :host ::ng-deep .custom-folder-tabs .mat-mdc-tab-body-content {
+      height: 100%;
+    }
+    /* Apenas a aba "Dados Pessoais e Funcionais" usa mat-dialog-content */
+    :host ::ng-deep .custom-folder-tabs .mat-mdc-tab-body-content mat-dialog-content {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    :host ::ng-deep .custom-folder-tabs .mat-mdc-tab-body-content mat-dialog-content::-webkit-scrollbar {
+      display: none;
+    }
+  `]
 })
 export class ServidorFormComponent implements OnInit {
-  // Injeções de dependência
+  // =============== Injeções de dependência ===============
+
   private readonly servidorService = inject(ServidorService);
   protected readonly authStore = inject(AuthStore);
   protected readonly servidoresStore = inject(ServidoresStore);
@@ -455,8 +492,7 @@ export class ServidorFormComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly dialogRef = inject(MatDialogRef<ServidorFormComponent>);
-  // Recebemos um "any" para suportar o DTO direto (legado) ou o novo wrapper
-  private readonly dialogData = inject<any>(MAT_DIALOG_DATA, { optional: true });
+  private readonly dialogData = inject<ServidorFormDialogData>(MAT_DIALOG_DATA, { optional: true });
   private destroyRef = inject(DestroyRef);
 
   // Controle de estado para a Matrícula
@@ -464,6 +500,9 @@ export class ServidorFormComponent implements OnInit {
   private originMatriculaDb = '';
   private originVinculoIdDb: number | null = null;
   private cacheMatriculaAuto = '';
+
+  // Controle para avisar a tabela pai se precisamos recarregar o grid
+  private hasCreated = false;
 
   constructor() {
     // Remove a foto que estiver na memória ao fechar o form
@@ -544,83 +583,54 @@ export class ServidorFormComponent implements OnInit {
 
 
   // Se não vier action, mas vier um objeto, assume que é o 'EDIT' legado. Senão é CREATE.
-  readonly currentAction = this.dialogData?.action || (this.dialogData ? 'EDIT' : 'CREATE');
-  readonly DEFAULT_PHOTO = '/img/default_photo.jpg';
+  protected readonly currentAction = this.dialogData?.action || (this.dialogData ? 'EDIT' : 'CREATE');
+  protected readonly DEFAULT_PHOTO = '/img/default_photo.jpg';
 
-  isReactivate = this.currentAction === 'REACTIVATE';
-  activeTabIndex = 0;
+  protected isReactivate = this.currentAction === 'REACTIVATE';
 
   // Lógica de extração de dados e estado do formulário
   // Se existir a propriedade 'payload', o objeto veio envelopado (Novo padrão).
   // Se não, avalia se o dialogData tem um 'id', significando que é o DTO direto (Legado).
-  payload: ServidorResponseDTO | undefined = this.dialogData?.payload !== undefined
+  protected payload: ServidorResponseDTO | undefined = this.dialogData?.payload !== undefined
     ? this.dialogData?.payload
-    : (this.dialogData?.id ? this.dialogData : undefined);
+    : (this.dialogData?.id ? this.dialogData as ServidorResponseDTO : undefined);
 
   // É edição se tem payload, mas NÃO é readmissão
-  isEdit = !!this.payload && !this.isReactivate;
+  protected isEdit = !!this.payload && !this.isReactivate;
 
   // Retorna verdadeiro se o usuário logado é admin
-  canManager = this.authStore.canManager();
+  protected canManager = this.authStore.canManager();
 
+  // =================== SIGNALS ====================
 
-  // Retorna a lista do dropdown Status
-  listStatus = computed(() => {
-      // Pega a lista completa na ServidoresStored
-      const completedList = this.servidoresStore.status();
-
-      // Se o formulário foi aberto a partir da listagem dos Desligados e o Status = 'Inativo',
-      // preenche o dropdown apenas com os Status "Inativo' e 'Desligado'
-      if (this.payload?.excluded && this.payload.status?.descricao?.toLowerCase() === 'inativo') {
-        return completedList.filter(status =>
-          status.descricao?.toLowerCase() === 'inativo'
-          || status.descricao?.toLowerCase() === 'desligado');
-      }
-
-      // Se o formulário for aberto a partir da listagem dos Desligados,
-      // preenche o dropdown com o Status 'Desligado'
-      if (this.payload?.excluded) {
-        return completedList.filter(status =>
-          status.descricao?.toLowerCase() === 'desligado');
-      }
-
-      // Se o formulário for aberto a partir da listagem dos Ativos,
-      // preenche o dropdown com todos os Status exceto, o 'Desligado'
-      return completedList.filter(status =>
-        status.descricao?.toLowerCase() !== 'desligado');
-    }
-  );
-
-  // Controle para avisar a tabela pai se precisamos recarregar o grid
-  private hasCreated = false;
+  // Signal que controla o índice da aba selecionada
+  protected activeTabIndex = signal<number>(0);
 
   // Recebe o ID do usuário atual e caso não exista, recebe null
-  currentServidorId = signal<number | undefined>(this.payload?.id || undefined);
+  protected currentServidorId = signal<number | undefined>(this.payload?.id || undefined);
 
   // Signals de controle da foto
-  photoUrl = signal<string>(this.DEFAULT_PHOTO);
-  isUploadingPhoto = signal<boolean>(false);
-  // servidorId = signal<number | null>(null);
+  protected photoUrl = signal<string>(this.DEFAULT_PHOTO);
+  protected isUploadingPhoto = signal<boolean>(false);
 
   // Modelo para validação
-  servidorModel = signal<FormModel>(initialDataServidor);
-
-  // Formulário
-  servidorForm = form(this.servidorModel, subscriptionSchema);
+  protected servidorModel = signal<FormModel>(initialDataServidor);
 
   // Signal que vai monitorar se houve mudanças nos dados do formulário
   private readonly initialValue = signal<FormModel>(
     structuredClone(this.servidorModel())
   );
 
+  // =================== COMPUTEDS ====================
+
   // Computed que compara os dados iniciais do formulário vindos do backend,
   // com os dados atuais do formulário. Se forem diferentes, retorna verdadeiro
-  readonly hasCreateds = computed(() => {
+  protected hasCreateds = computed(() => {
     return JSON.stringify(this.initialValue()) !== JSON.stringify(this.servidorModel());
   });
 
   // Retorna a descrição do status de acordo com o ID
-  statusDescription = computed(() => {
+  protected statusDescription = computed(() => {
     const currentId = this.servidorForm.statusId().value();
     const statusList = this.servidoresStore.status();
 
@@ -631,11 +641,77 @@ export class ServidorFormComponent implements OnInit {
     return statusFound ? statusFound.descricao : 'Desconhecido';
   });
 
-  // Método genérico que controla mudanças nos campos autocomplete
-  onAutocompleteChange(field: keyof ServidorRequestDTO, id: number | null) {
+  // Retorna a lista do dropdown Status
+  protected listStatus = computed(() => {
+    // Pega a lista completa na ServidoresStored
+    const completedList = this.servidoresStore.status();
+
+    // Criamos uma variável para guardar a "Estratégia" (a regra do filtro)
+    let regraFiltro: (status: BaseEntityDTO) => boolean;
+
+    // Associando a regra correta
+    if (this.payload?.excluded && this.payload.status?.descricao?.toLowerCase() === 'inativo') {
+
+      regraFiltro = (status) => {
+        const desc = status.descricao?.toLowerCase();
+        return desc === 'inativo' || desc === 'desligado';
+      };
+
+    } else if (this.payload?.excluded) {
+
+      regraFiltro = (status) => status.descricao?.toLowerCase() === 'desligado';
+
+    } else {
+
+      regraFiltro = (status) => status.descricao?.toLowerCase() !== 'desligado';
+
+    }
+
+    // 3. O princípio DRY aplicado: Executamos o loop de filtro apenas UMA vez
+    return completedList.filter(regraFiltro);
+  });
+
+  // Monta o arrays com os nomes das ABAS.
+  protected abasPermitidas = computed(() => {
+    // Inicia o array com a aba 'DADOS_PESSOAIS' apenas
+    const abas: TabId[] = ['DADOS_PESSOAIS'];
+
+    // Se o usuário logado é 'ADMIN', insere no array a aba 'VINCULOS_PERMISSOES'
+    if (this.canManager) {
+      abas.push('VINCULOS_PERMISSOES');
+    }
+
+    // Insere a aba 'DOCUMENTOS' independente do perfil do usuário
+    abas.push('DOCUMENTOS');
+
+    return abas;
+  });
+
+  // Vincula o nome da ABA de acordo com o índice da aba ativa
+  protected activatTabName = computed(() => {
+    return this.abasPermitidas()[this.activeTabIndex()];
+  });
+
+  // =================== METÓDOS ====================
+
+  // Cria o Formulário de cadastro
+  servidorForm = form(this.servidorModel, subscriptionSchema);
+
+  // Controla a exibição do botão (Salvar/Atualizar) nas abas do formulário.
+  // Se a aba selecionada for a de nome 'DOCUMENTOS', retorna FALSO e esconde
+  // o botão Salva/Atualizar
+  showSaveButton(): boolean {
+    return this.activatTabName() !== 'DOCUMENTOS';
+  }
+
+  // Método genérico que controla mudanças nos campos autocomplete (IDs de relacionamento)
+  onAutocompleteChange(
+    field: 'cargoId' | 'setorId' | 'lotacaoId' | 'statusId' | 'vinculoId',
+    id: number | null
+  ) {
     this.servidorModel.update((m) => ({
       ...m,
-      [field]: id as number
+      [field]: id
     }));
   }
 
@@ -845,9 +921,9 @@ export class ServidorFormComponent implements OnInit {
   private inicializarFormularioComPayload() {
     try {
       // 1. Extração simplificada de relacionamentos múltiplos
-      const sistemaIds = this.payload?.sistemas?.map((s: any) => s.id) || [];
-      const procuradorIds = this.payload?.procuradores?.map((p: any) => p.id) || [];
-      const aliasIds = this.payload?.aliases?.map((a: any) => a.id) || [];
+      const sistemaIds = this.payload?.sistemas?.map((s) => s.id) || [];
+      const procuradorIds = this.payload?.procuradores?.map((p) => p.id) || [];
+      const aliasIds = this.payload?.aliases?.map((a) => a.id) || [];
 
       // 2. Conversão da Data com Luxon (Preservando sua excelente blindagem de fuso horário)
       const dataNascimentoFormatada = this.payload?.dataNascimento
@@ -860,13 +936,12 @@ export class ServidorFormComponent implements OnInit {
         ...this.payload,
         dataNascimento: dataNascimentoFormatada,
 
-        // Mapeamento limpo usando o operador de coalescência nula (??) do TypeScript moderno
-        // Substitui o "as unknown as number" que era usado para burlar o compilador
-        cargoId: this.payload?.cargo?.id ?? null as any,
-        setorId: this.payload?.setor?.id ?? null as any,
-        lotacaoId: this.payload?.lotacao?.id ?? null as any,
-        statusId: this.payload?.status?.id ?? null as any,
-        vinculoId: this.payload?.vinculo?.id ?? null as any,
+        // Mapeamento dos IDs de relacionamento (null enquanto não selecionado)
+        cargoId: this.payload?.cargo?.id ?? null,
+        setorId: this.payload?.setor?.id ?? null,
+        lotacaoId: this.payload?.lotacao?.id ?? null,
+        statusId: this.payload?.status?.id ?? null,
+        vinculoId: this.payload?.vinculo?.id ?? null,
 
         sistemaIds,
         procuradorIds,
@@ -875,7 +950,6 @@ export class ServidorFormComponent implements OnInit {
 
     } catch (err) {
       this.errorHandlerService.handle(err, 'Carregamento de Dados');
-      console.error('Dados problemáticos recebidos no formulário:', this.payload);
     }
   };
 
@@ -895,3 +969,4 @@ export class ServidorFormComponent implements OnInit {
 
   protected readonly Number = Number;
 }
+

@@ -2,6 +2,7 @@ import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { IDecodedToken } from '../models/auth.model';
 import { AuthStore } from '../store/auth.store';
+import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 
 // Protege as rotas privadas (Exige estar logado)
 export const authGuard: CanActivateFn = (route, state) => {
@@ -45,7 +46,7 @@ export const publicGuard: CanActivateFn = (route, state) => {
     // Precisa trocar a senha, mas está tentando acessar o /login ou /register.
     // Ação: Sequestra de volta para a troca obrigatória.
     if (user.isForcePasswordChange) {
-      router.createUrlTree(['/auth/troca-obrigatoria']);
+      return router.createUrlTree(['/auth/troca-obrigatoria']);
     }
 
     // Está logado normalmente e a senha está em dia.
@@ -63,6 +64,7 @@ export const roleGuard: CanActivateFn = (route) => {
   // const authService = inject(AuthService);
   const authStore = inject(AuthStore);
   const router = inject(Router);
+  const notificationService = inject(NotificationService);
 
   // Pega qual é a permissão que a rota exige (vamos configurar isso nas rotas no passo 2)
   const expectedRole = route.data['role'];
@@ -83,6 +85,6 @@ export const roleGuard: CanActivateFn = (route) => {
   }
 
   // Se não tiver a permissão, dá um aviso e joga de volta para Home
-  alert('Acesso Negado: Você não tem permissão para acessar esta tela.');
+  notificationService.warning('Você não tem permissão para acessar esta tela.', 'Acesso Negado');
   return router.createUrlTree(['/home']);
 };

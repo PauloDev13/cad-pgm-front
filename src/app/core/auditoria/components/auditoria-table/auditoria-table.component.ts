@@ -24,7 +24,7 @@ import { MatIconModule } from '@angular/material/icon';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="flex flex-col h-[calc(100vh-250px)] w-full max-w-full bg-white border border-gray-200
+      class="flex flex-col h-[calc(100dvh-250px)] w-full max-w-full bg-white border border-gray-200
             rounded-xl relative overflow-hidden print:border-none print:shadow-none print:block
             print:h-auto print:overflow-visible"
     >

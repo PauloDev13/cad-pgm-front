@@ -1,6 +1,14 @@
 /* You can add global styles to this file, and also import other style files */
 @import 'tailwindcss';
 
+@layer base {
+  /* Evita scroll horizontal indesejado no mobile (ex.: canvas ocultos com -9999px) */
+  html,
+  body {
+    overflow-x: clip;
+  }
+}
+
 @layer components {
   /* =========================================
    SIDEBAR MENU

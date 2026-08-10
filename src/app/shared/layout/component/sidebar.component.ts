@@ -12,7 +12,6 @@ import { AuthStore } from '../../../core/auth/store/auth.store';
 import {
   FolhaPontoModalComponent
 } from '../../../features/relatorios/components/folha-ponto/folha-ponto-modal.component/folha-ponto-modal.component';
-import { ServidoresStore } from '../../../features/servidor/store/servidor.store';
 
 @Component({
   selector: 'app-sidebar',
@@ -52,6 +51,7 @@ import { ServidoresStore } from '../../../features/servidor/store/servidor.store
           iconMenu="manage_accounts"
           [onOpenMenus]="openMenus()"
           toolTips="Gerenciamento"
+          menuKey="gerenciamento"
           (toggleSubmenu)="toggleSubmenu('gerenciamento')"
         />
 
@@ -89,6 +89,7 @@ import { ServidoresStore } from '../../../features/servidor/store/servidor.store
             [onOpenMenus]="openMenus()"
             iconMenu="post_add"
             toolTips="Cadastros"
+            menuKey="cadastros"
             (toggleSubmenu)="toggleSubmenu('cadastros')"
           />
           <!-- Submenu Cadastros-->
@@ -138,6 +139,7 @@ import { ServidoresStore } from '../../../features/servidor/store/servidor.store
             (toggleSubmenu)="toggleSubmenu('permissoes')"
             iconMenu="admin_panel_settings"
             toolTips="Permissões"
+            menuKey="permissoes"
             [onOpenMenus]="openMenus()"
           />
           <!-- submenu Permissões-->
@@ -180,6 +182,7 @@ import { ServidoresStore } from '../../../features/servidor/store/servidor.store
           [onOpenMenus]="openMenus()"
           iconMenu="content_paste_search"
           toolTips="Relatórios"
+          menuKey="relatorios"
           (toggleSubmenu)="toggleSubmenu('relatorios')"
         />
         <!-- Submenu Relatórios-->
@@ -216,7 +219,6 @@ import { ServidoresStore } from '../../../features/servidor/store/servidor.store
       </div>
     </nav>
   `,
-  providers: [ServidoresStore]
 })
 export class SidebarComponent {
   protected readonly authStore = inject(AuthStore);
@@ -231,7 +233,8 @@ export class SidebarComponent {
   openMenus = signal<Record<string, boolean>>({
     gerenciamento: false,
     cadastros: false,
-    permissoes: false
+    permissoes: false,
+    relatorios: false
   });
 
   // Retorna verdadeiro se o usuário logado é admin

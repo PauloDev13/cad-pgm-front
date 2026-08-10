@@ -14,7 +14,7 @@ import { NgClass } from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <button
-      (click)="onToggleSubmenu('relatorio')"
+      (click)="onToggleSubmenu(menuKey())"
       class="flex items-center h-12 w-full cursor-pointer transition-colors group relative justify-center px-0"
       [ngClass]="onOpen() ? 'md:px-4 md:justify-between' : 'md:px-0 md:justify-center'"
       matTooltip="{{toolTips()}}"
@@ -36,7 +36,7 @@ import { NgClass } from '@angular/common';
 
       <mat-icon
         class="text-gray-400 transition-transform duration-300 group-hover:!text-blue-700 shrink-0"
-        [class.rotate-180]="onOpenMenus()['relatorio']"
+        [class.rotate-180]="onOpenMenus()[menuKey()]"
         [ngClass]="onOpen() ? '-ml-1 md:ml-0 scale-75 md:scale-100' : '-ml-1 scale-75'"
       >
         expand_more
@@ -51,6 +51,7 @@ export class ButtonSidebarComponent {
   iconMenu = input.required<string>();
   label = input.required<string>();
   toolTips = input.required<string>();
+  menuKey = input.required<string>();
 
   onToggleSubmenu(value: string) {
     this.toggleSubmenu.emit(value);

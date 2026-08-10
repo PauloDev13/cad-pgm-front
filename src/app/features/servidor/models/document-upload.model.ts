@@ -2,7 +2,7 @@ export interface DocumentUploadModel {
   id: number;
   originalName: string;
   bytesSize: number;
-  FormatedSize: string;
+  formatedSize: string;
   dataUpload: string;
 }
 

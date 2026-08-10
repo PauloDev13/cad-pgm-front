@@ -6,7 +6,7 @@ import { BaseGenericDirective } from '../../../shared/directives/base-generic/ba
 import { ICrudGeneric } from '../../../shared/model/generic/crud-generic.model';
 
 @Component({
-  selector: 'app-cargo-display',
+  selector: 'app-alias-display',
   imports: [CustomListComponent],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,6 +1,9 @@
 // Tipagem para o Enum atividade
 export type TipoAtividade = 'PRESENCIAL' | 'REMOTO' | 'HIBRIDO' | null;
 
+// Tipagem para as abas do formulário de cadastro de servidores
+export type TabId = 'DADOS_PESSOAIS' | 'VINCULOS_PERMISSOES' | 'DOCUMENTOS'
+
 // Tipagem para consultar as roles do usuário e evitar erros de digitação
 export type UserRole = 'admin' | 'rh' | 'guest';
 

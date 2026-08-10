@@ -31,7 +31,7 @@ import { LoadingComponent } from '../loading.component/loading.component';
   template: `
     <div
       class="flex flex-col bg-gray-50 rounded-2xl p-4 md:p-6 max-w-5xl
-            mx-auto mt-0 w-full h-[calc(100vh-12rem)] min-h-[400px]"
+            mx-auto mt-0 w-full h-[calc(100dvh-12rem)] min-h-[320px] md:min-h-[400px]"
     >
       <div class="mb-4">
         <h2 class="text-xl md:text-2xl font-bold text-blue-800 leading-tight">Gestão de {{ title() }}</h2>

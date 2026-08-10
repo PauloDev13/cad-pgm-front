@@ -43,8 +43,9 @@ type ServidorState = {
   pageSize: number;
   totalElements: number;
 
-  // Controla se houve mudanças nos dados no cadastro de um servidor
-  hasUpdateAvailable: boolean;
+  // Controla se a página de listagem de servidores está visível.
+  // Evita recargas de lista em segundo plano quando o usuário está em outra página.
+  isServidorPageActive: boolean;
 
   // Gatilho invisível para forçar recarregamento (ex: após deletar)
   reloadTrigger: number;
@@ -73,7 +74,7 @@ const initialState: ServidorState = {
   pageSize: 10,
   reloadTrigger: 0,
   totalPendentes: 0,
-  hasUpdateAvailable: false,
+  isServidorPageActive: false,
 
   // Inicialização do State para Desligados
   excludedServidores: [],
@@ -99,7 +100,12 @@ export const ServidoresStore = signalStore(
       const cargoId = store.selectedCargoId();
       const setorId = store.selectedSetorId();
 
-      store.reloadTrigger();
+      // Só reage ao gatilho de recarga quando a página de servidores está
+      // visível. Assim, alterações feitas por outras instâncias não disparam
+      // consultas "em segundo plano" enquanto o usuário está em outra página.
+      if (store.isServidorPageActive()) {
+        store.reloadTrigger();
+      }
 
       return {
         page: store.currentPage(),
@@ -115,7 +121,11 @@ export const ServidoresStore = signalStore(
     // Método computado para filtro em Desligados
     excludedQueryParams: computed((): IServidorExcludedQueryParams => {
       const term = store.excludedSearchTerm();
-      store.excludedReloadTrigger();
+
+      // Mesmo gating aplicado aos Desligados: só recarrega com a página visível
+      if (store.isServidorPageActive()) {
+        store.excludedReloadTrigger();
+      }
 
       return {
         page: store.excludedCurrentPage(),
@@ -142,8 +152,10 @@ export const ServidoresStore = signalStore(
     servidorService = inject(ServidorService),
     errorHandlerService = inject(ErrorHandlerService)) => ({
 
-    // Liga o aviso para monitorar os registros de servidores
-    setUpdateAvailable: () => patchState(store, { hasUpdateAvailable: true }),
+    // Marca quando a página de listagem de servidores está visível
+    setServidorPageActive(active: boolean) {
+      patchState(store, { isServidorPageActive: active });
+    },
 
     // Atualiza o total de registros com o Status = Pendente
     loadTotalPendentes: rxMethod<void>(
@@ -208,7 +220,7 @@ export const ServidoresStore = signalStore(
                 });
 
                 // Atualiza o número de registro com Status como "pendente"
-                // store.loadTotalPendentes();
+                store.loadTotalPendentes();
 
                 // Mensagem dinâmica conforme a ação
                 const extraMsg = action === 'CREATE'
@@ -358,7 +370,6 @@ export const ServidoresStore = signalStore(
     // Força o carregamento das duas listas (Ativos e Desligados)
     reloadBothList() {
       patchState(store, {
-        hasUpdateAvailable: false,
         reloadTrigger: store.reloadTrigger() + 1,
         excludedReloadTrigger: store.excludedReloadTrigger() + 1
       });
@@ -391,6 +402,8 @@ export const ServidoresStore = signalStore(
             tapResponse({
               next: () => {
                 patchState(store, { isLoading: false });
+                // Se o servidor excluído estava com Status "Pendente", o total da badge muda.
+                store.loadTotalPendentes();
                 onSuccess();
               },
               error: (err: HttpErrorResponse) => {
@@ -406,13 +419,24 @@ export const ServidoresStore = signalStore(
       )
     )
   })),
+
+  withMethods((store) => ({
+    // Atualização automática disparada pelos eventos SSE com debounce:
+    // várias alterações em rajada viram UMA única recarga das listas.
+    notifyServidoresChanged: rxMethod<void>(
+      pipe(
+        debounceTime(500),
+        tap(() => store.reloadBothList())
+      )
+    )
+  })),
+
   withHooks({
     onInit(store) {
       // Injeções necessárias para lidar com eventos externos e limpeza
       const destroyRef = inject(DestroyRef);
       const zone = inject(NgZone);
       const authStore = inject(AuthStore);
-      const token = localStorage.getItem('jwt-token');
 
       // Cargas iniciais
       store.loadServidores(store.queryParams);
@@ -427,54 +451,94 @@ export const ServidoresStore = signalStore(
       // URL que dispara as notificações
       const sseUrl = `${environment.apiUrl}/api/notifications/stream`;
 
-      // Atribui a currentLoggedUser o usuário logado em cada aplicação aberta no navegador
-      const currentLoggedUser = authStore.currentUser()?.sub;
+      // Abre a "rádio" (SSE) usando o TOKEN e o USUÁRIO vigentes NAQUELE MOMENTO.
+      // Lê-los aqui (e não no onInit) garante que, após um novo login, ou quando o
+      // token for rotacionado, a conexão seja (re)aberta com uma sessão válida.
+      const connectSSE = () => {
+        const currentToken = localStorage.getItem('jwt-token');
+        const currentLoggedUser = authStore.currentUser()?.sub;
 
-      // O controlador que permite abortar a requisição quando o usuário sair
-      const ctrl = new AbortController();
+        // Só conecta se existir uma sessão válida
+        if (!currentToken || !currentLoggedUser) return null;
 
-      // Conectando na "rádio" do backend COM segurança (Headers)
-      fetchEventSource(sseUrl, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'text/event-stream'
-        },
-        signal: ctrl.signal,
+        const ctrl = new AbortController();
 
-        // Quando receber uma mensagem do backend
-        onmessage(event) {
-          // Se o evento disparado pelo backend é do tipo 'pendentes-update'
-          if (event.event === 'pendentes-update') {
-            zone.run(() => {
-              // Dispara a mini-requisição para atualizar o total e refletir na tela!
-              store.loadTotalPendentes();
-            });
-          }
+        // Conectando na "rádio" do backend COM segurança (Headers)
+        fetchEventSource(sseUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${currentToken}`,
+            'Accept': 'text/event-stream'
+          },
+          signal: ctrl.signal,
 
-          // Se o evento disparado pelo backend é do tipo 'servidores-changed'
-          if (event.event === 'servidores-changed') {
-            // Atribui a loggedUser o usuário logado enviado pelo backend
-            const loggedUser = event.data;
-
-            if (currentLoggedUser !== null && currentLoggedUser !== loggedUser) {
-              // Dispara a mini-requisição para exibir um botão flutuante
-              // na tela avisando que há dados novos!
-              zone.run(() => store.setUpdateAvailable());
+          // Quando receber uma mensagem do backend
+          onmessage(event) {
+            // Se o evento disparado pelo backend é do tipo 'pendentes-update'
+            if (event.event === 'pendentes-update') {
+              zone.run(() => {
+                // Dispara a mini-requisição para atualizar o total e refletir na tela!
+                store.loadTotalPendentes();
+              });
             }
-          }
-        },
 
-        // Tratamento de erros e reconexão automática
-        onerror(err) {
-          console.warn('Conexão SSE oscilou. O navegador tentará reconectar...', err);
-          return 5000;
+            // Se o evento disparado pelo backend é do tipo 'servidores-changed'
+            if (event.event === 'servidores-changed') {
+              // Atribui a loggedUser o usuário logado que o backend enviou junto do evento
+              const loggedUser = event.data;
+
+              // O backend emite 'pendentes-update' ao ENTRAR no Status "Pendente",
+              // mas NÃO ao SAIR. Este evento cobre o caminho inverso: recalcula o
+              // total em TODAS as instâncias sempre que qualquer registro muda.
+              zone.run(() => store.loadTotalPendentes());
+
+              // Lê o usuário ATUAL de forma fresca (pode ter ocorrido um re-login)
+              const me = authStore.currentUser()?.sub;
+
+              // Recarrega as listas automaticamente em TODAS as instâncias,
+              // MENOS na que disparou a alteração (ela já recarrega pela
+              // própria resposta do save local). O debounce agrupa rajadas.
+              if (me !== null && me !== undefined && me !== loggedUser) {
+                zone.run(() => store.notifyServidoresChanged());
+              }
+            }
+          },
+
+          // Tratamento de erros e reconexão automática
+          onerror(err) {
+            console.warn('Conexão SSE oscilou. O navegador tentará reconectar...', err);
+            return 5000;
+          }
+        });
+
+        return ctrl;
+      };
+
+      // Controla a conexão ativa (para encerrar e (re)abrir quando preciso)
+      let ctrl: AbortController | null = null;
+
+      // Mantém a "rádio" viva conforme a sessão muda:
+      // - Token presente  => (re)abre a conexão com a sessão vigente
+      // - Logout / token null => encerra a conexão
+      // - Re-login / token rotacionado => derruba a antiga e abre uma nova
+      effect(() => {
+        const currentToken = authStore.token();
+
+        // Fecha qualquer conexão anterior ao mudar o estado de autenticação
+        if (ctrl) {
+          ctrl.abort();
+          ctrl = null;
+        }
+
+        // Se tem sessão, abre (ou reabre) a "rádio"
+        if (currentToken) {
+          ctrl = connectSSE();
         }
       });
 
       // Prevenção de Memory Leak: Desliga o "rádio" e aborta o fetch
       destroyRef.onDestroy(() => {
-        ctrl.abort();
+        ctrl?.abort();
       });
 
       /* =====================

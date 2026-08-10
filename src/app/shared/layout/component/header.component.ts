@@ -26,23 +26,23 @@ import { ServidoresStore } from '../../../features/servidor/store/servidor.store
     <mat-toolbar
       class="flex justify-between !bg-blue-500 items-center shadow-sm z-50 relative h-16 !px-2 md:!px-4">
 
-      <div class="flex items-center">
+      <div class="flex items-center min-w-0 flex-1">
         <button
           mat-icon-button
           (click)="toggleSidebar.emit()"
           aria-label="Toggle menu"
-          class="group !w-12 !h-12 flex justify-center items-center !text-gray-50"
+          class="group !w-12 !h-12 flex justify-center items-center !text-gray-50 shrink-0"
         >
           <mat-icon class="group-hover:!text-white group-hover:scale-125 transition-all duration-200">
             menu
           </mat-icon>
         </button>
-        <span routerLink="/" class="text-[18px] text-gray-50 cursor-pointer">
+        <span routerLink="/" class="text-sm sm:text-[18px] sm:text-base text-gray-50 cursor-pointer truncate min-w-0">
           PREFEITURA MUNICIPAL DO NATAL - Procuradoria Geral do Município
         </span>
       </div>
 
-      <div class="flex items-center gap-1 sm:gap-2">
+      <div class="flex items-center gap-1 sm:gap-2 shrink-0">
         @if (canManager) {
           <button
             (click)="navegarParaPendentes()"

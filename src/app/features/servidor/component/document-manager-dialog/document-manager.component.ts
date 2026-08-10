@@ -42,7 +42,7 @@ const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // 20 MB
         <h2 class="text-lg md:text-xl font-bold text-blue-700 m-0">Anexos ({{ servidorName() }})</h2>
       </div>
 
-      <div class="flex flex-col h-[calc(100vh-50%)]  p-4 md:p-3 bg-gray-50 gap-3 min-h-0">
+      <div class="flex flex-col flex-1 min-h-0 p-4 md:p-3 bg-gray-50 gap-3">
         @if (!selectedIds().length) {
           <!-- CHAMA O COMPONENTE QUE GUARDA OS ARQUIVOS PDF A SEREM ENVIADOS-->
           <app-document-upload-stage
