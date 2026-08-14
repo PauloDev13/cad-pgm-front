@@ -28,7 +28,7 @@ import {
   template: `
     <nav class="flex flex-col py-2 text-gray-700 select-none overflow-x-hidden">
       <a
-        routerLink="/inicio"
+        routerLink="/home"
         routerLinkActive="bg-blue-50 text-blue-600 border-r-4 border-blue-600"
         class="flex items-center h-12 w-full cursor-pointer hover:text-blue-700 hover:bg-blue-50 transition-colors group justify-center px-0"
         [class]="isOpen() ? 'md:px-4 md:justify-start' : 'md:px-0 md:justify-center'"
@@ -61,7 +61,7 @@ import {
           [class.max-h-0]="!openMenus()['gerenciamento']"
           [class.max-h-40]="openMenus()['gerenciamento']"
         >
-          @if (canManager) {
+          @if (canManager()) {
             <app-link-sidebar
               toolTip="Gestão de Usuário"
               link="/usuarios"
@@ -80,7 +80,7 @@ import {
         </div>
       </div>
 
-      @if (canManager) {
+      @if (canManager()) {
         <div class="flex flex-col">
           <!-- Menu Cadastros-->
           <app-button-sidebar
@@ -130,7 +130,7 @@ import {
         </div>
       }
 
-      @if (canManager) {
+      @if (canManager()) {
         <div class="flex flex-col">
           <!-- Menu Permissões-->
           <app-button-sidebar
@@ -151,7 +151,7 @@ import {
             <app-link-sidebar
               toolTip="Gestão de Procuradores"
               link="/permissoes/procuradores"
-              onOpen="isOpen()"
+              [onOpen]="isOpen()"
               label="Procuradores"
               icon="gavel"
             />
@@ -191,7 +191,7 @@ import {
           [class.max-h-0]="!openMenus()['relatorios']"
           [class.max-h-96]="openMenus()['relatorios']"
         >
-          @if (canManager) {
+          @if (canManager()) {
             <app-link-sidebar
               toolTip="Rel. Auditoria"
               link="/relatorios/auditoria"
@@ -238,7 +238,7 @@ export class SidebarComponent {
   });
 
   // Retorna verdadeiro se o usuário logado é admin
-  canManager = this.authStore.canManager();
+  canManager = this.authStore.canManager;
 
   // Função que inverte o estado do submenu clicado
   toggleSubmenu(menu: string) {

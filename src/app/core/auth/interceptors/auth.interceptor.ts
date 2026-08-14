@@ -55,9 +55,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
         // Criamos uma propriedade 'globalHandled' para avisar o restante do sistema.
         Object.defineProperty(error, 'globalHandled', { value: true });
-
-        // Retornando EMPTY, o fluxo do erro é cortado não repassando o erro para frente
-        return EMPTY;
       }
 
       if (error.status === 0 || error.status === 502) {
@@ -67,9 +64,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
         // Criamos uma propriedade 'globalHandled' para avisar o restante do sistema.
         Object.defineProperty(error, 'globalHandled', { value: true });
-
-        // Retornando EMPTY, o fluxo do erro é cortado não repassando o erro para frente
-        return EMPTY;
       }
 
       if (error.status === 500) {
@@ -78,9 +72,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           '</br>ou tente novamente.', 'Conexão');
 
         Object.defineProperty(error, 'globalHandled', { value: true });
-
-        // Retornando EMPTY, o fluxo do erro é cortado não repassando o erro para frente
-        return EMPTY;
       }
 
       // Não importa se o Interceptor mostrou a mensagem ou não,

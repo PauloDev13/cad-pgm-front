@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, viewChild } from '@angular/core';
 import { RelatorioService } from '../../services/relatorio.service';
 import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
 import { MESES_DO_ANO } from '../../models/aniversariente.model';
@@ -162,17 +162,26 @@ export default class AniversariantesComponent {
   private errorHandlerService = inject(ErrorHandlerService);
   private location = inject(Location);
   private readonly route = inject(ActivatedRoute);
-  // Transforma o Observable queryParams em signal
-  private queryParams = toSignal(this.route.queryParams);
+
+  // Input automático via withComponentInputBinding
+  month = input<string | number>();
+
+  // Transforma o Observable queryParams em signal com snapshot como initialValue
+  private queryParams = toSignal(this.route.queryParams, {
+    initialValue: this.route.snapshot.queryParams
+  });
 
   artAniversariantes = viewChild.required(ArteAniversariantesComponent);
 
-  // Pega o mês passado pela URL através de queryParams
+  // Pega o mês passado pela URL (input, signal queryParams ou snapshot)
   currentMonth = computed(() => {
-    const monthUrl = this.queryParams()?.['month'];
+    const fromInput = this.month();
+    if (fromInput !== undefined && fromInput !== null && fromInput !== '') {
+      return Number(fromInput);
+    }
+    const monthUrl = this.queryParams()?.['month'] ?? this.route.snapshot.queryParams['month'];
     return monthUrl ? Number(monthUrl) : null;
   });
-
 
   titleReport = computed(() => {
     const idMonth = Number(this.currentMonth());
@@ -186,10 +195,11 @@ export default class AniversariantesComponent {
   aniversariantesResource = rxResource({
     params: () => ({ month: this.currentMonth() }),
     stream: ({ params }) => {
-      if (!params.month || isNaN(params.month)) {
+      const selectedMonth = params.month;
+      if (!selectedMonth || isNaN(selectedMonth)) {
         return of([]);
       }
-      return this.relatorioService.getAniversariantesMes(params.month);
+      return this.relatorioService.getAniversariantesMes(selectedMonth);
     }
   });
 
@@ -205,7 +215,6 @@ export default class AniversariantesComponent {
       const erro = this.aniversariantesResource.error();
       if (erro) {
         this.errorHandlerService.handle(erro, 'Aniversariantes');
-        this.goBack(); // Volta de tela se der erro
       }
     });
   }

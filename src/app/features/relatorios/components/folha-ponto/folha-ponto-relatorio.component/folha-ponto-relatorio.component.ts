@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RelatorioService } from '../../../services/relatorio.service';
 import { CalendarUtils } from '../../../utils/calendar-utils';
@@ -55,8 +55,18 @@ import { LoadingComponent } from '../../../../../shared/components/loading.compo
         class="flex-1 min-h-0 overflow-y-auto w-full max-w-4xl mx-auto px-2 md:px-0 pb-8 print:p-0
            print:overflow-visible print:max-w-none">
 
+        @if (!isLoading() && setores().length === 0) {
+          <div class="flex flex-col flex-1 justify-center items-center p-10 text-gray-400 gap-3 text-center">
+            <mat-icon class="text-5xl !text-gray-300">event_busy</mat-icon>
+            <p class="text-base md:text-lg font-medium">
+              Nenhum dado encontrado para a folha de ponto de {{ nomeMesCorrente() }}/{{ anoSelecionado() }}.
+            </p>
+          </div>
+        }
+
         @for (setor of setores(); track setor.nomeSetor; let isLastSetor = $last) {
 
+          <!-- Folha de rosto que separa os setores na impressão -->
           <div
             class="hidden print:flex flex-col items-center justify-center h-screen w-full break-after-page text-center">
             <img src="/img/logo.png" alt="Logo" class="h-24 object-contain mb-6">
@@ -73,26 +83,28 @@ import { LoadingComponent } from '../../../../../shared/components/loading.compo
 
           @for (servidor of setor.servidores; track servidor.nome; let isLastServidor = $last) {
 
-            <div class="w-full p-6 md:p-10 bg-white text-black font-sans text-xs md:text-sm
-             shadow-sm rounded-xl border border-gray-200 mb-10 print:w-full print:m-0 print:p-0
-             print:border-none print:shadow-none print:rounded-none break-inside-avoid"
-                 [class.break-after-page]="!(isLastSetor && isLastServidor)">
+            <div
+              class="w-full p-6 md:p-10 bg-white text-black font-sans text-xs md:text-sm
+                     shadow-sm rounded-xl border border-gray-200 mb-10
+                     print:w-full print:m-0 print:p-0 print:border-none print:shadow-none print:rounded-none break-inside-avoid"
+              [class.break-after-page]="!(isLastSetor && isLastServidor)">
 
-              <div class="flex justify-center mb-4 print:mb-1.5">
-                <img src="/img/logo.png" alt="Logo" class="h-20 print:h-20 object-contain">
+              <div class="flex justify-center mb-4 print:mb-2">
+                <img src="/img/logo.png" alt="Logo" class="h-20 print:h-16 object-contain">
               </div>
 
-              <div class="mb-4 font-bold uppercase tracking-wide leading-tight
-                  bg-gray-50 border border-gray-300 p-3 rounded-lg print:mb-1.5 print:p-1.5">
+              <div
+                class="mb-4 font-bold uppercase tracking-wide leading-tight
+                       bg-gray-50 border border-gray-300 p-3 rounded-lg print:mb-2 print:p-2 print:border-black print:rounded-none">
 
-                <div class="flex items-center justify-between border-b-2 border-black pb-1 mb-1.5">
-                  <span class="text-lg print:text-[16px]">NOME: {{ servidor.nome }}</span>
+                <div class="flex items-center justify-between border-b-2 border-black pb-1 mb-1.5 print:pb-0.5 print:mb-1">
+                  <span class="text-lg print:text-[15px]">NOME: {{ servidor.nome }}</span>
                   <span class="text-base print:text-[13px]">
-                MÊS: {{ nomeMesCorrente() }}/{{ anoSelecionado() }}
-              </span>
+                    MÊS: {{ nomeMesCorrente() }}/{{ anoSelecionado() }}
+                  </span>
                 </div>
 
-                <div class="flex flex-col gap-1 print:gap-0 mt-1.5 print:text-[10px]">
+                <div class="flex flex-col gap-1 print:gap-0 mt-1.5 print:text-[10.5px]">
                   <div>VÍNCULO: {{ servidor.vinculo }}</div>
                   <div>FORMA DE TRABALHO: {{ servidor.tipoAtividade || '-' }}</div>
                   <div>LOTAÇÃO: {{ setor.nomeSetor }}</div>
@@ -103,7 +115,7 @@ import { LoadingComponent } from '../../../../../shared/components/loading.compo
                 class="w-full border-collapse border-2 border-black text-center table-fixed bg-white
                        print:text-[10px]">
                 <thead>
-                <tr class="bg-gray-200 print:bg-gray-200">
+                <tr class="bg-gray-200 print:bg-gray-200 print:h-[27px]">
                   <th class="border border-black py-0.5 px-1 print:p-0 w-[8%]">
                     DIA
                   </th>
@@ -165,37 +177,42 @@ import { LoadingComponent } from '../../../../../shared/components/loading.compo
       .no-print {
         display: none !important;
       }
-
-      .folha-ponto-container {
-        break-after: page;
-        page-break-after: always;
-      }
-
-      @page {
-        margin: 1.5cm;
-      }
     }
   `]
 })
 export default class FolhaPontoRelatorioComponent {
-  private relatorioService = inject(RelatorioService);
-  private errorHandlerService = inject(ErrorHandlerService);
+  private readonly relatorioService = inject(RelatorioService);
+  private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly route = inject(ActivatedRoute);
-  private location = inject(Location);
+  private readonly location = inject(Location);
 
-  // Transforma o queryParams em signal
-  private queryParams = toSignal((this.route.queryParams));
+  // Inputs automáticos via withComponentInputBinding
+  mes = input<string | number>();
+  ano = input<string | number>();
 
-  // Extrai o Mês do queryParams
-  mesSelecionado = computed(() => {
-    const mes = this.queryParams()?.['mes'];
-    return mes ? Number(mes) : 1;
+  // Transforma o queryParams em signal com snapshot como initialValue
+  private queryParams = toSignal(this.route.queryParams, {
+    initialValue: this.route.snapshot.queryParams
   });
 
-  // Extrai o Ano do queryParams
+  // Extrai o Mês do input ou queryParams
+  mesSelecionado = computed(() => {
+    const fromInput = this.mes();
+    if (fromInput !== undefined && fromInput !== null && fromInput !== '') {
+      return Number(fromInput);
+    }
+    const mesParam = this.queryParams()?.['mes'] ?? this.route.snapshot.queryParams['mes'];
+    return mesParam ? Number(mesParam) : new Date().getMonth() + 1;
+  });
+
+  // Extrai o Ano do input ou queryParams
   anoSelecionado = computed(() => {
-    const ano = this.queryParams()?.['ano'];
-    return ano ? Number(ano) : 2026;
+    const fromInput = this.ano();
+    if (fromInput !== undefined && fromInput !== null && fromInput !== '') {
+      return Number(fromInput);
+    }
+    const anoParam = this.queryParams()?.['ano'] ?? this.route.snapshot.queryParams['ano'];
+    return anoParam ? Number(anoParam) : new Date().getFullYear();
   });
 
   // Busca na classe CalendarUtils os dias do mês
@@ -211,17 +228,10 @@ export default class FolhaPontoRelatorioComponent {
   });
 
   folhaPontoResource = rxResource({
-    params: () => {
-      return {
-        mes: this.mesSelecionado(),
-        ano: this.anoSelecionado()
-      };
-    },
     stream: () => {
       return this.relatorioService.gerarFolhaMes();
     }
   });
-
 
   setores = computed(() => {
     return this.folhaPontoResource.value() ?? [];

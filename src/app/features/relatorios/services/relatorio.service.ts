@@ -22,6 +22,8 @@ export class RelatorioService {
   }
 
   gerarFolhaMes(): Observable<FolhaPontoSetorDTO[]> {
-    return this.http.get<FolhaPontoSetorDTO[]>(`${this.apiUrl}/folha-ponto`);
+    return this.http.get<FolhaPontoSetorDTO[]>(`${this.apiUrl}/folha-ponto`)
+      .pipe(catchError(customHandlerError));
   }
 }
+

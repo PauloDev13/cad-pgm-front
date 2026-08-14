@@ -43,7 +43,7 @@ import { ServidoresStore } from '../../../features/servidor/store/servidor.store
       </div>
 
       <div class="flex items-center gap-1 sm:gap-2 shrink-0">
-        @if (canManager) {
+        @if (canManager()) {
           <button
             (click)="navegarParaPendentes()"
             class="group !w-10 !h-10 sm:!w-12 sm:!h-12 flex justify-center items-center !text-gray-50"
@@ -106,7 +106,7 @@ export class HeaderComponent {
   loggedUserName = computed(() => this.authStore.currentUser()?.sub || '');
 
   // Retorna verdadeiro se o usuário logado é admin
-  canManager = this.authStore.canManager();
+  canManager = this.authStore.canManager;
 
   navegarParaPendentes(): void {
     if (this.servidoresStore.totalPendentes() > 0) {

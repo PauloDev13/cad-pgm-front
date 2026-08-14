@@ -1,7 +1,15 @@
 /* You can add global styles to this file, and also import other style files */
 @import 'tailwindcss';
 
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --color-menu-icon: #6b7280;
+  --color-menu-hover-bg: #eff6ff;
+  --color-menu-hover-text: #1d4ed8;
+}
+
 @layer base {
+
   /* Evita scroll horizontal indesejado no mobile (ex.: canvas ocultos com -9999px) */
   html,
   body {
@@ -10,6 +18,7 @@
 }
 
 @layer components {
+
   /* =========================================
    SIDEBAR MENU
    ========================================= */
@@ -26,7 +35,7 @@
   }
 
   .menu-subitem:hover mat-icon {
-    @apply scale-110 ;
+    @apply scale-110;
   }
 
   .menu-subitem span {
@@ -45,7 +54,7 @@
   }
 
   .menu-item-header:hover {
-    @apply !bg-blue-50 !text-blue-700 ;
+    @apply !bg-blue-50 !text-blue-700;
   }
 
   .menu-item-header mat-icon {
@@ -95,14 +104,16 @@
 
 /* 1. Estrutura base das abas inativas */
 .custom-folder-tabs .mat-mdc-tab {
-  background-color: #e5e7eb !important; /* Fundo cinza claro */
+  background-color: #e5e7eb !important;
+  /* Fundo cinza claro */
   border-top-left-radius: 0.5rem !important;
   border-top-right-radius: 0.5rem !important;
   transition: background-color 0.3s ease !important;
 }
 
 .custom-folder-tabs .mat-mdc-tab:hover {
-  background-color: #d1d5db !important; /* Fundo cinza ao passar o mouse */
+  background-color: #d1d5db !important;
+  /* Fundo cinza ao passar o mouse */
 }
 
 /* Cor do texto inativo */
@@ -143,7 +154,8 @@
   }
 
   .custom-folder-tabs .mat-mdc-tab {
-    flex: 1 1 0 !important; /* Abas dividem a tela em 50% cada */
+    flex: 1 1 0 !important;
+    /* Abas dividem a tela em 50% cada */
     padding: 0 8px !important;
   }
 }
@@ -154,57 +166,58 @@
   }
 
   .custom-folder-tabs .mat-mdc-tab {
-    flex: none !important; /* Abas assumem o tamanho do texto */
+    flex: none !important;
+    /* Abas assumem o tamanho do texto */
     padding: 0 24px !important;
   }
+}
 
-  /* =========================================
+/* =========================================
    CONFIGURAÇÕES GLOBAIS DE IMPRESSÃO
    ========================================= */
-  @media print and (orientation: portrait) {
-    @page {
-      size: A4 !important;
-      margin: 1cm 1cm 1cm -1cm !important;
-    }
-
-    body {
-      overflow: visible !important;
-    }
-
-    .print-full-width {
-      width: 100% !important;
-      display: table !important;
-    }
+@media print {
+  @page {
+    size: A4 portrait !important;
+    /* Margens simétricas — a margem negativa anterior causava corte no lado direito */
+    margin: 1cm !important;
   }
 
-  /* 2. Interceptador de Paisagem (Landscape) */
-  @media print and (orientation: landscape) {
-    @page {
-      /* Exemplo: Reduzindo as margens superior/inferior para dar mais espaço à tabela
-         no papel deitado. Ajuste os valores conforme a necessidade da equipe. */
-      margin: 1cm 1cm 1cm 1cm !important;
-    }
+  body {
+    overflow: visible !important;
   }
 
-  /* =========================================
-     CUSTOM SCROLLBAR (Opcional p/ uso global)
-     ========================================= */
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+  .print-full-width {
+    width: 100% !important;
+    display: table !important;
   }
+}
 
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
+/* 2. Interceptador de Paisagem (Landscape) */
+@media print and (orientation: landscape) {
+  @page {
+    size: A4 landscape !important;
+    margin: 1cm !important;
   }
+}
 
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 4px;
-  }
+/* =========================================
+   CUSTOM SCROLLBAR (Opcional p/ uso global)
+   ========================================= */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
 
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
-  }
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }

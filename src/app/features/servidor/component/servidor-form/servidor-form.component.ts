@@ -78,15 +78,14 @@ export interface ServidorFormDialogData {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex flex-col w-full h-[calc(100dvh-140px)] max-h-[calc(100dvh-140px)]
-                sm:h-[750px] sm:max-h-none overflow-hidden bg-white rounded-xl">
+    <div class="flex flex-col w-full h-[calc(100dvh-120px)] max-h-[calc(100dvh-120px)]
+                sm:h-[750px] sm:max-h-[92vh] overflow-hidden bg-white rounded-xl">
       <div class="flex-1 min-h-0 w-full overflow-hidden">
         <mat-tab-group
           [selectedIndex]="activeTabIndex()"
           (selectedIndexChange)="activeTabIndex.set($event)"
           animationDuration="0ms"
           class="w-full h-full min-h-0 p-2 custom-folder-tabs">
-          >
           <mat-tab label="Dados Pessoais e Funcionais">
 
             <div class="flex justify-between items-center px-6 pt-1 pb-0">

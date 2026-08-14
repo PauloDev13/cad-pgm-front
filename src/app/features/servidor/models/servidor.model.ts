@@ -86,3 +86,14 @@ export interface ServidorResponseDTO {
   aliases?: BaseEntityDTO[];
   procuradores?: BaseEntityDTO[];
 }
+
+export enum StatusServidorEnum {
+  ATIVO = 1,
+  INATIVO = 2,
+  FERIAS = 3,
+  PENDENTE = 4,
+  AFASTADO = 5,
+  DESCONHECIDO = 6,
+  DESLIGADO = 7
+}
+

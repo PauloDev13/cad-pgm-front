@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { ServidorResponseDTO } from '../../models/servidor.model';
+import { ServidorResponseDTO, StatusServidorEnum } from '../../models/servidor.model';
 import { LoadingComponent } from '../../../../shared/components/loading.component/loading.component';
 import { Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -156,7 +156,7 @@ import { AuthStore } from '../../../../core/auth/store/auth.store';
                     </mat-icon>
                   </button>
 
-                  @if (canEdit) {
+                  @if (canEdit()) {
                     <button
                       mat-icon-button
                       (click)="edit.emit(s)"
@@ -207,7 +207,7 @@ import { AuthStore } from '../../../../core/auth/store/auth.store';
                     </mat-icon>
                   </button>
 
-                  @if (canEdit) {
+                  @if (canEdit()) {
                     <!-- Readmitir Servidor-->
                     <button
                       mat-icon-button
@@ -324,7 +324,7 @@ export class ServidorTableComponent {
   });
 
   // Se o usuário logado tiver role "admin" ou "rh", retorna verdadeiro
-  canEdit = this.authStore.canEdit();
+  canEdit = this.authStore.canEdit;
 
   // navega para a página que exibe relatório de detalhes
   viewDetail(id: number, currentTab: 'ativo' | 'desligado') {
@@ -337,15 +337,15 @@ export class ServidorTableComponent {
   // registros a serem exibidos na tabela
   noDataRow = computed(() => {
     switch (this.status()) {
-      case 2:
+      case StatusServidorEnum.INATIVO:
         return 'INATIVO';
-      case 3:
+      case StatusServidorEnum.FERIAS:
         return 'FÉRIAS';
-      case 4:
+      case StatusServidorEnum.PENDENTE:
         return 'PENDENTE';
-      case 5:
+      case StatusServidorEnum.AFASTADO:
         return 'AFASTADO';
-      case 6:
+      case StatusServidorEnum.DESCONHECIDO:
         return 'DESCONHECIDO';
       default:
         return 'ATIVO';

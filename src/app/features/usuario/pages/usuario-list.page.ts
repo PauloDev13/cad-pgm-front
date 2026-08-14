@@ -10,7 +10,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import {
   TemporaryPasswordDialogComponent
-} from '../../../core/auth/component/temporary -password-dialog/temporary-password-dialog.component';
+} from '../../../core/auth/component/temporary-password-dialog/temporary-password-dialog.component';
 import { CustomDeleteService } from '../../../shared/service/custom-delete.service';
 import { UsersStore } from '../store/user.store';
 import { AuthStore } from '../../../core/auth/store/auth.store';
@@ -85,7 +85,6 @@ export default class UsuarioListPage {
   openForm(usuario?: IUsuarioResponse) {
     const dialogRef = this.dialog.open(UsuarioFormComponent, {
       width: '700px',
-      height: '400px',
       maxWidth: '95vw',
       maxHeight: '92vh',
       data: usuario,
