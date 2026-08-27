@@ -158,6 +158,13 @@ export const routes: Routes = [
           import('./features/relatorios/components/folha-ponto/folha-ponto-relatorio.component/folha-ponto-relatorio.component')
       },
       {
+        path: 'controle-ponto',
+        title: 'Controle de Ponto | Gestão de Servidores PGM Natal',
+        loadComponent: () =>
+          import('./features/ponto-eletronico/pages/ponto-eletronico.page')
+            .then((m) => m.PontoEletronicoPage)
+      },
+      {
         // tela para visualização de detalhes do servidor
         path: 'servidores/detalhes/:id',
         title: 'Detalhes do servidor | Gestão de Servidores PGM Natal',
