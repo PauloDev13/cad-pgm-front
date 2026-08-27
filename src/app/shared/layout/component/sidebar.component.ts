@@ -215,6 +215,14 @@ import {
             [onOpen]="isOpen()"
             (actionClick)="openFolhaPontoReport()"
           />
+
+          <app-link-sidebar
+            toolTip="Controle de Ponto Eletrônico"
+            link="/controle-ponto"
+            [onOpen]="isOpen()"
+            label="Controle de Ponto"
+            icon="timer"
+          />
         </div>
       </div>
     </nav>
