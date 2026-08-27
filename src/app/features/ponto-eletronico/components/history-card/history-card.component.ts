@@ -17,21 +17,21 @@ import { JobStatus } from '../../models/ponto-eletronico.model';
   imports: [DatePipe, NgClass, MatIconModule, MatButtonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
-    :host ::ng-deep .history-scroll::-webkit-scrollbar {
+    .history-scroll::-webkit-scrollbar {
       width: 6px;
     }
 
-    :host ::ng-deep .history-scroll::-webkit-scrollbar-track {
+    .history-scroll::-webkit-scrollbar-track {
       background: #f3f4f6;
       border-radius: 3px;
     }
 
-    :host ::ng-deep .history-scroll::-webkit-scrollbar-thumb {
+    .history-scroll::-webkit-scrollbar-thumb {
       background: #d1d5db;
       border-radius: 3px;
     }
 
-    :host ::ng-deep .history-scroll::-webkit-scrollbar-thumb:hover {
+    .history-scroll::-webkit-scrollbar-thumb:hover {
       background: #2563eb;
     }
   `],
@@ -75,7 +75,7 @@ import { JobStatus } from '../../models/ponto-eletronico.model';
                   {{ statusLabel(item.status) }}
                 </span>
                 <span class="text-gray-500">{{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
-                <span class="text-gray-700">Unid. {{ item.payload.unit ?? '?' }}</span>
+                <span class="text-gray-700">Unid. {{ item.payload.unit }}</span>
                 <span class="text-gray-500">{{ item.payload.dateStart }} a {{ item.payload.dateEnd }}</span>
               </div>
 
