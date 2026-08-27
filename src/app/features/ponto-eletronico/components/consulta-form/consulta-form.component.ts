@@ -297,8 +297,8 @@ export class ConsultaFormComponent {
       const payload: GeneratePayload = {
         cpf: raw.cpf.replace(/\D/g, ''),
         unit: raw.unit.trim(),
-        dateStart: raw.dateStart.trim(),
-        dateEnd: raw.dateEnd.trim(),
+        date_start: raw.dateStart.trim(),
+        date_end: raw.dateEnd.trim(),
         excel: raw.excel,
         pdf: raw.pdf,
       };

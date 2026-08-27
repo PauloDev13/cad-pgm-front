@@ -61,8 +61,8 @@ export class ProgressCardComponent {
     if (!job) return '';
     const label = this.store.statusLabel();
     const p = job.progress;
-    if (p?.monthsTotal && job.status !== 'DONE') {
-      return `${label} (${p.monthsOk ?? 0}/${p.monthsTotal} meses)`;
+    if (p?.months_total && job.status !== 'DONE') {
+      return `${label} (${p.months_ok ?? 0}/${p.months_total} meses)`;
     }
     return label;
   });

@@ -74,9 +74,9 @@ import { JobStatus } from '../../models/ponto-eletronico.model';
                   [ngClass]="statusClass(item.status)">
                   {{ statusLabel(item.status) }}
                 </span>
-                <span class="text-gray-500">{{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                <span class="text-gray-500">{{ item.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
                 <span class="text-gray-700">Unid. {{ item.payload.unit }}</span>
-                <span class="text-gray-500">{{ item.payload.dateStart }} a {{ item.payload.dateEnd }}</span>
+                <span class="text-gray-500">{{ item.payload.date_start }} a {{ item.payload.date_end }}</span>
               </div>
 
               <!-- Erro -->

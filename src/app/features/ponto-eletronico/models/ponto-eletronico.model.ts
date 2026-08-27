@@ -1,55 +1,68 @@
+// ── Auth ────────────────────────────────────────────────────────────────────
+
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  ok: boolean;
+  user?: string;
+  message?: string;
+  jobs_active?: number;
+}
+
+// ── Validate / Jobs ─────────────────────────────────────────────────────────
+
 export interface GeneratePayload {
   cpf: string;
   unit: string;
-  dateStart: string;
-  dateEnd: string;
+  date_start: string;
+  date_end: string;
   excel: boolean;
   pdf: boolean;
 }
+
+export interface ValidateResponse {
+  valid: boolean;
+  errors: Record<string, string>;
+  fields?: Record<string, string | boolean>;
+}
+
+// ── Job ─────────────────────────────────────────────────────────────────────
+
+export type JobStatus = 'QUEUED' | 'RUNNING' | 'DONE' | 'FAILED' | 'CANCELLED';
 
 export interface JobFile {
   name: string;
   format: 'xlsx' | 'pdf';
 }
 
-export type JobStatus = 'QUEUED' | 'RUNNING' | 'DONE' | 'FAILED' | 'CANCELLED';
-
 export interface JobProgress {
   percent: number;
   message: string;
-  monthsTotal: number;
-  monthsOk: number;
+  months_total: number;
+  months_ok: number;
 }
 
 export interface Job {
   id: string;
+  owner: string;
   status: JobStatus;
+  created_at: string;
+  started_at?: string;
+  done_at?: string;
   payload: GeneratePayload;
   progress: JobProgress | null;
   files: JobFile[];
   logs: string[];
   error: string | null;
-  createdAt: string;
 }
 
-export interface JobHistoryItem {
-  id: string;
-  status: JobStatus;
-  payload: GeneratePayload;
-  files: JobFile[];
-  error: string | null;
-  createdAt: string;
-}
+/** @deprecated Usar 'Job' diretamente — mantido para compatibilidade temporária. */
+export type JobHistoryItem = Job;
 
-export interface Unidade {
-  code: string;
-  description: string;
-}
-
-export interface ValidateResponse {
-  valid: boolean;
-  errors: Record<string, string>;
-}
+// ── Responses ───────────────────────────────────────────────────────────────
 
 export interface JobResponse {
   ok: boolean;
@@ -60,11 +73,25 @@ export interface JobResponse {
 
 export interface HistoryResponse {
   ok: boolean;
-  jobs: JobHistoryItem[];
+  count: number;
+  jobs: Job[];
+}
+
+export interface Unidade {
+  code: string;
+  description: string;
 }
 
 export interface UnidadesResponse {
   ok: boolean;
   count: number;
   results: Unidade[];
+}
+
+// ── SSE ─────────────────────────────────────────────────────────────────────
+
+export interface SSEMessage {
+  type: 'update' | 'error';
+  job?: Job;
+  message?: string;
 }
