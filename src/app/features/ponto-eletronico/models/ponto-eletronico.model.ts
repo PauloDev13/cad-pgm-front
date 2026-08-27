@@ -59,9 +59,6 @@ export interface Job {
   error: string | null;
 }
 
-/** @deprecated Usar 'Job' diretamente — mantido para compatibilidade temporária. */
-export type JobHistoryItem = Job;
-
 // ── Responses ───────────────────────────────────────────────────────────────
 
 export interface JobResponse {
