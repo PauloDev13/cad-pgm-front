@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,20 +14,23 @@ import { JobStatus } from '../../models/ponto-eletronico.model';
 @Component({
   selector: 'app-history-card',
   standalone: true,
-  imports: [DatePipe, MatIconModule, MatButtonModule],
+  imports: [DatePipe, NgClass, MatIconModule, MatButtonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host ::ng-deep .history-scroll::-webkit-scrollbar {
       width: 6px;
     }
+
     :host ::ng-deep .history-scroll::-webkit-scrollbar-track {
       background: #f3f4f6;
       border-radius: 3px;
     }
+
     :host ::ng-deep .history-scroll::-webkit-scrollbar-thumb {
       background: #d1d5db;
       border-radius: 3px;
     }
+
     :host ::ng-deep .history-scroll::-webkit-scrollbar-thumb:hover {
       background: #2563eb;
     }
@@ -72,8 +75,8 @@ import { JobStatus } from '../../models/ponto-eletronico.model';
                   {{ statusLabel(item.status) }}
                 </span>
                 <span class="text-gray-500">{{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
-                <span class="text-gray-700">Unid. {{ item.payload?.unit ?? '?' }}</span>
-                <span class="text-gray-500">{{ item.payload?.dateStart }} a {{ item.payload?.dateEnd }}</span>
+                <span class="text-gray-700">Unid. {{ item.payload.unit ?? '?' }}</span>
+                <span class="text-gray-500">{{ item.payload.dateStart }} a {{ item.payload.dateEnd }}</span>
               </div>
 
               <!-- Erro -->
@@ -119,7 +122,7 @@ import { JobStatus } from '../../models/ponto-eletronico.model';
         }
       </div>
     </div>
-  `,
+  `
 })
 export class HistoryCardComponent implements OnInit {
   readonly store = inject(PontoEletronicoStore);
@@ -137,7 +140,7 @@ export class HistoryCardComponent implements OnInit {
       RUNNING: 'Processando',
       DONE: 'Conclu\u00eddo',
       FAILED: 'Falhou',
-      CANCELLED: 'Cancelado',
+      CANCELLED: 'Cancelado'
     };
     return map[status] ?? status;
   }
@@ -148,7 +151,7 @@ export class HistoryCardComponent implements OnInit {
       RUNNING: 'bg-blue-100 text-blue-700',
       DONE: 'bg-green-100 text-green-700',
       FAILED: 'bg-red-100 text-red-700',
-      CANCELLED: 'bg-amber-100 text-amber-700',
+      CANCELLED: 'bg-amber-100 text-amber-700'
     };
     return classes[status] ?? '';
   }
@@ -167,8 +170,8 @@ export class HistoryCardComponent implements OnInit {
       disableClose: true,
       data: {
         title: 'Excluir gera\u00e7\u00e3o',
-        message: 'Excluir esta gera\u00e7\u00e3o e remover os arquivos gerados do disco?',
-      } as ConfirmDialogData,
+        message: 'Excluir esta gera\u00e7\u00e3o e remover os arquivos gerados do disco?'
+      } as ConfirmDialogData
     });
 
     const confirmed = await firstValueFrom(dialogRef.afterClosed());
@@ -188,8 +191,8 @@ export class HistoryCardComponent implements OnInit {
       disableClose: true,
       data: {
         title: 'Limpar hist\u00f3rico',
-        message: 'Remover todas as gera\u00e7\u00f5es conclu\u00eddas e as que falharam do hist\u00f3rico e do disco?',
-      } as ConfirmDialogData,
+        message: 'Remover todas as gera\u00e7\u00f5es conclu\u00eddas e as que falharam do hist\u00f3rico e do disco?'
+      } as ConfirmDialogData
     });
 
     const confirmed = await firstValueFrom(dialogRef.afterClosed());
