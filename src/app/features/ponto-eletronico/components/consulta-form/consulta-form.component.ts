@@ -1,119 +1,155 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  ElementRef,
+  HostListener,
+  inject,
+  signal,
+  ViewChild,
+} from '@angular/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { form, FormField, required, submit } from '@angular/forms/signals';
+import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper/field-wrapper.component';
 import { PontoEletronicoStore } from '../../store/ponto-eletronico.store';
+import { PontoEletronicoService } from '../../services/ponto-eletronico.service';
 import { GeneratePayload, Unidade } from '../../models/ponto-eletronico.model';
 import { debounceTime, Subject, switchMap } from 'rxjs';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { PontoEletronicoService } from '../../services/ponto-eletronico.service';
+
+interface ConsultaFormModel {
+  cpf: string;
+  unit: string;
+  dateStart: string;
+  dateEnd: string;
+  excel: boolean;
+  pdf: boolean;
+}
 
 @Component({
   selector: 'app-consulta-form',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    FormField,
+    FieldWrapperComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="bg-white rounded-lg shadow-md p-6">
-      <h2 class="text-xl font-medium text-gray-800 mb-4">Dados da consulta</h2>
+      <h2 class="text-xl font-medium text-gray-800 mb-5">Dados da consulta</h2>
 
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1" for="cpf">CPF</label>
-            <input
-              id="cpf"
-              formControlName="cpf"
-              placeholder="000.000.000-00"
-              autocomplete="off"
-              inputmode="numeric"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-800
-                     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                     placeholder:text-gray-400"
-            />
-            @if (form.get('cpf')?.touched && form.get('cpf')?.invalid) {
-              <p class="text-sm text-red-500 mt-1">{{ cpfError() }}</p>
-            }
-          </div>
+      <form (submit)="onSubmit($event)" autocomplete="off" class="flex flex-col">
+        <!-- Linha 1: CPF + Unidade -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1 mb-4">
+          <!-- CPF -->
+          <app-field-wrapper [field]="consultaForm.cpf()">
+            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+              <mat-label>CPF</mat-label>
+              <input
+                matInput
+                [formField]="consultaForm.cpf"
+                placeholder="000.000.000-00"
+                autocomplete="off"
+                inputmode="numeric"
+                (input)="applyCpfMask($event)"
+              />
+            </mat-form-field>
+          </app-field-wrapper>
 
-          <div class="relative">
-            <label class="block text-sm font-medium text-gray-700 mb-1" for="unit">Código da Unidade</label>
-            <input
-              id="unit"
-              formControlName="unit"
-              placeholder="Busca pelo nome da unidade"
-              autocomplete="off"
-              (input)="onUnitInput($event)"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-800
-                     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                     placeholder:text-gray-400"
-            />
+          <!-- Unidade (autocomplete) -->
+          <div class="relative" #unitWrapper>
+            <app-field-wrapper [field]="consultaForm.unit()">
+              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                <mat-label>C\u00f3digo da Unidade</mat-label>
+                <input
+                  matInput
+                  [formField]="consultaForm.unit"
+                  placeholder="Busca pelo nome da unidade"
+                  autocomplete="off"
+                  (input)="onUnitInput($event)"
+                />
+              </mat-form-field>
+            </app-field-wrapper>
+
             @if (unidades().length > 0) {
-              <ul class="absolute z-10 mt-1 w-full bg-white border border-blue-500 rounded-lg max-h-48 overflow-y-auto shadow-lg">
+              <ul class="absolute z-20 mt-[-8px] w-[calc(100%-24px)] mx-3 bg-white border border-blue-500 rounded-lg max-h-48 overflow-y-auto shadow-lg">
                 @for (item of unidades(); track item.code) {
                   <li
-                    class="px-3 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-gray-100"
-                    (click)="selectUnidade(item)">
+                    class="px-3 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-b-0"
+                    (mousedown)="selectUnidade(item)">
                     {{ item.code }} - {{ item.description }}
                   </li>
                 }
               </ul>
             }
-            @if (form.get('unit')?.touched && form.get('unit')?.invalid) {
-              <p class="text-sm text-red-500 mt-1">Informe o Código da Unidade!</p>
-            }
           </div>
         </div>
 
+        <!-- Linha 2: Datas + Checkboxes -->
         <div class="flex flex-wrap items-end gap-4 mb-6">
           <div class="flex-1 min-w-[150px]">
-            <label class="block text-sm font-medium text-gray-700 mb-1" for="dateStart">Data Inicial (Mês/Ano)</label>
-            <input
-              id="dateStart"
-              formControlName="dateStart"
-              placeholder="Mês/Ano"
-              inputmode="numeric"
-              (input)="applyMonthYearMask($event)"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-800
-                     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                     placeholder:text-gray-400"
-            />
-            @if (form.get('dateStart')?.touched && form.get('dateStart')?.invalid) {
-              <p class="text-sm text-red-500 mt-1">{{ dateStartError() }}</p>
-            }
+            <app-field-wrapper [field]="consultaForm.dateStart()">
+              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                <mat-label>Data Inicial (M\u00eas/Ano)</mat-label>
+                <input
+                  matInput
+                  [formField]="consultaForm.dateStart"
+                  placeholder="M\u00eas/Ano"
+                  inputmode="numeric"
+                  (input)="applyMonthYearMask($event, 'dateStart')"
+                />
+              </mat-form-field>
+            </app-field-wrapper>
           </div>
 
           <div class="flex-1 min-w-[150px]">
-            <label class="block text-sm font-medium text-gray-700 mb-1" for="dateEnd">Data Final (Mês/Ano)</label>
-            <input
-              id="dateEnd"
-              formControlName="dateEnd"
-              placeholder="Mês/Ano"
-              inputmode="numeric"
-              (input)="applyMonthYearMask($event)"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-800
-                     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                     placeholder:text-gray-400"
-            />
-            @if (form.get('dateEnd')?.touched && form.get('dateEnd')?.invalid) {
-              <p class="text-sm text-red-500 mt-1">{{ dateEndError() }}</p>
-            }
+            <app-field-wrapper [field]="consultaForm.dateEnd()">
+              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                <mat-label>Data Final (M\u00eas/Ano)</mat-label>
+                <input
+                  matInput
+                  [formField]="consultaForm.dateEnd"
+                  placeholder="M\u00eas/Ano"
+                  inputmode="numeric"
+                  (input)="applyMonthYearMask($event, 'dateEnd')"
+                />
+              </mat-form-field>
+            </app-field-wrapper>
           </div>
 
-          <div class="flex gap-4 items-center pb-1">
-            <label class="flex items-center gap-2 whitespace-nowrap text-sm text-gray-700 cursor-pointer">
-              <input type="checkbox" formControlName="excel" class="rounded border-gray-300 text-blue-600" />
+          <div class="flex gap-5 items-center pb-2">
+            <label class="flex items-center gap-2 whitespace-nowrap text-sm text-gray-700 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                [checked]="consultaFormModel().excel"
+                (change)="toggleExcel()"
+                class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
               Gerar planilhas
             </label>
-            <label class="flex items-center gap-2 whitespace-nowrap text-sm text-gray-700 cursor-pointer">
-              <input type="checkbox" formControlName="pdf" class="rounded border-gray-300 text-blue-600" />
+            <label class="flex items-center gap-2 whitespace-nowrap text-sm text-gray-700 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                [checked]="consultaFormModel().pdf"
+                (change)="togglePdf()"
+                class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
               Gerar PDF
             </label>
           </div>
         </div>
 
         @if (formatError()) {
-          <p class="text-sm text-red-500 mb-4">{{ formatError() }}</p>
+          <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-2 mb-4">
+            {{ formatError() }}
+          </div>
         }
 
+        <!-- Bot\u00f5es -->
         <div class="flex gap-4">
           <button
             type="button"
@@ -124,7 +160,7 @@ import { PontoEletronicoService } from '../../services/ponto-eletronico.service'
           </button>
           <button
             type="submit"
-            [disabled]="store.isGenerating()"
+            [disabled]="consultaForm().invalid() || store.isGenerating()"
             class="flex-1 bg-blue-600 text-white px-4 py-2.5 rounded-lg font-bold shadow-md
                    hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm">
             @if (store.isGenerating()) {
@@ -139,64 +175,91 @@ import { PontoEletronicoService } from '../../services/ponto-eletronico.service'
     </div>
   `,
 })
-export class ConsultaFormComponent implements OnInit {
+export class ConsultaFormComponent {
   readonly store = inject(PontoEletronicoStore);
-  private readonly fb = inject(FormBuilder);
   private readonly service = inject(PontoEletronicoService);
 
-  form: FormGroup;
+  @ViewChild('unitWrapper') unitWrapper!: ElementRef<HTMLElement>;
+
   unidades = signal<Unidade[]>([]);
+  formatError = signal('');
 
   private readonly unitSearch$ = new Subject<string>();
 
+  private readonly initialModel: ConsultaFormModel = {
+    cpf: '',
+    unit: '',
+    dateStart: '',
+    dateEnd: '',
+    excel: true,
+    pdf: false,
+  };
+
+  consultaFormModel = signal<ConsultaFormModel>({ ...this.initialModel });
+
+  consultaForm = form(this.consultaFormModel, (path) => {
+    required(path.cpf, { message: 'O CPF \u00e9 obrigat\u00f3rio!' });
+    required(path.unit, { message: 'Informe o C\u00f3digo da Unidade!' });
+    required(path.dateStart, { message: 'Data Inicial \u00e9 obrigat\u00f3rio!' });
+    required(path.dateEnd, { message: 'Data Final \u00e9 obrigat\u00f3rio!' });
+  });
+
   buttonLabel = computed(() => {
-    const excel = this.form?.get('excel')?.value ?? true;
-    const pdf = this.form?.get('pdf')?.value ?? false;
+    const { excel, pdf } = this.consultaFormModel();
     if (excel && pdf) return 'GERAR PLANILHAS E ARQUIVO PDF';
     if (excel) return 'GERAR PLANILHAS';
     if (pdf) return 'GERAR ARQUIVO PDF';
     return 'GERAR ARQUIVO';
   });
 
-  cpfError = signal('');
-  dateStartError = signal('');
-  dateEndError = signal('');
-  formatError = signal('');
-
   constructor() {
-    this.form = this.fb.group({
-      cpf: ['', Validators.required],
-      unit: ['', Validators.required],
-      dateStart: ['', Validators.required],
-      dateEnd: ['', Validators.required],
-      excel: [true],
-      pdf: [false],
-    });
-  }
-
-  ngOnInit(): void {
     this.unitSearch$
       .pipe(
         debounceTime(250),
         switchMap((q) => this.service.searchUnidades(q))
       )
       .subscribe({
-        next: (res) => {
-          if (res.ok) {
-            this.unidades.set(res.results);
-          } else {
-            this.unidades.set([]);
-          }
-        },
+        next: (res) => this.unidades.set(res.ok ? res.results : []),
         error: () => this.unidades.set([]),
       });
+  }
 
-    this.form.get('excel')?.valueChanges.subscribe(() => this.formatError.set(''));
-    this.form.get('pdf')?.valueChanges.subscribe(() => this.formatError.set(''));
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    const wrapper = this.unitWrapper?.nativeElement;
+    if (wrapper && !wrapper.contains(target)) {
+      this.unidades.set([]);
+    }
+  }
+
+  applyCpfMask(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let digits = input.value.replace(/\D/g, '').slice(0, 11);
+    if (digits.length > 9) {
+      digits = digits.slice(0, 3) + '.' + digits.slice(3, 6) + '.' + digits.slice(6, 9) + '-' + digits.slice(9);
+    } else if (digits.length > 6) {
+      digits = digits.slice(0, 3) + '.' + digits.slice(3, 6) + '.' + digits.slice(6);
+    } else if (digits.length > 3) {
+      digits = digits.slice(0, 3) + '.' + digits.slice(3);
+    }
+    input.value = digits;
+    this.consultaFormModel.update((m) => ({ ...m, cpf: digits }));
+  }
+
+  applyMonthYearMask(event: Event, field: 'dateStart' | 'dateEnd'): void {
+    const input = event.target as HTMLInputElement;
+    let digits = input.value.replace(/\D/g, '').slice(0, 6);
+    if (digits.length > 2) {
+      digits = digits.slice(0, 2) + '/' + digits.slice(2);
+    }
+    input.value = digits;
+    this.consultaFormModel.update((m) => ({ ...m, [field]: digits }));
   }
 
   onUnitInput(event: Event): void {
     const value = (event.target as HTMLInputElement).value.trim();
+    this.consultaFormModel.update((m) => ({ ...m, unit: value }));
     if (value.length < 2) {
       this.unidades.set([]);
       return;
@@ -205,85 +268,49 @@ export class ConsultaFormComponent implements OnInit {
   }
 
   selectUnidade(item: Unidade): void {
-    this.form.get('unit')?.setValue(item.code);
+    this.consultaFormModel.update((m) => ({ ...m, unit: item.code }));
     this.unidades.set([]);
   }
 
-  applyMonthYearMask(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    let digits = input.value.replace(/\D/g, '').slice(0, 6);
-    if (digits.length > 4) {
-      digits = digits.slice(0, 2) + '/' + digits.slice(2);
-    } else if (digits.length > 2) {
-      digits = digits.slice(0, 2) + '/' + digits.slice(2);
-    }
-    input.value = digits;
-    const control = input.id === 'dateStart' ? 'dateStart' : 'dateEnd';
-    this.form.get(control)?.setValue(digits, { emitEvent: false });
+  toggleExcel(): void {
+    this.consultaFormModel.update((m) => ({ ...m, excel: !m.excel }));
+    if (this.formatError()) this.formatError.set('');
   }
 
-  cpfErrorText(): string {
-    const ctrl = this.form.get('cpf');
-    if (!ctrl?.touched || !ctrl?.errors) return '';
-    if (ctrl.errors['required']) return 'O CPF é obrigatório!';
-    return 'CPF inválido!';
+  togglePdf(): void {
+    this.consultaFormModel.update((m) => ({ ...m, pdf: !m.pdf }));
+    if (this.formatError()) this.formatError.set('');
   }
 
-  dateStartErrorText(): string {
-    const ctrl = this.form.get('dateStart');
-    if (!ctrl?.touched || !ctrl?.errors) return '';
-    if (ctrl.errors['required']) return 'Data Inicial é obrigatório!';
-    return 'Data inválida!';
-  }
-
-  dateEndErrorText(): string {
-    const ctrl = this.form.get('dateEnd');
-    if (!ctrl?.touched || !ctrl?.errors) return '';
-    if (ctrl.errors['required']) return 'Data Final é obrigatório!';
-    return 'Data inválida!';
-  }
-
-  onSubmit(): void {
-    this.cpfError.set('');
-    this.dateStartError.set('');
-    this.dateEndError.set('');
+  async onSubmit(event: Event): Promise<void> {
+    event.preventDefault();
     this.formatError.set('');
 
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      this.cpfError.set(this.cpfErrorText());
-      this.dateStartError.set(this.dateStartErrorText());
-      this.dateEndError.set(this.dateEndErrorText());
-      return;
-    }
-
-    const excel = this.form.get('excel')?.value;
-    const pdf = this.form.get('pdf')?.value;
+    const { excel, pdf } = this.consultaFormModel();
     if (!excel && !pdf) {
       this.formatError.set('Escolha pelo menos um tipo de arquivo a ser gerado!');
       return;
     }
 
-    const payload: GeneratePayload = {
-      cpf: this.form.get('cpf')?.value.replace(/\D/g, ''),
-      unit: this.form.get('unit')?.value.trim(),
-      dateStart: this.form.get('dateStart')?.value.trim(),
-      dateEnd: this.form.get('dateEnd')?.value.trim(),
-      excel,
-      pdf,
-    };
-
-    this.submitPayload.emit(payload);
+    await submit(this.consultaForm, async () => {
+      const raw = this.consultaForm().controlValue();
+      const payload: GeneratePayload = {
+        cpf: raw.cpf.replace(/\D/g, ''),
+        unit: raw.unit.trim(),
+        dateStart: raw.dateStart.trim(),
+        dateEnd: raw.dateEnd.trim(),
+        excel: raw.excel,
+        pdf: raw.pdf,
+      };
+      this.submitPayload.next(payload);
+    });
   }
 
   onClear(): void {
-    this.form.reset({ cpf: '', unit: '', dateStart: '', dateEnd: '', excel: true, pdf: false });
-    this.cpfError.set('');
-    this.dateStartError.set('');
-    this.dateEndError.set('');
+    this.consultaFormModel.set({ ...this.initialModel });
     this.formatError.set('');
     this.unidades.set([]);
-    this.clearEvent.emit();
+    this.clearEvent.next();
   }
 
   readonly submitPayload = new Subject<GeneratePayload>();

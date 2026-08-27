@@ -27,6 +27,7 @@ export interface Job {
   payload: GeneratePayload;
   progress: JobProgress | null;
   files: JobFile[];
+  logs: string[];
   error: string | null;
   createdAt: string;
 }
