@@ -15,28 +15,29 @@ export class PontoEletronicoService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = '/python-api/v1';
 
+  private readonly opts = { withCredentials: true } as const;
+
   validate(payload: GeneratePayload): Observable<ValidateResponse> {
-    return this.http.post<ValidateResponse>(`${this.baseUrl}/validate`, payload);
+    return this.http.post<ValidateResponse>(`${this.baseUrl}/validate`, payload, this.opts);
   }
 
   createJob(payload: GeneratePayload): Observable<JobResponse> {
-    return this.http.post<JobResponse>(`${this.baseUrl}/jobs`, payload);
+    return this.http.post<JobResponse>(`${this.baseUrl}/jobs`, payload, this.opts);
   }
 
   getJob(jobId: string): Observable<{ ok: boolean; job: Job }> {
-    return this.http.get<{ ok: boolean; job: Job }>(`${this.baseUrl}/jobs/${jobId}`);
+    return this.http.get<{ ok: boolean; job: Job }>(`${this.baseUrl}/jobs/${jobId}`, this.opts);
   }
 
   cancelJob(jobId: string): Observable<{ ok: boolean; message?: string }> {
     return this.http.post<{ ok: boolean; message?: string }>(
-      `${this.baseUrl}/jobs/${jobId}/cancel`,
-      {}
+      `${this.baseUrl}/jobs/${jobId}/cancel`, {}, this.opts
     );
   }
 
   deleteJob(jobId: string): Observable<{ ok: boolean; message?: string }> {
     return this.http.delete<{ ok: boolean; message?: string }>(
-      `${this.baseUrl}/jobs/${jobId}`
+      `${this.baseUrl}/jobs/${jobId}`, this.opts
     );
   }
 
@@ -53,18 +54,18 @@ export class PontoEletronicoService {
   }
 
   getHistory(limit = 20): Observable<HistoryResponse> {
-    return this.http.get<HistoryResponse>(`${this.baseUrl}/jobs?limit=${limit}`);
+    return this.http.get<HistoryResponse>(`${this.baseUrl}/jobs?limit=${limit}`, this.opts);
   }
 
   deleteHistory(): Observable<{ ok: boolean; removed: number; message?: string }> {
     return this.http.delete<{ ok: boolean; removed: number; message?: string }>(
-      `${this.baseUrl}/jobs`
+      `${this.baseUrl}/jobs`, this.opts
     );
   }
 
   searchUnidades(query: string): Observable<UnidadesResponse> {
     return this.http.get<UnidadesResponse>(
-      `${this.baseUrl}/unidades?q=${encodeURIComponent(query)}`
+      `${this.baseUrl}/unidades?q=${encodeURIComponent(query)}`, this.opts
     );
   }
 }
