@@ -11,17 +11,14 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const notificationService = inject(NotificationService);
   // const router = inject(Router);
 
-  // Requisições ao backend Python usam cookie (ponto_session), não JWT
-  const isPythonApi = req.url.includes('/python-api');
-
   // Pega o usuário logado
   const token: string | null = authStore.token();
 
   // Cria uma variável que recebe uma cópia requisição (Req e imutável)
   let authReq = req;
 
-  // Se houver usuário logado e token, e NÃO for requisição ao Python
-  if (token && !isPythonApi) {
+  // Se houver token, anexa em TODAS as requisições (Java + Python)
+  if (token) {
     // Faz um clone da requisição e passar o token no cabeçalho com o prefixo "Bearer"
     authReq = req.clone({
       setHeaders: {
@@ -37,9 +34,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       // =========================================================================
       // 1. SESSÃO EXPIRADA (Status 401 e 403)
       // O Interceptor SÓ atua se NÃO for uma requisição de login!
-      // Requisições ao Python são ignoradas (auth via cookie, não JWT)
+      // Quando o backend Python rejeita o JWT, forceLogout também é acionado.
       // =========================================================================
-      if ((error.status === 401 || error.status === 403) && !isLoginRequest && !isPythonApi) {
+      if ((error.status === 401 || error.status === 403) && !isLoginRequest) {
         // Sai da aplicação
         authStore.forceLogout();
 
