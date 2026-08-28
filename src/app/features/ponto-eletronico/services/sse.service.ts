@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { Job, SSEMessage } from '../models/ponto-eletronico.model';
 import { PontoEletronicoService } from './ponto-eletronico.service';
@@ -30,7 +30,7 @@ export class SSEService {
       const controller = new AbortController();
       this.activeController = controller;
 
-      fetchEventSource(url, {
+      void fetchEventSource(url, {
         method: 'GET',
         headers: {
           ...(this.authStore.token()
@@ -88,9 +88,11 @@ export class SSEService {
       }
 
       try {
-        const res = await this.http.get<{ ok: boolean; job: Job }>(
-          `/python-api/api/v1/jobs/${jobId}`, this.opts
-        ).toPromise();
+        const res = await firstValueFrom(
+          this.http.get<{ ok: boolean; job: Job }>(
+            `/python-api/api/v1/jobs/${jobId}`, this.opts
+          )
+        );
 
         if (!res?.ok) return;
 
