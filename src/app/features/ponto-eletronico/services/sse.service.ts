@@ -4,11 +4,13 @@ import { Observable } from 'rxjs';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { Job, SSEMessage } from '../models/ponto-eletronico.model';
 import { PontoEletronicoService } from './ponto-eletronico.service';
+import { AuthStore } from '../../../core/auth/store/auth.store';
 
 @Injectable({ providedIn: 'root' })
 export class SSEService {
   private readonly http = inject(HttpClient);
   private readonly pontoService = inject(PontoEletronicoService);
+  private readonly authStore = inject(AuthStore);
   private readonly opts = { withCredentials: true } as const;
 
   private activeController: AbortController | null = null;
@@ -30,6 +32,12 @@ export class SSEService {
 
       fetchEventSource(url, {
         method: 'GET',
+        headers: {
+          ...(this.authStore.token()
+            ? { 'Authorization': `Bearer ${this.authStore.token()}` }
+            : {}),
+          'Accept': 'text/event-stream',
+        },
         credentials: 'include',
         signal: controller.signal,
         onmessage: (evt) => {
