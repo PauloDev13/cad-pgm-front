@@ -111,11 +111,8 @@ export class PontoEletronicoPage implements AfterViewInit, OnDestroy {
     this.store.setIsGenerating(false);
     this.store.loadHistory();
     this.notification.success('Arquivos gerados com sucesso. Escolha os arquivos para baixar.');
-    // Delay 500ms para usuário ver 100% antes de fechar modal e limpar job
-    setTimeout(() => {
-      this.closeProgressDialog();
-      this.store.setJob(null);
-    }, 500);
+    // Delay 500ms para usuário ver 100% antes de fechar modal; mantém job para download em "Arquivos Gerados"
+    setTimeout(() => this.closeProgressDialog(), 500);
   }
 
   private onJobFailed(job: Job): void {
