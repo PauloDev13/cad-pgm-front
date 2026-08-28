@@ -1,7 +1,8 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, inject, OnDestroy, ViewChild } from '@angular/core';
-import { firstValueFrom, Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { PontoEletronicoStore } from '../store/ponto-eletronico.store';
 import { PontoEletronicoService } from '../services/ponto-eletronico.service';
+import { SSEService } from '../services/sse.service';
 import { ConsultaFormComponent } from '../components/consulta-form/consulta-form.component';
 import { ProgressCardComponent } from '../components/progress-card/progress-card.component';
 import { ResultCardComponent } from '../components/result-card/result-card.component';
@@ -44,11 +45,9 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
 export class PontoEletronicoPage implements AfterViewInit, OnDestroy {
   readonly store = inject(PontoEletronicoStore);
   private readonly service = inject(PontoEletronicoService);
+  private readonly sseService = inject(SSEService);
   private readonly notification = inject(NotificationService);
   private readonly destroy$ = new Subject<void>();
-
-  private activeEventSource: EventSource | null = null;
-  private pollingTimer: ReturnType<typeof setInterval> | null = null;
 
   @ViewChild(ConsultaFormComponent) consultaForm!: ConsultaFormComponent;
 
@@ -63,7 +62,7 @@ export class PontoEletronicoPage implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.stopTracking();
+    this.sseService.stop();
     this.destroy$.next();
     this.destroy$.complete();
     this.store.clearJob();
@@ -72,79 +71,41 @@ export class PontoEletronicoPage implements AfterViewInit, OnDestroy {
   private async onSubmit(payload: GeneratePayload): Promise<void> {
     if (this.store.job()) return;
 
-    this.store.setIsGenerating(true);
+    const result = await this.store.submitJob(payload);
 
-    try {
-      const validation = await firstValueFrom(this.service.validate(payload));
-      if (!validation?.valid) {
-        this.store.setIsGenerating(false);
+    if (!result.ok) {
+      if (result.errors?.generic) {
+        this.notification.error(result.errors.generic);
+      } else {
         this.notification.warning('Corrija os campos destacados.');
-        return;
       }
-
-      const response = await firstValueFrom(this.service.createJob(payload));
-      if (!response?.ok) {
-        this.store.setIsGenerating(false);
-        this.notification.error(response?.message ?? 'Erro ao criar a gera\u00e7\u00e3o.');
-        return;
-      }
-
-      this.startJobTracking(response.job);
-    } catch {
-      this.store.setIsGenerating(false);
-      this.notification.error('Erro ao conectar com a API.');
+      return;
     }
+
+    this.startJobTracking(result.job);
   }
 
   private startJobTracking(job: Job): void {
-    this.store.setJob(job);
-    this.stopTracking();
+    this.sseService.trackJob(job.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (msg) => {
+          if (msg.type === 'error') {
+            this.notification.warning(msg.message || 'Erro no acompanhamento.');
+            return;
+          }
+          if (!msg.job) return;
 
-    const es = new EventSource(this.service.getJobEventsUrl(job.id));
-    this.activeEventSource = es;
-
-    es.onmessage = (evt) => {
-      try {
-        const msg = JSON.parse(evt.data);
-        if (msg.type !== 'update') return;
-
-        const j: Job = msg.job;
-        if (j.status === 'DONE') this.onJobDone(j);
-        else if (j.status === 'FAILED') this.onJobFailed(j);
-        else if (j.status === 'CANCELLED') this.onJobCancelled();
-        else this.store.setJob(j);
-      } catch {
-        // mensagem inv\u00e1lida, ignora
-      }
-    };
-
-    es.onerror = () => {
-      es.close();
-      this.activeEventSource = null;
-      this.startPolling(job.id);
-    };
-  }
-
-  private startPolling(jobId: string): void {
-    this.stopPolling();
-    this.pollingTimer = setInterval(async () => {
-      try {
-        const res = await firstValueFrom(this.service.getJob(jobId));
-        if (!res?.ok) return;
-
-        const j = res.job;
-        if (j.status === 'DONE') this.onJobDone(j);
-        else if (j.status === 'FAILED') this.onJobFailed(j);
-        else if (j.status === 'CANCELLED') this.onJobCancelled();
-        else this.store.setJob(j);
-      } catch {
-        // mant\u00e9m o polling
-      }
-    }, 2000);
+          const j = msg.job;
+          if (j.status === 'DONE') this.onJobDone(j);
+          else if (j.status === 'FAILED') this.onJobFailed(j);
+          else if (j.status === 'CANCELLED') this.onJobCancelled();
+          else this.store.setJob(j);
+        },
+      });
   }
 
   private onJobDone(job: Job): void {
-    this.stopTracking();
     this.store.setJob(job);
     this.store.setGeneratedFiles(job.files ?? []);
     this.store.setIsGenerating(false);
@@ -153,7 +114,6 @@ export class PontoEletronicoPage implements AfterViewInit, OnDestroy {
   }
 
   private onJobFailed(job: Job): void {
-    this.stopTracking();
     this.store.setJob(job);
     this.store.setIsGenerating(false);
     this.store.loadHistory();
@@ -161,7 +121,6 @@ export class PontoEletronicoPage implements AfterViewInit, OnDestroy {
   }
 
   private onJobCancelled(): void {
-    this.stopTracking();
     this.store.clearJob();
     this.store.setIsGenerating(false);
     this.store.loadHistory();
@@ -175,20 +134,7 @@ export class PontoEletronicoPage implements AfterViewInit, OnDestroy {
         error: () => this.notification.error('Erro ao cancelar o processamento.')
       });
     }
-    this.stopTracking();
+    this.sseService.stop();
     this.store.clearJob();
-  }
-
-  private stopTracking(): void {
-    this.activeEventSource?.close();
-    this.activeEventSource = null;
-    this.stopPolling();
-  }
-
-  private stopPolling(): void {
-    if (this.pollingTimer) {
-      clearInterval(this.pollingTimer);
-      this.pollingTimer = null;
-    }
   }
 }
