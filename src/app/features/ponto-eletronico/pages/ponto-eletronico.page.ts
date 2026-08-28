@@ -74,8 +74,8 @@ export class PontoEletronicoPage implements AfterViewInit, OnDestroy {
     const result = await this.store.submitJob(payload);
 
     if (!result.ok) {
-      if (result.errors?.generic) {
-        this.notification.error(result.errors.generic);
+      if (result.errors?.['generic']) {
+        this.notification.error(result.errors['generic']);
       } else {
         this.notification.warning('Corrija os campos destacados.');
       }
