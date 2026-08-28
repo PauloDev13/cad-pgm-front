@@ -68,7 +68,11 @@ export class PontoEletronicoPage implements AfterViewInit, OnDestroy {
   }
 
   private async onSubmit(payload: GeneratePayload): Promise<void> {
-    if (this.store.job()) return;
+    if (this.store.isGenerating()) return;
+    // Permite nova geração sem precisar limpar: job DONE/FAILED não bloqueia
+    if (this.store.job() && this.store.job()?.status !== 'DONE' && this.store.job()?.status !== 'FAILED' && this.store.job()?.status !== 'CANCELLED') {
+      return;
+    }
 
     const result = await this.store.submitJob(payload);
 
