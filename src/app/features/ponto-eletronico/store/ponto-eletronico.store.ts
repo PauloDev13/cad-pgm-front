@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { PontoEletronicoService } from '../services/ponto-eletronico.service';
 import { PontoAuthService } from '../services/ponto-auth.service';
 import { GeneratePayload, Job, JobFile, JobStatus } from '../models/ponto-eletronico.model';
+import { AuthStore } from '../../../core/auth/store/auth.store';
 
 interface PontoEletronicoState {
   // Auth
@@ -66,6 +67,7 @@ export const PontoEletronicoStore = signalStore(
     store,
     pontoService = inject(PontoEletronicoService),
     authService = inject(PontoAuthService),
+    authStore = inject(AuthStore),
   ) => ({
     // ── Auth ──────────────────────────────────────────────────────────────
 
@@ -95,6 +97,17 @@ export const PontoEletronicoStore = signalStore(
     },
 
     async checkSession() {
+      // Se existe JWT válido do Spring Boot, assume autenticado (auth federada)
+      const jwtUser = authStore.currentUser()?.sub;
+      if (jwtUser) {
+        patchState(store, {
+          isAuthenticated: true,
+          currentUser: jwtUser,
+        });
+        return { ok: true, user: jwtUser } as import('../models/ponto-eletronico.model').AuthResponse;
+      }
+
+      // Fallback: verifica sessão via cookie (Python frontend / Plano B)
       const res = await firstValueFrom(authService.checkSession());
       patchState(store, {
         isAuthenticated: res.ok,
