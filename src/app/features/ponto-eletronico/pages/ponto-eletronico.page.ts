@@ -1,12 +1,13 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, inject, OnDestroy, ViewChild } from '@angular/core';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Subject, takeUntil } from 'rxjs';
 import { PontoEletronicoStore } from '../store/ponto-eletronico.store';
 import { PontoEletronicoService } from '../services/ponto-eletronico.service';
 import { SSEService } from '../services/sse.service';
 import { ConsultaFormComponent } from '../components/consulta-form/consulta-form.component';
-import { ProgressCardComponent } from '../components/progress-card/progress-card.component';
 import { ResultCardComponent } from '../components/result-card/result-card.component';
 import { HistoryCardComponent } from '../components/history-card/history-card.component';
+import { ProgressDialogComponent } from '../components/progress-dialog/progress-dialog.component';
 import { GeneratePayload, Job } from '../models/ponto-eletronico.model';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 
@@ -15,7 +16,6 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
   standalone: true,
   imports: [
     ConsultaFormComponent,
-    ProgressCardComponent,
     ResultCardComponent,
     HistoryCardComponent
   ],
@@ -25,10 +25,6 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
       <!-- Coluna principal -->
       <div class="flex-1 flex flex-col gap-6 min-w-0">
         <app-consulta-form />
-
-        @if (store.job()) {
-          <app-progress-card />
-        }
 
         @if (store.generatedFiles().length > 0) {
           <app-result-card />
@@ -47,6 +43,8 @@ export class PontoEletronicoPage implements AfterViewInit, OnDestroy {
   private readonly service = inject(PontoEletronicoService);
   private readonly sseService = inject(SSEService);
   private readonly notification = inject(NotificationService);
+  private readonly dialog = inject(MatDialog);
+  private progressDialogRef: MatDialogRef<ProgressDialogComponent> | null = null;
   private readonly destroy$ = new Subject<void>();
 
   @ViewChild(ConsultaFormComponent) consultaForm!: ConsultaFormComponent;
@@ -65,6 +63,7 @@ export class PontoEletronicoPage implements AfterViewInit, OnDestroy {
     this.sseService.stop();
     this.destroy$.next();
     this.destroy$.complete();
+    this.closeProgressDialog();
     this.store.clearJob();
   }
 
@@ -86,6 +85,7 @@ export class PontoEletronicoPage implements AfterViewInit, OnDestroy {
   }
 
   private startJobTracking(job: Job): void {
+    this.openProgressDialog();
     this.sseService.trackJob(job.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -111,11 +111,17 @@ export class PontoEletronicoPage implements AfterViewInit, OnDestroy {
     this.store.setIsGenerating(false);
     this.store.loadHistory();
     this.notification.success('Arquivos gerados com sucesso. Escolha os arquivos para baixar.');
+    // Delay 500ms para usuário ver 100% antes de fechar modal e limpar job
+    setTimeout(() => {
+      this.closeProgressDialog();
+      this.store.setJob(null);
+    }, 500);
   }
 
   private onJobFailed(job: Job): void {
     this.store.setJob(job);
     this.store.setIsGenerating(false);
+    this.closeProgressDialog();
     this.store.loadHistory();
     this.notification.error(job.error ?? 'Falha ao gerar os arquivos. Consulte o hist\u00f3rico.');
   }
@@ -123,6 +129,7 @@ export class PontoEletronicoPage implements AfterViewInit, OnDestroy {
   private onJobCancelled(): void {
     this.store.clearJob();
     this.store.setIsGenerating(false);
+    this.closeProgressDialog();
     this.store.loadHistory();
     this.notification.info('Processamento cancelado.');
   }
@@ -135,6 +142,22 @@ export class PontoEletronicoPage implements AfterViewInit, OnDestroy {
       });
     }
     this.sseService.stop();
+    this.closeProgressDialog();
     this.store.clearJob();
+  }
+
+  private openProgressDialog(): void {
+    if (this.progressDialogRef) return;
+    this.progressDialogRef = this.dialog.open(ProgressDialogComponent, {
+      disableClose: true,
+      width: '520px',
+      maxWidth: '95vw',
+      autoFocus: false,
+    });
+  }
+
+  private closeProgressDialog(): void {
+    this.progressDialogRef?.close();
+    this.progressDialogRef = null;
   }
 }
