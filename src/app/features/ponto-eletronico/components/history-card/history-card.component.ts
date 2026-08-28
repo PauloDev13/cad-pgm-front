@@ -165,7 +165,11 @@ export class HistoryCardComponent implements OnInit {
 
   onDownloadZip(jobId: string): void {
     this.service.downloadJobBlob(jobId, 'zip').subscribe({
-      next: (blob) => this.triggerDownload(blob, `ponto_${jobId}.zip`),
+      next: (blob) => {
+        const item = this.store.history().find((j) => j.id === jobId);
+        const base = item?.files[0]?.name.replace(/\.[^.]+$/, '') || `ponto_${jobId}`;
+        this.triggerDownload(blob, `${base}.zip`);
+      },
       error: () => this.notification.error('Erro ao baixar o arquivo.'),
     });
   }
