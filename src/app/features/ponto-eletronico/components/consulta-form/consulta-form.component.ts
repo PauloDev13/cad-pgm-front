@@ -2,12 +2,15 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   ElementRef,
   HostListener,
   inject,
+  OnDestroy,
   signal,
   ViewChild,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -179,10 +182,11 @@ interface ConsultaFormModel {
     </div>
   `,
 })
-export class ConsultaFormComponent {
+export class ConsultaFormComponent implements OnDestroy {
   readonly store = inject(PontoEletronicoStore);
   private readonly service = inject(PontoEletronicoService);
   private readonly notification = inject(NotificationService);
+  private readonly destroyRef = inject(DestroyRef);
 
   @ViewChild('unitWrapper') unitWrapper!: ElementRef<HTMLElement>;
   @ViewChild('cpfInput') cpfInput!: ElementRef<HTMLInputElement>;
@@ -224,12 +228,19 @@ export class ConsultaFormComponent {
     this.unitSearch$
       .pipe(
         debounceTime(250),
-        switchMap((q) => this.service.searchUnidades(q))
+        switchMap((q) => this.service.searchUnidades(q)),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (res) => this.unidades.set(res.ok ? res.results : []),
         error: () => this.unidades.set([]),
       });
+  }
+
+  ngOnDestroy(): void {
+    this.unitSearch$.complete();
+    this.submitPayload.complete();
+    this.clearEvent.complete();
   }
 
   @HostListener('document:click', ['$event'])
