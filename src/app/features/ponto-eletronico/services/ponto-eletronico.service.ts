@@ -5,7 +5,6 @@ import {
   GeneratePayload,
   ValidateResponse,
   JobResponse,
-  Job,
   HistoryResponse,
   UnidadesResponse,
 } from '../models/ponto-eletronico.model';
@@ -25,10 +24,6 @@ export class PontoEletronicoService {
     return this.http.post<JobResponse>(`${this.baseUrl}/jobs`, payload, this.opts);
   }
 
-  getJob(jobId: string): Observable<{ ok: boolean; job: Job }> {
-    return this.http.get<{ ok: boolean; job: Job }>(`${this.baseUrl}/jobs/${jobId}`, this.opts);
-  }
-
   cancelJob(jobId: string): Observable<{ ok: boolean; message?: string }> {
     return this.http.post<{ ok: boolean; message?: string }>(
       `${this.baseUrl}/jobs/${jobId}/cancel`, {}, this.opts
@@ -43,14 +38,6 @@ export class PontoEletronicoService {
 
   getJobEventsUrl(jobId: string): string {
     return `${this.baseUrl}/jobs/${jobId}/events`;
-  }
-
-  getDownloadUrl(jobId: string, format: string): string {
-    return `${this.baseUrl}/jobs/${jobId}/download?format=${format}`;
-  }
-
-  getFileUrl(jobId: string, fileName: string): string {
-    return `${this.baseUrl}/jobs/${jobId}/files/${encodeURIComponent(fileName)}`;
   }
 
   downloadJobBlob(jobId: string, format: string): Observable<Blob> {
