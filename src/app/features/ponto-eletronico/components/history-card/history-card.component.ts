@@ -88,24 +88,24 @@ import { JobStatus } from '../../models/ponto-eletronico.model';
               }
 
               <!-- Arquivos -->
-              @if (item.status === 'DONE' && item.files.length > 0) {
-                <div class="flex flex-wrap gap-x-3 gap-y-1 mt-2">
-                  @for (file of item.files; track file.name) {
-                    <a
-                      [href]="fileDownloadUrl(item.id, file.name)"
-                      class="text-xs text-cyan-600 hover:text-cyan-800 hover:underline inline-flex items-center gap-1">
-                      <mat-icon class="text-sm !w-3.5 !h-3.5">description</mat-icon>
-                      {{ file.name }}
-                    </a>
-                  }
-                  <a
-                    [href]="jobDownloadUrl(item.id, 'zip')"
-                    class="text-xs text-cyan-600 font-bold hover:text-cyan-800 hover:underline inline-flex items-center gap-1">
-                    <mat-icon class="text-sm !w-3.5 !h-3.5">archive</mat-icon>
-                    Todos (ZIP)
-                  </a>
-                </div>
-              }
+               @if (item.status === 'DONE' && item.files.length > 0) {
+                 <div class="flex flex-wrap gap-x-3 gap-y-1 mt-2">
+                   @for (file of item.files; track file.name) {
+                     <button
+                       (click)="onDownloadFile(item.id, file.name)"
+                       class="text-xs text-cyan-600 hover:text-cyan-800 hover:underline inline-flex items-center gap-1">
+                       <mat-icon class="text-sm !w-3.5 !h-3.5">description</mat-icon>
+                       {{ file.name }}
+                     </button>
+                   }
+                   <button
+                     (click)="onDownloadZip(item.id)"
+                     class="text-xs text-cyan-600 font-bold hover:text-cyan-800 hover:underline inline-flex items-center gap-1">
+                     <mat-icon class="text-sm !w-3.5 !h-3.5">archive</mat-icon>
+                     Todos (ZIP)
+                   </button>
+                 </div>
+               }
             </div>
 
             <!-- Bot\u00e3o excluir -->
@@ -156,12 +156,27 @@ export class HistoryCardComponent implements OnInit {
     return classes[status] ?? '';
   }
 
-  fileDownloadUrl(jobId: string, fileName: string): string {
-    return this.service.getFileUrl(jobId, fileName);
+  onDownloadFile(jobId: string, fileName: string): void {
+    this.service.downloadFileBlob(jobId, fileName).subscribe({
+      next: (blob) => this.triggerDownload(blob, fileName),
+      error: () => this.notification.error('Erro ao baixar o arquivo.'),
+    });
   }
 
-  jobDownloadUrl(jobId: string, format: string): string {
-    return this.service.getDownloadUrl(jobId, format);
+  onDownloadZip(jobId: string): void {
+    this.service.downloadJobBlob(jobId, 'zip').subscribe({
+      next: (blob) => this.triggerDownload(blob, `ponto_${jobId}.zip`),
+      error: () => this.notification.error('Erro ao baixar o arquivo.'),
+    });
+  }
+
+  private triggerDownload(blob: Blob, fileName: string): void {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   async onDelete(jobId: string): Promise<void> {

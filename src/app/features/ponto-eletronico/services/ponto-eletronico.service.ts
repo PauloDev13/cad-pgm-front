@@ -53,6 +53,20 @@ export class PontoEletronicoService {
     return `${this.baseUrl}/jobs/${jobId}/files/${encodeURIComponent(fileName)}`;
   }
 
+  downloadJobBlob(jobId: string, format: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/jobs/${jobId}/download?format=${format}`, {
+      ...this.opts,
+      responseType: 'blob' as const,
+    });
+  }
+
+  downloadFileBlob(jobId: string, fileName: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/jobs/${jobId}/files/${encodeURIComponent(fileName)}`, {
+      ...this.opts,
+      responseType: 'blob' as const,
+    });
+  }
+
   getHistory(limit = 20): Observable<HistoryResponse> {
     return this.http.get<HistoryResponse>(`${this.baseUrl}/jobs?limit=${limit}`, this.opts);
   }
