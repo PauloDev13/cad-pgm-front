@@ -90,7 +90,7 @@ interface ConsultaFormModel {
         </div>
 
         <!-- Linha 2: Datas + Checkboxes -->
-        <div class="flex flex-wrap items-end gap-4 mb-6">
+        <div class="flex flex-wrap items-center gap-4 mb-6">
           <div class="flex-1 min-w-[150px]">
             <app-field-wrapper [field]="consultaForm.dateStart()">
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
@@ -121,7 +121,7 @@ interface ConsultaFormModel {
             </app-field-wrapper>
           </div>
 
-          <div class="flex gap-5 items-center pb-2">
+          <div class="flex gap-5 items-center -translate-y-2">
             <label class="flex items-center gap-2 whitespace-nowrap text-sm text-gray-700 cursor-pointer select-none">
               <input
                 type="checkbox"
