@@ -21,7 +21,7 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex flex-col lg:flex-row gap-6 w-full max-w-7xl mx-auto p-6">
+    <div class="flex flex-col lg:flex-row gap-6 w-full max-w-[1520px] mx-auto p-6">
       <!-- Coluna principal -->
       <div class="flex-1 flex flex-col gap-6 min-w-0">
         <app-consulta-form />
@@ -32,7 +32,7 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
       </div>
 
       <!-- Coluna lateral (hist\u00f3rico) -->
-      <div class="w-full lg:w-[420px] shrink-0">
+      <div class="w-full lg:w-[650px] shrink-0">
         <app-history-card />
       </div>
     </div>

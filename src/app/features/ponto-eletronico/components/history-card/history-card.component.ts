@@ -51,7 +51,7 @@ import { JobStatus } from '../../models/ponto-eletronico.model';
       </div>
 
       <!-- Lista scroll\u00e1vel -->
-      <div class="flex-1 overflow-y-auto min-h-0 history-scroll">
+      <div class="flex-1 overflow-y-auto overflow-x-hidden min-h-0 history-scroll">
         @if (store.history().length === 0) {
           <div class="flex flex-col items-center justify-center py-10 text-gray-400">
             <mat-icon class="text-4xl !text-gray-300 mb-2">schedule</mat-icon>
@@ -89,23 +89,23 @@ import { JobStatus } from '../../models/ponto-eletronico.model';
 
               <!-- Arquivos -->
                @if (item.status === 'DONE' && item.files.length > 0) {
-                 <div class="flex flex-wrap gap-x-3 gap-y-1 mt-2">
-                   @for (file of item.files; track file.name) {
-                     <button
-                       (click)="onDownloadFile(item.id, file.name)"
-                       class="text-xs text-cyan-600 hover:text-cyan-800 hover:underline inline-flex items-center gap-1">
-                       <mat-icon class="text-sm !w-3.5 !h-3.5">description</mat-icon>
-                       {{ file.name }}
-                     </button>
-                   }
-                   <button
-                     (click)="onDownloadZip(item.id)"
-                     class="text-xs text-cyan-600 font-bold hover:text-cyan-800 hover:underline inline-flex items-center gap-1">
-                     <mat-icon class="text-sm !w-3.5 !h-3.5">archive</mat-icon>
-                     Todos (ZIP)
-                   </button>
-                 </div>
-               }
+                  <div class="flex flex-wrap gap-x-3 gap-y-1 mt-2 overflow-hidden">
+                    @for (file of item.files; track file.name) {
+                      <button
+                        (click)="onDownloadFile(item.id, file.name)"
+                        class="text-xs text-cyan-600 hover:text-cyan-800 hover:underline inline-flex items-center gap-1 break-all text-left max-w-full">
+                        <mat-icon class="text-sm !w-3.5 !h-3.5 shrink-0">description</mat-icon>
+                        <span class="break-all">{{ file.name }}</span>
+                      </button>
+                    }
+                    <button
+                      (click)="onDownloadZip(item.id)"
+                      class="text-xs text-cyan-600 font-bold hover:text-cyan-800 hover:underline inline-flex items-center gap-1 shrink-0">
+                      <mat-icon class="text-sm !w-3.5 !h-3.5">archive</mat-icon>
+                      Todos (ZIP)
+                    </button>
+                  </div>
+                }
             </div>
 
             <!-- Bot\u00e3o excluir -->
