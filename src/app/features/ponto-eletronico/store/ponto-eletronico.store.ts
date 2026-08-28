@@ -177,6 +177,9 @@ export const PontoEletronicoStore = signalStore(
       try {
         await firstValueFrom(pontoService.deleteJob(jobId));
         await this.loadHistory();
+        if (store.history().length === 0) {
+          patchState(store, { generatedFiles: [], job: null });
+        }
       } catch {
         // erro tratado externamente
       }
@@ -186,6 +189,9 @@ export const PontoEletronicoStore = signalStore(
       try {
         await firstValueFrom(pontoService.deleteHistory());
         await this.loadHistory();
+        if (store.history().length === 0) {
+          patchState(store, { generatedFiles: [], job: null });
+        }
       } catch {
         // erro tratado externamente
       }
