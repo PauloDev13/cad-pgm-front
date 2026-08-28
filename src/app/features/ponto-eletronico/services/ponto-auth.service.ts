@@ -6,7 +6,7 @@ import { AuthResponse, LoginRequest } from '../models/ponto-eletronico.model';
 @Injectable({ providedIn: 'root' })
 export class PontoAuthService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = '/python-api/v1/auth';
+  private readonly baseUrl = '/python-api/api/v1/auth';
   private readonly opts = { withCredentials: true } as const;
 
   login(payload: LoginRequest): Observable<AuthResponse> {

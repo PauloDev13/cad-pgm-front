@@ -13,7 +13,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class PontoEletronicoService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = '/python-api/v1';
+  private readonly baseUrl = '/python-api/api/v1';
 
   private readonly opts = { withCredentials: true } as const;
 

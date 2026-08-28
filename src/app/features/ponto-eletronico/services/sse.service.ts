@@ -89,7 +89,7 @@ export class SSEService {
 
       try {
         const res = await this.http.get<{ ok: boolean; job: Job }>(
-          `/python-api/v1/jobs/${jobId}`, this.opts
+          `/python-api/api/v1/jobs/${jobId}`, this.opts
         ).toPromise();
 
         if (!res?.ok) return;
