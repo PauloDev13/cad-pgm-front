@@ -8,6 +8,7 @@ import {
   signal,
   ViewChild,
 } from '@angular/core';
+import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
@@ -50,6 +51,7 @@ interface ConsultaFormModel {
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
               <mat-label>CPF</mat-label>
               <input
+                #cpfInput
                 matInput
                 [formField]="consultaForm.cpf"
                 placeholder="000.000.000-00"
@@ -96,6 +98,7 @@ interface ConsultaFormModel {
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                 <mat-label>Data Inicial (M\u00eas/Ano)</mat-label>
                 <input
+                  #dateStartInput
                   matInput
                   [formField]="consultaForm.dateStart"
                   placeholder="M\u00eas/Ano"
@@ -111,6 +114,7 @@ interface ConsultaFormModel {
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                 <mat-label>Data Final (M\u00eas/Ano)</mat-label>
                 <input
+                  #dateEndInput
                   matInput
                   [formField]="consultaForm.dateEnd"
                   placeholder="M\u00eas/Ano"
@@ -178,8 +182,12 @@ interface ConsultaFormModel {
 export class ConsultaFormComponent {
   readonly store = inject(PontoEletronicoStore);
   private readonly service = inject(PontoEletronicoService);
+  private readonly notification = inject(NotificationService);
 
   @ViewChild('unitWrapper') unitWrapper!: ElementRef<HTMLElement>;
+  @ViewChild('cpfInput') cpfInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('dateStartInput') dateStartInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('dateEndInput') dateEndInput!: ElementRef<HTMLInputElement>;
 
   unidades = signal<Unidade[]>([]);
   formatError = signal('');
@@ -282,6 +290,45 @@ export class ConsultaFormComponent {
     if (this.formatError()) this.formatError.set('');
   }
 
+  private isValidCpf(value: string): boolean {
+    const digits = (value || '').replace(/\D/g, '');
+    if (digits.length !== 11) return false;
+    if (/^(\d)\1{10}$/.test(digits)) return false;
+    let sum = 0;
+    for (let i = 0; i < 9; i++) sum += parseInt(digits[i], 10) * (10 - i);
+    let d1 = 11 - (sum % 11);
+    if (d1 >= 10) d1 = 0;
+    if (d1 !== parseInt(digits[9], 10)) return false;
+    sum = 0;
+    for (let i = 0; i < 10; i++) sum += parseInt(digits[i], 10) * (11 - i);
+    let d2 = 11 - (sum % 11);
+    if (d2 >= 10) d2 = 0;
+    return d2 === parseInt(digits[10], 10);
+  }
+
+  private isValidMonthYear(value: string): boolean {
+    const v = (value || '').trim();
+    if (!/^\d{2}\/\d{4}$/.test(v)) return false;
+    const [mm, yyyy] = v.split('/').map(Number);
+    if (mm < 1 || mm > 12) return false;
+    if (yyyy < 1900 || yyyy > 2100) return false;
+    return true;
+  }
+
+  private parseMonthYear(value: string): Date {
+    const [mm, yyyy] = value.trim().split('/').map(Number);
+    return new Date(yyyy, mm - 1, 1);
+  }
+
+  private focusAndSelect(el: ElementRef<HTMLInputElement> | undefined): void {
+    const input = el?.nativeElement;
+    if (!input) return;
+    setTimeout(() => {
+      input.focus();
+      input.select();
+    }, 0);
+  }
+
   async onSubmit(event: Event): Promise<void> {
     event.preventDefault();
     this.formatError.set('');
@@ -294,11 +341,38 @@ export class ConsultaFormComponent {
 
     await submit(this.consultaForm, async () => {
       const raw = this.consultaForm().controlValue();
+      const dateStart = raw.dateStart.trim();
+      const dateEnd = raw.dateEnd.trim();
+      const cpfRaw = raw.cpf.trim();
+
+      if (!this.isValidCpf(cpfRaw)) {
+        this.notification.warning('CPF Inválido!');
+        this.focusAndSelect(this.cpfInput);
+        return;
+      }
+      if (!this.isValidMonthYear(dateStart)) {
+        this.notification.warning('Data Inicial inválida');
+        this.focusAndSelect(this.dateStartInput);
+        return;
+      }
+      if (!this.isValidMonthYear(dateEnd)) {
+        this.notification.warning('Data Final inválida');
+        this.focusAndSelect(this.dateEndInput);
+        return;
+      }
+      const dStart = this.parseMonthYear(dateStart);
+      const dEnd = this.parseMonthYear(dateEnd);
+      if (dEnd < dStart) {
+        this.notification.warning('A Data Final deve ser igual ou posterior a Data Inicial');
+        this.focusAndSelect(this.dateEndInput);
+        return;
+      }
+
       const payload: GeneratePayload = {
         cpf: raw.cpf.replace(/\D/g, ''),
         unit: raw.unit.trim(),
-        date_start: raw.dateStart.trim(),
-        date_end: raw.dateEnd.trim(),
+        date_start: dateStart,
+        date_end: dateEnd,
         excel: raw.excel,
         pdf: raw.pdf,
       };
