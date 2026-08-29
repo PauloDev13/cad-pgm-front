@@ -1,7 +1,12 @@
 #!/bin/sh
 
 # Avisa no log do Docker o que está acontecendo
-echo "Iniciando Frontend. Injetando API_URL: ${API_URL}"
+echo "Iniciando Frontend. Injetando API_URL: ${API_URL}, PYTHON_HOST: ${PYTHON_HOST:-host.docker.internal}"
+
+# Gera nginx.conf a partir do template com PYTHON_HOST (default host.docker.internal)
+export PYTHON_HOST=${PYTHON_HOST:-host.docker.internal}
+envsubst '$PYTHON_HOST' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
+echo "Nginx python proxy -> $PYTHON_HOST:8000"
 
 # Garante que a pasta 'assets' exista. Se já existir, ele não faz nada.
 mkdir -p /usr/share/nginx/html/assets

@@ -25,8 +25,8 @@ RUN rm -rf /usr/share/nginx/html/*
 # Copia os arquivos da subpasta 'browser' gerada pelo Angular
 COPY --from=builder /app/dist/cad-pgm-front/browser /usr/share/nginx/html
 
-# NOVO: Embutindo o nginx.conf definitivamente na imagem!
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Template nginx com variável PYTHON_HOST (envsubst no entrypoint)
+COPY nginx.conf.template /etc/nginx/conf.d/default.conf.template
 
 # --- INÍCIO DAS ALTERAÇÕES PARA VARIÁVEIS DINÂMICAS ---
 
