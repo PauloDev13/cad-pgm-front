@@ -20,10 +20,17 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
     HistoryCardComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: [`
+    :host {
+      display: block;
+      height: 100%;
+      overflow: hidden;
+    }
+  `],
   template: `
-    <div class="flex flex-col lg:flex-row gap-6 w-full max-w-[1520px] mx-auto p-6">
+    <div class="flex flex-col lg:flex-row gap-6 w-full max-w-[1520px] mx-auto p-6 h-full">
       <!-- Coluna principal -->
-      <div class="flex-1 flex flex-col gap-6 min-w-0">
+      <div class="flex-1 flex flex-col gap-6 min-w-0 overflow-y-auto">
         <app-consulta-form />
 
         @if (store.generatedFiles().length > 0) {
@@ -31,9 +38,9 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
         }
       </div>
 
-      <!-- Coluna lateral (hist\u00f3rico) -->
-      <div class="w-full lg:w-[650px] shrink-0">
-        <app-history-card />
+      <!-- Coluna lateral (histórico) -->
+      <div class="w-full lg:w-[650px] shrink-0 flex flex-col overflow-hidden">
+        <app-history-card class="flex-1 min-h-0" />
       </div>
     </div>
   `
