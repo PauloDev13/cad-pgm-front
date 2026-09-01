@@ -54,8 +54,9 @@ export class PontoEletronicoService {
     });
   }
 
-  getHistory(limit = 20): Observable<HistoryResponse> {
-    return this.http.get<HistoryResponse>(`${this.baseUrl}/jobs?limit=${limit}`, this.opts);
+  getHistory(limit?: number): Observable<HistoryResponse> {
+    const url = limit ? `${this.baseUrl}/jobs?limit=${limit}` : `${this.baseUrl}/jobs`;
+    return this.http.get<HistoryResponse>(url, this.opts);
   }
 
   deleteHistory(): Observable<{ ok: boolean; removed: number; message?: string }> {

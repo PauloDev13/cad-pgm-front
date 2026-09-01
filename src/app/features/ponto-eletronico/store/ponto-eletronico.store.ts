@@ -162,7 +162,7 @@ export const PontoEletronicoStore = signalStore(
     async loadHistory() {
       patchState(store, { loadingHistory: true });
       try {
-        const res = await firstValueFrom(pontoService.getHistory(20));
+        const res = await firstValueFrom(pontoService.getHistory());
         if (res?.ok) {
           patchState(store, { history: res.jobs });
         }
