@@ -39,7 +39,7 @@ import { JobStatus } from '../../models/ponto-eletronico.model';
     <div class="bg-white rounded-lg shadow-md p-6 flex flex-col h-full min-h-0">
       <!-- Header -->
       <div class="flex justify-between items-center gap-3 mb-4 shrink-0">
-        <h2 class="text-xl font-medium text-gray-800 m-0">Hist\u00f3rico de gera\u00e7\u00f5es</h2>
+        <h2 class="text-xl font-medium text-gray-800 m-0">Histórico de Gerações</h2>
         <button
           mat-stroked-button
           (click)="onClearHistory()"
@@ -55,7 +55,7 @@ import { JobStatus } from '../../models/ponto-eletronico.model';
         @if (store.history().length === 0) {
           <div class="flex flex-col items-center justify-center py-10 text-gray-400">
             <mat-icon class="text-4xl !text-gray-300 mb-2">schedule</mat-icon>
-            <p class="text-sm">Nenhuma gera\u00e7\u00e3o realizada nesta sess\u00e3o.</p>
+            <p class="text-sm">Nenhuma geração realizada nesta sessão.</p>
           </div>
         }
 
@@ -88,24 +88,24 @@ import { JobStatus } from '../../models/ponto-eletronico.model';
               }
 
               <!-- Arquivos -->
-               @if (item.status === 'DONE' && item.files.length > 0) {
-                  <div class="flex flex-wrap gap-x-3 gap-y-1 mt-2 overflow-hidden">
-                    @for (file of item.files; track file.name) {
-                      <button
-                        (click)="onDownloadFile(item.id, file.name)"
-                        class="text-xs text-cyan-600 hover:text-cyan-800 hover:underline inline-flex items-center gap-1 break-all text-left max-w-full">
-                        <mat-icon class="text-sm !w-3.5 !h-3.5 shrink-0">description</mat-icon>
-                        <span class="break-all">{{ file.name }}</span>
-                      </button>
-                    }
+              @if (item.status === 'DONE' && item.files.length > 0) {
+                <div class="flex flex-wrap gap-x-3 gap-y-1 mt-2 overflow-hidden">
+                  @for (file of item.files; track file.name) {
                     <button
-                      (click)="onDownloadZip(item.id)"
-                      class="text-xs text-cyan-600 font-bold hover:text-cyan-800 hover:underline inline-flex items-center gap-1 shrink-0">
-                      <mat-icon class="text-sm !w-3.5 !h-3.5">archive</mat-icon>
-                      Todos (ZIP)
+                      (click)="onDownloadFile(item.id, file.name)"
+                      class="text-xs text-cyan-600 hover:text-cyan-800 hover:underline inline-flex items-center gap-1 break-all text-left max-w-full">
+                      <mat-icon class="text-sm !w-3.5 !h-3.5 shrink-0">description</mat-icon>
+                      <span class="break-all">{{ file.name }}</span>
                     </button>
-                  </div>
-                }
+                  }
+                  <button
+                    (click)="onDownloadZip(item.id)"
+                    class="text-xs text-cyan-600 font-bold hover:text-cyan-800 hover:underline inline-flex items-center gap-1 shrink-0">
+                    <mat-icon class="text-sm !w-3.5 !h-3.5">archive</mat-icon>
+                    Todos (ZIP)
+                  </button>
+                </div>
+              }
             </div>
 
             <!-- Bot\u00e3o excluir -->
@@ -159,7 +159,7 @@ export class HistoryCardComponent implements OnInit {
   onDownloadFile(jobId: string, fileName: string): void {
     this.service.downloadFileBlob(jobId, fileName).subscribe({
       next: (blob) => this.triggerDownload(blob, fileName),
-      error: () => this.notification.error('Erro ao baixar o arquivo.'),
+      error: () => this.notification.error('Erro ao baixar o arquivo.')
     });
   }
 
@@ -170,7 +170,7 @@ export class HistoryCardComponent implements OnInit {
         const base = item?.files[0]?.name.replace(/\.[^.]+$/, '') || `ponto_${jobId}`;
         this.triggerDownload(blob, `${base}.zip`);
       },
-      error: () => this.notification.error('Erro ao baixar o arquivo.'),
+      error: () => this.notification.error('Erro ao baixar o arquivo.')
     });
   }
 
