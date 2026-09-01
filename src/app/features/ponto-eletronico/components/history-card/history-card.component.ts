@@ -36,7 +36,7 @@ import { JobStatus } from '../../models/ponto-eletronico.model';
     }
   `],
   template: `
-    <div class="bg-white rounded-lg shadow-md p-6 flex flex-col h-full min-h-0">
+    <div class="bg-white rounded-lg shadow-xl p-6 flex flex-col h-full min-h-0">
       <!-- Header -->
       <div class="flex justify-between items-center gap-3 mb-4 shrink-0">
         <h2 class="text-xl font-medium text-gray-800 m-0">Histórico de Gerações</h2>

@@ -26,9 +26,12 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
       height: 100%;
       overflow: hidden;
     }
+    .page-grid {
+      height: calc(100dvh - 48px);
+    }
   `],
   template: `
-    <div class="flex flex-col lg:flex-row gap-6 w-full max-w-[1520px] mx-auto p-6 h-full">
+    <div class="page-grid flex flex-col lg:flex-row gap-6 w-full max-w-[1520px] mx-auto p-6">
       <!-- Coluna principal -->
       <div class="flex-1 flex flex-col gap-6 min-w-0 overflow-y-auto">
         <app-consulta-form />
@@ -39,7 +42,7 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
       </div>
 
       <!-- Coluna lateral (histórico) -->
-      <div class="w-full lg:w-[650px] shrink-0 flex flex-col overflow-hidden">
+      <div class="w-full lg:w-[650px] shrink-0 flex flex-col h-full overflow-hidden">
         <app-history-card class="flex-1 min-h-0" />
       </div>
     </div>
