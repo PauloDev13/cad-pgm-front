@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { ServidorService } from '../../services/servidor.service';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { ServidorRequestDTO, ServidorResponseDTO, TabId, BaseEntityDTO } from '../../models/servidor.model';
+import { BaseEntityDTO, ServidorRequestDTO, ServidorResponseDTO, TabId } from '../../models/servidor.model';
 import { form, FormField } from '@angular/forms/signals';
 import { finalize, switchMap } from 'rxjs';
 import { AutocompleteComponent } from '../../../../shared/components/autocomplete/autocomplete.component';
@@ -465,17 +465,21 @@ export interface ServidorFormDialogData {
     :host ::ng-deep .custom-folder-tabs .mat-mdc-tab-body-wrapper {
       height: 100%;
     }
+
     :host ::ng-deep .custom-folder-tabs .mat-mdc-tab-body {
       height: 100%;
     }
+
     :host ::ng-deep .custom-folder-tabs .mat-mdc-tab-body-content {
       height: 100%;
     }
+
     /* Apenas a aba "Dados Pessoais e Funcionais" usa mat-dialog-content */
     :host ::ng-deep .custom-folder-tabs .mat-mdc-tab-body-content mat-dialog-content {
       scrollbar-width: none;
       -ms-overflow-style: none;
     }
+
     :host ::ng-deep .custom-folder-tabs .mat-mdc-tab-body-content mat-dialog-content::-webkit-scrollbar {
       display: none;
     }
@@ -722,6 +726,7 @@ export class ServidorFormComponent implements OnInit {
     this.dominioService.statusResource.reload();
     this.dominioService.sistemasResource.reload();
     this.dominioService.aliasesResource.reload();
+    this.dominioService.procuradoresResource.reload();
 
     // Se não houver ID, não faz nada
     if (!this.currentServidorId()) return;
