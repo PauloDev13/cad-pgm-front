@@ -27,7 +27,7 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
       overflow: hidden;
     }
     .page-grid {
-      height: calc(100dvh - 48px);
+      height: 100%;
     }
   `],
   template: `

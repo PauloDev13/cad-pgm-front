@@ -39,19 +39,19 @@ import { JobStatus } from '../../models/ponto-eletronico.model';
     <div class="bg-white rounded-lg shadow-xl p-6 flex flex-col h-full min-h-0">
       <!-- Header -->
       <div class="flex justify-between items-center gap-3 mb-4 shrink-0">
-        <h2 class="text-xl font-medium text-gray-800 m-0">Histórico de Gerações</h2>
+        <h2 class="text-xl font-medium text-gray-800 m-0">Histórico de Arquivos Gerados</h2>
         <button
           mat-stroked-button
           (click)="onClearHistory()"
           class="!border-gray-300 !text-gray-600 !text-xs !font-semibold
                  hover:!bg-gray-100 !transition-all">
           <mat-icon class="!text-base !mr-1">delete_sweep</mat-icon>
-          Limpar
+          Limpar Histórico
         </button>
       </div>
 
       <!-- Lista scroll\u00e1vel -->
-      <div class="flex-1 overflow-y-auto overflow-x-hidden min-h-0 history-scroll">
+      <div class="flex-1 overflow-y-auto overflow-x-hidden min-h-0 history-scroll pb-4">
         @if (store.history().length === 0) {
           <div class="flex flex-col items-center justify-center py-10 text-gray-400">
             <mat-icon class="text-4xl !text-gray-300 mb-2">schedule</mat-icon>
