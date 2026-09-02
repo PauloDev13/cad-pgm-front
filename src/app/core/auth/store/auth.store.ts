@@ -5,7 +5,7 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
 import { Router } from '@angular/router';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { TRegisterNewUser } from '../../../features/usuario/models/usuario.model';
-import { finalize, pipe, switchMap, tap, EMPTY } from 'rxjs';
+import { EMPTY, finalize, pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { IAuthRequest, IDecodedToken, IDecodedTokenUsername } from '../models/auth.model';
 import { jwtDecode } from 'jwt-decode';
@@ -45,7 +45,8 @@ export const AuthStore = signalStore(
       userRoles,
       // Lógicas de negócio centralizadas
       canEdit: computed(() => userRoles().includes('admin') || userRoles().includes('rh')),
-      canManager: computed(() => userRoles().includes('admin'))
+      canManager: computed(() => userRoles().includes('admin')),
+      canContab: computed(() => userRoles().includes('guest'))
     };
   }),
 

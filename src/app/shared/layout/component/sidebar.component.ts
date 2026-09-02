@@ -21,7 +21,6 @@ import {
     RouterModule,
     MatIconModule,
     MatTooltipModule,
-    // NgClass,
     LinkSidebarComponent,
     ButtonSidebarComponent
   ],
@@ -45,15 +44,17 @@ import {
 
       <div class="flex flex-col">
         <!-- Menu Gerenciamento-->
-        <app-button-sidebar
-          label="Gerenciamento"
-          [onOpen]="isOpen()"
-          iconMenu="manage_accounts"
-          [onOpenMenus]="openMenus()"
-          toolTips="Gerenciamento"
-          menuKey="gerenciamento"
-          (toggleSubmenu)="toggleSubmenu('gerenciamento')"
-        />
+        @if (authStore.canEdit()) {
+          <app-button-sidebar
+            label="Gerenciamento"
+            [onOpen]="isOpen()"
+            iconMenu="manage_accounts"
+            [onOpenMenus]="openMenus()"
+            toolTips="Gerenciamento"
+            menuKey="gerenciamento"
+            (toggleSubmenu)="toggleSubmenu('gerenciamento')"
+          />
+        }
 
         <!-- Submenu Gerenciamento-->
         <div
@@ -61,7 +62,7 @@ import {
           [class.max-h-0]="!openMenus()['gerenciamento']"
           [class.max-h-40]="openMenus()['gerenciamento']"
         >
-          @if (canManager()) {
+          @if (authStore.canManager()) {
             <app-link-sidebar
               toolTip="Gestão de Usuário"
               link="/usuarios"
@@ -80,9 +81,9 @@ import {
         </div>
       </div>
 
-      @if (canManager()) {
+      @if (authStore.canManager()) {
+        <!-- Menu Cadastros-->
         <div class="flex flex-col">
-          <!-- Menu Cadastros-->
           <app-button-sidebar
             label="Cadastros"
             [onOpen]="isOpen()"
@@ -128,11 +129,9 @@ import {
             />
           </div>
         </div>
-      }
 
-      @if (canManager()) {
+        <!-- Menu Permissões-->
         <div class="flex flex-col">
-          <!-- Menu Permissões-->
           <app-button-sidebar
             label="Permissões"
             [onOpen]="isOpen()"
@@ -174,8 +173,8 @@ import {
           </div>
         </div>
       }
+      <!-- Menu Relatórios-->
       <div class="flex flex-col">
-        <!-- Menu Relatórios-->
         <app-button-sidebar
           label="Relatórios"
           [onOpen]="isOpen()"
@@ -191,7 +190,7 @@ import {
           [class.max-h-0]="!openMenus()['relatorios']"
           [class.max-h-96]="openMenus()['relatorios']"
         >
-          @if (canManager()) {
+          @if (authStore.canManager()) {
             <app-link-sidebar
               toolTip="Rel. Auditoria"
               link="/relatorios/auditoria"
@@ -200,33 +199,38 @@ import {
               icon="change_history"
             />
           }
-          <app-link-sidebar
-            toolTip="Rel. Aniversariantes"
-            label="Aniversariantes"
-            icon="cake"
-            [onOpen]="isOpen()"
-            (actionClick)="openBirthdayReport()"
-          />
 
-          <app-link-sidebar
-            toolTip="Rel. Folha de Ponto"
-            label="Folha de Ponto"
-            icon="assignment"
-            [onOpen]="isOpen()"
-            (actionClick)="openFolhaPontoReport()"
-          />
+          @if (authStore.canEdit()) {
+            <app-link-sidebar
+              toolTip="Rel. Aniversariantes"
+              label="Aniversariantes"
+              icon="cake"
+              [onOpen]="isOpen()"
+              (actionClick)="openBirthdayReport()"
+            />
 
-          <app-link-sidebar
-            toolTip="Controle de Ponto Eletrônico"
-            link="/controle-ponto"
-            [onOpen]="isOpen()"
-            label="Controle de Ponto"
-            icon="timer"
-          />
+            <app-link-sidebar
+              toolTip="Rel. Folha de Ponto"
+              label="Folha de Ponto"
+              icon="assignment"
+              [onOpen]="isOpen()"
+              (actionClick)="openFolhaPontoReport()"
+            />
+          }
+
+          @if (authStore.canManager() || authStore.canContab()) {
+            <app-link-sidebar
+              toolTip="Controle de Ponto Eletrônico"
+              link="/controle-ponto"
+              [onOpen]="isOpen()"
+              label="Ponto Eletrônico"
+              icon="timer"
+            />
+          }
         </div>
       </div>
     </nav>
-  `,
+  `
 })
 export class SidebarComponent {
   protected readonly authStore = inject(AuthStore);

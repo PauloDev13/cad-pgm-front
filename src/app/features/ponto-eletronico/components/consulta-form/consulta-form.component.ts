@@ -8,7 +8,7 @@ import {
   inject,
   OnDestroy,
   signal,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
@@ -20,7 +20,7 @@ import { FieldWrapperComponent } from '../../../../shared/layout/component/field
 import { PontoEletronicoStore } from '../../store/ponto-eletronico.store';
 import { PontoEletronicoService } from '../../services/ponto-eletronico.service';
 import { GeneratePayload, Unidade } from '../../models/ponto-eletronico.model';
-import { debounceTime, Subject, switchMap } from 'rxjs';
+import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
 
 interface ConsultaFormModel {
   cpf: string;
@@ -39,7 +39,7 @@ interface ConsultaFormModel {
     MatInputModule,
     MatIconModule,
     FormField,
-    FieldWrapperComponent,
+    FieldWrapperComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -81,7 +81,8 @@ interface ConsultaFormModel {
             </app-field-wrapper>
 
             @if (unidades().length > 0) {
-              <ul class="absolute z-20 mt-[-8px] w-[calc(100%-24px)] mx-3 bg-white border border-blue-500 rounded-lg max-h-48 overflow-y-auto shadow-lg">
+              <ul
+                class="absolute z-20 mt-[-8px] w-[calc(100%-24px)] mx-3 bg-white border border-blue-500 rounded-lg max-h-48 overflow-y-auto shadow-lg">
                 @for (item of unidades(); track item.code) {
                   <li
                     class="px-3 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-b-0"
@@ -171,7 +172,8 @@ interface ConsultaFormModel {
             class="flex-1 bg-blue-600 text-white px-4 py-2.5 rounded-lg font-bold shadow-md
                    hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm">
             @if (store.isGenerating()) {
-              <span class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white/25 border-t-white mr-2 align-middle"></span>
+              <span
+                class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white/25 border-t-white mr-2 align-middle"></span>
               GERANDO...
             } @else {
               {{ buttonLabel() }}
@@ -180,7 +182,7 @@ interface ConsultaFormModel {
         </div>
       </form>
     </div>
-  `,
+  `
 })
 export class ConsultaFormComponent implements OnDestroy {
   readonly store = inject(PontoEletronicoStore);
@@ -204,7 +206,7 @@ export class ConsultaFormComponent implements OnDestroy {
     dateStart: '',
     dateEnd: '',
     excel: true,
-    pdf: false,
+    pdf: false
   };
 
   consultaFormModel = signal<ConsultaFormModel>({ ...this.initialModel });
@@ -227,13 +229,14 @@ export class ConsultaFormComponent implements OnDestroy {
   constructor() {
     this.unitSearch$
       .pipe(
-        debounceTime(250),
+        distinctUntilChanged(),
+        debounceTime(400),
         switchMap((q) => this.service.searchUnidades(q)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (res) => this.unidades.set(res.ok ? res.results : []),
-        error: () => this.unidades.set([]),
+        error: () => this.unidades.set([])
       });
   }
 
@@ -385,7 +388,7 @@ export class ConsultaFormComponent implements OnDestroy {
         date_start: dateStart,
         date_end: dateEnd,
         excel: raw.excel,
-        pdf: raw.pdf,
+        pdf: raw.pdf
       };
       this.submitPayload.next(payload);
     });
