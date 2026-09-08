@@ -3,7 +3,11 @@ export interface AniversarianteModel {
   diaMes: string;
   nome: string;
   setor: string;
+  cargo: string;
+  genero: string;
 }
+
+export type AniversarianteFormatado = AniversarianteModel & { nomeFormatado: string };
 
 // Array com os meses do ano
 export const MESES_DO_ANO = [

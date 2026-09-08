@@ -11,6 +11,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ArteAniversariantesComponent } from './arte-aniversariantes/arte-aniversariantes.component';
 import { ActivatedRoute } from '@angular/router';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { formatarNomeAniversariante } from '../../utils/formatar-nome-aniversariante';
 
 @Component({
   selector: 'app-aniversariantes',
@@ -118,7 +119,7 @@ import { rxResource, toSignal } from '@angular/core/rxjs-interop';
                 </thead>
 
                 <tbody class="bg-white">
-                  @for (item of aniversariantes(); track item.nome) {
+                  @for (item of aniversariantesFormatados(); track item.nome) {
                     <tr class="border-b border-[#E8DFC8] last:border-0 hover:bg-[#FDF8ED] transition-colors">
                       <td class="py-2 px-1 md:px-0 border-r border-[#E8DFC8]">
                         <div
@@ -133,7 +134,7 @@ import { rxResource, toSignal } from '@angular/core/rxjs-interop';
                       </td>
                       <td
                         class="py-2 px-2 md:px-3 border-r border-[#E8DFC8] font-semibold text-left text-xs md:text-[18px]">
-                        {{ item.nome }}
+                        {{ item.nomeFormatado }}
                       </td>
                       <td class="py-2 px-2 md:px-3 text-left text-xs md:text-[18px]">
                         {{ item.setor }}
@@ -154,7 +155,7 @@ import { rxResource, toSignal } from '@angular/core/rxjs-interop';
         }
       </div>
     </div>
-    <app-arte-aniversariantes [aniversariantes]="aniversariantes()" [titleReport]="titleReport()" />
+    <app-arte-aniversariantes [aniversariantes]="aniversariantesFormatados()" [titleReport]="titleReport()" />
   `
 })
 export default class AniversariantesComponent {
@@ -170,6 +171,14 @@ export default class AniversariantesComponent {
   private queryParams = toSignal(this.route.queryParams, {
     initialValue: this.route.snapshot.queryParams
   });
+
+  // lista de aniversariantes com os nomes formatados com prefixo 'Dra.' e 'Dr.'
+  aniversariantesFormatados = () => {
+    return this.aniversariantes().map(item => ({
+      ...item,
+      nomeFormatado: formatarNomeAniversariante(item)
+    }));
+  };
 
   artAniversariantes = viewChild.required(ArteAniversariantesComponent);
 

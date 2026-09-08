@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, inject, input, ViewChild } from '@angular/core';
-import { AniversarianteModel } from '../../../models/aniversariente.model';
+import { AniversarianteFormatado } from '../../../models/aniversariente.model';
 import { NotificationService } from '../../../../../shared/service/NotificationSnackbar.service';
 import { ErrorHandlerService } from '../../../../../shared/service/error-handler.service';
 import { toPng } from 'html-to-image';
@@ -82,7 +82,7 @@ import { MatIconModule } from '@angular/material/icon';
 
                   <td class="py-1 px-1.5 border-r border-[#E8DFC8]">
                     <div
-                      class="flex items-center bg-transparent gap-1.5 font-bold text-[18px] bg-[#FDF8ED] px-1 py-1 rounded-md w-fit mx-auto border border-[#E8DFC8]/60">
+                      class="flex items-center bg-transparent gap-1.5 font-bold text-[18px] px-1 py-1 rounded-md w-fit mx-auto border border-[#E8DFC8]/60">
                       <svg class="w-4 h-4 text-[#C29B57]" fill="none" viewBox="0 0 24 24" stroke-width="2"
                            stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -113,7 +113,7 @@ export class ArteAniversariantesComponent {
   private readonly notificationService = inject(NotificationService);
   private readonly errorHandlerService = inject(ErrorHandlerService);
 
-  aniversariantes = input.required<AniversarianteModel[]>();
+  aniversariantes = input.required<AniversarianteFormatado[]>();
 
   titleReport = input<string>('');
 
