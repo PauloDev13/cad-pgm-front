@@ -291,7 +291,10 @@ export class SidebarComponent {
           queryParams: {
             mes: filtros.mes,
             ano: filtros.ano,
-            setorId: filtros.setorId
+            setorId: filtros.setorId,
+            setorIds: filtros.setorIds && filtros.setorIds.length > 0
+              ? filtros.setorIds
+              : null
           }
         });
       }

@@ -64,7 +64,7 @@ import { LoadingComponent } from '../../../../../shared/components/loading.compo
           </div>
         }
 
-        @for (setor of setores(); track setor.nomeSetor; let isLastSetor = $last) {
+        @for (setor of setores(); track setor.idSetor; let isLastSetor = $last) {
 
           <!-- Folha de rosto que separa os setores na impressão -->
           <div
@@ -97,7 +97,8 @@ import { LoadingComponent } from '../../../../../shared/components/loading.compo
                 class="mb-4 font-bold uppercase tracking-wide leading-tight
                        bg-gray-50 border border-gray-300 p-3 rounded-lg print:mb-2 print:p-2 print:border-black print:rounded-none">
 
-                <div class="flex items-center justify-between border-b-2 border-black pb-1 mb-1.5 print:pb-0.5 print:mb-1">
+                <div
+                  class="flex items-center justify-between border-b-2 border-black pb-1 mb-1.5 print:pb-0.5 print:mb-1">
                   <span class="text-lg print:text-[15px]">NOME: {{ servidor.nome }}</span>
                   <span class="text-base print:text-[13px]">
                     MÊS: {{ nomeMesCorrente() }}/{{ anoSelecionado() }}
@@ -227,9 +228,19 @@ export default class FolhaPontoRelatorioComponent {
     return mesObj ? mesObj.nome.toUpperCase() : '';
   });
 
+  // Extração e normalização de setorIds dos queryParams
+  setorIdsSelecionados = computed<number[]>(() => {
+    const raw = this.queryParams()?.['setorIds'] ?? this.route.snapshot.queryParams['setorIds'];
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw.map(Number);
+    return [Number(raw)];
+  });
+
+  // rxResource reativo baseado no signal de setores
   folhaPontoResource = rxResource({
     stream: () => {
-      return this.relatorioService.gerarFolhaMes();
+      const setorIds = this.setorIdsSelecionados();
+      return this.relatorioService.gerarFolhaMes(setorIds);
     }
   });
 
