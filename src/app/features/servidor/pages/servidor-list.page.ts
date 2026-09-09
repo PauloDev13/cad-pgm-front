@@ -183,7 +183,7 @@ export default class ServidorListPage implements OnInit {
     // Limpa os filtros de pesquisa de servidores quando sair da página
     this.destroyRef.onDestroy(() => {
       this.servidoresStore.setServidorPageActive(false);
-      this.servidoresStore.clearAllFilters();
+      // this.servidoresStore.clearAllFilters();
     });
   }
 
