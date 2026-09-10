@@ -2,7 +2,9 @@ import { AniversarianteModel } from '../models/aniversariente.model';
 
 const CARGOS_ELEGIVEIS = [
   'procurador',
-  'chefe de procuradoria especializada'
+  'chefe de procuradoria especializada',
+  'procurador geral',
+  'procurador adjunto'
 ];
 
 // Função que devolve o nome formatado com o prefixo 'Dra.' ou 'Dr.'
