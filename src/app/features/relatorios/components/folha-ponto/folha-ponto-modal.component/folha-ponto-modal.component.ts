@@ -4,6 +4,7 @@ import { MESES_DO_ANO } from '../../../models/aniversariente.model';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { DominioService } from '../../../../servidor/services/dominio.service';
 
 @Component({
   selector: 'app-folha-ponto-modal.component',
@@ -26,6 +27,7 @@ import { MatSelectModule } from '@angular/material/select';
     <mat-dialog-content class="pt-4 flex flex-col gap-4">
       <p class="mb-4 text-base text-gray-600">Selecione o mês de referência.</p>
 
+      <!--  Combo com meses-->
       <mat-form-field
         appearance="outline"
         subscriptSizing="dynamic"
@@ -37,6 +39,23 @@ import { MatSelectModule } from '@angular/material/select';
 
           @for (mes of meses; track mes.id) {
             <mat-option [value]="mes.id">{{ mes.nome }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <!--  Combo com setores-->
+      <mat-form-field
+        appearance="outline"
+        subscriptSizing="dynamic"
+        class="w-full mb-4">
+        <mat-label>Setores (Opcional - vazio para todos</mat-label>
+        <mat-select
+          multiple
+          [value]="setoresSelecionados()"
+          (selectionChange)="setoresSelecionados.set($event.value)">
+
+          @for (setor of setoresDisponiveis(); track setor.id) {
+            <mat-option [value]="setor.id">{{ setor.nome }}</mat-option>
           }
         </mat-select>
       </mat-form-field>
@@ -55,6 +74,10 @@ import { MatSelectModule } from '@angular/material/select';
 })
 export class FolhaPontoModalComponent {
   protected readonly dialogRef = inject(MatDialogRef<FolhaPontoModalComponent>);
+  protected readonly dominioService = inject(DominioService);
+
+  setoresDisponiveis = this.dominioService.setoresResource.value;
+  setoresSelecionados = signal<number[]>([]);
 
   meses = MESES_DO_ANO;
   anoCorrente = new Date().getFullYear();
@@ -65,8 +88,8 @@ export class FolhaPontoModalComponent {
     // Devolve um objeto limpo para quem abriu o modal
     this.dialogRef.close({
       mes: this.mesSelecionado(),
-      ano: this.anoCorrente
+      ano: this.anoCorrente,
+      setorIds: this.setoresSelecionados() // Array vazio = Todos os setores
     });
-
   }
 }

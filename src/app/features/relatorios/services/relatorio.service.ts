@@ -21,8 +21,16 @@ export class RelatorioService {
     }).pipe(catchError(customHandlerError));
   }
 
-  gerarFolhaMes(): Observable<FolhaPontoSetorDTO[]> {
-    return this.http.get<FolhaPontoSetorDTO[]>(`${this.apiUrl}/folha-ponto`)
+  gerarFolhaMes(setorIds?: number[]): Observable<FolhaPontoSetorDTO[]> {
+    let params: HttpParams = new HttpParams();
+
+    if (setorIds && setorIds.length > 0) {
+      setorIds.forEach((id) => {
+        params = params.append('setorIds', id.toString());
+      });
+
+    }
+    return this.http.get<FolhaPontoSetorDTO[]>(`${this.apiUrl}/folha-ponto`, { params })
       .pipe(catchError(customHandlerError));
   }
 }

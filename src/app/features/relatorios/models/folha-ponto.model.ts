@@ -5,6 +5,7 @@ export interface FolhaPontoServidorDTO {
 }
 
 export interface FolhaPontoSetorDTO {
+  idSetor?: number;
   nomeSetor: string;
   totalServidores: number;
   servidores: FolhaPontoServidorDTO[];
