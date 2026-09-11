@@ -5,6 +5,7 @@ import { catchError, Observable } from 'rxjs';
 import { AniversarianteModel } from '../models/aniversariente.model';
 import { customHandlerError } from '../../../shared/utils/custom-handler-error';
 import { FolhaPontoSetorDTO } from '../models/folha-ponto.model';
+import { ProcuradorVinculoResponse } from '../models/certificado-vinculo.model';
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +22,7 @@ export class RelatorioService {
     }).pipe(catchError(customHandlerError));
   }
 
+  // retorna a Folha de Ponto mensal recebendo como parâmetros o Mês e a lista de Setores
   gerarFolhaMes(setorIds?: number[]): Observable<FolhaPontoSetorDTO[]> {
     let params: HttpParams = new HttpParams();
 
@@ -31,6 +33,21 @@ export class RelatorioService {
 
     }
     return this.http.get<FolhaPontoSetorDTO[]>(`${this.apiUrl}/folha-ponto`, { params })
+      .pipe(catchError(customHandlerError));
+  }
+
+  // retorna a lista de servidores vinculados ao certificado digital dos procuradores.
+  // Recebe como parâmetro uma lista de procuradores
+  getCertificadosVinculados(procuradores?: string[]): Observable<ProcuradorVinculoResponse[]> {
+    let params: HttpParams = new HttpParams();
+
+    if (procuradores && procuradores.length > 0) {
+      procuradores.forEach((nome) => {
+        params = params.append('procuradores', nome);
+      });
+    }
+    return this.http
+      .get<ProcuradorVinculoResponse[]>(`${this.apiUrl}/vinculos`, { params })
       .pipe(catchError(customHandlerError));
   }
 }

@@ -12,6 +12,9 @@ import { AuthStore } from '../../../core/auth/store/auth.store';
 import {
   FolhaPontoModalComponent
 } from '../../../features/relatorios/components/folha-ponto/folha-ponto-modal.component/folha-ponto-modal.component';
+import {
+  CertificadosVinculadosModalComponent
+} from '../../../features/relatorios/components/certificados-vinculados/certificados-vinculados-modal.component/certificados-vinculados-modal.component';
 
 @Component({
   selector: 'app-sidebar',
@@ -216,6 +219,14 @@ import {
               [onOpen]="isOpen()"
               (actionClick)="openFolhaPontoReport()"
             />
+
+            <app-link-sidebar
+              toolTip="Rel. Certificados Vinculados"
+              label="Certificados"
+              icon="verified_user"
+              [onOpen]="isOpen()"
+              (actionClick)="openCertificadosReport()"
+            />
           }
 
           @if (authStore.canManager() || authStore.canContab()) {
@@ -294,6 +305,26 @@ export class SidebarComponent {
             setorId: filtros.setorId,
             setorIds: filtros.setorIds && filtros.setorIds.length > 0
               ? filtros.setorIds
+              : null
+          }
+        });
+      }
+    });
+  }
+
+  openCertificadosReport() {
+    const dialogRef = this.dialog.open(CertificadosVinculadosModalComponent, {
+      width: '450px',
+      disableClose: true,
+      injector: this.injector
+    });
+
+    dialogRef.afterClosed().subscribe((filtros) => {
+      if (filtros) {
+        this.router.navigate(['/relatorios/certificados-vinculados'], {
+          queryParams: {
+            procuradores: filtros.procuradores && filtros.procuradores.length > 0
+              ? filtros.procuradores
               : null
           }
         });

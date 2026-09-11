@@ -158,6 +158,13 @@ export const routes: Routes = [
           import('./features/relatorios/components/folha-ponto/folha-ponto-relatorio.component/folha-ponto-relatorio.component')
       },
       {
+        path: 'relatorios/certificados-vinculados',
+        title: 'Certificados Vinculados | Gestão de Servidores PGM Natal',
+        loadComponent: () =>
+          import('./features/relatorios/components/certificados-vinculados/ertificados-vinculados-relatorio.component/certificados-vinculados-relatorio.component')
+            .then((m) => m.CertificadosVinculadosRelatorioComponent)
+      },
+      {
         path: 'controle-ponto',
         title: 'Controle de Ponto | Gestão de Servidores PGM Natal',
         loadComponent: () =>
