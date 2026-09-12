@@ -9,8 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { Location } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ArteAniversariantesComponent } from './arte-aniversariantes/arte-aniversariantes.component';
-import { ActivatedRoute } from '@angular/router';
-import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { formatarNomeAniversariante } from '../../utils/formatar-nome-aniversariante';
 
 @Component({
@@ -19,7 +18,8 @@ import { formatarNomeAniversariante } from '../../utils/formatar-nome-aniversari
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="p-4 md:p-6 max-w-screen-xl mx-auto w-full flex flex-col h-full min-h-0 bg-gray-50">
+    <div
+      class="md:p-6 max-w-screen-xl mx-auto w-full flex flex-col min-h-0 bg-gray-50 relative h-[calc(100dvh-130px)] overflow-hidden">
       <div
         class="flex flex-col md:flex-row bg-white p-2 md:p-3 rounded-xl border border-gray-100
               items-center justify-between shadow-sm gap-4 md:gap-4 mb-2 shrink-0 h-auto">
@@ -162,15 +162,9 @@ export default class AniversariantesComponent {
   private readonly relatorioService = inject(RelatorioService);
   private errorHandlerService = inject(ErrorHandlerService);
   private location = inject(Location);
-  private readonly route = inject(ActivatedRoute);
 
   // Input automático via withComponentInputBinding
   month = input<string | number>();
-
-  // Transforma o Observable queryParams em signal com snapshot como initialValue
-  private queryParams = toSignal(this.route.queryParams, {
-    initialValue: this.route.snapshot.queryParams
-  });
 
   // lista de aniversariantes com os nomes formatados com prefixo 'Dra.' e 'Dr.'
   aniversariantesFormatados = () => {
@@ -185,11 +179,9 @@ export default class AniversariantesComponent {
   // Pega o mês passado pela URL (input, signal queryParams ou snapshot)
   currentMonth = computed(() => {
     const fromInput = this.month();
-    if (fromInput !== undefined && fromInput !== null && fromInput !== '') {
-      return Number(fromInput);
-    }
-    const monthUrl = this.queryParams()?.['month'] ?? this.route.snapshot.queryParams['month'];
-    return monthUrl ? Number(monthUrl) : null;
+    return fromInput !== undefined && fromInput !== null && fromInput !== ''
+      ? Number(fromInput)
+      : new Date().getMonth() + 1;
   });
 
   titleReport = computed(() => {

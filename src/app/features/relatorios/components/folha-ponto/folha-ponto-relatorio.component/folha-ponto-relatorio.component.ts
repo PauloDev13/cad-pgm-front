@@ -1,11 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { RelatorioService } from '../../../services/relatorio.service';
 import { CalendarUtils } from '../../../utils/calendar-utils';
 import { MESES_DO_ANO } from '../../../models/aniversariente.model';
 import { ErrorHandlerService } from '../../../../../shared/service/error-handler.service';
 import { CommonModule, Location } from '@angular/common';
-import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,7 +17,7 @@ import { LoadingComponent } from '../../../../../shared/components/loading.compo
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="relative flex flex-col w-full h-[calc(100dvh-130px)] min-h-0 overflow-hidden bg-gray-50/50
+      class="md:p-3 relative flex flex-col w-full h-[calc(100dvh-130px)] min-h-0 overflow-hidden bg-gray-50/50
          print:h-auto print:bg-white print:block"
       style="-webkit-print-color-adjust: exact; print-color-adjust: exact;">
 
@@ -30,14 +29,20 @@ import { LoadingComponent } from '../../../../../shared/components/loading.compo
         <app-loading [isLoading]="true" />
       </div>
 
-      <div class="shrink-0 mb-4 print:hidden px-2 md:px-0 pt-6 flex flex-col gap-4 w-full max-w-4xl mx-auto">
-        <div class="flex justify-between w-full">
+      <div
+        class="shadow-sm rounded-xl border border-gray-100 p-2 md:p-3 md:flex-row bg-white shrink-0 mb-2 print:hidden pt-6 flex
+              md:gap-4 flex-col gap-4 w-full max-w-4xl mx-auto">
+        <div class="flex justify-between items-center w-full">
           <button
             class="bg-gray-500 text-white px-4 md:px-6 py-2 rounded-lg font-bold shadow-md hover:bg-gray-600 hover:shadow-lg transition-all flex items-center gap-2"
             (click)="goBack()">
             <mat-icon>arrow_back</mat-icon>
             <span class="hidden sm:inline">Voltar</span>
           </button>
+
+          <h2 class="text-center text-lg md:text-xl font-bold text-gray-700 uppercase tracking-wide m-0">
+            EMISSÃO EM LOTE DE FOLHA DE PONTO
+          </h2>
 
           <button
             class="bg-blue-600 text-white px-4 md:px-6 py-2 rounded-lg font-bold shadow-md hover:bg-blue-700 hover:shadow-lg transition-all flex items-center gap-2"
@@ -46,11 +51,7 @@ import { LoadingComponent } from '../../../../../shared/components/loading.compo
             <span class="hidden sm:inline">Imprimir/Salvar</span>
           </button>
         </div>
-        <h2 class="text-center text-lg md:text-xl font-bold text-gray-700 uppercase tracking-wide m-0">
-          EMISSÃO EM LOTE DE FOLHA DE PONTO
-        </h2>
       </div>
-
       <div
         class="flex-1 min-h-0 overflow-y-auto w-full max-w-4xl mx-auto px-2 md:px-0 pb-8 print:p-0
            print:overflow-visible print:max-w-none">
@@ -184,36 +185,27 @@ import { LoadingComponent } from '../../../../../shared/components/loading.compo
 export default class FolhaPontoRelatorioComponent {
   private readonly relatorioService = inject(RelatorioService);
   private readonly errorHandlerService = inject(ErrorHandlerService);
-  private readonly route = inject(ActivatedRoute);
   private readonly location = inject(Location);
 
   // Inputs automáticos via withComponentInputBinding
   mes = input<string | number>();
   ano = input<string | number>();
+  setorIds = input<string | number | (string | number)[]>();
 
-  // Transforma o queryParams em signal com snapshot como initialValue
-  private queryParams = toSignal(this.route.queryParams, {
-    initialValue: this.route.snapshot.queryParams
-  });
-
-  // Extrai o Mês do input ou queryParams
+  // Extrai o Mês do input com fallback para o mês corrente
   mesSelecionado = computed(() => {
     const fromInput = this.mes();
-    if (fromInput !== undefined && fromInput !== null && fromInput !== '') {
-      return Number(fromInput);
-    }
-    const mesParam = this.queryParams()?.['mes'] ?? this.route.snapshot.queryParams['mes'];
-    return mesParam ? Number(mesParam) : new Date().getMonth() + 1;
+    return fromInput !== undefined && fromInput !== null && fromInput !== ''
+      ? Number(fromInput)
+      : new Date().getMonth() + 1;
   });
 
-  // Extrai o Ano do input ou queryParams
+  // Extrai o Ano do input com fallback para o ano corrente
   anoSelecionado = computed(() => {
     const fromInput = this.ano();
-    if (fromInput !== undefined && fromInput !== null && fromInput !== '') {
-      return Number(fromInput);
-    }
-    const anoParam = this.queryParams()?.['ano'] ?? this.route.snapshot.queryParams['ano'];
-    return anoParam ? Number(anoParam) : new Date().getFullYear();
+    return fromInput !== undefined && fromInput !== null && fromInput !== ''
+      ? Number(fromInput)
+      : new Date().getFullYear();
   });
 
   // Busca na classe CalendarUtils os dias do mês
@@ -221,26 +213,30 @@ export default class FolhaPontoRelatorioComponent {
     CalendarUtils.gerarDiasDoMes(this.anoSelecionado(), this.mesSelecionado())
   );
 
-  // Busca o nome do mês através da seleção feita no dropbox
+  // Busca o nome do mês através da seleção
   nomeMesCorrente = computed(() => {
     const mesObj = MESES_DO_ANO.find(
       m => m.id === this.mesSelecionado());
     return mesObj ? mesObj.nome.toUpperCase() : '';
   });
 
-  // Extração e normalização de setorIds dos queryParams
+  // Extração e normalização de setorIds a partir do input da rota
   setorIdsSelecionados = computed<number[]>(() => {
-    const raw = this.queryParams()?.['setorIds'] ?? this.route.snapshot.queryParams['setorIds'];
+    const raw = this.setorIds();
     if (!raw) return [];
     if (Array.isArray(raw)) return raw.map(Number);
     return [Number(raw)];
   });
 
-  // rxResource reativo baseado no signal de setores
+  // rxResource reativo baseado no signal de parâmetros (re-executa automaticamente ao alterar filtros)
   folhaPontoResource = rxResource({
-    stream: () => {
-      const setorIds = this.setorIdsSelecionados();
-      return this.relatorioService.gerarFolhaMes(setorIds);
+    params: () => ({
+      setorIds: this.setorIdsSelecionados(),
+      mes: this.mesSelecionado(),
+      ano: this.anoSelecionado()
+    }),
+    stream: ({ params }) => {
+      return this.relatorioService.gerarFolhaMes(params.setorIds);
     }
   });
 

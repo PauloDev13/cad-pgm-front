@@ -5,8 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { LoadingComponent } from '../../../../../shared/components/loading.component/loading.component';
 import { RelatorioService } from '../../../services/relatorio.service';
 import { ErrorHandlerService } from '../../../../../shared/service/error-handler.service';
-import { ActivatedRoute } from '@angular/router';
-import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { rxResource } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-certificados-vinculados-relatorio',
@@ -20,7 +19,8 @@ import { rxResource, toSignal } from '@angular/core/rxjs-interop';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="relative flex flex-col w-full h-[calc(100dvh-130px)] min-h-0 overflow-hidden bg-gray-50/50 print:h-auto print:bg-white print:block"
+      class="md:p-3 relative flex flex-col w-full h-[calc(100dvh-130px)] min-h-0 overflow-hidden bg-gray-50/50
+            print:h-auto print:bg-white print:block"
       style="-webkit-print-color-adjust: exact; print-color-adjust: exact;">
       <!-- Loading Overlay -->
       <div
@@ -31,7 +31,8 @@ import { rxResource, toSignal } from '@angular/core/rxjs-interop';
         <app-loading [isLoading]="true" />
       </div>
       <!-- Barra Superior de Ações (Oculta na impressão) -->
-      <div class="shrink-0 mb-4 print:hidden px-2 md:px-0 pt-6 flex flex-col gap-4 w-full max-w-4xl mx-auto">
+      <div class="shadow-sm rounded-xl border border-gray-100 p-2 md:p-3 md:flex-row bg-white shrink-0 mb-2 print:hidden flex
+                md:gap-4 flex-col gap-4 w-full max-w-4xl mx-auto">
         <div class="flex justify-between items-center w-full">
           <button
             class="bg-gray-500 text-white px-4 md:px-6 py-2 rounded-lg font-bold shadow-md hover:bg-gray-600 hover:shadow-lg transition-all flex items-center gap-2"
@@ -39,6 +40,11 @@ import { rxResource, toSignal } from '@angular/core/rxjs-interop';
             <mat-icon>arrow_back</mat-icon>
             <span class="hidden sm:inline">Voltar</span>
           </button>
+
+          <h2 class="text-center text-lg md:text-xl font-bold text-gray-700 uppercase tracking-wide m-0">
+            Certificado Digital Vinculado Por Servidor
+          </h2>
+
           <button
             class="bg-blue-600 text-white px-4 md:px-6 py-2 rounded-lg font-bold shadow-md hover:bg-blue-700 hover:shadow-lg transition-all flex items-center gap-2"
             (click)="printReport()"
@@ -47,9 +53,6 @@ import { rxResource, toSignal } from '@angular/core/rxjs-interop';
             <span class="hidden sm:inline">Imprimir/Salvar</span>
           </button>
         </div>
-        <h2 class="text-center text-lg md:text-xl font-bold text-gray-700 uppercase tracking-wide m-0">
-          Certificado Digital Vinculado Por Servidor
-        </h2>
       </div>
       <!-- Conteúdo do Relatório / Agrupamento -->
       <div
@@ -77,7 +80,8 @@ import { rxResource, toSignal } from '@angular/core/rxjs-interop';
         <!-- Lista de Procuradores e Servidores -->
         @for (procurador of vinculos(); track procurador.nomeProcurador) {
           <div
-            class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 md:p-6 mb-6 break-inside-avoid print:shadow-none print:border-black print:mb-4">
+            class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 md:p-6 mb-6
+                   print:shadow-none print:border-none print:mb-4">
 
             <!-- Título do Procurador -->
             <div class="flex items-center gap-2 border-b border-gray-200 pb-2 mb-4 print:border-black">
@@ -124,31 +128,25 @@ import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 export class CertificadosVinculadosRelatorioComponent {
   private readonly relatorioService = inject(RelatorioService);
   private readonly errorHandlerService = inject(ErrorHandlerService);
-  private readonly route = inject(ActivatedRoute);
   private readonly location = inject(Location);
 
   // Input automático via withComponentInputBinding
   procuradores = input<string | string[]>();
-  private queryParams = toSignal(this.route.queryParams, {
-    initialValue: this.route.snapshot.queryParams
-  });
 
-  // Normalização do array de procuradores a partir dos parâmetros da URL
+  // Normalização reativa do array de procuradores a partir do input da rota
   procuradoresSelecionados = computed<string[]>(() => {
-    const fromInput = this.procuradores();
-    if (fromInput) {
-      return Array.isArray(fromInput) ? fromInput : [fromInput];
-    }
-    const raw = this.queryParams()?.['procuradores'] ?? this.route.snapshot.queryParams['procuradores'];
+    const raw = this.procuradores();
     if (!raw) return [];
     return Array.isArray(raw) ? raw : [raw];
   });
 
-  // Requisição reativa orientada a Signal
+  // Requisição reativa orientada a Signal (executa automaticamente a cada alteração nos params)
   certificadosResource = rxResource({
-    stream: () => {
-      const procs = this.procuradoresSelecionados();
-      return this.relatorioService.getCertificadosVinculados(procs);
+    params: () => ({
+      procuradores: this.procuradoresSelecionados()
+    }),
+    stream: ({ params }) => {
+      return this.relatorioService.getCertificadosVinculados(params.procuradores);
     }
   });
 
