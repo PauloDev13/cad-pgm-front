@@ -112,7 +112,8 @@ export class VinculosPermissoesComponent implements OnInit {
   servidorName = input.required<string>();
 
   // Emite as alterações de volta em tempo real para o Pai salvar tudo no submit único!
-  permissionsChanged = output<{ sistemaIds: number[], procuradorIds: number[], aliasIds: number[] }>();
+  permissionsChanged = output<
+    { sistemaIds: number[], procuradorIds: number[], aliasIds: number[] }>();
 
   // Arrays de controle local para o binding bidirecional do componente de tela
   selectedSistemas: number[] = [];
@@ -131,6 +132,7 @@ export class VinculosPermissoesComponent implements OnInit {
     this.selectedProcuradores = [];
     this.selectedSistemas = [];
     this.selectedAliases = [];
+    this.emitChanges();
   }
 
   // Método inteligente para alternar itens nos arrays de permissão
@@ -149,22 +151,6 @@ export class VinculosPermissoesComponent implements OnInit {
 
     // Execução cirúrgica: Busca a ação correta e já executa
     actions[listName]();
-
-    // if (listName === 'sistemas') {
-    //   this.selectedSistemas = isChecked
-    //     ? [...this.selectedSistemas, id]
-    //     : this.selectedSistemas.filter(i => i !== id);
-    // }
-    //
-    // if (listName !== 'procuradores') {
-    //   this.selectedAliases = isChecked
-    //     ? [...this.selectedAliases, id]
-    //     : this.selectedAliases.filter(i => i !== id);
-    // }
-    //
-    // this.selectedProcuradores = isChecked
-    //   ? [...this.selectedProcuradores, id]
-    //   : this.selectedProcuradores.filter(i => i !== id);
 
     this.emitChanges();
   }
