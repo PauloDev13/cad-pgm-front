@@ -43,7 +43,7 @@ import { FieldWrapperComponent } from '../../../../shared/layout/component/field
     <div class="flex justify-between items-center px-6 pt-4 pb-1">
       <h2 mat-dialog-title class="!font-bold !text-xl !text-blue-700 !m-0 !p-0 flex items-center gap-2">
         <mat-icon class="!text-blue-600">badge</mat-icon>
-        {{ isEdit ? 'Editar Procurador' : 'Novo Procurador' }}
+        {{ isEdit ? 'Editar Certificado' : 'Novo Certificado' }}
       </h2>
       <button
         mat-icon-button
@@ -59,15 +59,15 @@ import { FieldWrapperComponent } from '../../../../shared/layout/component/field
       <form autocomplete="off" class="flex flex-col gap-4">
         <div>
           <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 border-b pb-1 mt-0">
-            Dados do Procurador e Certificado Digital
+            Dados do Certificado Digital
           </h3>
 
-          <div class="flex flex-col gap-y-3">
+          <div class="flex flex-col gap-y-3 pt-3">
             <!-- Nome Completo -->
             <app-field-wrapper [field]="procuradorForm.nome()">
               <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                <mat-label>Nome Completo do Procurador</mat-label>
-                <input matInput [formField]="procuradorForm.nome" placeholder="Ex: Dr. Alexandre Ramos" />
+                <mat-label>Nome Completo do Titular</mat-label>
+                <input matInput [formField]="procuradorForm.nome" placeholder="Nome do Procurador" />
               </mat-form-field>
             </app-field-wrapper>
 
@@ -83,7 +83,8 @@ import { FieldWrapperComponent } from '../../../../shared/layout/component/field
                         <div class="flex items-center justify-between w-full">
                           <span>{{ tipo.label }}</span>
                           <span
-                            class="text-xs text-gray-500 ml-2">({{ tipo.validadeAnos }} {{ tipo.validadeAnos === 1 ? 'ano' : 'anos' }})
+                            class="text-xs text-gray-500 ml-4">
+                            ({{ tipo.validadeAnos }} {{ tipo.validadeAnos === 1 ? 'ano' : 'anos' }})
                           </span>
                         </div>
                       </mat-option>
@@ -95,13 +96,14 @@ import { FieldWrapperComponent } from '../../../../shared/layout/component/field
               <!-- Data de Expedição (Captura dd/MM/yyyy e concatena horário atual no envio) -->
               <app-field-wrapper [field]="procuradorForm.dataExpedicao()">
                 <mat-form-field appearance="outline" class="w-full" floatLabel="always" subscriptSizing="dynamic">
-                  <mat-label>Data de Expedição</mat-label>
+                  <mat-label>Data de Emissão</mat-label>
                   <input
                     matInput
                     [formField]="procuradorForm.dataExpedicao"
                     mask="00/00/0000"
                     [dropSpecialCharacters]="false"
                     placeholder="DD/MM/AAAA"
+                    class="text-right"
                   />
                 </mat-form-field>
               </app-field-wrapper>
@@ -116,15 +118,16 @@ import { FieldWrapperComponent } from '../../../../shared/layout/component/field
                 </div>
                 @if (dataExpiracaoFormatada()) {
                   <p class="m-0">
-                    Data prevista de expiração:
+                    Válido até:
                     <strong class="text-blue-800 font-bold">{{ dataExpiracaoFormatada() }}</strong>
                     <span class="text-blue-600 ml-1">
-                      ({{ procuradorModel().tipoCertificado === 'A1' ? '1 ano após a expedição' : '3 anos após a expedição' }})
+                      ({{ procuradorModel().tipoCertificado === 'A1' ? '1 ano após a emissão' : '3 anos após a emissão' }}
+                      )
                     </span>
                   </p>
                 } @else {
                   <p class="text-blue-700 m-0">
-                    Informe a data de expedição no formato DD/MM/AAAA para visualizar a data estimada de expiração.
+                    Informe a Data de Emissão do Certificado para visualizar a Data de Validade.
                   </p>
                 }
               </div>
@@ -225,7 +228,7 @@ export class ProcuradorFormComponent implements OnInit {
         // 1. Interpreta a data digitada (DD/MM/YYYY)
         const dt = DateTime.fromFormat(formValues.dataExpedicao.trim(), 'dd/MM/yyyy');
         if (!dt.isValid) {
-          throw new Error('Data de expedição inválida.');
+          throw new Error('Data de Emissão inválida.');
         }
 
         // 2. Captura hora, minuto e segundo atuais do sistema
@@ -238,7 +241,7 @@ export class ProcuradorFormComponent implements OnInit {
         });
 
         // 3. Gera formato ISO completo: YYYY-MM-DDTHH:mm:ss
-        const dataExpedicaoIso = dataExpedicaoComHora.toFormat("yyyy-MM-dd'T'HH:mm:ss");
+        const dataExpedicaoIso = dataExpedicaoComHora.toFormat('yyyy-MM-dd\'T\'HH:mm:ss');
 
         const payload: ProcuradorRequestDTO = {
           nome: formValues.nome.trim(),
@@ -251,6 +254,7 @@ export class ProcuradorFormComponent implements OnInit {
         if (this.isEdit && this.data?.id) {
           response = await firstValueFrom(this.procuradorService.update(this.data.id, payload));
           this.notificationService.success('Procurador atualizado com sucesso!', 'Atualização');
+
         } else {
           response = await firstValueFrom(this.procuradorService.create(payload));
           this.notificationService.success('Procurador cadastrado com sucesso!', 'Cadastro');
@@ -258,7 +262,7 @@ export class ProcuradorFormComponent implements OnInit {
 
         this.dialogRef.close(response);
       } catch (err: any) {
-        this.errorHandlerService.handle(err, this.isEdit ? 'Atualização de Procurador' : 'Cadastro de Procurador');
+        this.errorHandlerService.handle(err, this.isEdit ? 'Atualização de Certificado' : 'Cadastro de Certificado');
       } finally {
         this.isSaving.set(false);
       }

@@ -20,17 +20,22 @@ export const subscriptionProcuradorSchema = schema<ProcuradorFormModel>((path) =
   required(path.tipoCertificado, { message: 'O tipo de certificado é obrigatório' });
 
   // Data Expedição (Formato DD/MM/YYYY)
-  required(path.dataExpedicao, { message: 'A data de expedição é obrigatória' });
+  required(path.dataExpedicao, { message: 'A Data de Emissão é obrigatória' });
   validate(path.dataExpedicao, ({ value }) => {
     const val = value()?.trim();
+
     if (!val) return null;
+
     if (val.length !== 10) {
       return { kind: 'incompleteDate', message: 'Informe a data completa no formato DD/MM/AAAA' };
     }
+
     const dt = DateTime.fromFormat(val, 'dd/MM/yyyy');
+
     if (!dt.isValid) {
       return { kind: 'invalidDate', message: 'Data inválida' };
     }
+
     return null;
   });
 });

@@ -136,7 +136,7 @@ import {
         <!-- Menu Permissões-->
         <div class="flex flex-col">
           <app-button-sidebar
-            label="Permissões"
+            label="Vinculos"
             [onOpen]="isOpen()"
             (toggleSubmenu)="toggleSubmenu('permissoes')"
             iconMenu="admin_panel_settings"
@@ -154,8 +154,8 @@ import {
               toolTip="Gestão de Procuradores"
               link="/permissoes/procuradores"
               [onOpen]="isOpen()"
-              label="Procuradores"
-              icon="gavel"
+              label="Cert. Digitais"
+              icon="badge"
             />
 
             <app-link-sidebar
@@ -232,7 +232,7 @@ import {
           @if (authStore.canManager() || authStore.canContab()) {
             <app-link-sidebar
               toolTip="Controle de Ponto Eletrônico"
-              link="/controle-ponto"
+              link="relatorios/ponto-eletronico"
               [onOpen]="isOpen()"
               label="Ponto Eletrônico"
               icon="timer"
