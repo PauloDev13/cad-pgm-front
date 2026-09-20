@@ -35,8 +35,9 @@ export interface ExpiracaoStatus {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="flex flex-col w-full border border-gray-300 rounded-xl overflow-hidden
-             relative bg-white min-h-[320px] md:min-h-[480px]"
+      class="
+      flex flex-col w-full border border-gray-300 rounded-lg overflow-hidden
+      relative bg-white h-[calc(100dvh-406px)] min-h-[320px] md:min-h-[505px]"
     >
       <!-- Loading Overlay -->
       <div
@@ -225,11 +226,11 @@ export interface ExpiracaoStatus {
 
       <!-- Paginator -->
       <mat-paginator
-        class="shrink-0 !bg-gray-50 border-t border-gray-200 relative text-amb z-20"
+        class="shrink-0 !bg-gray-50 border-t border-gray-200 relative !text-blue-700 z-20"
         [length]="totalElements()"
         [pageSize]="pageSize()"
         [pageIndex]="currentPage()"
-        [pageSizeOptions]="[10, 15, 20]"
+        [pageSizeOptions]="[10, 30, 50]"
         [showFirstLastButtons]="true"
         (page)="pageChange.emit($event)"
         aria-label="Selecione a página"

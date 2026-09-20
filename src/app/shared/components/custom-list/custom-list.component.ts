@@ -194,7 +194,7 @@ import { LoadingComponent } from '../loading.component/loading.component';
           </table>
         </div>
         <mat-paginator
-          class="!bg-gray-100 border-t border-gray-200 relative z-20"
+          class="!bg-gray-50 border-t border-gray-200 relative z-20"
           [length]="totalElements()"
           [pageSize]="pageSize()"
           [pageIndex]="currentPage()"

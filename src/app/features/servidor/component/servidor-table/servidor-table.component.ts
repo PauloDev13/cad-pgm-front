@@ -266,7 +266,7 @@ import { AuthStore } from '../../../../core/auth/store/auth.store';
         </table>
       </div>
       <mat-paginator
-        class="shrink-0 border-t border-gray-200 relative z-20"
+        class="shrink-0 !bg-gray-50 border-t border-gray-200 relative z-20"
         [length]="totalElements()"
         [pageSize]="pageSize()"
         [pageIndex]="currentPage()"
