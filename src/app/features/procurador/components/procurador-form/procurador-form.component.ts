@@ -186,6 +186,7 @@ export class ProcuradorFormComponent implements OnInit {
     if (!expedicao || expedicao.length !== 10) return null;
 
     const dt = DateTime.fromFormat(expedicao, 'dd/MM/yyyy');
+
     if (!dt.isValid) return null;
 
     const validadeAnos = tipo === 'A3' ? 3 : 1;
@@ -200,8 +201,10 @@ export class ProcuradorFormComponent implements OnInit {
     if (this.isEdit && this.data) {
       // Converte a data ISO vinda do backend (YYYY-MM-DDTHH:mm:ss) para formato visual (DD/MM/YYYY)
       let expedicaoLocal = '';
+
       if (this.data.dataExpedicao) {
         const dt = DateTime.fromISO(this.data.dataExpedicao);
+
         if (dt.isValid) {
           expedicaoLocal = dt.toFormat('dd/MM/yyyy');
         }
@@ -222,14 +225,12 @@ export class ProcuradorFormComponent implements OnInit {
   async salvar(): Promise<void> {
     await submit(this.procuradorForm, async () => {
       this.isSaving.set(true);
+
       try {
         const formValues = this.procuradorModel();
 
-        // 1. Interpreta a data digitada (DD/MM/YYYY)
-        const dt = DateTime.fromFormat(formValues.dataExpedicao.trim(), 'dd/MM/yyyy');
-        if (!dt.isValid) {
-          throw new Error('Data de Emissão inválida.');
-        }
+        // 1. Interpreta e valida a data digitada (DD/MM/YYYY)
+        const dt = this.obterDataExpedicao(formValues.dataExpedicao);
 
         // 2. Captura hora, minuto e segundo atuais do sistema
         const agora = DateTime.now();
@@ -253,20 +254,37 @@ export class ProcuradorFormComponent implements OnInit {
 
         if (this.isEdit && this.data?.id) {
           response = await firstValueFrom(this.procuradorService.update(this.data.id, payload));
+
           this.notificationService.success('Procurador atualizado com sucesso!', 'Atualização');
 
         } else {
           response = await firstValueFrom(this.procuradorService.create(payload));
+
           this.notificationService.success('Procurador cadastrado com sucesso!', 'Cadastro');
         }
 
         this.dialogRef.close(response);
-      } catch (err: any) {
+      } catch (err: unknown) {
         this.errorHandlerService.handle(err, this.isEdit ? 'Atualização de Certificado' : 'Cadastro de Certificado');
       } finally {
         this.isSaving.set(false);
       }
     });
+  }
+
+  /*
+  ==========================
+  * MÉTODOS PRIVADOS
+  ===========================*/
+
+  // Interpreta e valida a data informada
+  private obterDataExpedicao(data: string): DateTime {
+    const dt = DateTime.fromFormat(data.trim(), 'dd/MM/yyyy');
+
+    if (!dt.isValid) {
+      throw new Error('Data de Emissão inválida');
+    }
+    return dt;
   }
 }
 
