@@ -23,7 +23,6 @@ import { ProcuradorTableComponent } from '../components/procurador-table/procura
 import { ProcuradorFormComponent } from '../components/procurador-form/procurador-form.component';
 import { CustomDeleteService } from '../../../shared/service/custom-delete.service';
 import { ErrorHandlerService } from '../../../shared/service/error-handler.service';
-import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 
 @Component({
   selector: 'app-procurador-display',
@@ -92,6 +91,7 @@ import { NotificationService } from '../../../shared/service/NotificationSnackba
         (edit)="openModalEdit($event)"
         (deleteItem)="delete($event)"
         (pageChange)="handlePageEvent($event)"
+        (sortChange)="handleSortChanged($event)"
       />
     </div>
   `
@@ -100,7 +100,6 @@ export default class ProcuradorDisplayPage implements OnInit {
   private readonly procuradorService = inject(ProcuradorService);
   private readonly customDeleteService = inject(CustomDeleteService);
   private readonly errorHandlerService = inject(ErrorHandlerService);
-  private readonly notificationService = inject(NotificationService);
   private readonly dialog = inject(MatDialog);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -108,6 +107,8 @@ export default class ProcuradorDisplayPage implements OnInit {
   searchTerm = signal<string>('');
   pageSize = signal<number>(10);
   currentPage = signal<number>(0);
+  sortActive = signal<string>('dataExpiracao');
+  sortDirection = signal<'asc' | 'desc'>('asc');
 
   private readonly searchSubject = new Subject<string>();
 
@@ -116,10 +117,13 @@ export default class ProcuradorDisplayPage implements OnInit {
     params: () => ({
       page: this.currentPage(),
       size: this.pageSize(),
-      filter: this.searchTerm()
+      filter: this.searchTerm(),
+      sortActive: this.sortActive(),
+      sortDirection: this.sortDirection()
     }),
     stream: ({ params }) => {
-      return this.procuradorService.searchFilter(params.page, params.size, params.filter);
+      const sortObj = { active: params.sortActive, direction: params.sortDirection };
+      return this.procuradorService.searchFilter(params.page, params.size, params.filter, sortObj);
     }
   });
 
@@ -166,6 +170,12 @@ export default class ProcuradorDisplayPage implements OnInit {
   handlePageEvent(event: PageEvent): void {
     this.currentPage.set(event.pageIndex);
     this.pageSize.set(event.pageSize);
+  }
+
+  handleSortChanged(sort: { active: string, direction: 'asc' | 'desc' }): void {
+    this.sortActive.set(sort.active);
+    this.sortDirection.set(sort.direction);
+    this.currentPage.set(0);
   }
 
   openModalNew(): void {

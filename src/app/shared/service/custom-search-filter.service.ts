@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { PageResponse } from '../model/pagination.model';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class CustomSearchFilterService {
   private readonly http = inject(HttpClient);
@@ -16,6 +16,10 @@ export class CustomSearchFilterService {
     size: number,
     endpoint: string,
     term?: string,
+    sortObj?: {
+      active: string,
+      direction: string,
+    }
   ): Observable<PageResponse<T>> {
     let params = new HttpParams().set('page', page).set('size', size);
 
@@ -30,9 +34,12 @@ export class CustomSearchFilterService {
     if (term && term.trim() !== 'email') {
       params = params.set('email', term.trim());
     }
+    if (sortObj && sortObj.active && sortObj.direction) {
+      params = params.set('sort', `${sortObj.active},${sortObj.direction}`);
+    }
 
     return this.http.get<PageResponse<T>>(`${this.baseUrl}/${endpoint}/searchFilter`, {
-      params,
+      params
     });
   }
 }

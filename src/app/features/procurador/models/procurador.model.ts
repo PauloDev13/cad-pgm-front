@@ -24,6 +24,11 @@ export interface TipoCertificadoOption {
 
 export const TIPOS_CERTIFICADO: TipoCertificadoOption[] = [
   { value: 'A1', label: 'Certificado A1', validadeAnos: 1, descricao: 'Validade de 1 ano (Software / Arquivo .pfx)' },
-  { value: 'A3', label: 'Certificado A3', validadeAnos: 3, descricao: 'Validade de 3 anos (Hardware / Token / Smartcard)' }
+  {
+    value: 'A3',
+    label: 'Certificado A3',
+    validadeAnos: 3,
+    descricao: 'Validade de 3 anos (Hardware / Token / Smartcard)'
+  }
 ];
 

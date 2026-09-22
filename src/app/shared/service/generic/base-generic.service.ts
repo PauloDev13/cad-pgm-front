@@ -26,16 +26,21 @@ export abstract class BaseGenericService<TReq, TRes> {
     }).pipe(catchError(customHandlerError));
   }
 
-  searchFilter(page: number, size: number, nome?: string): Observable<PageResponse<TRes[]>> {
-    return this.searchService.searchFilter<TRes[]>(page, size, this.endpoint, nome)
+  searchFilter(
+    page: number,
+    size: number,
+    nome?: string,
+    sortObj?: {
+      active: string,
+      direction: string
+    }): Observable<PageResponse<TRes[]>> {
+    return this.searchService.searchFilter<TRes[]>(page, size, this.endpoint, nome, sortObj)
       .pipe(catchError(customHandlerError));
   }
 
   create(payload: TReq): Observable<TRes> {
     return this.http.post<TRes>(`${this.baseUrl}/${this.endpoint}`, payload)
       .pipe(
-        // Em caso de sucesso, chama o hook que limpa o cache
-        // tap(() => this.onDataMutated()),
         catchError(customHandlerError)
       );
   }
@@ -43,8 +48,6 @@ export abstract class BaseGenericService<TReq, TRes> {
   update(id: number, payload: TReq): Observable<TRes> {
     return this.http.put<TRes>(`${this.baseUrl}/${this.endpoint}/${id}`, payload)
       .pipe(
-        // Em caso de sucesso, chama o hook que limpa o cache
-        // tap(() => this.onDataMutated()),
         catchError(customHandlerError)
       );
   }
