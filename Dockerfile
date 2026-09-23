@@ -14,7 +14,8 @@ RUN npm ci
 COPY . .
 
 # Faz o build de produção
-RUN npm run build -- --configuration production
+# RUN npm run build -- --configuration production
+RUN npx ng build --configuration production
 
 # Estágio 2: Nginx Web Server
 FROM nginx:alpine
