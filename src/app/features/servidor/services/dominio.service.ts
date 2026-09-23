@@ -72,7 +72,7 @@ export class DominioService {
   });
 
   procuradoresResource = rxResource({
-    stream: () => this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/procuradores/select`)
+    stream: () => this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/procuradores/select-combo`)
       .pipe(
         catchError((err) => {
           customHandlerError(err);
@@ -80,6 +80,16 @@ export class DominioService {
         })
       )
   });
+
+  // procuradoresResource = rxResource({
+  //   stream: () => this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/procuradores/select`)
+  //     .pipe(
+  //       catchError((err) => {
+  //         customHandlerError(err);
+  //         return of([]);
+  //       })
+  //     )
+  // });
 
   statusResource = rxResource({
     stream: () => this.http.get<BaseEntityDTO[]>(`${this.baseUrl}/status/select`)

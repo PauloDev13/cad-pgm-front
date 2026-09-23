@@ -230,7 +230,7 @@ import { LoadingComponent } from '../../../../shared/components/loading.componen
         [length]="totalElements()"
         [pageSize]="pageSize()"
         [pageIndex]="currentPage()"
-        [pageSizeOptions]="[10, 30, 50]"
+        [pageSizeOptions]="[10, 15, 20]"
         [showFirstLastButtons]="true"
         (page)="pageChange.emit($event)"
         aria-label="Selecione a página"
@@ -284,67 +284,6 @@ export class ProcuradorTableComponent {
       direction: this.sortDirection()
     });
   }
-
-  /**
-   * Retorna a prioridade de ordenação baseada no status de expiração
-   * 1 = Expirado (prioridade máxima)
-   * 2 = Vencendo em até 30 dias
-   * 3 = Válido (mais de 30 dias)
-   * 99 = Data inválida/indisponível (vai para o final)
-   */
-  // private getExpiracaoPriority(dataIso: string | undefined): number {
-  //   if (!dataIso) return 99;
-  //   const exp = DateTime.fromISO(dataIso);
-  //   if (!exp.isValid) return 99;
-  //
-  //   const now = DateTime.now();
-  //   const diffDias = Math.floor(exp.diff(now, 'days').days);
-  //
-  //   if (diffDias < 0) return 1;      // Expirados
-  //   if (diffDias <= 30) return 2;    // Vencendo em 30 dias
-  //   return 3;                        // Válidos
-  // }
-
-  /**
-   * Computed signal que retorna os dados ordenados.
-   * - Se usuário clicou em header: ordenação interativa (nome ou dataExpiracao asc/desc)
-   * - Se nenhuma interação: ordenação padrão por prioridade de expiração
-   *   (Expirados → Vencendo 30d → Válidos), com dataExpiracao ASC dentro de cada grupo.
-   */
-  // sortedData = computed(() => {
-  //   const items = [...this.data()];
-  //   const col = this.sortColumn();
-  //   const dir = this.sortDirection();
-  //
-  //   // Ordenação interativa (usuário clicou no header)
-  //   if (col) {
-  //     items.sort((a, b) => {
-  //       let valA: any, valB: any;
-  //       if (col === 'nome') {
-  //         valA = a.nome?.toLowerCase() ?? '';
-  //         valB = b.nome?.toLowerCase() ?? '';
-  //       } else if (col === 'dataExpiracao') {
-  //         valA = a.dataExpiracao ? DateTime.fromISO(a.dataExpiracao).toMillis() : 0;
-  //         valB = b.dataExpiracao ? DateTime.fromISO(b.dataExpiracao).toMillis() : 0;
-  //       }
-  //       const cmp = valA < valB ? -1 : valA > valB ? 1 : 0;
-  //       return dir === 'asc' ? cmp : -cmp;
-  //     });
-  //     return items;
-  //   }
-  //
-  //   // Ordenação PADRÃO: por prioridade de expiração
-  //   return items.sort((a, b) => {
-  //     const priA = this.getExpiracaoPriority(a.dataExpiracao);
-  //     const priB = this.getExpiracaoPriority(b.dataExpiracao);
-  //     if (priA !== priB) return priA - priB;
-  //
-  //     // Mesmo grupo → data de expiração mais próxima primeiro (ASC)
-  //     const expA = a.dataExpiracao ? DateTime.fromISO(a.dataExpiracao).toMillis() : Infinity;
-  //     const expB = b.dataExpiracao ? DateTime.fromISO(b.dataExpiracao).toMillis() : Infinity;
-  //     return expA - expB;
-  //   });
-  // });
 
   /**
    * Avalia a situação da data de expiração do certificado
