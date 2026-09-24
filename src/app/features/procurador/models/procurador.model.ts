@@ -32,3 +32,9 @@ export const TIPOS_CERTIFICADO: TipoCertificadoOption[] = [
   }
 ];
 
+export interface ExpiracaoStatus {
+  label: string,
+  cssClass: string,
+  icon: string
+}
+

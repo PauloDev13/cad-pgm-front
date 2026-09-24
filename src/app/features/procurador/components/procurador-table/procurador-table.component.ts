@@ -10,14 +10,8 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { DateTime } from 'luxon';
-import { ProcuradorResponseDTO } from '../../models/procurador.model';
+import { ExpiracaoStatus, ProcuradorResponseDTO } from '../../models/procurador.model';
 import { LoadingComponent } from '../../../../shared/components/loading.component/loading.component';
-
-// export interface ExpiracaoStatus {
-//   label: string;
-//   cssClass: string;
-//   icon: string;
-// }
 
 @Component({
   selector: 'app-procurador-table',
@@ -156,7 +150,8 @@ import { LoadingComponent } from '../../../../shared/components/loading.componen
                     class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium border"
                     [ngClass]="status.cssClass"
                   >
-                    <mat-icon class="!text-[12px] !w-3 !h-3 mr-0.5 leading-none">{{ status.icon }}</mat-icon>
+                    <mat-icon
+                      class="!text-[12px] !w-3 !h-3 mr-0.5 leading-none">{{ status.icon }}</mat-icon>
                     {{ status.label }}
                   </span>
                 }
@@ -289,15 +284,15 @@ export class ProcuradorTableComponent {
    * Avalia a situação da data de expiração do certificado
    * Used in template via @let binding (Angular 18+)
    */
-  // @ts-ignore - Used in template, IDE false positive
   getStatusExpiracao(dataIso: string): ExpiracaoStatus {
-    const exp = DateTime.fromISO(dataIso);
+    const exp = DateTime.fromISO(dataIso).startOf('day');
+
     if (!exp.isValid) {
       return { label: 'Indefinido', cssClass: 'bg-gray-100 text-gray-600 border-gray-200', icon: 'help_outline' };
     }
 
-    const now = DateTime.now();
-    const diffDias = Math.floor(exp.diff(now, 'days').days);
+    const now = DateTime.now().startOf('day');
+    const diffDias = exp.diff(now, 'days').days;
 
     if (diffDias < 0) {
       return {
@@ -309,7 +304,7 @@ export class ProcuradorTableComponent {
 
     if (diffDias <= 30) {
       return {
-        label: diffDias === 0 ? 'Expira hoje' : `Expira em ${diffDias}d`,
+        label: diffDias === 0 ? 'Expira hoje' : `Expira em ${diffDias} dias`,
         cssClass: '!font-bold bg-amber-100 text-amber-700 border-amber-200',
         icon: 'warning_amber'
       };
