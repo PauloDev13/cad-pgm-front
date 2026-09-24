@@ -707,7 +707,7 @@ export class ServidorFormComponent implements OnInit {
     return this.activatTabName() !== 'DOCUMENTOS';
   }
 
-  // Método genérico que controla mudanças nos campos autocomplete (IDs de relacionamento)
+  // Méthodo genérico que controla mudanças nos campos autocomplete (IDs de relacionamento)
   onAutocompleteChange(
     field: 'cargoId' | 'setorId' | 'lotacaoId' | 'statusId' | 'vinculoId',
     id: number | null

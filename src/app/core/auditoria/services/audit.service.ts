@@ -13,7 +13,7 @@ export class AuditService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/api/v1/auditoria`;
 
-  // MÉTODO DA API: Monta os parâmetros dinamicamente apenas se existirem
+  // MÉThODO DA API: Monta os parâmetros dinamicamente apenas se existirem
   searchAuditFilter(
     { page, size, username, typeAction, startDate, endDate }: IAuditoriaQueryParams
   ): Observable<PageResponse<AuditResponseDTO>> {

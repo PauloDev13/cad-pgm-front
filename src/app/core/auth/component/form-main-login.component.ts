@@ -115,10 +115,6 @@ export class FormMainLoginComponent {
     required(path.password!, { message: 'Senha é obrigatória' });
   });
 
-  constructor() {
-    // this.loginStateService.newUserName.set('');
-  }
-
   // Métodos para alternar a visualização
   togglePassword(event: MouseEvent) {
     event.preventDefault(); // Evita que o formulário submeta ao clicar no botão do ícone

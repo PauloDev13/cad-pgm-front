@@ -17,7 +17,6 @@ export const subscriptionSchema = schema<IAuthForm>((path) => {
   required(path.confirmPassword, { message: 'A confirmação é obrigatória' });
 
   validate(path.confirmPassword, ({ value, valueOf }) => {
-    // const senhaOriginal = authFormModel().password;
     const password = valueOf(path.password);
     const confirmPassword = value();
 

@@ -152,7 +152,7 @@ export const routes: Routes = [
         loadComponent: () => import('./features/relatorios/components/aniversariantes/aniversariantes.component')
       },
       {
-        path: 'folha-ponto',
+        path: 'relatorios/folha-ponto',
         title: 'Folha de Ponto | Gestão de Servidores PGM Natal',
         loadComponent: () =>
           import('./features/relatorios/components/folha-ponto/folha-ponto-relatorio.component/folha-ponto-relatorio.component')

@@ -16,7 +16,6 @@ import { customHandlerError } from '../../../shared/utils/custom-handler-error';
   providedIn: 'root'
 })
 export class AuthService {
-  readonly TOKEN_KEY = 'jwt-token';
   private readonly API_URL = `${environment.apiUrl}/api/v1`;
   private readonly http = inject(HttpClient);
 

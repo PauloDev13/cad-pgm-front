@@ -43,9 +43,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         // Exibe mensagem na tela
         notificationService.warning('Sua sessão expirou. Faça login novamente');
 
-        // Direciona para a tela de login
-        // router.navigate(['/auth/login']).then();
-
         return EMPTY;
       }
 

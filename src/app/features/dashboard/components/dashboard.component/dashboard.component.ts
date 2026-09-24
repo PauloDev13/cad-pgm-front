@@ -190,7 +190,7 @@ export default class DashboardComponent {
     };
   });
 
-  // Imprime/salava o grático em PDF
+  // Imprime/salva o gráfico em PDF
   print() {
     window.print();
   };

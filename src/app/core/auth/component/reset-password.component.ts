@@ -133,8 +133,6 @@ export class ResetPasswordComponent {
   hidePassword = signal(true);
   hideConfirm = signal(true);
 
-  // Bloqueia o formulário se o token for ruim
-
   // Configuração e Validação (A mesma arquitetura de Ouro que usamos no Cadastro!)
   resetForm = form(authFormModel, subscriptionSchema);
 

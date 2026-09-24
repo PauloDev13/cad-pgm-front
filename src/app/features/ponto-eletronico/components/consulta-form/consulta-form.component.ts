@@ -11,25 +11,16 @@ import {
   ViewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { form, FormField, required, submit } from '@angular/forms/signals';
+import { form, FormField, submit } from '@angular/forms/signals';
 import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper/field-wrapper.component';
 import { PontoEletronicoStore } from '../../store/ponto-eletronico.store';
 import { PontoEletronicoService } from '../../services/ponto-eletronico.service';
-import { GeneratePayload, Unidade } from '../../models/ponto-eletronico.model';
+import { ConsultaFormModel, GeneratePayload, Unidade } from '../../models/ponto-eletronico.model';
 import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
-
-interface ConsultaFormModel {
-  cpf: string;
-  unit: string;
-  dateStart: string;
-  dateEnd: string;
-  excel: boolean;
-  pdf: boolean;
-}
+import { initialModel, subscriptionSchema } from '../../utils/subscription-ponto';
 
 @Component({
   selector: 'app-consulta-form',
@@ -186,9 +177,12 @@ interface ConsultaFormModel {
 })
 export class ConsultaFormComponent implements OnDestroy {
   readonly store = inject(PontoEletronicoStore);
+  readonly submitPayload = new Subject<GeneratePayload>();
+  readonly clearEvent = new Subject<void>();
+
   private readonly service = inject(PontoEletronicoService);
-  private readonly notification = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly unitSearch$ = new Subject<string>();
 
   @ViewChild('unitWrapper') unitWrapper!: ElementRef<HTMLElement>;
   @ViewChild('cpfInput') cpfInput!: ElementRef<HTMLInputElement>;
@@ -198,25 +192,9 @@ export class ConsultaFormComponent implements OnDestroy {
   unidades = signal<Unidade[]>([]);
   formatError = signal('');
 
-  private readonly unitSearch$ = new Subject<string>();
+  consultaFormModel = signal<ConsultaFormModel>(initialModel);
 
-  private readonly initialModel: ConsultaFormModel = {
-    cpf: '',
-    unit: '',
-    dateStart: '',
-    dateEnd: '',
-    excel: true,
-    pdf: false
-  };
-
-  consultaFormModel = signal<ConsultaFormModel>({ ...this.initialModel });
-
-  consultaForm = form(this.consultaFormModel, (path) => {
-    required(path.cpf, { message: 'O CPF \u00e9 obrigat\u00f3rio!' });
-    required(path.unit, { message: 'Informe o C\u00f3digo da Unidade!' });
-    required(path.dateStart, { message: 'Data Inicial \u00e9 obrigat\u00f3rio!' });
-    required(path.dateEnd, { message: 'Data Final \u00e9 obrigat\u00f3rio!' });
-  });
+  consultaForm = form(this.consultaFormModel, subscriptionSchema);
 
   buttonLabel = computed(() => {
     const { excel, pdf } = this.consultaFormModel();
@@ -246,18 +224,22 @@ export class ConsultaFormComponent implements OnDestroy {
     this.clearEvent.complete();
   }
 
+  // Controla a exibição da lista de unidades no input
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
     const wrapper = this.unitWrapper?.nativeElement;
+
     if (wrapper && !wrapper.contains(target)) {
       this.unidades.set([]);
     }
   }
 
+  // Aplica máscara no campo CPF durante a digitação
   applyCpfMask(event: Event): void {
     const input = event.target as HTMLInputElement;
     let digits = input.value.replace(/\D/g, '').slice(0, 11);
+
     if (digits.length > 9) {
       digits = digits.slice(0, 3) + '.' + digits.slice(3, 6) + '.' + digits.slice(6, 9) + '-' + digits.slice(9);
     } else if (digits.length > 6) {
@@ -265,16 +247,21 @@ export class ConsultaFormComponent implements OnDestroy {
     } else if (digits.length > 3) {
       digits = digits.slice(0, 3) + '.' + digits.slice(3);
     }
+
     input.value = digits;
     this.consultaFormModel.update((m) => ({ ...m, cpf: digits }));
   }
 
+  // Aplica máscara nos campos de data durante a digitação
   applyMonthYearMask(event: Event, field: 'dateStart' | 'dateEnd'): void {
     const input = event.target as HTMLInputElement;
+
     let digits = input.value.replace(/\D/g, '').slice(0, 6);
+
     if (digits.length > 2) {
       digits = digits.slice(0, 2) + '/' + digits.slice(2);
     }
+
     input.value = digits;
     this.consultaFormModel.update((m) => ({ ...m, [field]: digits }));
   }
@@ -282,6 +269,7 @@ export class ConsultaFormComponent implements OnDestroy {
   onUnitInput(event: Event): void {
     const value = (event.target as HTMLInputElement).value.trim();
     this.consultaFormModel.update((m) => ({ ...m, unit: value }));
+
     if (value.length < 2) {
       this.unidades.set([]);
       return;
@@ -304,50 +292,12 @@ export class ConsultaFormComponent implements OnDestroy {
     if (this.formatError()) this.formatError.set('');
   }
 
-  private isValidCpf(value: string): boolean {
-    const digits = (value || '').replace(/\D/g, '');
-    if (digits.length !== 11) return false;
-    if (/^(\d)\1{10}$/.test(digits)) return false;
-    let sum = 0;
-    for (let i = 0; i < 9; i++) sum += parseInt(digits[i], 10) * (10 - i);
-    let d1 = 11 - (sum % 11);
-    if (d1 >= 10) d1 = 0;
-    if (d1 !== parseInt(digits[9], 10)) return false;
-    sum = 0;
-    for (let i = 0; i < 10; i++) sum += parseInt(digits[i], 10) * (11 - i);
-    let d2 = 11 - (sum % 11);
-    if (d2 >= 10) d2 = 0;
-    return d2 === parseInt(digits[10], 10);
-  }
-
-  private isValidMonthYear(value: string): boolean {
-    const v = (value || '').trim();
-    if (!/^\d{2}\/\d{4}$/.test(v)) return false;
-    const [mm, yyyy] = v.split('/').map(Number);
-    if (mm < 1 || mm > 12) return false;
-    if (yyyy < 1900 || yyyy > 2100) return false;
-    return true;
-  }
-
-  private parseMonthYear(value: string): Date {
-    const [mm, yyyy] = value.trim().split('/').map(Number);
-    return new Date(yyyy, mm - 1, 1);
-  }
-
-  private focusAndSelect(el: ElementRef<HTMLInputElement> | undefined): void {
-    const input = el?.nativeElement;
-    if (!input) return;
-    setTimeout(() => {
-      input.focus();
-      input.select();
-    }, 0);
-  }
-
   async onSubmit(event: Event): Promise<void> {
     event.preventDefault();
     this.formatError.set('');
 
     const { excel, pdf } = this.consultaFormModel();
+
     if (!excel && !pdf) {
       this.formatError.set('Escolha pelo menos um tipo de arquivo a ser gerado!');
       return;
@@ -357,30 +307,6 @@ export class ConsultaFormComponent implements OnDestroy {
       const raw = this.consultaForm().controlValue();
       const dateStart = raw.dateStart.trim();
       const dateEnd = raw.dateEnd.trim();
-      const cpfRaw = raw.cpf.trim();
-
-      if (!this.isValidCpf(cpfRaw)) {
-        this.notification.warning('CPF Inválido!');
-        this.focusAndSelect(this.cpfInput);
-        return;
-      }
-      if (!this.isValidMonthYear(dateStart)) {
-        this.notification.warning('Data Inicial inválida');
-        this.focusAndSelect(this.dateStartInput);
-        return;
-      }
-      if (!this.isValidMonthYear(dateEnd)) {
-        this.notification.warning('Data Final inválida');
-        this.focusAndSelect(this.dateEndInput);
-        return;
-      }
-      const dStart = this.parseMonthYear(dateStart);
-      const dEnd = this.parseMonthYear(dateEnd);
-      if (dEnd < dStart) {
-        this.notification.warning('A Data Final deve ser igual ou posterior a Data Inicial');
-        this.focusAndSelect(this.dateEndInput);
-        return;
-      }
 
       const payload: GeneratePayload = {
         cpf: raw.cpf.replace(/\D/g, ''),
@@ -395,12 +321,9 @@ export class ConsultaFormComponent implements OnDestroy {
   }
 
   onClear(): void {
-    this.consultaFormModel.set({ ...this.initialModel });
+    this.consultaFormModel.set(initialModel);
     this.formatError.set('');
     this.unidades.set([]);
     this.clearEvent.next();
   }
-
-  readonly submitPayload = new Subject<GeneratePayload>();
-  readonly clearEvent = new Subject<void>();
 }

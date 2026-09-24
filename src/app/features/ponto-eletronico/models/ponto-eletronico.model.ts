@@ -1,4 +1,4 @@
-// ── Auth ────────────────────────────────────────────────────────────────────
+// ── Auth ────────────────────────────
 
 export interface LoginRequest {
   username: string;
@@ -12,7 +12,17 @@ export interface AuthResponse {
   jobs_active?: number;
 }
 
-// ── Validate / Jobs ─────────────────────────────────────────────────────────
+// ── Formulário Consulta ─────────────
+export interface ConsultaFormModel {
+  cpf: string;
+  unit: string;
+  dateStart: string;
+  dateEnd: string;
+  excel: boolean;
+  pdf: boolean;
+}
+
+// ── Validate / Jobs ────────────────
 
 export interface GeneratePayload {
   cpf: string;
@@ -29,7 +39,7 @@ export interface ValidateResponse {
   fields?: Record<string, string | boolean>;
 }
 
-// ── Job ─────────────────────────────────────────────────────────────────────
+// ── Job ────────────
 
 export type JobStatus = 'QUEUED' | 'RUNNING' | 'DONE' | 'FAILED' | 'CANCELLED';
 
@@ -59,7 +69,7 @@ export interface Job {
   error: string | null;
 }
 
-// ── Responses ───────────────────────────────────────────────────────────────
+// ── Responses ───────────
 
 export interface JobResponse {
   ok: boolean;
@@ -85,7 +95,7 @@ export interface UnidadesResponse {
   results: Unidade[];
 }
 
-// ── SSE ─────────────────────────────────────────────────────────────────────
+// ── SSE ─────────────────────────────────
 
 export interface SSEMessage {
   type: 'update' | 'error';
