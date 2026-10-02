@@ -93,7 +93,7 @@ import { MatIconModule } from '@angular/material/icon';
                   </td>
 
                   <td class="py-1 px-1.5 border-r border-[#E8DFC8] font-semibold text-left text-[24px]">
-                    {{ item.nome }}
+                    {{ item.nomeFormatado }}
                   </td>
 
                   <td class="py-1 px-1.5 text-left font-semibold text-[24px]">

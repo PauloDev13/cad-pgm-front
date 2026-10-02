@@ -49,7 +49,7 @@ export class CalendarUtils {
       { data: '09-07', nome: 'FERIADO - Independência' },
       { data: '10-03', nome: 'FERIADO ESTADUAL - Mártires de Cunhaú e Uruaçú' },
       { data: '10-12', nome: 'FERIADO - Nossa Senhora Aparecida' },
-      { data: '10-28', nome: 'PONTO FACULTATIVO - Dia do Servidor Público' },
+      // { data: '10-28', nome: 'PONTO FACULTATIVO - Dia do Servidor Público' },
       { data: '11-02', nome: 'FERIADO - Finados' },
       { data: '11-15', nome: 'FERIADO - Proclamação da República' },
       { data: '11-20', nome: 'FERIADO - Dia da Consciência Negra' },
