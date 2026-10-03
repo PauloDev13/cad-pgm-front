@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
 import { RelatorioService } from '../../../services/relatorio.service';
-import { CalendarUtils } from '../../../utils/calendar-utils';
 import { MESES_DO_ANO } from '../../../models/aniversariente.model';
 import { ErrorHandlerService } from '../../../../../shared/service/error-handler.service';
 import { CommonModule, Location } from '@angular/common';
@@ -9,6 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { LoadingComponent } from '../../../../../shared/components/loading.component/loading.component';
+import { FeriadoService } from '../../../../feriado/services/feriado.service';
+import { CalendarUtils } from '../../../utils/calendar-utils';
 
 @Component({
   selector: 'app-folha-ponto-relatorio.component',
@@ -184,6 +185,7 @@ import { LoadingComponent } from '../../../../../shared/components/loading.compo
 })
 export default class FolhaPontoRelatorioComponent {
   private readonly relatorioService = inject(RelatorioService);
+  private readonly feriadoService = inject(FeriadoService); // <--- Injeção
   private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly location = inject(Location);
 
@@ -208,9 +210,27 @@ export default class FolhaPontoRelatorioComponent {
       : new Date().getFullYear();
   });
 
-  // Busca na classe CalendarUtils os dias do mês
+  // Busca reativa dos feriados ativos da competência
+  feriadosResource = rxResource({
+    params: () => ({
+      mes: this.mesSelecionado()
+    }),
+    stream: ({ params }) => {
+      return this.feriadoService.findAtivos(params.mes);
+    }
+  });
+
+  feriadosAtivos = computed(() => {
+    return this.feriadosResource.value() ?? [];
+  });
+
+  // diasDaFolha agora é reativo aos feriados retornados da API e ao ano/mês
   diasDaFolha = computed(() =>
-    CalendarUtils.gerarDiasDoMes(this.anoSelecionado(), this.mesSelecionado())
+    CalendarUtils.gerarDiasDoMes(
+      this.anoSelecionado(),
+      this.mesSelecionado(),
+      this.feriadosAtivos()
+    )
   );
 
   // Busca o nome do mês através da seleção
@@ -244,13 +264,21 @@ export default class FolhaPontoRelatorioComponent {
     return this.folhaPontoResource.value() ?? [];
   });
 
-  isLoading = this.folhaPontoResource.isLoading;
+  // Loading unificado considerando a carga dos dados e dos feriados
+  isLoading = computed(() => this.folhaPontoResource.isLoading() || this.feriadosResource.isLoading());
 
   constructor() {
     effect(() => {
-      const error = this.folhaPontoResource.error();
-      if (error) {
-        this.errorHandlerService.handle(error, 'Folha Ponto');
+      const errorFolha = this.folhaPontoResource.error();
+
+      if (errorFolha) {
+        this.errorHandlerService.handle(errorFolha, 'Folha Ponto');
+      }
+
+      const errorFeriados = this.feriadosResource.error();
+
+      if (errorFeriados) {
+        this.errorHandlerService.handle(errorFeriados, 'Feriados');
       }
     });
   }

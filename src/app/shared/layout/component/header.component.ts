@@ -80,7 +80,7 @@ import { ServidoresStore } from '../../../features/servidor/store/servidor.store
             <mat-icon>person</mat-icon>
             <span>Meu Perfil</span>
           </button>
-          <button mat-menu-item class="menu-item-header">
+          <button mat-menu-item routerLink="/cadastros/feriados" class="menu-item-header">
             <mat-icon>settings</mat-icon>
             <span>Configurações</span>
           </button>

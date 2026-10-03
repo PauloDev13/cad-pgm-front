@@ -5,26 +5,48 @@ export interface DiaPonto {
   nomeFeriado?: string;
 }
 
-export class CalendarUtils {
+export interface FeriadoInfo {
+  data: string; // Formato 'MM-dd'
+  nome: string;
+}
 
-  // Método público que o componente vai chamar
-  static gerarDiasDoMes(ano: number, mes: number): DiaPonto[] {
-    // O dia '0' no Date do JS retorna o último dia do mês anterior,
-    // revelando assim o total de dias do mês atual (28, 29, 30 ou 31)
+export class CalendarUtils {
+  /**
+   * Gera a lista de dias do mês mesclando os feriados cadastrados no banco
+   * com os feriados móveis calculados matematicamente para o ano específico.
+   */
+  static gerarDiasDoMes(
+    ano: number,
+    mes: number,
+    feriadosCadastrados: FeriadoInfo[] = []
+  ): DiaPonto[] {
     const diasNoMes = new Date(ano, mes, 0).getDate();
-    const feriados = this.calcularFeriadosNacionais(ano);
+
+    // Calcula os feriados móveis daquele ano específico (Carnaval, Sexta-feira Santa, Corpus Christi)
+    const feriadosMoveis = this.calcularFeriadosNacionais(ano);
+
+    // Mescla os feriados:
+    // Se o feriado móvel já estiver cadastrado no banco, o cadastro do banco prevalece (para respeitar o checkbox ativo)
+    const todosFeriados: FeriadoInfo[] = [...feriadosCadastrados];
+
+    for (const movel of feriadosMoveis) {
+      const jaExisteNoBanco = todosFeriados.some(f => f.data === movel.data);
+
+      if (!jaExisteNoBanco) {
+        todosFeriados.push(movel);
+      }
+    }
+
     const dias: DiaPonto[] = [];
 
     for (let dia = 1; dia <= diasNoMes; dia++) {
-      // O JS conta os meses de 0 a 11, por isso 'mes - 1'
       const dataAtual = new Date(ano, mes - 1, dia);
       const diaDaSemana = dataAtual.getDay();
 
-      // Padroniza a data para 'MM-DD' para comparar com a nossa lista
+      // Padroniza a data para 'MM-DD'
       const dataFormatada = `${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
-      const feriado = feriados.find(f => f.data === dataFormatada);
+      const feriado = todosFeriados.find(f => f.data === dataFormatada);
 
-      // A Hierarquia das regras:
       if (feriado) {
         dias.push({ dia, tipo: 'FERIADO', nomeFeriado: feriado.nome });
       } else if (diaDaSemana === 0) {
@@ -40,23 +62,6 @@ export class CalendarUtils {
 
   // Método privado com o motor matemático
   private static calcularFeriadosNacionais(ano: number) {
-    const feriadosFixos = [
-      { data: '01-01', nome: 'FERIADO - Confraternização Universal' },
-      { data: '04-21', nome: 'FERIADO - Tiradentes' },
-      { data: '05-01', nome: 'FERIADO - Dia do Trabalhador' },
-      { data: '06-05', nome: 'PONTO FACULTATIVO' },
-      { data: '06-29', nome: 'PONTO FACULTATIVO - São Pedro' },
-      { data: '09-07', nome: 'FERIADO - Independência' },
-      { data: '10-03', nome: 'FERIADO ESTADUAL - Mártires de Cunhaú e Uruaçú' },
-      { data: '10-12', nome: 'FERIADO - Nossa Senhora Aparecida' },
-      // { data: '10-28', nome: 'PONTO FACULTATIVO - Dia do Servidor Público' },
-      { data: '11-02', nome: 'FERIADO - Finados' },
-      { data: '11-15', nome: 'FERIADO - Proclamação da República' },
-      { data: '11-20', nome: 'FERIADO - Dia da Consciência Negra' },
-      { data: '12-25', nome: 'FERIADO - Natal' }
-      // Insiram aqui feriados estaduais/municipais fixos (Ex: data: '10-03', nome: 'Mártires de Cunhaú')
-    ];
-
     // Algoritmo matemático para o cálculo da Páscoa
     const a = ano % 19;
     const b = Math.floor(ano / 100);
@@ -77,8 +82,10 @@ export class CalendarUtils {
 
     const sextaSanta = new Date(pascoa);
     sextaSanta.setDate(pascoa.getDate() - 2);
+
     const carnaval = new Date(pascoa);
     carnaval.setDate(pascoa.getDate() - 47);
+
     const corpusChristi = new Date(pascoa);
     corpusChristi.setDate(pascoa.getDate() + 60);
 
@@ -86,7 +93,7 @@ export class CalendarUtils {
       .padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
     return [
-      ...feriadosFixos,
+      // ...feriadosFixos,
       { data: format(sextaSanta), nome: 'FERIADO - Sexta-feira Santa' },
       { data: format(carnaval), nome: 'FERIADO - Carnaval' },
       { data: format(corpusChristi), nome: 'FERIADO - Corpus Christi' }

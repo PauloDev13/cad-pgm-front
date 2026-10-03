@@ -118,6 +118,13 @@ export const routes: Routes = [
         loadComponent: () => import('./features/status/pages/status-display.page')
       },
       {
+        path: 'cadastros/feriados',
+        title: 'Feriados | Gestão de Servidores PGM Natal',
+        canActivate: [roleGuard],
+        data: { role: 'admin' },
+        loadComponent: () => import('./features/feriado/pages/feriado-display/feriado-display.page')
+      },
+      {
         // tela para cadastro, edição e exclusão de procuradores
         path: 'permissoes/procuradores',
         title: 'Procuradores | Gestão de Servidores PGM Natal',
@@ -161,7 +168,7 @@ export const routes: Routes = [
         path: 'relatorios/certificados-vinculados',
         title: 'Certificados Vinculados | Gestão de Servidores PGM Natal',
         loadComponent: () =>
-          import('./features/relatorios/components/certificados-vinculados/ertificados-vinculados-relatorio.component/certificados-vinculados-relatorio.component')
+          import('./features/relatorios/components/certificados-vinculados/certificados-vinculados-relatorio.component/certificados-vinculados-relatorio.component')
             .then((m) => m.CertificadosVinculadosRelatorioComponent)
       },
       {
