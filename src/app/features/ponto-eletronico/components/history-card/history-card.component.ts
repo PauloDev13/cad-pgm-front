@@ -186,6 +186,7 @@ export class HistoryCardComponent implements OnInit {
   async onDelete(jobId: string): Promise<void> {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '420px',
+      panelClass: 'custom-dialog',
       disableClose: true,
       data: {
         title: 'Excluir gera\u00e7\u00e3o',
@@ -207,6 +208,7 @@ export class HistoryCardComponent implements OnInit {
   async onClearHistory(): Promise<void> {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '420px',
+      panelClass: 'custom-dialog',
       disableClose: true,
       data: {
         title: 'Limpar hist\u00f3rico',

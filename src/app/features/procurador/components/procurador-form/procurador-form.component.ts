@@ -42,7 +42,6 @@ import { FieldWrapperComponent } from '../../../../shared/layout/component/field
   template: `
     <div class="flex justify-between items-center px-6 pt-4 pb-1">
       <h2 mat-dialog-title class="!font-bold !text-xl !text-blue-700 !m-0 !p-0 flex items-center gap-2">
-        <mat-icon class="!text-blue-600">badge</mat-icon>
         {{ isEdit ? 'Editar Certificado' : 'Novo Certificado' }}
       </h2>
       <button
@@ -140,22 +139,23 @@ import { FieldWrapperComponent } from '../../../../shared/layout/component/field
     <mat-dialog-actions class="!px-6 !pb-4 !pt-3 flex flex-col sm:flex-row sm:justify-end items-center gap-3">
       <button
         mat-stroked-button
-        class="w-full sm:w-auto !transition-transform duration-300 hover:!scale-105 !h-12 sm:!h-10 order-2 sm:order-1"
+        class="w-full !rounded-3xl sm:w-auto !transition-transform duration-300 hover:!scale-105 !h-12 sm:!h-10 order-2 sm:order-1"
         (click)="cancelar()"
         type="button"
       >
-        <mat-icon class="mr-1">close</mat-icon>
+        <mat-icon class="!mr-1">close</mat-icon>
         Cancelar
       </button>
 
       <button
         mat-flat-button
-        class="w-full sm:w-auto !bg-blue-600 !text-white !transition-transform duration-300 hover:!scale-105 disabled:!bg-gray-200 disabled:!text-gray-400 !h-12 sm:!h-10 order-1 sm:order-2"
+        class="w-full !rounded-3xl sm:w-auto !bg-blue-600 !text-white !transition-transform duration-300 hover:!scale-105
+                disabled:!bg-gray-200 disabled:!text-gray-400 !h-12 sm:!h-10 order-1 sm:order-2"
         [disabled]="procuradorForm().invalid() || isSaving()"
         (click)="salvar()"
         type="button"
       >
-        <mat-icon class="mr-1">{{ isSaving() ? 'hourglass_empty' : 'save' }}</mat-icon>
+        <mat-icon class="!mr-1">{{ isSaving() ? 'hourglass_empty' : 'save' }}</mat-icon>
         {{ isEdit ? 'Atualizar' : 'Salvar' }}
       </button>
     </mat-dialog-actions>

@@ -72,11 +72,11 @@ import { ErrorHandlerService } from '../../../shared/service/error-handler.servi
 
         <button
           mat-flat-button
-          class="w-full sm:w-auto !bg-blue-600 !text-white !transition-transform duration-300
+          class="w-full !rounded-3xl sm:w-auto !bg-blue-600 !text-white !transition-transform duration-300
                  !ease-in-out hover:!scale-105 flex justify-center items-center !h-12 sm:!h-10"
           (click)="openModalNew()"
         >
-          <mat-icon class="mr-1">add</mat-icon>
+          <mat-icon class="!mr-1">add</mat-icon>
           Novo Certificado
         </button>
       </div>
@@ -182,7 +182,8 @@ export default class ProcuradorDisplayPage implements OnInit {
     const dialogRef = this.dialog.open(ProcuradorFormComponent, {
       width: '600px',
       maxWidth: '95vw',
-      disableClose: true
+      disableClose: true,
+      panelClass: 'custom-dialog'
     });
 
     dialogRef.afterClosed().subscribe((result: ProcuradorResponseDTO | boolean) => {
@@ -195,9 +196,10 @@ export default class ProcuradorDisplayPage implements OnInit {
 
   openModalEdit(selectedItem: ProcuradorResponseDTO): void {
     const dialogRef = this.dialog.open(ProcuradorFormComponent, {
-      width: '600px',
+      width: '560px',
       maxWidth: '95vw',
       disableClose: true,
+      panelClass: 'custom-dialog',
       data: selectedItem
     });
 
@@ -223,7 +225,13 @@ export default class ProcuradorDisplayPage implements OnInit {
         this.dataResource.reload();
         this.currentPage.set(0);
       },
-      { successMsg: `Procurador "${item.nome}" removido com sucesso!` }
+      {
+        title: 'Remover Certificado Digital',
+        successMsg: `Procurador "${item.nome}" removido com sucesso!`,
+        message: `Esta ação não poderá ser desfeita.
+                  Excluir o Certificado de:
+                  <strong class="text-red-600">${item.nome.toUpperCase()}</strong>?`
+      }
     );
   }
 }

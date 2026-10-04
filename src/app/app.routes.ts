@@ -120,8 +120,6 @@ export const routes: Routes = [
       {
         path: 'cadastros/feriados',
         title: 'Feriados | Gestão de Servidores PGM Natal',
-        canActivate: [roleGuard],
-        data: { role: 'admin' },
         loadComponent: () => import('./features/feriado/pages/feriado-display/feriado-display.page')
       },
       {

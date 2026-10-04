@@ -416,7 +416,7 @@ export interface ServidorFormDialogData {
 
           <mat-tab label="Documentos" [disabled]="!currentServidorId()">
             <ng-template matTabContent>
-              <div class="w-full h-full min-h-0 block bg-gray-50 rounded-xl overflow-hidden">
+              <div class="w-full h-full min-h-0 block bg-gray-50 rounded-3xl overflow-hidden">
                 @if (currentServidorId()!) {
                   <app-document-manager
                     class="block w-full h-full"
@@ -441,7 +441,7 @@ export interface ServidorFormDialogData {
           <button
             mat-flat-button
             class="w-full sm:w-auto !transition-transform duration-300 hover:!scale-105 !h-12 sm:!h-10
-                   order-1 sm:order-2"
+                   order-1 sm:order-2 !rounded-3xl"
             (click)="salvar()"
             [disabled]="servidorForm().invalid()"
           >
@@ -451,11 +451,11 @@ export interface ServidorFormDialogData {
         }
         <button
           class="!border-blue-600 !text-blue-600 !transition-transform duration-300 hover:!scale-105
-                 w-full sm:w-auto !h-12 sm:!h-10 order-2 sm:order-1"
+                 w-full sm:w-auto !h-12 sm:!h-10 order-2 sm:order-1 !rounded-3xl"
           mat-stroked-button
           (click)="closeModal()"
         >
-          <mat-icon>exit_to_app</mat-icon>
+          <mat-icon class="!mr-1">exit_to_app</mat-icon>
           Fechar
         </button>
       </div>

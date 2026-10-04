@@ -22,6 +22,7 @@ export class CustomDeleteService {
   execute(deleteActions: () => Observable<any>, onSuccess: () => void, options?: Messages) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '500px',
+      panelClass: 'custom-dialog',
       disableClose: true,
       data: {
         title: options?.title ?? 'Remover registro',
@@ -54,6 +55,7 @@ export class CustomDeleteService {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '500px',
       disableClose: true,
+      panelClass: 'custom-dialog',
       data: {
         title: options?.title ?? 'Remover registro',
         message: options?.message ?? 'Esta ação não poderá ser desfeita. Tem certeza que quer prosseguir?'

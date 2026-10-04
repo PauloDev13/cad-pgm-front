@@ -37,6 +37,7 @@ import { MESES_DO_ANO } from '../../../models/aniversariente.model';
       <button mat-button mat-dialog-close class="text-gray-600">Cancelar</button>
       <button
         mat-flat-button
+        class="!rounded-3xl"
         color="primary"
         [disabled]="!selectedMonth()"
         (click)="confirm()">

@@ -38,8 +38,8 @@ import { DominioService } from '../../../../servidor/services/dominio.service';
       </mat-form-field>
     </mat-dialog-content>
     <mat-dialog-actions align="end" class="pb-4 pr-4">
-      <button mat-button mat-dialog-close class="text-gray-600">Cancelar</button>
-      <button mat-flat-button color="primary" (click)="confirmar()">
+      <button mat-button mat-dialog-close class="text-gray-600 !rounded-3xl">Cancelar</button>
+      <button mat-flat-button class="!rounded-3xl" color="primary" (click)="confirmar()">
         Continuar
       </button>
     </mat-dialog-actions>

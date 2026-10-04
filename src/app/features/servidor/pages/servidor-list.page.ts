@@ -50,11 +50,11 @@ import { ActivatedRoute, Router } from '@angular/router';
             mat-flat-button
             class="!bg-blue-600 !text-white w-full sm:w-auto sm:gap-2 !transition-transform duration-300
              !ease-in-out hover:!scale-105 flex justify-center items-center !h-12 sm:!h-10
-             print:hidden"
+             print:hidden !rounded-3xl"
             (click)="openForm()"
           >
-            <mat-icon>add</mat-icon>
-            Novo
+            <mat-icon class="!mr-1">add</mat-icon>
+            Novo Cadastro
           </button>
         }
       </div>
@@ -218,6 +218,7 @@ export default class ServidorListPage implements OnInit {
       width: '1000px',
       maxWidth: '95vw',
       maxHeight: '92vh',
+      panelClass: 'custom-dialog',
       data: servidor,
       disableClose: true,
       injector: this.injector // Injeta uma a mesma instância do provider do pai para o filho
@@ -248,6 +249,7 @@ export default class ServidorListPage implements OnInit {
       width: '1000px',
       maxWidth: '95vw',
       maxHeight: '92vh',
+      panelClass: 'custom-dialog',
       // Passamos o payload e a intenção
       data: { payload: servidor, action: action },
       disableClose: true,
@@ -287,7 +289,7 @@ export default class ServidorListPage implements OnInit {
   // MÉTODO PARA OS DADOS ATIVOS E DESLIGADOS
   async deleteServidor(payload: TServidorDelete) {
     const confirmed = await this.customDeleteService.confirm({
-      title: 'Servidor',
+      title: 'Remover Servidor',
       message: `Esta ação não poderá ser desfeita.
                   Excluir o perfil de:
                   <strong class="text-red-600">${payload.nome.toUpperCase()}</strong>?`

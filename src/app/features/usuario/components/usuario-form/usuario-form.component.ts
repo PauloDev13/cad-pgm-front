@@ -102,11 +102,11 @@ import { UsersStore } from '../../store/user.store';
     <mat-dialog-actions class="!px-6 !pb-4 !pt-4 flex flex-col sm:flex-row sm:justify-end items-center gap-3">
       <button
         mat-flat-button
-        class="w-full sm:w-auto !transition-transform duration-300 hover:!scale-105 !h-12 sm:!h-10"
+        class="w-full !rounded-3xl sm:w-auto !transition-transform duration-300 hover:!scale-105 !h-12 sm:!h-10"
         (click)="save()"
         [disabled]="usuarioForm().invalid()"
       >
-        <mat-icon class="mr-2">save</mat-icon>
+        <mat-icon class="!mr-1">save</mat-icon>
         {{ isEdit ? 'Atualizar' : 'Salvar' }}
       </button>
     </mat-dialog-actions>

@@ -2,14 +2,12 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, EMPTY, throwError } from 'rxjs';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
-// import { Router } from '@angular/router';
 import { AuthStore } from '../store/auth.store';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // Injeções de dependência
   const authStore = inject(AuthStore);
   const notificationService = inject(NotificationService);
-  // const router = inject(Router);
 
   // Pega o usuário logado
   const token: string | null = authStore.token();
@@ -31,6 +29,22 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
+
+      // let msg = 'Ocorreu um erro inesperado';
+
+      if (error.error instanceof Blob) {
+        try {
+          error.error.text().then((text: string) => {
+            notificationService.warning('Servidor sem foto cadastrada');
+            // const body = JSON.parse(text);
+            // msg = body.message ?? msg;
+            // notificationService.warning(msg);
+          });
+        } catch {
+          notificationService.warning('Ocorreu um erro inesperado');
+        }
+        notificationService.warning('Servidor sem foto cadastrada');
+      }
       // =========================================================================
       // 1. SESSÃO EXPIRADA (Status 401 e 403)
       // O Interceptor SÓ atua se NÃO for uma requisição de login!

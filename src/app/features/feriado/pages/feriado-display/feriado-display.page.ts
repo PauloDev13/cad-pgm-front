@@ -68,7 +68,7 @@ import { FeriadoFormComponent } from '../../components/feriado-form/feriado-form
         <button
           mat-flat-button
           class="w-full sm:w-auto !bg-blue-600 !text-white !transition-transform duration-300
-                 !ease-in-out hover:!scale-105 flex justify-center items-center !h-12 sm:!h-10"
+                 !rounded-3xl !ease-in-out hover:!scale-105 flex justify-center items-center !h-12 sm:!h-10"
           (click)="openModalNew()"
         >
           <mat-icon class="mr-1">add</mat-icon>
@@ -89,8 +89,7 @@ import { FeriadoFormComponent } from '../../components/feriado-form/feriado-form
         (sortChange)="handleSortChanged($event)"
       />
     </div>
-  `,
-  styles: ``
+  `
 })
 export default class FeriadoDisplayPage implements OnInit {
   private readonly feriadoService = inject(FeriadoService);
@@ -178,7 +177,8 @@ export default class FeriadoDisplayPage implements OnInit {
     const dialogRef = this.dialog.open(FeriadoFormComponent, {
       width: '560px',
       maxWidth: '95vw',
-      disableClose: true
+      disableClose: true,
+      panelClass: 'custom-dialog'
     });
 
     dialogRef.afterClosed().subscribe((result: FeriadoResponseDTO | boolean) => {
@@ -194,7 +194,8 @@ export default class FeriadoDisplayPage implements OnInit {
       width: '560px',
       maxWidth: '95vw',
       disableClose: true,
-      data: selectedItem
+      data: selectedItem,
+      panelClass: 'custom-dialog'
     });
 
     dialogRef.afterClosed().subscribe((result: FeriadoResponseDTO | boolean) => {
@@ -245,7 +246,12 @@ export default class FeriadoDisplayPage implements OnInit {
         this.dataResource.reload();
         this.currentPage.set(0);
       },
-      { successMsg: `Feriado "${item.nome}" removido com sucesso!` }
+      {
+        title: 'Remover Feriado',
+        message: `Esta ação não poderá ser desfeita. Excluir o perfil de:
+                  <strong class="text-red-600">${item.nome.toUpperCase()}</strong>?`,
+        successMsg: `Feriado "${item.nome}" removido com sucesso!`
+      }
     );
   }
 }

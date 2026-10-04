@@ -57,12 +57,12 @@ import { LoadingComponent } from '../loading.component/loading.component';
         </mat-form-field>
         <button
           mat-flat-button
-          class="w-full sm:w-auto !bg-blue-600 !text-white !transition-transform duration-300
+          class="w-full !rounded-3xl sm:w-auto !bg-blue-600 !text-white !transition-transform duration-300
                 !ease-in-out hover:!scale-105 flex justify-center items-center !h-12 sm:!h-10"
           (click)="onAdd.emit()"
         >
-          <mat-icon class="mr-1">add</mat-icon>
-          Novo
+          <mat-icon class="!mr-1">add</mat-icon>
+          Novo {{ title() }}
         </button>
       </div>
 

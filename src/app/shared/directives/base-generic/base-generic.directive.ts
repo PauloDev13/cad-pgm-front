@@ -83,7 +83,10 @@ export abstract class BaseGenericDirective<T> {
         this.dataResource.reload();
         this.currentPage.set(0);
       },
-      { successMsg: `${this.entityTitle} removido(a) com sucesso!` }
+      {
+        title: `Remover ${this.entityTitle}`,
+        successMsg: `${this.entityTitle} removido(a) com sucesso!`
+      }
     );
   }
 
@@ -139,6 +142,7 @@ export abstract class BaseGenericDirective<T> {
     const dialogRef = this.dialog.open(CustomCadModalComponent, {
       width: '500px',
       disableClose: true,
+      panelClass: 'custom-dialog',
       data: {
         title: this.entityTitle,
         inputLabel: this.inputLabel,

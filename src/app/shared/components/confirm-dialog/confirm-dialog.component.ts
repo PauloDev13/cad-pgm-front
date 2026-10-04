@@ -28,7 +28,7 @@ import { MatIconModule } from '@angular/material/icon';
         mat-flat-button
         type="button"
         (click)="onNoClick()"
-        class="w-full sm:w-auto !border-blue-600 !text-white hover:!bg-blue-600
+        class="w-full !rounded-3xl sm:w-auto !border-blue-600 !text-white hover:!bg-blue-600
               hover:!text-white !transition-all !duration-300 !ease-in-out
               hover:!scale-105 !h-12 sm:!h-10 order-2 sm:order-1"
       >
@@ -39,7 +39,7 @@ import { MatIconModule } from '@angular/material/icon';
         mat-flat-button
         type="button"
         (click)="onYesClick()"
-        class="w-full sm:w-auto !bg-red-500 !text-white hover:!bg-red-600 !transition-transform
+        class="w-full !rounded-3xl sm:w-auto !bg-red-500 !text-white hover:!bg-red-600 !transition-transform
               !duration-300 !ease-in-out hover:!scale-105 !h-12 sm:!h-10 order-1 sm:order-2"
       >
         SIM

@@ -36,9 +36,8 @@ import { firstValueFrom } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex justify-between items-center px-6 pt-4 pb-1">
-      <h2 mat-dialog-title class="!font-bold !text-xl !text-blue-700 !m-0 !p-0 flex items-center gap-2">
-        <mat-icon class="!text-blue-600">event</mat-icon>
-        {{ isEdit ? 'Editar Feriado / Ponto' : 'Novo Feriado / Ponto' }}
+      <h2 mat-dialog-title class="!font-bold !text-xl !text-blue-700 !m-0 !p-0 flex gap-2">
+        {{ isEdit ? 'Editar Feriado/Ponto Facultativo' : 'Novo Feriado/Ponto Facultativo' }}
       </h2>
       <button
         mat-icon-button
@@ -79,7 +78,7 @@ import { firstValueFrom } from 'rxjs';
                     mask="00/00"
                     [dropSpecialCharacters]="false"
                     placeholder="DD/MM (ex: 21/04)"
-                    class="text-center font-bold"
+                    class="text-right font-bold"
                   />
                   <mat-icon matSuffix class="!text-gray-400">calendar_today</mat-icon>
                 </mat-form-field>
@@ -117,26 +116,26 @@ import { firstValueFrom } from 'rxjs';
     <mat-dialog-actions class="!px-6 !pb-4 !pt-3 flex flex-col sm:flex-row sm:justify-end items-center gap-3">
       <button
         mat-stroked-button
-        class="w-full sm:w-auto !transition-transform duration-300 hover:!scale-105 !h-12 sm:!h-10 order-2 sm:order-1"
+        class="w-full !rounded-3xl sm:w-auto !transition-transform duration-300 hover:!scale-105 !h-12 sm:!h-10 order-2 sm:order-1"
         (click)="cancelar()"
         type="button"
       >
-        <mat-icon class="mr-1">close</mat-icon>
+        <mat-icon class="!mr-1">close</mat-icon>
         Cancelar
       </button>
       <button
         mat-flat-button
-        class="w-full sm:w-auto !bg-blue-600 !text-white !transition-transform duration-300 hover:!scale-105 disabled:!bg-gray-200 disabled:!text-gray-400 !h-12 sm:!h-10 order-1 sm:order-2"
+        class="w-full sm:w-auto !bg-blue-600 !text-white !transition-transform duration-300 hover:!scale-105
+              disabled:!bg-gray-200 disabled:!text-gray-400 !h-12 sm:!h-10 order-1 sm:order-2 !rounded-3xl"
         [disabled]="feriadoForm().invalid() || isSaving()"
         (click)="salvar()"
         type="button"
       >
-        <mat-icon class="mr-1">{{ isSaving() ? 'hourglass_empty' : 'save' }}</mat-icon>
+        <mat-icon class="!mr-1">{{ isSaving() ? 'hourglass_empty' : 'save' }}</mat-icon>
         {{ isEdit ? 'Atualizar' : 'Salvar' }}
       </button>
     </mat-dialog-actions>
-  `,
-  styles: ``
+  `
 })
 export class FeriadoFormComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<FeriadoFormComponent>);

@@ -274,6 +274,7 @@ export class SidebarComponent {
   openBirthdayReport() {
     const dialogRef = this.dialog.open(MesAniversarioModalComponent, {
       width: '400px',
+      panelClass: 'custom-dialog',
       disableClose: true
     });
 
@@ -290,6 +291,7 @@ export class SidebarComponent {
     const dialogRef = this.dialog.open(FolhaPontoModalComponent,
       {
         width: '450px',
+        panelClass: 'custom-dialog',
         disableClose: true,
         injector: this.injector
       }
@@ -315,6 +317,7 @@ export class SidebarComponent {
   openCertificadosReport() {
     const dialogRef = this.dialog.open(CertificadosVinculadosModalComponent, {
       width: '450px',
+      panelClass: 'custom-dialog',
       disableClose: true,
       injector: this.injector
     });

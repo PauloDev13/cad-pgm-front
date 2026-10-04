@@ -62,9 +62,16 @@ import { DominioService } from '../../../../servidor/services/dominio.service';
     </mat-dialog-content>
 
     <mat-dialog-actions align="end" class="pb-4 pr-4">
-      <button mat-button mat-dialog-close>Cancelar</button>
       <button
-        mat-flat-button color="primary"
+        class="!rounded-3xl"
+        mat-button
+        mat-dialog-close>
+        Cancelar
+      </button>
+      <button
+        mat-flat-button
+        class="!rounded-3xl"
+        color="primary"
         [disabled]="!mesSelecionado()"
         (click)="confirmar()">
         Continuar

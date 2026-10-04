@@ -32,12 +32,12 @@ import { AuthStore } from '../../../core/auth/store/auth.store';
         </div>
         <button
           mat-flat-button
-          class="!bg-blue-600 !text-white w-full sm:w-auto !transition-transform !duration-300
+          class="!rounded-3xl !bg-blue-600 !text-white w-full sm:w-auto !transition-transform !duration-300
                  !ease-in-out hover:!scale-105 flex justify-center items-center !h-12 sm:!h-10"
           (click)="openForm()"
         >
-          <mat-icon class="mr-1">add</mat-icon>
-          Novo
+          <mat-icon class="!mr-1">add</mat-icon>
+          Novo Usuário
         </button>
       </div>
 
@@ -89,6 +89,7 @@ export default class UsuarioListPage {
       maxHeight: '92vh',
       data: usuario,
       disableClose: true,
+      panelClass: 'custom-dialog',
       injector: this.injector // Injeta uma a mesma instância do provider do pai para o filho
     });
 
@@ -109,6 +110,7 @@ export default class UsuarioListPage {
   // abre o modal com as informações para gerar senha temporária
   onResetPassword(usuario?: IUsuarioResponse) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      panelClass: 'custom-dialog',
       data: {
         title: 'Senha',
         message: `Gerar nova senha para ${usuario?.name.toUpperCase()}?`
@@ -139,8 +141,8 @@ export default class UsuarioListPage {
 
   async deleteUser(payload: TUsuarioDelete) {
     const confirmed = await this.customDeleteService.confirm({
-      title: 'Usuário',
-      message: `Esta ação não poderá ser desfeita.<br>Excluir o perfil de:
+      title: 'Remover Usuário',
+      message: `Esta ação não poderá ser desfeita. Excluir o perfil de:
                 <strong class="text-red-600">${payload.name.toUpperCase()}</strong>?`
     });
 

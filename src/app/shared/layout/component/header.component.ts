@@ -69,9 +69,8 @@ import { ServidoresStore } from '../../../features/servidor/store/servidor.store
           <span
             class="inline font-medium group-hover:text-white group-hover:font-semibold truncate
                   max-w-[80px] sm:max-w-[150px] lg:max-w-[200px]">
-        {{ loggedUserName() }}
-      </span>
-
+            {{ loggedUserName() }}
+          </span>
           <mat-icon class="!text-white !m-0 hidden sm:block">arrow_drop_down</mat-icon>
         </button>
 
@@ -80,14 +79,34 @@ import { ServidoresStore } from '../../../features/servidor/store/servidor.store
             <mat-icon>person</mat-icon>
             <span>Meu Perfil</span>
           </button>
-          <button mat-menu-item routerLink="/cadastros/feriados" class="menu-item-header">
-            <mat-icon>settings</mat-icon>
-            <span>Configurações</span>
-          </button>
+
+          @if (!authStore.canContab()) {
+            <button
+              mat-menu-item
+              [matMenuTriggerFor]="subMenuFeriados"
+              class="menu-item-header">
+              <mat-icon>settings</mat-icon>
+              <span>Configurações</span>
+            </button>
+          }
+
           <mat-divider></mat-divider>
+
           <button (click)="logout()" mat-menu-item class="menu-item-header">
             <mat-icon>logout</mat-icon>
             <span>Sair do Sistema</span>
+          </button>
+        </mat-menu>
+
+        <!-- Definição do submenu de Configurações -->
+        <mat-menu #subMenuFeriados="matMenu">
+          <button
+            mat-menu-item
+            routerLink="/cadastros/feriados"
+            class="menu-item-header"
+          >
+            <mat-icon>event</mat-icon>
+            <span>Feriados</span>
           </button>
         </mat-menu>
       </div>

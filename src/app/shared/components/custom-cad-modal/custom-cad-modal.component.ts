@@ -50,23 +50,23 @@ import { FieldWrapperComponent } from '../../layout/component/field-wrapper/fiel
     <mat-dialog-actions class="!px-6 !pb-6 !pt-4 flex flex-col sm:flex-row sm:justify-end gap-3">
       <button
         mat-stroked-button
-        class="w-full sm:w-auto !transition-transform duration-300 !ease-in-out hover:!scale-105
+        class="w-full !rounded-3xl sm:w-auto !transition-transform duration-300 !ease-in-out hover:!scale-105
               !h-12 sm:!h-10 order-2 sm:order-1"
         (click)="close()"
       >
-        <mat-icon class="mr-1">close</mat-icon>
+        <mat-icon class="!mr-1">close</mat-icon>
         Cancelar
       </button>
 
       <button
         mat-flat-button
-        class="w-full sm:w-auto !bg-blue-600 !text-white !transition-transform duration-300 !
+        class="w-full !rounded-3xl sm:w-auto !bg-blue-600 !text-white !transition-transform duration-300 !
                ease-in-out hover:!scale-105 disabled:!bg-gray-200 disabled:!text-gray-400 !h-12
                sm:!h-10 order-1 sm:order-2"
         [disabled]="customForm().invalid()"
         (click)="save()"
       >
-        <mat-icon class="mr-1">save</mat-icon>
+        <mat-icon class="!mr-1">save</mat-icon>
         {{ isEdit() ? 'Atualizar' : 'Salvar' }}
       </button>
     </mat-dialog-actions>

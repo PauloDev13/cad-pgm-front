@@ -221,3 +221,14 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
+
+/* =========================================
+   ARREDONDAMENTO DOS CANTOS DOS DIALOGS
+   ========================================= */
+@layer components {
+  .custom-dialog {
+    .mat-mdc-dialog-surface {
+      @apply !rounded-3xl !overflow-hidden;
+    }
+  }
+}
