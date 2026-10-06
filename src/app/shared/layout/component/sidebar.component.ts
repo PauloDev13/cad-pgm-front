@@ -15,6 +15,9 @@ import {
 import {
   CertificadosVinculadosModalComponent
 } from '../../../features/relatorios/components/certificados-vinculados/certificados-vinculados-modal.component/certificados-vinculados-modal.component';
+import {
+  SistemasVinculadosModalComponent
+} from '../../../features/relatorios/components/sistemas-vinculados/sistemas-vinculados-modal/sistemas-vinculados-modal.component';
 
 @Component({
   selector: 'app-sidebar',
@@ -227,6 +230,14 @@ import {
               [onOpen]="isOpen()"
               (actionClick)="openCertificadosReport()"
             />
+
+            <app-link-sidebar
+              toolTip="Rel. Sistemas Vinculados"
+              label="Sistemas"
+              icon="dns"
+              [onOpen]="isOpen()"
+              (actionClick)="openSistemasReport()"
+            />
           }
 
           @if (authStore.canManager() || authStore.canContab()) {
@@ -328,6 +339,27 @@ export class SidebarComponent {
           queryParams: {
             procuradores: filtros.procuradores && filtros.procuradores.length > 0
               ? filtros.procuradores
+              : null
+          }
+        });
+      }
+    });
+  }
+
+  openSistemasReport() {
+    const dialogRef = this.dialog.open(SistemasVinculadosModalComponent, {
+      width: '450px',
+      panelClass: 'custom-dialog',
+      disableClose: true,
+      injector: this.injector
+    });
+
+    dialogRef.afterClosed().subscribe((filtros) => {
+      if (filtros) {
+        this.router.navigate(['/relatorios/sistemas-vinculados'], {
+          queryParams: {
+            sistemas: filtros.sistemas && filtros.sistemas.length > 0
+              ? filtros.sistemas
               : null
           }
         });

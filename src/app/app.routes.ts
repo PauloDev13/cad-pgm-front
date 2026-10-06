@@ -170,6 +170,13 @@ export const routes: Routes = [
             .then((m) => m.CertificadosVinculadosRelatorioComponent)
       },
       {
+        path: 'relatorios/sistemas-vinculados',
+        title: 'Sistemas Vinculados | Gestão de Servidores PGM Natal',
+        loadComponent: () =>
+          import('./features/relatorios/components/sistemas-vinculados/sistemas-vinculados-relatorio/sistemas-vinculados-relatorio.component')
+            .then((m) => m.SistemasVinculadosRelatorioComponent)
+      },
+      {
         path: 'relatorios/ponto-eletronico',
         title: 'Controle de Ponto | Gestão de Servidores PGM Natal',
         loadComponent: () =>

@@ -6,6 +6,7 @@ import { AniversarianteModel } from '../models/aniversariente.model';
 import { customHandlerError } from '../../../shared/utils/custom-handler-error';
 import { FolhaPontoSetorDTO } from '../models/folha-ponto.model';
 import { ProcuradorVinculoResponse } from '../models/certificado-vinculo.model';
+import { SistemaVinculoResponse } from '../models/sistema-vinculo.model';
 
 @Injectable({
   providedIn: 'root'
@@ -48,6 +49,20 @@ export class RelatorioService {
     }
     return this.http
       .get<ProcuradorVinculoResponse[]>(`${this.apiUrl}/vinculos`, { params })
+      .pipe(catchError(customHandlerError));
+  }
+
+  // retorna a lista de servidores vinculados aos sistemas.
+  // Recebe como parâmetro uma lista de sistemas
+  getSistemasVinculados(sistemas: string[] = []): Observable<SistemaVinculoResponse[]> {
+    let params: HttpParams = new HttpParams();
+
+    sistemas.forEach((nome) => {
+      params = params.append('sistemas', nome);
+    });
+
+    return this.http
+      .get<SistemaVinculoResponse[]>(`${this.apiUrl}/sistemas`, { params })
       .pipe(catchError(customHandlerError));
   }
 }
