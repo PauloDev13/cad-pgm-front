@@ -3,9 +3,7 @@ import { CommonModule, Location } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { LoadingComponent } from '../../../../../shared/components/loading.component/loading.component';
-import { RelatorioService } from '../../../services/relatorio.service';
-import { ErrorHandlerService } from '../../../../../shared/service/error-handler.service';
-import { rxResource } from '@angular/core/rxjs-interop';
+import { CertificadosVinculadosStore } from '../../../store/certificado.store';
 
 @Component({
   selector: 'app-certificados-vinculados-relatorio',
@@ -15,6 +13,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
     MatButtonModule,
     LoadingComponent
   ],
+  providers: [CertificadosVinculadosStore],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -35,7 +34,8 @@ import { rxResource } from '@angular/core/rxjs-interop';
                 md:gap-4 flex-col gap-4 w-full max-w-4xl mx-auto">
         <div class="flex justify-between items-center w-full">
           <button
-            class="bg-gray-500 text-white px-4 md:px-6 py-2 rounded-lg font-bold shadow-md hover:bg-gray-600 hover:shadow-lg transition-all flex items-center gap-2"
+            class="bg-gray-500 text-white px-4 md:px-6 py-2 rounded-3xl font-bold shadow-md hover:bg-gray-600
+                    hover:shadow-lg transition-all flex items-center gap-2"
             (click)="goBack()">
             <mat-icon>arrow_back</mat-icon>
             <span class="hidden sm:inline">Voltar</span>
@@ -46,7 +46,8 @@ import { rxResource } from '@angular/core/rxjs-interop';
           </h2>
 
           <button
-            class="bg-blue-600 text-white px-4 md:px-6 py-2 rounded-lg font-bold shadow-md hover:bg-blue-700 hover:shadow-lg transition-all flex items-center gap-2"
+            class="bg-blue-600 text-white px-4 md:px-6 py-2 rounded-3xl font-bold shadow-md hover:bg-blue-700
+                    hover:shadow-lg transition-all flex items-center gap-2"
             (click)="printReport()"
             [disabled]="isLoading() || vinculos().length === 0">
             <mat-icon>print</mat-icon>
@@ -93,7 +94,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
                 {{ procurador.servidores.length }} {{ procurador.servidores.length === 1 ? 'vinculado' : 'vinculados' }}
               </span>
             </div>
-            <!-- Tabela / Sublista de Servidores -->
+            <!-- Tabela / Sub-lista de Servidores -->
             @if (procurador.servidores.length > 0) {
               <table class="w-full border-collapse text-left text-xs md:text-sm">
                 <thead>
@@ -126,9 +127,13 @@ import { rxResource } from '@angular/core/rxjs-interop';
   `
 })
 export class CertificadosVinculadosRelatorioComponent {
-  private readonly relatorioService = inject(RelatorioService);
-  private readonly errorHandlerService = inject(ErrorHandlerService);
+  private readonly store = inject(CertificadosVinculadosStore);
+  // private readonly relatorioService = inject(RelatorioService);
+  // private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly location = inject(Location);
+
+  readonly vinculos = this.store.vinculos;
+  readonly isLoading = this.store.loading;
 
   // Input automático via withComponentInputBinding
   procuradores = input<string | string[]>();
@@ -140,25 +145,9 @@ export class CertificadosVinculadosRelatorioComponent {
     return Array.isArray(raw) ? raw : [raw];
   });
 
-  // Requisição reativa orientada a Signal (executa automaticamente a cada alteração nos params)
-  certificadosResource = rxResource({
-    params: () => ({
-      procuradores: this.procuradoresSelecionados()
-    }),
-    stream: ({ params }) => {
-      return this.relatorioService.getCertificadosVinculados(params.procuradores);
-    }
-  });
-
-  vinculos = computed(() => this.certificadosResource.value() ?? []);
-  isLoading = this.certificadosResource.isLoading;
-
   constructor() {
     effect(() => {
-      const error = this.certificadosResource.error();
-      if (error) {
-        this.errorHandlerService.handle(error, 'Certificados Vinculados');
-      }
+      this.store.carregar(this.procuradoresSelecionados());
     });
   }
 

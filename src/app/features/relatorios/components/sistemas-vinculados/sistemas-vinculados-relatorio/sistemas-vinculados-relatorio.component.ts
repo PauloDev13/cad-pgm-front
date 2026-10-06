@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, input } f
 import { CommonModule, Location } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { SistemasVinculadosStore } from '../../../store/sistema,store';
+import { SistemasVinculadosStore } from '../../../store/sistema.store';
 
 @Component({
   selector: 'app-sistemas-vinculados-relatorio',
