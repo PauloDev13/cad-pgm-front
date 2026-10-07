@@ -98,7 +98,7 @@ import { AuthStore } from '../store/auth.store';
         <button
           type="submit"
           [disabled]="changeForm().invalid() || authStore.isLoading()"
-          class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700
+          class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-3xl hover:bg-blue-700
                 transition-all flex justify-center items-center gap-2 h-12 disabled:bg-gray-300
                 disabled:cursor-not-allowed disabled:text-gray-500"
         >

@@ -24,7 +24,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
         mat-icon-button
         aria-label="Fechar"
         (click)="onYesClick()"
-        class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500 !transition-colors !duration-300 !shrink-0 ml-4"
+        class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500
+              !transition-colors !duration-300 !shrink-0 ml-4"
       >
         <mat-icon class="!text-white !scale-90 !leading-none !m-0 !p-0">close</mat-icon>
       </button>
@@ -59,7 +60,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
         mat-flat-button
         type="button"
         (click)="onYesClick()"
-        class="w-full sm:w-auto !bg-blue-600 !text-white hover:!bg-blue-700 !transition-transform !duration-300 !ease-in-out hover:!scale-105 !h-12 sm:!h-10"
+        class="w-full sm:w-auto !bg-blue-600 !text-white hover:!bg-blue-700
+               !transition-transform !duration-300 !ease-in-out hover:!scale-105
+               !rounded-3xl !h-12 sm:!h-10"
       >
         OK
       </button>
