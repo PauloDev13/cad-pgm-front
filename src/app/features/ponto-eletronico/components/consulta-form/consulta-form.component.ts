@@ -153,14 +153,14 @@ import { initialModel, subscriptionSchema } from '../../utils/subscription-ponto
           <button
             type="button"
             (click)="onClear()"
-            class="flex-1 bg-gray-500 text-white px-4 py-2.5 rounded-lg font-bold shadow-md
+            class="flex-1 bg-gray-500 text-white px-4 py-2.5 rounded-3xl font-bold shadow-md
                    hover:bg-gray-600 transition-all text-sm">
             LIMPAR CONSULTA
           </button>
           <button
             type="submit"
             [disabled]="consultaForm().invalid() || store.isGenerating()"
-            class="flex-1 bg-blue-600 text-white px-4 py-2.5 rounded-lg font-bold shadow-md
+            class="flex-1 bg-blue-600 text-white px-4 py-2.5 rounded-3xl font-bold shadow-md
                    hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm">
             @if (store.isGenerating()) {
               <span

@@ -44,7 +44,7 @@ import { JobStatus } from '../../models/ponto-eletronico.model';
           mat-stroked-button
           (click)="onClearHistory()"
           class="!border-gray-300 !text-gray-600 !text-xs !font-semibold
-                 hover:!bg-gray-100 !transition-all">
+                 hover:!bg-gray-100 !transition-all !rounded-3xl">
           <mat-icon class="!text-base !mr-1">delete_sweep</mat-icon>
           Limpar Histórico
         </button>
@@ -100,7 +100,8 @@ import { JobStatus } from '../../models/ponto-eletronico.model';
                   }
                   <button
                     (click)="onDownloadZip(item.id)"
-                    class="text-xs text-cyan-600 font-bold hover:text-cyan-800 hover:underline inline-flex items-center gap-1 shrink-0">
+                    class="text-xs text-cyan-600 font-bold hover:text-cyan-800 hover:underline
+                          inline-flex items-center gap-1 shrink-0 !rounded-3xl">
                     <mat-icon class="text-sm !w-3.5 !h-3.5">archive</mat-icon>
                     Todos (ZIP)
                   </button>
