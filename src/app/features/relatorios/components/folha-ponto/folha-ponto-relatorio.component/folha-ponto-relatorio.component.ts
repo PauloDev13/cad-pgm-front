@@ -185,7 +185,7 @@ import { CalendarUtils } from '../../../utils/calendar-utils';
 })
 export default class FolhaPontoRelatorioComponent {
   private readonly relatorioService = inject(RelatorioService);
-  private readonly feriadoService = inject(FeriadoService); // <--- Injeção
+  private readonly feriadoService = inject(FeriadoService);
   private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly location = inject(Location);
 

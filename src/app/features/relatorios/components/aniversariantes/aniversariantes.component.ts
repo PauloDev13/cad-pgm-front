@@ -1,20 +1,24 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, viewChild } from '@angular/core';
-import { RelatorioService } from '../../services/relatorio.service';
-import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
 import { MESES_DO_ANO } from '../../models/aniversariente.model';
-import { of } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Location } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ArteAniversariantesComponent } from './arte-aniversariantes/arte-aniversariantes.component';
-import { rxResource } from '@angular/core/rxjs-interop';
 import { formatarNomeAniversariante } from '../../utils/formatar-nome-aniversariante';
+import { RelatoriosStore } from '../../store/relatorios.store';
 
 @Component({
   selector: 'app-aniversariantes',
-  imports: [MatProgressSpinnerModule, MatButtonModule, MatIconModule, MatTooltipModule, ArteAniversariantesComponent],
+  imports: [
+    MatProgressSpinnerModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
+    ArteAniversariantesComponent
+  ],
+  providers: [RelatoriosStore],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -26,7 +30,7 @@ import { formatarNomeAniversariante } from '../../utils/formatar-nome-aniversari
 
         <div class="w-full md:w-1/3 md:pl-4 flex justify-start">
           <button
-            class="bg-gray-500 text-white px-4 md:px-6 py-2 rounded-lg font-bold shadow-md
+            class="bg-gray-500 text-white px-4 md:px-6 py-2 rounded-3xl font-bold shadow-md
                  hover:bg-gray-600 hover:shadow-lg transition-all flex items-center gap-2"
             (click)="goBack()">
             <mat-icon>arrow_back</mat-icon>
@@ -51,7 +55,8 @@ import { formatarNomeAniversariante } from '../../utils/formatar-nome-aniversari
         <div class="w-full md:w-1/3 flex md:pr-4 md:justify-end">
           <button
             mat-flat-button
-            class="!bg-blue-700 w-full md:w-auto gap-2 !transition-transform duration-300 hover:!scale-105 disabled:!bg-gray-300"
+            class="!bg-blue-700 w-full md:w-auto gap-2 !transition-transform duration-300 hover:!scale-105
+                  !rounded-3xl disabled:!bg-gray-300"
             (click)="generateArt()"
             [disabled]="isLoading() || aniversariantes().length === 0">
             <mat-icon>image</mat-icon>
@@ -159,12 +164,14 @@ import { formatarNomeAniversariante } from '../../utils/formatar-nome-aniversari
   `
 })
 export default class AniversariantesComponent {
-  private readonly relatorioService = inject(RelatorioService);
-  private errorHandlerService = inject(ErrorHandlerService);
+  private readonly store = inject(RelatoriosStore);
   private location = inject(Location);
 
   // Input automático via withComponentInputBinding
   month = input<string | number>();
+
+  aniversariantes = this.store.aniversariantes;
+  isLoading = this.store.loading;
 
   // lista de aniversariantes com os nomes formatados com prefixo 'Dra.' e 'Dr.'
   aniversariantesFormatados = () => {
@@ -192,30 +199,12 @@ export default class AniversariantesComponent {
     return `${nameMonth}/${currentYear}`;
   });
 
-  // Busca a lista de aniversariantes
-  aniversariantesResource = rxResource({
-    params: () => ({ month: this.currentMonth() }),
-    stream: ({ params }) => {
-      const selectedMonth = params.month;
-      if (!selectedMonth || isNaN(selectedMonth)) {
-        return of([]);
-      }
-      return this.relatorioService.getAniversariantesMes(selectedMonth);
-    }
-  });
-
-  // Usa a lista de aniversariantes
-  aniversariantes = computed(() => {
-    return this.aniversariantesResource.value() ?? [];
-  });
-
-  isLoading = this.aniversariantesResource.isLoading;
-
   constructor() {
     effect(() => {
-      const erro = this.aniversariantesResource.error();
-      if (erro) {
-        this.errorHandlerService.handle(erro, 'Aniversariantes');
+      const selectedMonth = this.currentMonth();
+
+      if (Number.isInteger(selectedMonth) && selectedMonth >= 1 && selectedMonth <= 12) {
+        this.store.carregarAniversariantes(selectedMonth);
       }
     });
   }

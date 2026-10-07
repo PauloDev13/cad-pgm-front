@@ -52,7 +52,7 @@ export class RelatorioService {
       .pipe(catchError(customHandlerError));
   }
 
-  // retorna a lista de servidores vinculados aos sistemas.
+  // Retorna a lista de servidores vinculados aos sistemas.
   // Recebe como parâmetro uma lista de sistemas
   getSistemasVinculados(sistemas: string[] = []): Observable<SistemaVinculoResponse[]> {
     let params: HttpParams = new HttpParams();

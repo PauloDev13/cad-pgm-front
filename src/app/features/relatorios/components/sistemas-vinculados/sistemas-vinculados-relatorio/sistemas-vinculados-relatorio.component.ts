@@ -2,12 +2,12 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, input } f
 import { CommonModule, Location } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { SistemasVinculadosStore } from '../../../store/sistema.store';
+import { RelatoriosStore } from '../../../store/relatorios.store';
 
 @Component({
   selector: 'app-sistemas-vinculados-relatorio',
   imports: [CommonModule, MatIconModule, MatButtonModule],
-  providers: [SistemasVinculadosStore],
+  providers: [RelatoriosStore],
   standalone: true,
   template: `
     <div
@@ -34,7 +34,7 @@ import { SistemasVinculadosStore } from '../../../store/sistema.store';
             class="bg-blue-600 text-white px-4 md:px-6 py-2 !rounded-3xl font-bold shadow-md hover:bg-blue-700
                    hover:shadow-lg transition-all flex items-center gap-2"
             (click)="printReport()"
-            [disabled]="loading() || vinculos().length === 0">
+            [disabled]="loading() || sistemasList().length === 0">
             <mat-icon class="!mr-1">print</mat-icon>
             <span class="hidden sm:inline">Imprimir/Salvar</span>
           </button>
@@ -43,7 +43,7 @@ import { SistemasVinculadosStore } from '../../../store/sistema.store';
 
       @if (loading()) {
         <div class="flex justify-center items-center p-10 text-gray-500">Carregando relatório...</div>
-      } @else if (vinculos().length === 0) {
+      } @else if (sistemasList().length === 0) {
         <div class="flex flex-col flex-1 justify-center items-center p-10 text-gray-400 gap-3 text-center">
           <mat-icon class="text-5xl !text-gray-300">dns</mat-icon>
           <p class="text-base md:text-lg font-medium">
@@ -64,7 +64,7 @@ import { SistemasVinculadosStore } from '../../../store/sistema.store';
 
       <div class="flex-1 min-h-0 overflow-y-auto w-full max-w-4xl mx-auto px-2 md:px-0 pb-8
                   print:p-0 print:overflow-visible print:max-w-none">
-        @for (sistema of vinculos(); track sistema.nomeSistema) {
+        @for (sistema of sistemasList(); track sistema.nomeSistema) {
           <section class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 md:p-6 mb-6
                           print:shadow-none print:border-none print:mb-4">
             <div class="flex items-center gap-2 border-b border-gray-200 pb-2 mb-4 print:border-black">
@@ -105,7 +105,7 @@ import { SistemasVinculadosStore } from '../../../store/sistema.store';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SistemasVinculadosRelatorioComponent {
-  private readonly store = inject(SistemasVinculadosStore);
+  private readonly store = inject(RelatoriosStore);
   private readonly location = inject(Location);
 
   // Requer withComponentInputBinding() habilitado no router.
@@ -116,11 +116,11 @@ export class SistemasVinculadosRelatorioComponent {
     return valor ? (Array.isArray(valor) ? valor : [valor]) : [];
   });
 
-  readonly vinculos = this.store.vinculos;
+  readonly sistemasList = this.store.sistemas;
   readonly loading = this.store.loading;
 
   constructor() {
-    effect(() => this.store.carregar(this.sistemasSelecionados()));
+    effect(() => this.store.carregarVinculoSistema(this.sistemasSelecionados()));
   }
 
   printReport(): void {

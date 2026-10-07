@@ -3,7 +3,7 @@ import { CommonModule, Location } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { LoadingComponent } from '../../../../../shared/components/loading.component/loading.component';
-import { CertificadosVinculadosStore } from '../../../store/certificado.store';
+import { RelatoriosStore } from '../../../store/relatorios.store';
 
 @Component({
   selector: 'app-certificados-vinculados-relatorio',
@@ -13,7 +13,7 @@ import { CertificadosVinculadosStore } from '../../../store/certificado.store';
     MatButtonModule,
     LoadingComponent
   ],
-  providers: [CertificadosVinculadosStore],
+  providers: [RelatoriosStore],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -49,7 +49,7 @@ import { CertificadosVinculadosStore } from '../../../store/certificado.store';
             class="bg-blue-600 text-white px-4 md:px-6 py-2 rounded-3xl font-bold shadow-md hover:bg-blue-700
                     hover:shadow-lg transition-all flex items-center gap-2"
             (click)="printReport()"
-            [disabled]="isLoading() || vinculos().length === 0">
+            [disabled]="isLoading || certificados.length === 0">
             <mat-icon>print</mat-icon>
             <span class="hidden sm:inline">Imprimir/Salvar</span>
           </button>
@@ -60,7 +60,7 @@ import { CertificadosVinculadosStore } from '../../../store/certificado.store';
         class="flex-1 min-h-0 overflow-y-auto w-full max-w-4xl mx-auto px-2 md:px-0 pb-8 print:p-0 print:overflow-visible print:max-w-none">
 
         <!-- Estado Vazio -->
-        @if (!isLoading() && vinculos().length === 0) {
+        @if (!isLoading && certificados.length === 0) {
           <div class="flex flex-col flex-1 justify-center items-center p-10 text-gray-400 gap-3 text-center">
             <mat-icon class="text-5xl !text-gray-300">verified_user</mat-icon>
             <p class="text-base md:text-lg font-medium">
@@ -79,7 +79,7 @@ import { CertificadosVinculadosStore } from '../../../store/certificado.store';
           </div>
         </div>
         <!-- Lista de Procuradores e Servidores -->
-        @for (procurador of vinculos(); track procurador.nomeProcurador) {
+        @for (procurador of certificados(); track procurador.nomeProcurador) {
           <div
             class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 md:p-6 mb-6
                    print:shadow-none print:border-none print:mb-4">
@@ -127,19 +127,17 @@ import { CertificadosVinculadosStore } from '../../../store/certificado.store';
   `
 })
 export class CertificadosVinculadosRelatorioComponent {
-  private readonly store = inject(CertificadosVinculadosStore);
-  // private readonly relatorioService = inject(RelatorioService);
-  // private readonly errorHandlerService = inject(ErrorHandlerService);
+  private readonly store = inject(RelatoriosStore);
   private readonly location = inject(Location);
 
-  readonly vinculos = this.store.vinculos;
+  readonly certificados = this.store.certificados;
   readonly isLoading = this.store.loading;
 
   // Input automático via withComponentInputBinding
   procuradores = input<string | string[]>();
 
   // Normalização reativa do array de procuradores a partir do input da rota
-  procuradoresSelecionados = computed<string[]>(() => {
+  certificadosSelecionados = computed<string[]>(() => {
     const raw = this.procuradores();
     if (!raw) return [];
     return Array.isArray(raw) ? raw : [raw];
@@ -147,7 +145,7 @@ export class CertificadosVinculadosRelatorioComponent {
 
   constructor() {
     effect(() => {
-      this.store.carregar(this.procuradoresSelecionados());
+      this.store.carregarVinculosCertificado(this.certificadosSelecionados());
     });
   }
 

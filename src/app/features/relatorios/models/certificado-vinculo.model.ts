@@ -7,7 +7,3 @@ export interface ProcuradorVinculoResponse {
   nomeProcurador: string;
   servidores: ServidorVinculo[];
 }
-
-export interface FiltroCertificadosDTO {
-  procuradores: string[];
-}
