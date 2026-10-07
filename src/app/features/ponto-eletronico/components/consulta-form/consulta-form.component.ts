@@ -154,17 +154,20 @@ import { initialModel, subscriptionSchema } from '../../utils/subscription-ponto
             type="button"
             (click)="onClear()"
             class="flex-1 bg-gray-500 text-white px-4 py-2.5 rounded-3xl font-bold shadow-md
-                   hover:bg-gray-600 transition-all text-sm">
+                   transition-transform duration-300 hover:scale-102 hover:bg-gray-600 text-sm
+                   cursor-pointer">
             LIMPAR CONSULTA
           </button>
           <button
             type="submit"
             [disabled]="consultaForm().invalid() || store.isGenerating()"
             class="flex-1 bg-blue-600 text-white px-4 py-2.5 rounded-3xl font-bold shadow-md
-                   hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm">
+                   transition-transform duration-300 hover:scale-102 hover:bg-blue-700
+                   disabled:opacity-50 disabled:cursor-not-allowed text-sm cursor-pointer">
             @if (store.isGenerating()) {
               <span
-                class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white/25 border-t-white mr-2 align-middle"></span>
+                class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white/25
+                    border-t-white mr-2 align-middle"></span>
               GERANDO...
             } @else {
               {{ buttonLabel() }}

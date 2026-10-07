@@ -34,7 +34,7 @@ import { MESES_DO_ANO } from '../../../models/aniversariente.model';
     </mat-dialog-content>
 
     <mat-dialog-actions align="end" class="pb-4 pr-4">
-      <button mat-button mat-dialog-close class="text-gray-600">Cancelar</button>
+      <button mat-button mat-dialog-close class="!rounded-3xl text-gray-600">Cancelar</button>
       <button
         mat-flat-button
         class="!rounded-3xl"

@@ -154,7 +154,7 @@ export const routes: Routes = [
       {
         path: 'relatorios/aniversariantes',
         title: 'Lista Aniversariantes | Gestão de Servidores PGM Natal',
-        loadComponent: () => import('./features/relatorios/components/aniversariantes/aniversariantes.component')
+        loadComponent: () => import('./features/relatorios/components/aniversariantes/aniversariantes-relatorio/aniversariantes-relatorio.component')
       },
       {
         path: 'relatorios/folha-ponto',

@@ -44,8 +44,8 @@ import { PontoEletronicoService } from '../../services/ponto-eletronico.service'
           mat-stroked-button
           color="warn"
           (click)="onCancel()"
-          class="!border-red-300 !text-red-600 hover:!bg-red-50 !transition-all !text-sm
-          !font-bold !rounded-3xl">
+          class="!border-red-300 !text-red-600 hover:scale-105 hover:!bg-red-50
+                !transition-all !text-sm !font-bold !rounded-3xl">
           <mat-icon class="!text-base mr-1">cancel</mat-icon>
           Cancelar processamento
         </button>

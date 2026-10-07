@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, viewChild } from '@angular/core';
-import { MESES_DO_ANO } from '../../models/aniversariente.model';
+import { MESES_DO_ANO } from '../../../models/aniversariente.model';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Location } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ArteAniversariantesComponent } from './arte-aniversariantes/arte-aniversariantes.component';
-import { formatarNomeAniversariante } from '../../utils/formatar-nome-aniversariante';
-import { RelatoriosStore } from '../../store/relatorios.store';
+import { ArteAniversariantesComponent } from '../arte-aniversariantes/arte-aniversariantes.component';
+import { formatarNomeAniversariante } from '../../../utils/formatar-nome-aniversariante';
+import { RelatoriosStore } from '../../../store/relatorios.store';
 
 @Component({
   selector: 'app-aniversariantes',
@@ -31,7 +31,8 @@ import { RelatoriosStore } from '../../store/relatorios.store';
         <div class="w-full md:w-1/3 md:pl-4 flex justify-start">
           <button
             class="bg-gray-500 text-white px-4 md:px-6 py-2 rounded-3xl font-bold shadow-md
-                 hover:bg-gray-600 hover:shadow-lg transition-all flex items-center gap-2"
+                  hover:!scale-105 hover:bg-gray-600 hover:shadow-lg !transition-transform
+                  !duration-300 flex items-center gap-2 cursor-pointer"
             (click)="goBack()">
             <mat-icon>arrow_back</mat-icon>
             <span class="hidden sm:inline">Voltar</span>
@@ -163,7 +164,7 @@ import { RelatoriosStore } from '../../store/relatorios.store';
     <app-arte-aniversariantes [aniversariantes]="aniversariantesFormatados()" [titleReport]="titleReport()" />
   `
 })
-export default class AniversariantesComponent {
+export default class AniversariantesRelatorioComponent {
   private readonly store = inject(RelatoriosStore);
   private location = inject(Location);
 

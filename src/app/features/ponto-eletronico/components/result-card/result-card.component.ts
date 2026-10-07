@@ -32,7 +32,7 @@ import { NotificationService } from '../../../../shared/service/NotificationSnac
               mat-flat-button
               (click)="onDownloadFile(file.name)"
               class="!shrink-0 !bg-blue-600 !text-white !text-xs !font-bold
-                       hover:!bg-blue-700 !transition-all !rounded-3xl">
+                     hover:!scale-105  hover:!bg-blue-700 !duration-300 !transition-all !rounded-3xl">
               <mat-icon class="!text-base !mr-1">download</mat-icon>
               Baixar
             </button>
@@ -45,7 +45,7 @@ import { NotificationService } from '../../../../shared/service/NotificationSnac
           mat-flat-button
           (click)="onDownload('zip')"
           class="!bg-gray-500 !text-white !text-xs !font-bold
-                   hover:!bg-gray-600 !transition-all !rounded-3xl">
+                 hover:scale-105 hover:!bg-gray-600 !transition-all !rounded-3xl">
           <mat-icon class="!text-base !mr-1">download</mat-icon>
           Baixar tudo (ZIP)
         </button>

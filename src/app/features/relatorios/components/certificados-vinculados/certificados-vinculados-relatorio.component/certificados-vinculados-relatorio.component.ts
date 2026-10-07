@@ -34,8 +34,9 @@ import { RelatoriosStore } from '../../../store/relatorios.store';
                 md:gap-4 flex-col gap-4 w-full max-w-4xl mx-auto">
         <div class="flex justify-between items-center w-full">
           <button
-            class="bg-gray-500 text-white px-4 md:px-6 py-2 rounded-3xl font-bold shadow-md hover:bg-gray-600
-                    hover:shadow-lg transition-all flex items-center gap-2"
+            class="bg-gray-500 text-white px-4 md:px-6 py-2 rounded-3xl font-bold shadow-md
+                  hover:scale-105 hover:bg-gray-600 hover:shadow-lg !transition-transform
+                  !duration-300 flex items-center gap-2 cursor-pointer"
             (click)="goBack()">
             <mat-icon>arrow_back</mat-icon>
             <span class="hidden sm:inline">Voltar</span>
@@ -46,10 +47,11 @@ import { RelatoriosStore } from '../../../store/relatorios.store';
           </h2>
 
           <button
-            class="bg-blue-600 text-white px-4 md:px-6 py-2 rounded-3xl font-bold shadow-md hover:bg-blue-700
-                    hover:shadow-lg transition-all flex items-center gap-2"
+            class="bg-blue-600 text-white px-4 md:px-6 py-2 rounded-3xl font-bold shadow-md
+                  hover:scale-105 hover:bg-blue-700 hover:shadow-lg !transition-transform
+                  !duration-300 flex items-center gap-2 cursor-pointer"
             (click)="printReport()"
-            [disabled]="isLoading || certificados.length === 0">
+            [disabled]="isLoading() || certificados().length === 0">
             <mat-icon>print</mat-icon>
             <span class="hidden sm:inline">Imprimir/Salvar</span>
           </button>
@@ -60,7 +62,7 @@ import { RelatoriosStore } from '../../../store/relatorios.store';
         class="flex-1 min-h-0 overflow-y-auto w-full max-w-4xl mx-auto px-2 md:px-0 pb-8 print:p-0 print:overflow-visible print:max-w-none">
 
         <!-- Estado Vazio -->
-        @if (!isLoading && certificados.length === 0) {
+        @if (!isLoading() && certificados().length === 0) {
           <div class="flex flex-col flex-1 justify-center items-center p-10 text-gray-400 gap-3 text-center">
             <mat-icon class="text-5xl !text-gray-300">verified_user</mat-icon>
             <p class="text-base md:text-lg font-medium">

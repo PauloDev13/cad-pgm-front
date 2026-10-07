@@ -1,19 +1,17 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
-import { RelatorioService } from '../../../services/relatorio.service';
 import { MESES_DO_ANO } from '../../../models/aniversariente.model';
-import { ErrorHandlerService } from '../../../../../shared/service/error-handler.service';
 import { CommonModule, Location } from '@angular/common';
-import { rxResource } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { LoadingComponent } from '../../../../../shared/components/loading.component/loading.component';
-import { FeriadoService } from '../../../../feriado/services/feriado.service';
 import { CalendarUtils } from '../../../utils/calendar-utils';
+import { RelatoriosStore } from '../../../store/relatorios.store';
 
 @Component({
   selector: 'app-folha-ponto-relatorio.component',
   imports: [CommonModule, MatIconModule, MatTooltipModule, MatButtonModule, LoadingComponent],
+  providers: [RelatoriosStore],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -35,7 +33,9 @@ import { CalendarUtils } from '../../../utils/calendar-utils';
               md:gap-4 flex-col gap-4 w-full max-w-4xl mx-auto">
         <div class="flex justify-between items-center w-full">
           <button
-            class="bg-gray-500 text-white px-4 md:px-6 py-2 rounded-lg font-bold shadow-md hover:bg-gray-600 hover:shadow-lg transition-all flex items-center gap-2"
+            class="bg-gray-500 text-white px-4 md:px-6 py-2 rounded-3xl font-bold shadow-md
+                  hover:scale-105 hover:bg-gray-600 hover:shadow-lg !transition-transform
+                  !duration-300 flex items-center gap-2 cursor-pointer"
             (click)="goBack()">
             <mat-icon>arrow_back</mat-icon>
             <span class="hidden sm:inline">Voltar</span>
@@ -46,7 +46,9 @@ import { CalendarUtils } from '../../../utils/calendar-utils';
           </h2>
 
           <button
-            class="bg-blue-600 text-white px-4 md:px-6 py-2 rounded-lg font-bold shadow-md hover:bg-blue-700 hover:shadow-lg transition-all flex items-center gap-2"
+            class="bg-blue-600 text-white px-4 md:px-6 py-2 rounded-3xl font-bold shadow-md
+                  hover:scale-105 hover:bg-blue-700 hover:shadow-lg !transition-transform
+                  !duration-300 flex items-center gap-2 cursor-pointer"
             (click)="printReport()">
             <mat-icon>print</mat-icon>
             <span class="hidden sm:inline">Imprimir/Salvar</span>
@@ -57,7 +59,23 @@ import { CalendarUtils } from '../../../utils/calendar-utils';
         class="flex-1 min-h-0 overflow-y-auto w-full max-w-4xl mx-auto px-2 md:px-0 pb-8 print:p-0
            print:overflow-visible print:max-w-none">
 
-        @if (!isLoading() && setores().length === 0) {
+        @if (!isLoading() && store.errorFolhaPonto()) {
+          <div class="flex flex-col flex-1 justify-center items-center p-10 text-gray-400 gap-3 text-center">
+            <mat-icon class="text-5xl !text-gray-300">event_busy</mat-icon>
+            <p class="text-base md:text-lg font-medium text-red-700">
+              Não foi possível carregar os dados da folha de ponto.
+            </p>
+          </div>
+
+        } @else if (!isLoading() && store.errorFeriado()) {
+          <div class="flex flex-col flex-1 justify-center items-center p-10 text-center">
+            <mat-icon class="text-5xl !text-gray-300">event_busy</mat-icon>
+            <p class="text-base md:text-lg font-medium text-red-700">
+              Não foi possível carregar os feriados para o calendário.
+            </p>
+          </div>
+
+        } @else if (!isLoading() && setores().length === 0) {
           <div class="flex flex-col flex-1 justify-center items-center p-10 text-gray-400 gap-3 text-center">
             <mat-icon class="text-5xl !text-gray-300">event_busy</mat-icon>
             <p class="text-base md:text-lg font-medium">
@@ -184,10 +202,19 @@ import { CalendarUtils } from '../../../utils/calendar-utils';
   `]
 })
 export default class FolhaPontoRelatorioComponent {
-  private readonly relatorioService = inject(RelatorioService);
-  private readonly feriadoService = inject(FeriadoService);
-  private readonly errorHandlerService = inject(ErrorHandlerService);
+  protected readonly store = inject(RelatoriosStore);
+  // private readonly relatorioService = inject(RelatorioService);
+  // private readonly feriadoService = inject(FeriadoService);
+  // private readonly errorHandlerService = inject(ErrorHandlerService);
   private readonly location = inject(Location);
+
+
+  readonly setores = this.store.folhaPontoDados;
+  readonly feriadosAtivos = this.store.feriados;
+  // Loading unificado considerando a carga dos dados e dos feriados
+  readonly isLoading = computed(
+    () => this.store.loadingFolhaPonto() || this.store.loadingFeriado()
+  );
 
   // Inputs automáticos via withComponentInputBinding
   mes = input<string | number>();
@@ -211,18 +238,18 @@ export default class FolhaPontoRelatorioComponent {
   });
 
   // Busca reativa dos feriados ativos da competência
-  feriadosResource = rxResource({
-    params: () => ({
-      mes: this.mesSelecionado()
-    }),
-    stream: ({ params }) => {
-      return this.feriadoService.findAtivos(params.mes);
-    }
-  });
+  // feriadosResource = rxResource({
+  //   params: () => ({
+  //     mes: this.mesSelecionado()
+  //   }),
+  //   stream: ({ params }) => {
+  //     return this.feriadoService.findAtivos(params.mes);
+  //   }
+  // });
 
-  feriadosAtivos = computed(() => {
-    return this.feriadosResource.value() ?? [];
-  });
+  // feriadosAtivos = computed(() => {
+  //   return this.feriadosResource.value() ?? [];
+  // });
 
   // diasDaFolha agora é reativo aos feriados retornados da API e ao ano/mês
   diasDaFolha = computed(() =>
@@ -243,42 +270,61 @@ export default class FolhaPontoRelatorioComponent {
   // Extração e normalização de setorIds a partir do input da rota
   setorIdsSelecionados = computed<number[]>(() => {
     const raw = this.setorIds();
+
     if (!raw) return [];
-    if (Array.isArray(raw)) return raw.map(Number);
-    return [Number(raw)];
+
+    // if (Array.isArray(raw)) return raw.map(Number);
+    // return [Number(raw)];
+    return Array.isArray(raw) ? raw.map(Number) : [Number(raw)];
   });
 
   // rxResource reativo baseado no signal de parâmetros (re-executa automaticamente ao alterar filtros)
-  folhaPontoResource = rxResource({
-    params: () => ({
-      setorIds: this.setorIdsSelecionados(),
-      mes: this.mesSelecionado(),
-      ano: this.anoSelecionado()
-    }),
-    stream: ({ params }) => {
-      return this.relatorioService.gerarFolhaMes(params.setorIds);
-    }
-  });
+  // folhaPontoResource = rxResource({
+  //   params: () => ({
+  //     setorIds: this.setorIdsSelecionados(),
+  //     mes: this.mesSelecionado(),
+  //     ano: this.anoSelecionado()
+  //   }),
+  //   stream: ({ params }) => {
+  //     return this.relatorioService.gerarFolhaMes(params.setorIds);
+  //   }
+  // });
 
-  setores = computed(() => {
-    return this.folhaPontoResource.value() ?? [];
-  });
+
+  // setores = computed(() => {
+  //   return this.folhaPontoResource.value() ?? [];
+  // });
 
   // Loading unificado considerando a carga dos dados e dos feriados
-  isLoading = computed(() => this.folhaPontoResource.isLoading() || this.feriadosResource.isLoading());
+  // isLoading = computed(() => this.folhaPontoResource.isLoading() || this.feriadosResource.isLoading());
 
   constructor() {
+    // A requisição da folha depende apenas dos setores.
     effect(() => {
-      const errorFolha = this.folhaPontoResource.error();
+      const setorIds = this.setorIdsSelecionados();
 
-      if (errorFolha) {
-        this.errorHandlerService.handle(errorFolha, 'Folha Ponto');
+      if (setorIds.every(Number.isFinite)) {
+        this.store.carregarFolhaPonto(setorIds);
       }
+      // const errorFolha = this.folhaPontoResource.error();
+      //
+      // if (errorFolha) {
+      //   this.errorHandlerService.handle(errorFolha, 'Folha Ponto');
+      // }
+      //
+      // const errorFeriados = this.feriadosResource.error();
+      //
+      // if (errorFeriados) {
+      //   this.errorHandlerService.handle(errorFeriados, 'Feriados');
+      // }
+    });
 
-      const errorFeriados = this.feriadosResource.error();
+    // A requisição de feriados depende apenas do mês.
+    effect(() => {
+      const mes = this.mesSelecionado();
 
-      if (errorFeriados) {
-        this.errorHandlerService.handle(errorFeriados, 'Feriados');
+      if (Number.isInteger(mes) && mes >= 1 && mes <= 12) {
+        this.store.carregarFeriados(mes);
       }
     });
   }
@@ -287,7 +333,7 @@ export default class FolhaPontoRelatorioComponent {
     window.print();
   }
 
-  // Método para o botão Voltar
+  // Method para o botão Voltar
   goBack() {
     this.location.back();
   }

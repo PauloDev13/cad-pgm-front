@@ -46,7 +46,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
             mat-icon-button
             (click)="copyPassword(data.password)"
             matTooltip="Copiar senha"
-            class="!text-blue-600 hover:!bg-blue-100 !transition-colors shrink-0"
+            class="!text-blue-600 hover:scale-105 hover:!bg-blue-100 !transition-all
+                    cursor-pointer shrink-0"
           >
             <mat-icon>content_copy</mat-icon>
           </button>

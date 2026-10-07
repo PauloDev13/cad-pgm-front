@@ -19,8 +19,9 @@ import { RelatoriosStore } from '../../../store/relatorios.store';
                   flex w-full max-w-4xl mx-auto">
         <div class="flex justify-between items-center w-full">
           <button
-            class="bg-gray-500 text-white px-4 md:px-6 py-2 !rounded-3xl font-bold shadow-md hover:bg-gray-600
-                   hover:shadow-lg transition-all flex items-center gap-2"
+            class="bg-gray-500 text-white px-4 md:px-6 py-2 rounded-3xl font-bold shadow-md
+                  hover:scale-105 hover:bg-gray-600 hover:shadow-lg !transition-transform
+                  !duration-300 flex items-center gap-2 cursor-pointer"
             (click)="goBack()">
             <mat-icon>arrow_back</mat-icon>
             <span class="hidden sm:inline">Voltar</span>
@@ -31,8 +32,9 @@ import { RelatoriosStore } from '../../../store/relatorios.store';
           </h2>
 
           <button
-            class="bg-blue-600 text-white px-4 md:px-6 py-2 !rounded-3xl font-bold shadow-md hover:bg-blue-700
-                   hover:shadow-lg transition-all flex items-center gap-2"
+            class="bg-blue-600 text-white px-4 md:px-6 py-2 rounded-3xl font-bold shadow-md
+                  hover:scale-105 hover:bg-blue-700 hover:shadow-lg !transition-transform
+                  !duration-300 flex items-center gap-2 cursor-pointer"
             (click)="printReport()"
             [disabled]="loading() || sistemasList().length === 0">
             <mat-icon class="!mr-1">print</mat-icon>

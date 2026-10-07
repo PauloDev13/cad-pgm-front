@@ -44,7 +44,7 @@ import { JobStatus } from '../../models/ponto-eletronico.model';
           mat-stroked-button
           (click)="onClearHistory()"
           class="!border-gray-300 !text-gray-600 !text-xs !font-semibold
-                 hover:!bg-gray-100 !transition-all !rounded-3xl">
+                 hover:scale-105 hover:!bg-gray-100 !transition-all !duration-300 !rounded-3xl">
           <mat-icon class="!text-base !mr-1">delete_sweep</mat-icon>
           Limpar Histórico
         </button>
@@ -100,8 +100,8 @@ import { JobStatus } from '../../models/ponto-eletronico.model';
                   }
                   <button
                     (click)="onDownloadZip(item.id)"
-                    class="text-xs text-cyan-600 font-bold hover:text-cyan-800 hover:underline
-                          inline-flex items-center gap-1 shrink-0 !rounded-3xl">
+                    class="text-xs text-cyan-600 font-bold hover:text-cyan-800 hover:!scale-105 hover:underline
+                          !transition-all !duration-300 inline-flex items-center gap-1 shrink-0 !rounded-3xl">
                     <mat-icon class="text-sm !w-3.5 !h-3.5">archive</mat-icon>
                     Todos (ZIP)
                   </button>
@@ -114,7 +114,8 @@ import { JobStatus } from '../../models/ponto-eletronico.model';
               <button
                 mat-icon-button
                 (click)="onDelete(item.id)"
-                class="!text-red-500 hover:!bg-red-50 !transition-all self-start"
+                class="hover:!scale-120 !transition-all !duration-300  !text-red-500 hover:!bg-red-50
+                      self-start"
                 title="Excluir esta gera\u00e7\u00e3o">
                 <mat-icon class="!text-base">delete</mat-icon>
               </button>
