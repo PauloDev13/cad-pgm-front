@@ -43,7 +43,9 @@ export const AuthStore = signalStore(
       isLoggedIn: computed(() => !!state.token),
       isForcedPasswordChanged: computed(() => state.currentUser()?.isForcePasswordChange ?? false),
       userRoles,
-      // Lógicas de negócio centralizadas
+      // E-mail reativo do usuário logado
+      userEmail: computed(() => state.currentUser()?.email ?? ''),
+      // Lógicas de negócio centralizadas para identificar perfis de usuários
       canEdit: computed(() => userRoles().includes('admin') || userRoles().includes('rh')),
       canManager: computed(() => userRoles().includes('admin')),
       canContab: computed(() => userRoles().includes('guest'))

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, output, signal } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,6 +8,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthStore } from '../../../core/auth/store/auth.store';
 import { MatBadgeModule } from '@angular/material/badge';
 import { ServidoresStore } from '../../../features/servidor/store/servidor.store';
+import { UserAvatarService } from '../../../core/auth/services/user-avatar.service';
 
 @Component({
   selector: 'app-header',
@@ -38,15 +39,22 @@ import { ServidoresStore } from '../../../features/servidor/store/servidor.store
           </mat-icon>
         </button>
         <span routerLink="/" class="text-sm sm:text-[18px] sm:text-base text-gray-50 cursor-pointer truncate min-w-0">
-          PREFEITURA MUNICIPAL DO NATAL - Procuradoria Geral do Município
+          PREFEITURA MUNICIPAL DO NATAL - Procuradoria Geral do Município - MÓDULO
+          {{
+            authStore.canManager()
+              ? ' ADMINISTRADOR'
+              : authStore.canContab()
+                ? ' CONTABILIDADE'
+                : ' RECURSOS HUMANOS'
+          }}
         </span>
       </div>
 
-      <div class="flex items-center gap-1 sm:gap-2 shrink-0">
+      <div class="flex items-center justify-end gap-1 sm:gap-2 shrink-0 ml-auto">
         @if (canManager()) {
           <button
             (click)="navegarParaPendentes()"
-            class="group !w-10 !h-10 sm:!w-12 sm:!h-12 flex justify-center items-center !text-gray-50"
+            class="group !w-10 !h-10 sm:!w-12 sm:!h-12 flex justify-center items-center !text-gray-50 shrink-0"
             mat-icon-button
             aria-label="Notificações">
             <mat-icon
@@ -60,18 +68,40 @@ import { ServidoresStore } from '../../../features/servidor/store/servidor.store
           </button>
         }
 
-        <button mat-button [matMenuTriggerFor]="userMenu"
-                class="flex items-center gap-1 sm:gap-2 group !px-2 sm:!px-4 !min-w-0 !text-gray-50">
-          <mat-icon class="group-hover:!text-white group-hover:!scale-125 transition-all duration-200 !m-0">
-            account_circle
-          </mat-icon>
+        <button
+          mat-button
+          [matMenuTriggerFor]="userMenu"
+          class="group !px-2 sm:!px-3 !min-w-0 !text-gray-50 !h-11 rounded-full
+                hover:bg-blue-600/40 transition-colors shrink-0"
+          aria-label="Menu do usuário"
+        >
+          <!-- Container flex interno: blinda a ordem e o alinhamento contra a projeção do Angular Material -->
+          <div class="flex items-center gap-1.5 sm:gap-2">
+            <!-- 1. Imagem do Avatar à direita de notificações -->
+            <div
+              class="relative flex items-center justify-center w-10 h-10 rounded-full overflow-hidden bg-blue-700/50
+                    ring-2 ring-white/60 group-hover:ring-white transition-all shrink-0">
+              <img
+                [src]="avatarUrl()"
+                [alt]="loggedUserName() || 'Avatar do usuário'"
+                (error)="onAvatarError()"
+                class="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </div>
 
-          <span
-            class="inline font-medium group-hover:text-white group-hover:font-semibold truncate
-                  max-w-[80px] sm:max-w-[150px] lg:max-w-[200px]">
-            {{ loggedUserName() }}
-          </span>
-          <mat-icon class="!text-white !m-0 hidden sm:block">arrow_drop_down</mat-icon>
+            <!-- 2. Ícone da Setinha à direita do avatar -->
+            <mat-icon class="!text-white !m-0 !w-5 !h-5 !text-[20px] flex items-center justify-center shrink-0">
+              arrow_drop_down
+            </mat-icon>
+
+            <!-- 3. Nome do usuário autenticado à direita da setinha -->
+            <span
+              class="inline-block font-medium group-hover:text-white group-hover:font-semibold truncate
+                    max-w-[80px] sm:max-w-[150px] lg:max-w-[200px] self-center select-none">
+              {{ loggedUserName() }}
+            </span>
+          </div>
         </button>
 
         <mat-menu #userMenu="matMenu">
@@ -116,6 +146,7 @@ import { ServidoresStore } from '../../../features/servidor/store/servidor.store
 export class HeaderComponent {
   protected readonly authStore = inject(AuthStore);
   protected readonly servidoresStore = inject(ServidoresStore);
+  private readonly avatarService = inject(UserAvatarService);
   private readonly router = inject(Router);
 
   // Emite o evento de clique para o layout principal
@@ -126,6 +157,38 @@ export class HeaderComponent {
 
   // Retorna verdadeiro se o usuário logado é admin
   canManager = this.authStore.canManager;
+
+  // Signal interno com a URL da imagem
+  avatarUrl = signal<string>(this.avatarService.defaultFallbackAvatar);
+
+  // Flag para impedir loops caso o fallback também falhe
+  private hasFallbackFailed = false;
+
+  constructor() {
+    // Reage automaticamente à mudança ou limpeza de e-mail na AuthStore
+    effect(async () => {
+      const email = this.authStore.userEmail();
+      this.hasFallbackFailed = false;
+
+      if (!email) {
+        this.avatarUrl.set(this.avatarService.defaultFallbackAvatar);
+        return;
+      }
+
+      const url = await this.avatarService.getGravatarUrl(email, 80, 'mp');
+      this.avatarUrl.set(url);
+    });
+  }
+
+  /**
+   * Tratamento de falha de carregamento da imagem (erro de rede, bloqueador de anúncio, offline)
+   */
+  onAvatarError(): void {
+    if (!this.hasFallbackFailed) {
+      this.hasFallbackFailed = true;
+      this.avatarUrl.set(this.avatarService.defaultFallbackAvatar);
+    }
+  }
 
   navegarParaPendentes(): void {
     if (this.servidoresStore.totalPendentes() > 0) {
