@@ -4,7 +4,6 @@ import { AuthService } from '../services/auth.service';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 import { Router } from '@angular/router';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { TRegisterNewUser } from '../../../features/usuario/models/usuario.model';
 import { EMPTY, finalize, pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { IAuthRequest, IDecodedToken, IDecodedTokenUsername } from '../models/auth.model';
@@ -29,8 +28,6 @@ const initialState: AuthState = {
   token: null,
   resetTokenStatus: 'idle'
 };
-
-type TRegisterUser = Omit<TRegisterNewUser, 'confirmPassword'> & {}
 
 export const AuthStore = signalStore(
   { providedIn: 'root' },
@@ -262,35 +259,35 @@ export const AuthStore = signalStore(
     // Utilidade para o componente forçar o estado de inválido se não vier token na URL
     setResetTokenInvalid() {
       patchState(store, { resetTokenStatus: 'invalid' });
-    },
+    }
 
-    registerUser: rxMethod<TRegisterUser>(
-      pipe(
-        tap(() => patchState(store, { isLoading: true, error: null })),
-        switchMap((payload) => authService.registerNewUserPublic(payload)
-          .pipe(
-            finalize(() => patchState(store, { isLoading: false })),
-            tapResponse({
-              next: (response) => {
-
-                patchState(store, { rememberedUsername: response.userName });
-
-                notificationService.success(
-                  `Usuário <strong>${response.userName}</strong> cadastrado.`,
-                  'Register'
-                );
-
-                router.navigate(['/auth/login']);
-              },
-              error: (err) => {
-                patchState(store, { isLoading: false });
-                errorHandlerService.handle(err, 'Register');
-              }
-            })
-          )
-        )
-      )
-    )
+    // registerUser: rxMethod<TRegisterUser>(
+    //   pipe(
+    //     tap(() => patchState(store, { isLoading: true, error: null })),
+    //     switchMap((payload) => authService.registerNewUserPublic(payload)
+    //       .pipe(
+    //         finalize(() => patchState(store, { isLoading: false })),
+    //         tapResponse({
+    //           next: (response) => {
+    //
+    //             patchState(store, { rememberedUsername: response.userName });
+    //
+    //             notificationService.success(
+    //               `Usuário <strong>${response.userName}</strong> cadastrado.`,
+    //               'Register'
+    //             );
+    //
+    //             router.navigate(['/auth/login']);
+    //           },
+    //           error: (err) => {
+    //             patchState(store, { isLoading: false });
+    //             errorHandlerService.handle(err, 'Register');
+    //           }
+    //         })
+    //       )
+    //     )
+    //   )
+    // )
   })),
   withHooks({
     onInit(store) {

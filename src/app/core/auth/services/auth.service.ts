@@ -2,14 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import {
-  IAuthRequest,
-  IAuthResponse,
-  IForgotPasswordRequest,
-  IRegisterUserRequest,
-  IRegisterUserResponse,
-  IResetPasswordRequest
-} from '../models/auth.model';
+import { IAuthRequest, IAuthResponse, IForgotPasswordRequest, IResetPasswordRequest } from '../models/auth.model';
 import { customHandlerError } from '../../../shared/utils/custom-handler-error';
 
 @Injectable({
@@ -32,11 +25,11 @@ export class AuthService {
   }
 
   // O próprio usuário pode criar seu cadastro
-  registerNewUserPublic(newUser: IRegisterUserRequest): Observable<IRegisterUserResponse> {
-    return this.http.post<IRegisterUserResponse>(`${this.API_URL}/auth/register`, newUser).pipe(
-      catchError(customHandlerError)
-    );
-  }
+  // registerNewUserPublic(newUser: IRegisterUserRequest): Observable<IRegisterUserResponse> {
+  //   return this.http.post<IRegisterUserResponse>(`${this.API_URL}/auth/register`, newUser).pipe(
+  //     catchError(customHandlerError)
+  //   );
+  // }
 
   // Solicita o envio do e-mail de recuperação
   forgotPassword(email: string): Observable<any> {

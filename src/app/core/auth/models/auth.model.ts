@@ -45,20 +45,20 @@ export interface ILoggedUser {
   isForcePasswordChange: boolean;
 }
 
-export interface IRegisterUserRequest {
-  name: string;
-  userName: string;
-  email: string;
-  password: string;
-}
-
-export interface IRegisterUserResponse {
-  id: number;
-  name: string;
-  userName: string;
-  email: string;
-  password: string;
-}
+// export interface IRegisterUserRequest {
+//   name: string;
+//   userName: string;
+//   email: string;
+//   password: string;
+// }
+//
+// export interface IRegisterUserResponse {
+//   id: number;
+//   name: string;
+//   userName: string;
+//   email: string;
+//   password: string;
+// }
 
 export interface IAuthForm {
   password: string;

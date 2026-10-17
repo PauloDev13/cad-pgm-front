@@ -14,6 +14,7 @@ import {
 } from '../models/usuario.model';
 import { PageResponse } from '../../../shared/model/pagination.model';
 import { customHandlerError } from '../../../shared/utils/custom-handler-error';
+import { BaseEntityDTO } from '../../servidor/models/servidor.model';
 
 @Injectable({
   providedIn: 'root'
@@ -66,6 +67,12 @@ export class UsuarioService {
 
     return this.http
       .get<PageResponse<IUsuarioResponse>>(`${this.API_URL}/searchFilter`, { params })
+      .pipe(catchError(customHandlerError));
+  }
+
+  // Busca servidores aptos para receberem conta de usuário
+  getServidoresDisponiveis(): Observable<BaseEntityDTO[]> {
+    return this.http.get<BaseEntityDTO[]>(`${this.API_URL}/servidores-disponiveis`)
       .pipe(catchError(customHandlerError));
   }
 

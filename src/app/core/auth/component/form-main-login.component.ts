@@ -68,11 +68,11 @@ import { AuthStore } from '../store/auth.store';
              class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
             Esqueceu a senha?
           </a>
-          <a tabindex="-1"
-             routerLink="/auth/register"
-             class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
-            Não é cadastrado?
-          </a>
+<!--          <a tabindex="-1"-->
+<!--             routerLink="/auth/register"-->
+<!--             class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">-->
+<!--            Não é cadastrado?-->
+<!--          </a>-->
         </div>
 
         <button

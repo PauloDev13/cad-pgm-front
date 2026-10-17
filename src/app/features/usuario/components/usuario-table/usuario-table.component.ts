@@ -109,7 +109,7 @@ import { AuthStore } from '../../../../core/auth/store/auth.store';
               <div class="flex items-center justify-end gap-1 min-w-max">
                 @if (!isMobile()) {
                   <button
-                    [disabled]="isActionDisabled(u)"
+                    [disabled]="isActionDisabled(u) || u.servidorExcluded"
                     mat-icon-button
                     matTooltip="Gerar senha temporária"
                     class="group !w-8 !h-8 !leading-none mr-2 disabled:!cursor-not-allowed

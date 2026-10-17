@@ -23,12 +23,12 @@ export const routes: Routes = [
         loadComponent: () => import('./core/auth/component/form-main-login.component')
           .then((m) => m.FormMainLoginComponent)
       },
-      {
-        path: 'register',
-        title: 'Cadastro Usuário | Gestão de Servidores PGM Natal',
-        loadComponent: () => import('./features/usuario/components/form-register-usuario/form-register-usuario.component')
-          .then((m) => m.FormRegisterUsuarioComponent)
-      },
+      // {
+      //   path: 'register',
+      //   title: 'Cadastro Usuário | Gestão de Servidores PGM Natal',
+      //   loadComponent: () => import('./features/usuario/components/form-register-usuario/form-register-usuario.component')
+      //     .then((m) => m.FormRegisterUsuarioComponent)
+      // },
       {
         path: 'esqueci-senha',
         title: 'Recuperar Senha | Gestão de Servidores PGM Natal',

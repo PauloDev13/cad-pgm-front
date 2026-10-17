@@ -1,4 +1,5 @@
 export interface IUsuarioRequest {
+  servidorId?: number | null;
   name: string;
   userName: string;
   email: string;
@@ -17,6 +18,10 @@ export interface IUsuarioResponse {
   activated: boolean;
   permissions: string[];
   forcePasswordChange: boolean;
+  servidorId?: number | null;
+  matriculaServidor?: string;
+  cargoServidor?: string;
+  servidorExcluded?: boolean;
 }
 
 export type TUsuarioDelete = Pick<IUsuarioResponse, 'id' | 'name'>
@@ -34,12 +39,24 @@ export interface IUserQueryParams {
   email?: string;
 }
 
-export type TUsuarioUpdate = Omit<IUsuarioRequest, 'confirmPassword' | 'password'>;
+// export type TUsuarioUpdate = Omit<IUsuarioRequest, 'confirmPassword' | 'password'>;
 
-export type TUsuarioUpdatePut = Omit<IUsuarioRequest, 'password'>;
+export type TUsuarioUpdate = {
+  userName: string;
+  activated: boolean;
+  permissions: string[];
+  forcePasswordChange: boolean;
+  systemName?: string;
+  systemEmail?: string;
+}
 
-export type TRegisterNewUser = Omit<IUsuarioRequest,
-  'activated' | 'permissions' | 'forcePasswordChange'>;
+// export type TUsuarioUpdatePut = Omit<IUsuarioRequest, 'password'>;
+export type TUsuarioUpdatePut = TUsuarioUpdate & {
+  password?: string;
+}
+
+// export type TRegisterNewUser = Omit<IUsuarioRequest,
+//   'activated' | 'permissions' | 'forcePasswordChange'>;
 
 export const roles: IRoles = {
   roles: ['admin', 'rh', 'gabinete', 'guest']
