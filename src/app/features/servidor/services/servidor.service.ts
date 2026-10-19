@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
-import { catchError, Observable } from 'rxjs';
+import { catchError, firstValueFrom, map, Observable } from 'rxjs';
 import { PageResponse } from '../../../shared/model/pagination.model';
 import {
   IServidorExcludedQueryParams,
@@ -130,4 +130,25 @@ export class ServidorService {
     }
     return this.http.get(url, { responseType: 'blob' });
   }
+
+  // Monta a URL da foto do Servidor a partir do seu ID
+  async loadPhotoServidor(id: number) {
+      return firstValueFrom(
+        this.downloadPhoto(id).pipe(
+          map((blob: Blob) => URL.createObjectURL(blob)),
+        )
+      ).catch((e) => {
+        customHandlerError(e);
+        return '';
+      });
+  }
+
+  // SVG padrão codificado em data URI para dispensar requisições extras
+  readonly defaultFallbackPhoto =
+    'data:image/svg+xml;utf8,' +
+    encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#9CA3AF">
+        <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+      </svg>
+    `);
 }

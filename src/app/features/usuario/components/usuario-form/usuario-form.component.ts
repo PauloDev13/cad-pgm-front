@@ -77,10 +77,11 @@ import { NotificationService } from '../../../../shared/service/NotificationSnac
                 <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                   <mat-label>Nome Completo (Origem: cadastro de Servidor</mat-label>
                   <input
+                    disabled
                     matInput
                     [value]="selectedServidorNome()"
                     readonly
-                    class="text-gray-700 cursor-not-allowed"
+                    class="!text-gray-700 !cursor-not-allowed"
                   />
                 </mat-form-field>
               </app-field-wrapper>
@@ -112,10 +113,11 @@ import { NotificationService } from '../../../../shared/service/NotificationSnac
                   <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                     <mat-label>E-Mail (Origem: cadastro de Servidor</mat-label>
                     <input
+                      disabled
                       matInput
                       [value]="selectedServidorEmail()"
                       readonly
-                      class="text-gray-700 cursor-not-allowed"
+                      class="!text-gray-700 !cursor-not-allowed"
                     />
                   </mat-form-field>
                 }

@@ -281,7 +281,7 @@ export const ServidoresStore = signalStore(
       patchState(store, { searchType: type, searchTerm: '', currentPage: 0 });
     },
 
-    // Método reativo (Funil RxJS) para a digitação para os Ativos
+    // Method reativo (Funil RxJS) para a digitação para os Ativos
     updateSearchTermDebounced: rxMethod<string>(
       pipe(
         debounceTime(500),

@@ -55,7 +55,7 @@ import { AuthStore } from '../../../../core/auth/store/auth.store';
             </th>
             <td mat-cell *matCellDef="let u"
                 class="!text-sm !px-3 whitespace-nowrap">
-              {{ u.id }}
+              {{ u.servidorId }}
             </td>
           </ng-container>
 

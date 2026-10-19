@@ -24,13 +24,6 @@ export class AuthService {
     return this.http.post<void>(`${this.API_URL}/auth/logout`, {});
   }
 
-  // O próprio usuário pode criar seu cadastro
-  // registerNewUserPublic(newUser: IRegisterUserRequest): Observable<IRegisterUserResponse> {
-  //   return this.http.post<IRegisterUserResponse>(`${this.API_URL}/auth/register`, newUser).pipe(
-  //     catchError(customHandlerError)
-  //   );
-  // }
-
   // Solicita o envio do e-mail de recuperação
   forgotPassword(email: string): Observable<any> {
     const payload: IForgotPasswordRequest = { email };

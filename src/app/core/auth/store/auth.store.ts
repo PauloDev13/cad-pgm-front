@@ -35,11 +35,13 @@ export const AuthStore = signalStore(
 
   withComputed((state) => {
     const userRoles = computed(() => state.currentUser()?.roles ?? []);
+    const idUserLogged = computed(() => state.currentUser()?.servidorId ?? null);
 
     return {
       isLoggedIn: computed(() => !!state.token),
       isForcedPasswordChanged: computed(() => state.currentUser()?.isForcePasswordChange ?? false),
       userRoles,
+      idUserLogged,
       // E-mail reativo do usuário logado
       userEmail: computed(() => state.currentUser()?.email ?? ''),
       // Lógicas de negócio centralizadas para identificar perfis de usuários
@@ -260,34 +262,6 @@ export const AuthStore = signalStore(
     setResetTokenInvalid() {
       patchState(store, { resetTokenStatus: 'invalid' });
     }
-
-    // registerUser: rxMethod<TRegisterUser>(
-    //   pipe(
-    //     tap(() => patchState(store, { isLoading: true, error: null })),
-    //     switchMap((payload) => authService.registerNewUserPublic(payload)
-    //       .pipe(
-    //         finalize(() => patchState(store, { isLoading: false })),
-    //         tapResponse({
-    //           next: (response) => {
-    //
-    //             patchState(store, { rememberedUsername: response.userName });
-    //
-    //             notificationService.success(
-    //               `Usuário <strong>${response.userName}</strong> cadastrado.`,
-    //               'Register'
-    //             );
-    //
-    //             router.navigate(['/auth/login']);
-    //           },
-    //           error: (err) => {
-    //             patchState(store, { isLoading: false });
-    //             errorHandlerService.handle(err, 'Register');
-    //           }
-    //         })
-    //       )
-    //     )
-    //   )
-    // )
   })),
   withHooks({
     onInit(store) {

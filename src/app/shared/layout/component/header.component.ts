@@ -8,7 +8,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthStore } from '../../../core/auth/store/auth.store';
 import { MatBadgeModule } from '@angular/material/badge';
 import { ServidoresStore } from '../../../features/servidor/store/servidor.store';
-import { UserAvatarService } from '../../../core/auth/services/user-avatar.service';
+import { ServidorService } from '../../../features/servidor/services/servidor.service';
 
 @Component({
   selector: 'app-header',
@@ -82,9 +82,9 @@ import { UserAvatarService } from '../../../core/auth/services/user-avatar.servi
               class="relative flex items-center justify-center w-10 h-10 rounded-full overflow-hidden bg-blue-700/50
                     ring-2 ring-white/60 group-hover:ring-white transition-all shrink-0">
               <img
-                [src]="avatarUrl()"
+                [src]="photoUrl()"
                 [alt]="loggedUserName() || 'Avatar do usuário'"
-                (error)="onAvatarError()"
+                (error)="onPhotoError()"
                 class="w-full h-full object-cover"
                 loading="lazy"
               />
@@ -146,11 +146,14 @@ import { UserAvatarService } from '../../../core/auth/services/user-avatar.servi
 export class HeaderComponent {
   protected readonly authStore = inject(AuthStore);
   protected readonly servidoresStore = inject(ServidoresStore);
-  private readonly avatarService = inject(UserAvatarService);
+  private readonly servidorService = inject(ServidorService);
   private readonly router = inject(Router);
 
   // Emite o evento de clique para o layout principal
   toggleSidebar = output<void>();
+
+  // Guarda a URL da foto
+  photoUrl = signal<string | null>(this.servidorService.defaultFallbackPhoto);
 
   // Retorna o usuário logado
   loggedUserName = computed(() => this.authStore.currentUser()?.sub || '');
@@ -158,35 +161,31 @@ export class HeaderComponent {
   // Retorna verdadeiro se o usuário logado é admin
   canManager = this.authStore.canManager;
 
-  // Signal interno com a URL da imagem
-  avatarUrl = signal<string>(this.avatarService.defaultFallbackAvatar);
-
   // Flag para impedir loops caso o fallback também falhe
   private hasFallbackFailed = false;
 
   constructor() {
-    // Reage automaticamente à mudança ou limpeza de e-mail na AuthStore
+    // Reage automaticamente à mudança ou limpeza do ID do Servidor na AuthStore
     effect(async () => {
-      const email = this.authStore.userEmail();
+      const idUserLogged = this.authStore.idUserLogged();
       this.hasFallbackFailed = false;
 
-      if (!email) {
-        this.avatarUrl.set(this.avatarService.defaultFallbackAvatar);
-        return;
+      if (!idUserLogged) {
+        this.photoUrl.set(this.servidorService.defaultFallbackPhoto)
+      } else {
+        const url = await this.servidorService.loadPhotoServidor(idUserLogged);
+      this.photoUrl.set(url);
       }
-
-      const url = await this.avatarService.getGravatarUrl(email, 80, 'mp');
-      this.avatarUrl.set(url);
     });
   }
 
   /**
    * Tratamento de falha de carregamento da imagem (erro de rede, bloqueador de anúncio, offline)
    */
-  onAvatarError(): void {
+  onPhotoError(): void {
     if (!this.hasFallbackFailed) {
       this.hasFallbackFailed = true;
-      this.avatarUrl.set(this.avatarService.defaultFallbackAvatar);
+      this.photoUrl.set(this.servidorService.defaultFallbackPhoto);
     }
   }
 

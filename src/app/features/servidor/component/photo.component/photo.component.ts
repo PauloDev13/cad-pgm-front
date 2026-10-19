@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 
 import { MatIconModule } from '@angular/material/icon';
-import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
+// import { ErrorHandlerService } from '../../../../shared/service/error-handler.service';
 import { ServidorService } from '../../services/servidor.service';
 
 @Component({
@@ -21,8 +21,8 @@ import { ServidorService } from '../../services/servidor.service';
 })
 export class PhotoComponent {
   private readonly servidorService = inject(ServidorService);
-  private readonly errorHandlerService = inject(ErrorHandlerService);
-  private destroyRef = inject(DestroyRef);
+  // private readonly errorHandlerService = inject(ErrorHandlerService);
+  // private destroyRef = inject(DestroyRef);
 
   // Guarda a URL da foto
   photoUrl = signal<string | null>(null);
@@ -30,41 +30,43 @@ export class PhotoComponent {
   servidorId = input.required<number | undefined>();
 
   constructor() {
-    effect(() => {
+    effect(async () => {
       const id = this.servidorId();
 
       // Se o ID não for null
       if (id) {
-        this.loadPhotoServidor(id);
+        // this.loadPhotoServidor(id);
+        const url = await this.servidorService.loadPhotoServidor(id!);
+        this.photoUrl.set(url);
       }
     });
 
-    this.destroyRef.onDestroy(() => {
-      this.clearPhotoMemory();
-    });
+    // this.destroyRef.onDestroy(() => {
+    //   this.clearPhotoMemory();
+    // });
   }
 
-  loadPhotoServidor(id: number) {
-    this.servidorService.downloadPhoto(id)
-      .subscribe({
-        next: (blob) => {
-          const objectUrl = URL.createObjectURL(blob);
-          this.photoUrl.set(objectUrl);
-        },
-        error: (err) => {
-          if (err.status !== 404) {
-            this.errorHandlerService.handle(err, 'Baixar foto');
-          }
-        }
-      });
-  }
+  // loadPhotoServidor(id: number) {
+  //   this.servidorService.downloadPhoto(id)
+  //     .subscribe({
+  //       next: (blob) => {
+  //         const objectUrl = URL.createObjectURL(blob);
+  //         this.photoUrl.set(objectUrl);
+  //       },
+  //       error: (err) => {
+  //         if (err.status !== 404) {
+  //           this.errorHandlerService.handle(err, 'Baixar foto');
+  //         }
+  //       }
+  //     });
+  // }
 
   // Limpa a sujeira deixada pelas fotos em memória
-  private clearPhotoMemory() {
-    const currentUrl = this.photoUrl();
-    if (currentUrl) {
-      URL.revokeObjectURL(currentUrl);
-    }
-    this.photoUrl.set(null);
-  }
+  // private clearPhotoMemory() {
+  //   const currentUrl = this.photoUrl();
+  //   if (currentUrl) {
+  //     URL.revokeObjectURL(currentUrl);
+  //   }
+  //   this.photoUrl.set(null);
+  // }
 }
