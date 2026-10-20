@@ -67,12 +67,14 @@ import { NotificationService } from '../../../../shared/service/NotificationSnac
           </div>
         }
         <div>
-          <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 border-b pb-1 mt-0">
-            Dados Para Login
-          </h3>
-
           <div class="flex flex-col gap-y-3">
             @if (isEdit) {
+              <div class="border-1 p-2 rounded-sm border-gray-700">
+              <h2 class="!font-semibold !text-[16px]">Nome: {{selectedServidorNome()}}</h2>
+              <h2 class="!font-semibold !text-[16px]">Email: {{selectedServidorEmail()}}</h2>
+
+              </div>
+            } @else {
               <app-field-wrapper [field]="usuarioForm.name()">
                 <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
                   <mat-label>Nome Completo (Origem: cadastro de Servidor</mat-label>
@@ -87,6 +89,9 @@ import { NotificationService } from '../../../../shared/service/NotificationSnac
               </app-field-wrapper>
             }
 
+          <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 border-b pt-2 pb-1 mt-0">
+            Dados do Login
+          </h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-3">
               <app-field-wrapper [field]="usuarioForm.userName()">
                 <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
@@ -108,25 +113,27 @@ import { NotificationService } from '../../../../shared/service/NotificationSnac
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-12 gap-x-3 items-center">
-              <div class="sm:col-span-7 pb-5">
-                @if (isEdit) {
-                  <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-                    <mat-label>E-Mail (Origem: cadastro de Servidor</mat-label>
-                    <input
-                      disabled
-                      matInput
-                      [value]="selectedServidorEmail()"
-                      readonly
-                      class="!text-gray-700 !cursor-not-allowed"
-                    />
-                  </mat-form-field>
-                }
-              </div>
-
-              <div class="sm:col-span-5 flex flex-row gap-4 sm:justify-end whitespace-nowrap pb-5">
+              <div class="sm:col-span-7 pb-0">
                 <mat-checkbox [formField]="usuarioForm.activated">Ativo</mat-checkbox>
                 <mat-checkbox [formField]="usuarioForm.forcePasswordChange!">Trocar Senha</mat-checkbox>
+<!--                @if (isEdit) {-->
+<!--                  <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">-->
+<!--                    <mat-label>E-Mail (Origem: cadastro de Servidor</mat-label>-->
+<!--                    <input-->
+<!--                      disabled-->
+<!--                      matInput-->
+<!--                      [value]="selectedServidorEmail()"-->
+<!--                      readonly-->
+<!--                      class="!text-gray-700 !cursor-not-allowed"-->
+<!--                    />-->
+<!--                  </mat-form-field>-->
+<!--                }-->
               </div>
+
+<!--              <div class="sm:col-span-5 flex flex-row gap-4 sm:justify-end whitespace-nowrap pb-5">-->
+<!--                <mat-checkbox [formField]="usuarioForm.activated">Ativo</mat-checkbox>-->
+<!--                <mat-checkbox [formField]="usuarioForm.forcePasswordChange!">Trocar Senha</mat-checkbox>-->
+<!--              </div>-->
             </div>
           </div>
         </div>

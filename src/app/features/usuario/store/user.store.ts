@@ -64,7 +64,7 @@ export const UsersStore = signalStore(
     store,
     usuarioService = inject(UsuarioService),
     notificationService = inject(NotificationService),
-    errorHandlerService = inject(ErrorHandlerService)
+    errorHandlerService = inject(ErrorHandlerService),
   ) => ({
 
     updateLocalUser(updatedUser: any) {
@@ -141,7 +141,7 @@ export const UsersStore = signalStore(
       )
     ),
 
-    // Salvar Usu´rio
+    // Salvar Usuário
     saveUser: rxMethod<{
       isEdit: boolean;
       userId?: number;
@@ -202,7 +202,15 @@ export const UsersStore = signalStore(
           )
         )
       )
-    )
+    ),
+
+    clearFilters() {
+      patchState(store, {
+        searchTerm: '',
+        searchType: 'NOME',
+        currentPage: 0
+      });
+    }
   })),
   // HOOKS DE CICLO DE VIDA (A Mágica acontece aqui!)
   withHooks({

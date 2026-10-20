@@ -47,6 +47,7 @@ import { AuthStore } from '../../../core/auth/store/auth.store';
         [searchTerm]="usersStore.searchTerm()"
         (searchTypeChange)="usersStore.updateSearchType($event)"
         (searchInput)="onSearchInput($event)"
+        (cleanFilters)="usersStore.clearFilters()"
       />
 
       <!-- Chama o componente que tem a tabela para listar usuários-->

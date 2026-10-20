@@ -199,11 +199,11 @@ export default class ServidorListPage implements OnInit {
     }
   }
 
-  // MÉTODO PARA OS DADOS ATIVOS
+  // METhOD PARA OS DADOS ATIVOS
   // É chamado pelo HTML quando o usuário digita no campo de busca
   onSearchInput(event: Event) {
     const value = (event.target as HTMLInputElement).value;
-    // Jogamos o valor diretamente no método reativo da Store!
+    // Jogamos o valor diretamente no method reativo da Store!
     // A Store vai esperar os 500ms e checar as regras antes de buscar.
     this.servidoresStore.updateSearchTermDebounced(value);
   }
@@ -266,7 +266,7 @@ export default class ServidorListPage implements OnInit {
     });
   }
 
-  // MÉTODO PARA OS DADOS ATIVOS E DESLIGADOS
+  // METHOD PARA OS DADOS ATIVOS E DESLIGADOS
   // Controla a paginação da aba de lixeira
   onExcludedPageChange(event: PageEvent) {
     this.servidoresStore.updateExcludedPagination(event.pageIndex, event.pageSize);
@@ -286,7 +286,7 @@ export default class ServidorListPage implements OnInit {
     this.servidoresStore.updateExcludedSearchTermDebounced(value);
   }
 
-  // MÉTODO PARA OS DADOS ATIVOS E DESLIGADOS
+  // METHOD PARA OS DADOS ATIVOS E DESLIGADOS
   async deleteServidor(payload: TServidorDelete) {
     const confirmed = await this.customDeleteService.confirm({
       title: 'Remover Servidor',
