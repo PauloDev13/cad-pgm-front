@@ -149,11 +149,13 @@ export class HeaderComponent {
   private readonly servidorService = inject(ServidorService);
   private readonly router = inject(Router);
 
+  protected readonly DEFAULT_PHOTO = '/img/default_photo.jpg';
+
   // Emite o evento de clique para o layout principal
   toggleSidebar = output<void>();
 
   // Guarda a URL da foto
-  photoUrl = signal<string | null>(this.servidorService.defaultFallbackPhoto);
+  photoUrl = signal<string | null>(this.DEFAULT_PHOTO);
 
   // Retorna o usuário logado
   loggedUserName = computed(() => this.authStore.currentUser()?.sub || '');
@@ -171,10 +173,10 @@ export class HeaderComponent {
       this.hasFallbackFailed = false;
 
       if (!idUserLogged) {
-        this.photoUrl.set(this.servidorService.defaultFallbackPhoto)
+        this.photoUrl.set(this.DEFAULT_PHOTO)
       } else {
         const url = await this.servidorService.loadPhotoServidor(idUserLogged);
-      this.photoUrl.set(url);
+        this.photoUrl.set(url);
       }
     });
   }

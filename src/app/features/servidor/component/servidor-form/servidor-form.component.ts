@@ -375,7 +375,7 @@ export interface ServidorFormDialogData {
                         </mat-form-field>
                         <!-- Se não -->
                       } @else {
-                        <!-- Esibe o select e libera para edição-->
+                        <!-- Exibe o select e libera para edição-->
                         <app-custom-select
                           class="md:col-span-3"
                           label="Status"
@@ -514,6 +514,7 @@ export class ServidorFormComponent implements OnInit {
       if (currentUrl && currentUrl.startsWith('blob:')) {
         URL.revokeObjectURL(currentUrl);
       }
+      this.photoUrl.set(null);
     });
 
     effect(() => {
@@ -613,7 +614,7 @@ export class ServidorFormComponent implements OnInit {
   protected currentServidorId = signal<number | undefined>(this.payload?.id || undefined);
 
   // Signals de controle da foto
-  protected photoUrl = signal<string>(this.DEFAULT_PHOTO);
+  protected photoUrl = signal<string | null>(this.DEFAULT_PHOTO);
   protected isUploadingPhoto = signal<boolean>(false);
 
   // Modelo para validação
@@ -632,7 +633,7 @@ export class ServidorFormComponent implements OnInit {
     return JSON.stringify(this.initialValue()) !== JSON.stringify(this.servidorModel());
   });
 
-  // Retorna a descrição do status de acordo com o ID
+  // Retorna a descrição do status conforme o ID
   protected statusDescription = computed(() => {
     const currentId = this.servidorForm.statusId().value();
     const statusList = this.servidoresStore.status();
@@ -691,11 +692,11 @@ export class ServidorFormComponent implements OnInit {
   });
 
   // Vincula o nome da ABA de acordo com o índice da aba ativa
-  protected activatTabName = computed(() => {
+  protected activateTabName = computed(() => {
     return this.abasPermitidas()[this.activeTabIndex()];
   });
 
-  // =================== METÓDOS ====================
+  // =================== MÉTODOS ====================
 
   // Cria o Formulário de cadastro
   servidorForm = form(this.servidorModel, subscriptionSchema);
@@ -704,10 +705,10 @@ export class ServidorFormComponent implements OnInit {
   // Se a aba selecionada for a de nome 'DOCUMENTOS', retorna FALSO e esconde
   // o botão Salva/Atualizar
   showSaveButton(): boolean {
-    return this.activatTabName() !== 'DOCUMENTOS';
+    return this.activateTabName() !== 'DOCUMENTOS';
   }
 
-  // Méthodo genérico que controla mudanças nos campos autocomplete (IDs de relacionamento)
+  // method genérico que controla mudanças nos campos autocomplete (IDs de relacionamento)
   onAutocompleteChange(
     field: 'cargoId' | 'setorId' | 'lotacaoId' | 'statusId' | 'vinculoId',
     id: number | null
@@ -718,7 +719,7 @@ export class ServidorFormComponent implements OnInit {
     }));
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     // Força a releitura das listas que preenchem os Dropdowns
     this.dominioService.vinculosResource.reload();
     this.dominioService.setoresResource.reload();
@@ -729,10 +730,18 @@ export class ServidorFormComponent implements OnInit {
     this.dominioService.procuradoresResource.reload();
 
     // Se não houver ID, não faz nada
-    if (!this.currentServidorId()) return;
+    // if (!this.currentServidorId()) return;
 
-    // Passa o ID atual do objeto servidor para o método que carrega a foto
-    this.loadPhotoServidor(this.currentServidorId()!);
+    // Se não houver ID, retorna a foto padrão, caso contrário, exibe a foto cadastradas
+    if (!this.currentServidorId()) {
+      this.photoUrl.set(this.DEFAULT_PHOTO);
+    } else {
+      const url = await this.servidorService.loadPhotoServidor(this.currentServidorId()!);
+      this.photoUrl.set(url);
+    }
+
+    // Passa o ID atual do objeto servidor para o method que carrega a foto
+    // this.loadPhotoServidor(this.currentServidorId()!);
 
     if (this.payload) {
       this.inicializarFormularioComPayload();
@@ -822,20 +831,20 @@ export class ServidorFormComponent implements OnInit {
   }
 
   // Lê a foto do servidor, caso ela exista
-  loadPhotoServidor(id: number) {
-    this.servidorService.downloadPhoto(id)
-      .subscribe({
-        next: (blob) => {
-          const objectUrl = URL.createObjectURL(blob);
-          this.photoUrl.set(objectUrl);
-        },
-        error: (err) => {
-          if (err.status !== 404) {
-            this.errorHandlerService.handle(err, 'Baixar foto');
-          }
-        }
-      });
-  }
+  // loadPhotoServidor(id: number) {
+  //   this.servidorService.downloadPhoto(id)
+  //     .subscribe({
+  //       next: (blob) => {
+  //         const objectUrl = URL.createObjectURL(blob);
+  //         this.photoUrl.set(objectUrl);
+  //       },
+  //       error: (err) => {
+  //         if (err.status !== 404) {
+  //           this.errorHandlerService.handle(err, 'Baixar foto');
+  //         }
+  //       }
+  //     });
+  // }
 
   // Seleciona a foto que será anexada ao cadastro do Servidor
   onSelectedPhoto(event: Event) {
@@ -904,10 +913,11 @@ export class ServidorFormComponent implements OnInit {
           this.notificationService.success('Foto atualizada com sucesso!',
             'Anexar foto');
         },
-        error: (err) => {
+        error: async (err) => {
           this.errorHandlerService.handle(err, 'Upload de Foto');
           // Se der erro, volta para a foto original/padrão
-          this.loadPhotoServidor(id);
+          // this.loadPhotoServidor(id);
+          await this.servidorService.loadPhotoServidor(id)
         }
       });
   }

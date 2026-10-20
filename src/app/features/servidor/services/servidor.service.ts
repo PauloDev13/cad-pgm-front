@@ -19,6 +19,7 @@ export class ServidorService {
   // Injeções de dependências
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/api/v1/servidores`;
+  protected readonly DEFAULT_PHOTO = '/img/default_photo.jpg';
 
   // 1. MÉTODOS PARA GERENCIAMENTO DE CADASTROS ATIVOS
   // Cria um novo cadastro
@@ -139,7 +140,7 @@ export class ServidorService {
         )
       ).catch((e) => {
         customHandlerError(e);
-        return '';
+        return this.DEFAULT_PHOTO;
       });
   }
 
