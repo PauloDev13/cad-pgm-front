@@ -183,6 +183,12 @@ export const routes: Routes = [
           import('./features/ponto-eletronico/pages/ponto-eletronico.page')
             .then((m) => m.PontoEletronicoPage)
       },
+      // Adição da rota no array children do MainLayoutComponent
+      {
+        path: 'manutencao',
+        loadChildren: () => import('./features/manutencao/manutencao.routes')
+          .then(m => m.MANUTENCAO_ROUTES)
+      },
       {
         // tela para visualização de detalhes do servidor
         path: 'servidores/detalhes/:id',
