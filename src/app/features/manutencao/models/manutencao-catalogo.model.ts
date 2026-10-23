@@ -21,9 +21,9 @@ export interface CategoriaDemandaResponseDTO {
 }
 export interface CategoriaDemandaRequestDTO {
   nome: string;
-  descricao?: string;
-  ordemExibicao?: number;
-  ativo?: boolean;
+  descricao: string | null;
+  ordemExibicao: number | null;
+  ativo: boolean;
 }
 export interface TipoServicoResponseDTO {
   id: number;

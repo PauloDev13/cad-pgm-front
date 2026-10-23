@@ -8,9 +8,9 @@ import {
   EstadoChamado
 } from '../models/manutencao-enums.model';
 import {
-  AndarResponseDTO,
+  AndarResponseDTO, CategoriaDemandaRequestDTO,
   CategoriaDemandaResponseDTO,
-  SalaResponseDTO,
+  SalaResponseDTO, TipoServicoRequestDTO,
   TipoServicoResponseDTO
 } from '../models/manutencao-catalogo.model';
 import {
@@ -90,12 +90,14 @@ export const ManutencaoStore = signalStore(
     })
   })),
 
+  // =========================================================================
+  // 1º BLOCO WITH METHODS: CONSULTAS, FILTROS E CARREGAMENTO DE METADADOS
+  // =========================================================================
   withMethods((
     store,
     chamadoService = inject(ManutencaoChamadoService),
     catalogoService = inject(ManutencaoCatalogoService),
     localizacaoService = inject(ManutencaoLocalizacaoService),
-    notificationService = inject(NotificationService),
     errorHandler = inject(ErrorHandlerService)
   ) => ({
     updatePagination(page: number, size: number) {
@@ -142,7 +144,6 @@ export const ManutencaoStore = signalStore(
         )
       )
     ),
-
     // Carregar Meus Chamados (Solicitante)
     loadMeusChamados: rxMethod<{ page: number; size: number }>(
       pipe(
@@ -164,7 +165,6 @@ export const ManutencaoStore = signalStore(
         )
       )
     ),
-
     // Detalhes do Chamado
     loadDetalhes: rxMethod<number>(
       pipe(
@@ -182,8 +182,67 @@ export const ManutencaoStore = signalStore(
         )
       )
     ),
-
-    // Operações de Ciclo de Vida
+    // Carregamento de Metadados / Catálogos
+    loadAndares: rxMethod<void>(
+      pipe(
+        switchMap(() =>
+          localizacaoService.listarAndares().pipe(
+            tapResponse({
+              next: (andares) => patchState(store, { andares }),
+              error: (err) => errorHandler.handle(err, 'Andares')
+            })
+          )
+        )
+      )
+    ),
+    loadSalasPorAndar: rxMethod<AndarCodigo>(
+      pipe(
+        switchMap((andar) =>
+          localizacaoService.listarSalasPorAndar(andar).pipe(
+            tapResponse({
+              next: (salas) => patchState(store, { salasPorAndar: salas }),
+              error: (err) => errorHandler.handle(err, 'Salas')
+            })
+          )
+        )
+      )
+    ),
+    loadCategorias: rxMethod<void>(
+      pipe(
+        switchMap(() =>
+          catalogoService.listarCategoriasAtivas().pipe(
+            tapResponse({
+              next: (categorias) => patchState(store, { categorias }),
+              error: (err) => errorHandler.handle(err, 'Categorias')
+            })
+          )
+        )
+      )
+    ),
+    loadTiposPorCategoria: rxMethod<number>(
+      pipe(
+        switchMap((catId) =>
+          catalogoService.listarTiposPorCategoria(catId).pipe(
+            tapResponse({
+              next: (tipos) => patchState(store, { tiposPorCategoria: tipos }),
+              error: (err) => errorHandler.handle(err, 'Tipos de Serviço')
+            })
+          )
+        )
+      )
+    )
+  })),
+  // =========================================================================
+  // 2º BLOCO WITH METHODS: MUTAÇÕES E AÇÕES (Enxerga todos os métodos do 1º bloco)
+  // =========================================================================
+  withMethods((
+    store,
+    chamadoService = inject(ManutencaoChamadoService),
+    catalogoService = inject(ManutencaoCatalogoService),
+    notificationService = inject(NotificationService),
+    errorHandler = inject(ErrorHandlerService)
+  ) => ({
+    // Ações de Ciclo de Vida de Chamados
     abrirChamado: rxMethod<{ payload: AberturaChamadoRequestDTO; onSuccess: () => void }>(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
@@ -204,7 +263,6 @@ export const ManutencaoStore = signalStore(
         )
       )
     ),
-
     atribuirResponsavel: rxMethod<{ id: number; payload: AtribuicaoChamadoRequestDTO; onSuccess: () => void }>(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
@@ -225,7 +283,6 @@ export const ManutencaoStore = signalStore(
         )
       )
     ),
-
     iniciarAtendimento: rxMethod<{ id: number; payload?: IniciarAtendimentoRequestDTO; onSuccess: () => void }>(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
@@ -246,7 +303,6 @@ export const ManutencaoStore = signalStore(
         )
       )
     ),
-
     concluirAtendimento: rxMethod<{ id: number; payload?: ConcluirChamadoRequestDTO; onSuccess: () => void }>(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
@@ -267,7 +323,6 @@ export const ManutencaoStore = signalStore(
         )
       )
     ),
-
     cancelarChamado: rxMethod<{ id: number; payload: CancelarChamadoRequestDTO; onSuccess: () => void }>(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
@@ -288,49 +343,98 @@ export const ManutencaoStore = signalStore(
         )
       )
     ),
-
-    // Carregamento de Metadados / Catálogos
-    loadAndares: rxMethod<void>(
+    // ==========================================
+    // MUTAÇÕES DO CATÁLOGO (ADMIN)
+    // ==========================================
+    salvarCategoria: rxMethod<{
+      isEdit: boolean;
+      id?: number;
+      payload: CategoriaDemandaRequestDTO;
+      onSuccess: () => void;
+    }>(
       pipe(
-        switchMap(() => localizacaoService.listarAndares().pipe(
-          tapResponse({
-            next: (andares) => patchState(store, { andares }),
-            error: (err) => errorHandler.handle(err, 'Andares')
-          })
-        ))
+        tap(() => patchState(store, { isLoading: true })),
+        switchMap(({ isEdit, id, payload, onSuccess }) => {
+          const action$ = isEdit
+            ? catalogoService.atualizarCategoria(id!, payload)
+            : catalogoService.criarCategoria(payload);
+          const acaoNome = isEdit ? 'Atualização de Categoria' : 'Cadastro de Categoria';
+          return action$.pipe(
+            tapResponse({
+              next: () => {
+                patchState(store, { isLoading: false });
+                notificationService.success(
+                  `Categoria ${isEdit ? 'atualizada' : 'cadastrada'} com sucesso!`,
+                  acaoNome
+                );
+                // Funciona perfeitamente: store.loadCategorias() existe no tipo!
+                store.loadCategorias();
+                onSuccess();
+              },
+              error: (err) => {
+                patchState(store, { isLoading: false });
+                errorHandler.handle(err, acaoNome);
+              }
+            })
+          );
+        })
       )
     ),
-
-    loadSalasPorAndar: rxMethod<AndarCodigo>(
+    salvarTipoServico: rxMethod<{
+      isEdit: boolean;
+      id?: number;
+      categoriaId: number;
+      payload: TipoServicoRequestDTO;
+      onSuccess: () => void;
+    }>(
       pipe(
-        switchMap((andar) => localizacaoService.listarSalasPorAndar(andar).pipe(
-          tapResponse({
-            next: (salas) => patchState(store, { salasPorAndar: salas }),
-            error: (err) => errorHandler.handle(err, 'Salas')
-          })
-        ))
+        tap(() => patchState(store, { isLoading: true })),
+        switchMap(({ isEdit, id, categoriaId, payload, onSuccess }) => {
+          const action$ = isEdit
+            ? catalogoService.atualizarTipoServico(id!, payload)
+            : catalogoService.criarTipoServico(payload);
+          const acaoNome = isEdit ? 'Atualização de Serviço' : 'Cadastro de Serviço';
+          return action$.pipe(
+            tapResponse({
+              next: () => {
+                patchState(store, { isLoading: false });
+                notificationService.success(
+                  `Tipo de serviço ${isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`,
+                  acaoNome
+                );
+                // Funciona perfeitamente: store.loadTiposPorCategoria(...) existe no tipo!
+                store.loadTiposPorCategoria(categoriaId);
+                onSuccess();
+              },
+              error: (err) => {
+                patchState(store, { isLoading: false });
+                errorHandler.handle(err, acaoNome);
+              }
+            })
+          );
+        })
       )
     ),
-
-    loadCategorias: rxMethod<void>(
+    alterarStatusTipoServico: rxMethod<{
+      id: number;
+      categoriaId: number;
+      ativo: boolean;
+    }>(
       pipe(
-        switchMap(() => catalogoService.listarCategoriasAtivas().pipe(
-          tapResponse({
-            next: (categorias) => patchState(store, { categorias }),
-            error: (err) => errorHandler.handle(err, 'Categorias')
-          })
-        ))
-      )
-    ),
-
-    loadTiposPorCategoria: rxMethod<number>(
-      pipe(
-        switchMap((catId) => catalogoService.listarTiposPorCategoria(catId).pipe(
-          tapResponse({
-            next: (tipos) => patchState(store, { tiposPorCategoria: tipos }),
-            error: (err) => errorHandler.handle(err, 'Tipos de Serviço')
-          })
-        ))
+        switchMap(({ id, categoriaId, ativo }) =>
+          catalogoService.alterarStatusTipoServico(id, ativo).pipe(
+            tapResponse({
+              next: () => {
+                notificationService.success('Status do serviço atualizado!', 'Catálogo');
+                store.loadTiposPorCategoria(categoriaId);
+              },
+              error: (err) => {
+                errorHandler.handle(err, 'Alteração de Status');
+                store.loadTiposPorCategoria(categoriaId);
+              }
+            })
+          )
+        )
       )
     )
   }))
