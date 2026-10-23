@@ -178,6 +178,62 @@ import {
             />
           </div>
         </div>
+
+        <!-- Seção Manutenção no Sidebar -->
+        <div class="flex flex-col">
+          <app-button-sidebar
+            label="Manutenção"
+            [onOpen]="isOpen()"
+            iconMenu="build"
+            [onOpenMenus]="openMenus()"
+            toolTips="Manutenção Predial"
+            menuKey="manutencao"
+            (toggleSubmenu)="toggleSubmenu('manutencao')"
+          />
+          <!-- submenu Manutenção-->
+          <div
+            class="overflow-hidden transition-all duration-300 ease-in-out flex flex-col"
+            [class.max-h-0]="!openMenus()['manutencao']"
+            [class.max-h-60]="openMenus()['manutencao']"
+          >
+            <app-link-sidebar
+              toolTip="Meus Chamados"
+              link="/manutencao/meus-chamados"
+              [onOpen]="isOpen()"
+              label="Meus Chamados"
+              icon="assignment"
+            />
+
+            @if (authStore.canEdit()) {
+              <app-link-sidebar
+                toolTip="Fila Geral"
+                link="/manutencao/fila"
+                [onOpen]="isOpen()"
+                label="Fila Geral"
+                icon="engineering"
+              />
+            }
+
+            <app-link-sidebar
+              toolTip="Painel de Indicadores"
+              link="/manutencao/dashboard"
+              [onOpen]="isOpen()"
+              label="Indicadores"
+              icon="insights"
+            />
+
+            @if (authStore.canManager()) {
+              <app-link-sidebar
+                toolTip="Catálogo de Serviços"
+                link="/manutencao/catalogo"
+                [onOpen]="isOpen()"
+                label="Catálogo"
+                icon="category"
+              />
+            }
+          </div>
+        </div>
+
       }
       <!-- Menu Relatórios-->
       <div class="flex flex-col">
