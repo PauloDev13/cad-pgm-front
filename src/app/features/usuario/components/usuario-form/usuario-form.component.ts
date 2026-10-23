@@ -116,24 +116,7 @@ import { NotificationService } from '../../../../shared/service/NotificationSnac
               <div class="sm:col-span-7 pb-0">
                 <mat-checkbox [formField]="usuarioForm.activated">Ativo</mat-checkbox>
                 <mat-checkbox [formField]="usuarioForm.forcePasswordChange!">Trocar Senha</mat-checkbox>
-<!--                @if (isEdit) {-->
-<!--                  <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">-->
-<!--                    <mat-label>E-Mail (Origem: cadastro de Servidor</mat-label>-->
-<!--                    <input-->
-<!--                      disabled-->
-<!--                      matInput-->
-<!--                      [value]="selectedServidorEmail()"-->
-<!--                      readonly-->
-<!--                      class="!text-gray-700 !cursor-not-allowed"-->
-<!--                    />-->
-<!--                  </mat-form-field>-->
-<!--                }-->
               </div>
-
-<!--              <div class="sm:col-span-5 flex flex-row gap-4 sm:justify-end whitespace-nowrap pb-5">-->
-<!--                <mat-checkbox [formField]="usuarioForm.activated">Ativo</mat-checkbox>-->
-<!--                <mat-checkbox [formField]="usuarioForm.forcePasswordChange!">Trocar Senha</mat-checkbox>-->
-<!--              </div>-->
             </div>
           </div>
         </div>

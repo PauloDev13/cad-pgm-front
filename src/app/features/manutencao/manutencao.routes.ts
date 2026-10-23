@@ -10,25 +10,25 @@ export const MANUTENCAO_ROUTES: Routes = [
   {
     path: 'meus-chamados',
     title: 'Meus Chamados | Manutenção PGM Natal',
-    loadComponent: () => import('./pages/chamados-meus.page')
+    loadComponent: () => import('./pages/chamados-meus/chamados-meus.page')
   },
   {
     path: 'fila',
     title: 'Fila Geral de Manutenção | PGM Natal',
     canActivate: [roleGuard],
     data: { role: 'admin' }, // Ou perfil de almoxarifado/manutenção
-    loadComponent: () => import('./pages/chamados-fila.page')
+    loadComponent: () => import('./pages/chamados-fila/chamados-fila.page')
   },
   {
     path: 'dashboard',
     title: 'Indicadores de Manutenção | PGM Natal',
-    loadComponent: () => import('./pages/manutencao-dashboard.page')
+    loadComponent: () => import('./pages/manutencao-dashboard/manutencao-dashboard.page')
   },
   {
     path: 'catalogo',
     title: 'Catálogo de Serviços | Manutenção PGM Natal',
     canActivate: [roleGuard],
     data: { role: 'admin' },
-    loadComponent: () => import('./pages/manutencao-catalogo.page')
+    loadComponent: () => import('./pages/manutencao-catalogo/manutencao-catalogo.page')
   }
 ];

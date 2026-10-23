@@ -2,21 +2,21 @@ import { AndarCodigo, EstadoChamado, EventoHistoricoChamado } from './manutencao
 
 export interface AberturaChamadoRequestDTO {
   andar: AndarCodigo;
-  salaId?: number | null;
-  localDescricao?: string | null;
+  salaId: number | null;
+  localDescricao: string;
   categoriaId: number;
   tipoServicoId: number;
   descricao: string;
 }
 export interface AtribuicaoChamadoRequestDTO {
   responsavelId: number;
-  observacao?: string;
+  observacao: string;
 }
 export interface IniciarAtendimentoRequestDTO {
-  observacao?: string;
+  observacao: string;
 }
 export interface ConcluirChamadoRequestDTO {
-  observacao?: string;
+  observacao: string;
 }
 export interface CancelarChamadoRequestDTO {
   motivo: string;
@@ -31,7 +31,7 @@ export interface HistoricoChamadoResponseDTO {
   responsavelNovoNome?: string;
   atorNome: string;
   dataHora: string;
-  observacao?: string;
+  observacao: string | null;
 }
 export interface ChamadoResumoResponseDTO {
   id: number;
