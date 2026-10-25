@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, Injector, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, Injector, input, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -49,7 +49,7 @@ import {
       </a>
 
       <div class="flex flex-col">
-        <!-- Menu Gerenciamento-->
+        <!-- MENU GERENCIAMENTO-->
         @if (authStore.canEdit()) {
           <app-button-sidebar
             label="Gerenciamento"
@@ -62,7 +62,7 @@ import {
           />
         }
 
-        <!-- Submenu Gerenciamento-->
+        <!-- SUBMENUS GERENCIAMENTO-->
         <div
           class="overflow-hidden transition-all duration-300 ease-in-out flex flex-col"
           [class.max-h-0]="!openMenus()['gerenciamento']"
@@ -88,7 +88,7 @@ import {
       </div>
 
       @if (authStore.canManager()) {
-        <!-- Menu Cadastros-->
+        <!-- MENU CADASTRO-->
         <div class="flex flex-col">
           <app-button-sidebar
             label="Cadastros"
@@ -99,7 +99,7 @@ import {
             menuKey="cadastros"
             (toggleSubmenu)="toggleSubmenu('cadastros')"
           />
-          <!-- Submenu Cadastros-->
+          <!-- SUBMENUS CADASTRO-->
           <div
             class="overflow-hidden transition-all duration-300 ease-in-out flex flex-col"
             [class.max-h-0]="!openMenus()['cadastros']"
@@ -136,7 +136,7 @@ import {
           </div>
         </div>
 
-        <!-- Menu Permissões-->
+        <!-- MENU PERMISSÕES-->
         <div class="flex flex-col">
           <app-button-sidebar
             label="Vinculos"
@@ -147,7 +147,7 @@ import {
             menuKey="permissoes"
             [onOpenMenus]="openMenus()"
           />
-          <!-- submenu Permissões-->
+          <!-- SUBMENUS PERMISSÕES-->
           <div
             class="overflow-hidden transition-all duration-300 ease-in-out flex flex-col"
             [class.max-h-0]="!openMenus()['permissoes']"
@@ -178,8 +178,10 @@ import {
             />
           </div>
         </div>
+      }
 
-        <!-- Seção Manutenção no Sidebar -->
+      <!-- MENU MANUTENÇÃO -->
+      @if (canAcessarMenuManutencao()) {
         <div class="flex flex-col">
           <app-button-sidebar
             label="Manutenção"
@@ -190,21 +192,25 @@ import {
             menuKey="manutencao"
             (toggleSubmenu)="toggleSubmenu('manutencao')"
           />
-          <!-- submenu Manutenção-->
+          <!-- SUBMENUS MANUTENÇÃO-->
           <div
             class="overflow-hidden transition-all duration-300 ease-in-out flex flex-col"
             [class.max-h-0]="!openMenus()['manutencao']"
             [class.max-h-60]="openMenus()['manutencao']"
           >
-            <app-link-sidebar
-              toolTip="Meus Chamados"
-              link="/manutencao/meus-chamados"
-              [onOpen]="isOpen()"
-              label="Meus Chamados"
-              icon="assignment"
-            />
+            <!-- 1. MEUS CHAMADOS (Admin ou Solicitante) -->
+            @if (canAcessarMeusChamados()) {
+              <app-link-sidebar
+                toolTip="Meus Chamados"
+                link="/manutencao/meus-chamados"
+                [onOpen]="isOpen()"
+                label="Meus Chamados"
+                icon="assignment"
+              />
+            }
 
-            @if (authStore.canEdit()) {
+            <!-- 2. FILA GERAL (Almoxarifado + Tramitador) -->
+            @if (canAcessarFilaGeral()) {
               <app-link-sidebar
                 toolTip="Fila Geral"
                 link="/manutencao/fila"
@@ -214,15 +220,16 @@ import {
               />
             }
 
-            <app-link-sidebar
-              toolTip="Painel de Indicadores"
-              link="/manutencao/dashboard"
-              [onOpen]="isOpen()"
-              label="Indicadores"
-              icon="insights"
-            />
+            <!-- 3. INDICADORES & 4. CATÁLOGO (Admin ou Almoxarifado + Tramitador) -->
+            @if (canAcessarGestaoManutencao()) {
+              <app-link-sidebar
+                toolTip="Painel de Indicadores"
+                link="/manutencao/dashboard"
+                [onOpen]="isOpen()"
+                label="Indicadores"
+                icon="insights"
+              />
 
-            @if (authStore.canManager()) {
               <app-link-sidebar
                 toolTip="Catálogo de Serviços"
                 link="/manutencao/catalogo"
@@ -233,26 +240,25 @@ import {
             }
           </div>
         </div>
-
       }
       <!-- Menu Relatórios-->
-      <div class="flex flex-col">
-        <app-button-sidebar
-          label="Relatórios"
-          [onOpen]="isOpen()"
-          [onOpenMenus]="openMenus()"
-          iconMenu="content_paste_search"
-          toolTips="Relatórios"
-          menuKey="relatorios"
-          (toggleSubmenu)="toggleSubmenu('relatorios')"
-        />
-        <!-- Submenu Relatórios-->
-        <div
-          class="overflow-hidden transition-all duration-300 ease-in-out flex flex-col"
-          [class.max-h-0]="!openMenus()['relatorios']"
-          [class.max-h-96]="openMenus()['relatorios']"
-        >
-          @if (authStore.canManager()) {
+      @if (authStore.canManager()) {
+        <div class="flex flex-col">
+          <app-button-sidebar
+            label="Relatórios"
+            [onOpen]="isOpen()"
+            [onOpenMenus]="openMenus()"
+            iconMenu="content_paste_search"
+            toolTips="Relatórios"
+            menuKey="relatorios"
+            (toggleSubmenu)="toggleSubmenu('relatorios')"
+          />
+          <!-- Submenu Relatórios-->
+          <div
+            class="overflow-hidden transition-all duration-300 ease-in-out flex flex-col"
+            [class.max-h-0]="!openMenus()['relatorios']"
+            [class.max-h-96]="openMenus()['relatorios']"
+          >
             <app-link-sidebar
               toolTip="Rel. Auditoria"
               link="/relatorios/auditoria"
@@ -260,53 +266,54 @@ import {
               label="Auditoria"
               icon="change_history"
             />
-          }
+            <!--          }-->
 
-          @if (authStore.canEdit()) {
-            <app-link-sidebar
-              toolTip="Rel. Aniversariantes"
-              label="Aniversariantes"
-              icon="cake"
-              [onOpen]="isOpen()"
-              (actionClick)="openBirthdayReport()"
-            />
+            @if (authStore.canEdit()) {
+              <app-link-sidebar
+                toolTip="Rel. Aniversariantes"
+                label="Aniversariantes"
+                icon="cake"
+                [onOpen]="isOpen()"
+                (actionClick)="openBirthdayReport()"
+              />
 
-            <app-link-sidebar
-              toolTip="Rel. Folha de Ponto"
-              label="Folha de Ponto"
-              icon="assignment"
-              [onOpen]="isOpen()"
-              (actionClick)="openFolhaPontoReport()"
-            />
+              <app-link-sidebar
+                toolTip="Rel. Folha de Ponto"
+                label="Folha de Ponto"
+                icon="assignment"
+                [onOpen]="isOpen()"
+                (actionClick)="openFolhaPontoReport()"
+              />
 
-            <app-link-sidebar
-              toolTip="Rel. Certificados Vinculados"
-              label="Certificados"
-              icon="verified_user"
-              [onOpen]="isOpen()"
-              (actionClick)="openCertificadosReport()"
-            />
+              <app-link-sidebar
+                toolTip="Rel. Certificados Vinculados"
+                label="Certificados"
+                icon="verified_user"
+                [onOpen]="isOpen()"
+                (actionClick)="openCertificadosReport()"
+              />
 
-            <app-link-sidebar
-              toolTip="Rel. Sistemas Vinculados"
-              label="Sistemas"
-              icon="dns"
-              [onOpen]="isOpen()"
-              (actionClick)="openSistemasReport()"
-            />
-          }
+              <app-link-sidebar
+                toolTip="Rel. Sistemas Vinculados"
+                label="Sistemas"
+                icon="dns"
+                [onOpen]="isOpen()"
+                (actionClick)="openSistemasReport()"
+              />
+            }
 
-          @if (authStore.canManager() || authStore.canContab()) {
-            <app-link-sidebar
-              toolTip="Controle de Ponto Eletrônico"
-              link="relatorios/ponto-eletronico"
-              [onOpen]="isOpen()"
-              label="Ponto Eletrônico"
-              icon="timer"
-            />
-          }
+            @if (authStore.canManager() || authStore.canContab()) {
+              <app-link-sidebar
+                toolTip="Controle de Ponto Eletrônico"
+                link="relatorios/ponto-eletronico"
+                [onOpen]="isOpen()"
+                label="Ponto Eletrônico"
+                icon="timer"
+              />
+            }
+          </div>
         </div>
-      </div>
+      }
     </nav>
   `
 })
@@ -330,7 +337,43 @@ export class SidebarComponent {
   // Retorna verdadeiro se o usuário logado é admin
   canManager = this.authStore.canManager;
 
-  // Função que inverte o estado do submenu clicado
+  // ==========================================
+  // REGRAS RBAC PARA O MÓDULO DE MANUTENÇÃO
+  // ==========================================
+  /** Operador do Almoxarifado: exige ambas as roles 'almoxarifado' E 'tramitador' */
+  readonly isAlmoxarifadoTramitador = computed(() =>
+    this.authStore.isAlmoxarifado() && this.authStore.isTramitador()
+  );
+
+  /** Solicitante: Não é 'admin', não é 'almoxarifado' e possui a role 'manutencao' */
+  readonly isSolicitanteManutencao = computed(() =>
+    !this.authStore.canManager() &&
+    !this.authStore.isAlmoxarifado() &&
+    this.authStore.isManutencao()
+  );
+
+  /** Visualização do Menu Principal 'Manutenção' */
+  readonly canAcessarMenuManutencao = computed(() =>
+    this.authStore.canManager() ||
+    this.isAlmoxarifadoTramitador() ||
+    this.isSolicitanteManutencao()
+  );
+
+  /** Submenu 'Meus Chamados': Admin OU Solicitante */
+  readonly canAcessarMeusChamados = computed(() =>
+    this.authStore.canManager() || this.isSolicitanteManutencao()
+  );
+
+  /** Submenu 'Fila Geral': Apenas Almoxarifado + Tramitador */
+  readonly canAcessarFilaGeral = computed(() =>
+    this.isAlmoxarifadoTramitador()
+  );
+
+  /** Submenus 'Indicadores' e 'Catálogo': Admin OU Almoxarifado + Tramitador */
+  readonly canAcessarGestaoManutencao = computed(() =>
+    this.authStore.canManager() || this.isAlmoxarifadoTramitador()
+  );
+
   toggleSubmenu(menu: string) {
     this.openMenus.update((menus) => ({
       ...menus,

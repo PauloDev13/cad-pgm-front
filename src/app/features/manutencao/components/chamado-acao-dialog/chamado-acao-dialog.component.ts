@@ -9,15 +9,18 @@ import { MatIconModule } from '@angular/material/icon';
 import { form, FormField, submit } from '@angular/forms/signals';
 import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper/field-wrapper.component';
 import { ManutencaoStore } from '../../state/manutencao.store';
-import { UsuarioService } from '../../../usuario/services/usuario.service';
-import { BaseEntityDTO } from '../../../servidor/models/servidor.model';
 import {
   atribuicaoChamadoSchema,
   cancelarChamadoSchema,
-  concluirChamadoSchema, formAtribuicaoModel, formCancelarModel, formConcluirModel, formIniciarModel,
-  iniciarAtendimentoSchema,
-
+  concluirChamadoSchema,
+  formAtribuicaoModel,
+  formCancelarModel,
+  formConcluirModel,
+  formIniciarModel,
+  iniciarAtendimentoSchema
 } from '../../utils/manutencao-form.schemas';
+import { ManutencaoChamadoService } from '../../services/manutencao-chamado.service';
+import { ResponsavelComboResponseDTO } from '../../models/manutencao-chamado.model';
 
 export type TipoAcaoChamado = 'ATRIBUIR' | 'INICIAR' | 'CONCLUIR' | 'CANCELAR';
 
@@ -40,7 +43,7 @@ export interface DialogAcaoData {
     MatButtonModule,
     MatIconModule,
     FieldWrapperComponent,
-    FormField,
+    FormField
   ],
   template: `
     <div class="flex justify-between items-center px-6 pt-4 pb-2 border-b">
@@ -64,8 +67,10 @@ export interface DialogAcaoData {
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
               <mat-label>Responsável</mat-label>
               <mat-select [formField]="formAtribuicao.responsavelId">
-                @for (servidor of servidoresDisponiveis(); track servidor.id) {
-                  <mat-option [value]="servidor.id">{{ servidor.nome }}</mat-option>
+                @for (responsavel of servidoresDisponiveis(); track responsavel.id) {
+                  <mat-option [value]="responsavel.id">
+                    {{ responsavel.nome }} <span class="text-xs text-gray-400">({{ responsavel.email }})</span>
+                  </mat-option>
                 }
               </mat-select>
             </mat-form-field>
@@ -157,15 +162,15 @@ export interface DialogAcaoData {
         Confirmar
       </button>
     </mat-dialog-actions>
-  `,
+  `
 })
 export class ChamadoAcaoDialogComponent implements OnInit {
   protected readonly data = inject<DialogAcaoData>(MAT_DIALOG_DATA);
   protected readonly store = inject(ManutencaoStore);
-  private readonly usuarioService = inject(UsuarioService);
+  private readonly chamadoService = inject(ManutencaoChamadoService);
   private readonly dialogRef = inject(MatDialogRef<ChamadoAcaoDialogComponent>);
 
-  readonly servidoresDisponiveis = signal<BaseEntityDTO[]>([]);
+  readonly servidoresDisponiveis = signal<ResponsavelComboResponseDTO[]>([]);
 
   readonly formAtribuicao = form(formAtribuicaoModel, atribuicaoChamadoSchema);
   readonly formIniciar = form(formIniciarModel, iniciarAtendimentoSchema);
@@ -174,7 +179,7 @@ export class ChamadoAcaoDialogComponent implements OnInit {
 
   ngOnInit() {
     if (this.data.tipo === 'ATRIBUIR') {
-      this.usuarioService.getServidoresDisponiveis().subscribe((res) => {
+      this.chamadoService.listarResponsaveisDisponiveis().subscribe((res) => {
         this.servidoresDisponiveis.set(res);
       });
     }
@@ -242,7 +247,7 @@ export class ChamadoAcaoDialogComponent implements OnInit {
           this.store.atribuirResponsavel({
             id: chamadoId,
             payload: field().value(),
-            onSuccess: () => this.dialogRef.close(true),
+            onSuccess: () => this.dialogRef.close(true)
           });
         });
         break;
@@ -252,7 +257,7 @@ export class ChamadoAcaoDialogComponent implements OnInit {
           this.store.iniciarAtendimento({
             id: chamadoId,
             payload: field().value(),
-            onSuccess: () => this.dialogRef.close(true),
+            onSuccess: () => this.dialogRef.close(true)
           });
         });
         break;
@@ -262,7 +267,7 @@ export class ChamadoAcaoDialogComponent implements OnInit {
           this.store.concluirAtendimento({
             id: chamadoId,
             payload: field().value(),
-            onSuccess: () => this.dialogRef.close(true),
+            onSuccess: () => this.dialogRef.close(true)
           });
         });
         break;
@@ -272,7 +277,7 @@ export class ChamadoAcaoDialogComponent implements OnInit {
           this.store.cancelarChamado({
             id: chamadoId,
             payload: field().value(),
-            onSuccess: () => this.dialogRef.close(true),
+            onSuccess: () => this.dialogRef.close(true)
           });
         });
         break;

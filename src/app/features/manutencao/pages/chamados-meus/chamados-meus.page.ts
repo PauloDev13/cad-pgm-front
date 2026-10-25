@@ -8,6 +8,7 @@ import { ManutencaoStore } from '../../state/manutencao.store';
 import { ChamadoTableComponent } from '../../components/chamado-table/chamado-table.component';
 import { ChamadoDetalheDialogComponent } from '../../components/chamado-detalhe/chamado-detalhe-dialog.component';
 import { ChamadoFormComponent } from '../../components/chamado-form/chamado-form.component';
+import { AuthStore } from '../../../../core/auth/store/auth.store';
 
 @Component({
   selector: 'app-chamados-meus',
@@ -18,7 +19,7 @@ import { ChamadoFormComponent } from '../../components/chamado-form/chamado-form
     MatButtonModule,
     MatIconModule,
     ChamadoTableComponent,
-    ChamadoTableComponent,
+    ChamadoTableComponent
   ],
   providers: [ManutencaoStore],
   template: `
@@ -33,14 +34,17 @@ import { ChamadoFormComponent } from '../../components/chamado-form/chamado-form
           </p>
         </div>
 
-        <button
-          mat-flat-button
-          class="!rounded-3xl !bg-blue-600 !text-white w-full sm:w-auto hover:!scale-105 transition-transform flex items-center justify-center !h-10"
-          (click)="abrirNovoChamado()"
-        >
-          <mat-icon class="!mr-1">add</mat-icon>
-          Novo Chamado
-        </button>
+        @if (authStore.isManutencao() || authStore.canManager()) {
+          <button
+            mat-flat-button
+            class="!rounded-3xl !bg-blue-600 !text-white w-full sm:w-auto hover:!scale-105
+                transition-transform flex items-center justify-center !h-10"
+            (click)="abrirNovoChamado()"
+          >
+            <mat-icon class="!mr-1">add</mat-icon>
+            Novo Chamado
+          </button>
+        }
       </div>
 
       <app-chamado-table
@@ -53,10 +57,11 @@ import { ChamadoFormComponent } from '../../components/chamado-form/chamado-form
         (pageChange)="onPageChange($event)"
       />
     </div>
-  `,
+  `
 })
 export default class ChamadosMeusPage implements OnInit {
   protected readonly store = inject(ManutencaoStore);
+  protected readonly authStore = inject(AuthStore);
   private readonly dialog = inject(MatDialog);
   private readonly injector = inject(Injector);
 
@@ -65,7 +70,7 @@ export default class ChamadosMeusPage implements OnInit {
       this.store.reloadTrigger();
       this.store.loadMeusChamados({
         page: this.store.currentPage(),
-        size: this.store.pageSize(),
+        size: this.store.pageSize()
       });
     });
   }
@@ -84,7 +89,7 @@ export default class ChamadosMeusPage implements OnInit {
       width: '720px',
       maxWidth: '95vw',
       disableClose: true,
-      injector: this.injector,
+      injector: this.injector
     });
 
     dialogRef.afterClosed().subscribe((sucesso) => {
@@ -99,7 +104,7 @@ export default class ChamadosMeusPage implements OnInit {
       width: '800px',
       maxWidth: '95vw',
       data: chamadoId,
-      injector: this.injector,
+      injector: this.injector
     });
   }
 }

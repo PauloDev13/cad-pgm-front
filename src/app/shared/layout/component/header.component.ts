@@ -45,7 +45,9 @@ import { ServidorService } from '../../../features/servidor/services/servidor.se
               ? ' ADMINISTRADOR'
               : authStore.canContab()
                 ? ' CONTABILIDADE'
-                : ' RECURSOS HUMANOS'
+                : authStore.isAlmoxarifado()
+                  ? 'ALMOXARIFADO'
+                  : ' RECURSOS HUMANOS'
           }}
         </span>
       </div>
@@ -173,7 +175,7 @@ export class HeaderComponent {
       this.hasFallbackFailed = false;
 
       if (!idUserLogged) {
-        this.photoUrl.set(this.DEFAULT_PHOTO)
+        this.photoUrl.set(this.DEFAULT_PHOTO);
       } else {
         const url = await this.servidorService.loadPhotoServidor(idUserLogged);
         this.photoUrl.set(url);

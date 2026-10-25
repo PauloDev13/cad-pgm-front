@@ -8,19 +8,34 @@ export interface AberturaChamadoRequestDTO {
   tipoServicoId: number;
   descricao: string;
 }
+
+/**
+ * Representa um servidor/usuário apto a assumir chamados no Almoxarifado (possui role 'almoxarifado').
+ * Consumido pelo dropdown de atribuição de responsáveis.
+ */
+export interface ResponsavelComboResponseDTO {
+  id: number;
+  nome: string;
+  email: string;
+}
+
 export interface AtribuicaoChamadoRequestDTO {
   responsavelId: number;
   observacao: string;
 }
+
 export interface IniciarAtendimentoRequestDTO {
   observacao: string;
 }
+
 export interface ConcluirChamadoRequestDTO {
   observacao: string;
 }
+
 export interface CancelarChamadoRequestDTO {
   motivo: string;
 }
+
 export interface HistoricoChamadoResponseDTO {
   id: number;
   evento: EventoHistoricoChamado;
@@ -33,6 +48,7 @@ export interface HistoricoChamadoResponseDTO {
   dataHora: string;
   observacao: string | null;
 }
+
 export interface ChamadoResumoResponseDTO {
   id: number;
   protocolo: string;
@@ -50,6 +66,7 @@ export interface ChamadoResumoResponseDTO {
   atribuidoEm?: string;
   concluidoEm?: string;
 }
+
 export interface ChamadoDetalheResponseDTO {
   id: number;
   protocolo: string;
@@ -77,6 +94,7 @@ export interface ChamadoDetalheResponseDTO {
   motivoCancelamento?: string;
   historico: HistoricoChamadoResponseDTO[];
 }
+
 export interface ChamadoFilaQueryParams {
   page: number;
   size: number;

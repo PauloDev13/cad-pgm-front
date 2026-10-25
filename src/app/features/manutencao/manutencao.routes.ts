@@ -16,7 +16,7 @@ export const MANUTENCAO_ROUTES: Routes = [
     path: 'fila',
     title: 'Fila Geral de Manutenção | PGM Natal',
     canActivate: [roleGuard],
-    data: { role: 'admin' }, // Ou perfil de almoxarifado/manutenção
+    data: { roles: ['admin', 'almoxarifado', 'tramitador'] }, // Ou perfil de almoxarifado/manutenção
     loadComponent: () => import('./pages/chamados-fila/chamados-fila.page')
   },
   {

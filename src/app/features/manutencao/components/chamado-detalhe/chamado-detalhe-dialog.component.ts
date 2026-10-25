@@ -7,6 +7,7 @@ import { ManutencaoStore } from '../../state/manutencao.store';
 import { AuthStore } from '../../../../core/auth/store/auth.store';
 import { EstadoChamado } from '../../models/manutencao-enums.model';
 import { ChamadoAcaoDialogComponent } from '../chamado-acao-dialog/chamado-acao-dialog.component';
+import { ChamadoDetalheResponseDTO } from '../../models/manutencao-chamado.model';
 
 @Component({
   selector: 'app-chamado-detalhe-dialog',
@@ -30,7 +31,8 @@ import { ChamadoAcaoDialogComponent } from '../chamado-acao-dialog/chamado-acao-
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
           <div>
             <span class="text-xs text-gray-500 font-medium">Localização</span>
-            <p class="font-semibold text-gray-800 m-0">{{ chamado.rotuloAndar }} - {{ chamado.salaNome || chamado.localDescricao }}</p>
+            <p class="font-semibold text-gray-800 m-0">{{ chamado.rotuloAndar }}
+              - {{ chamado.salaNome || chamado.localDescricao }}</p>
           </div>
           <div>
             <span class="text-xs text-gray-500 font-medium">Solicitante</span>
@@ -61,7 +63,8 @@ import { ChamadoAcaoDialogComponent } from '../chamado-acao-dialog/chamado-acao-
                   <span class="font-semibold text-sm text-gray-800">{{ item.descricaoEvento }}</span>
                   <span class="text-xs text-gray-400">{{ item.dataHora | date:'dd/MM/yyyy HH:mm' }}</span>
                 </div>
-                <p class="text-xs text-gray-600 m-0">Executado por: <span class="font-medium">{{ item.atorNome }}</span></p>
+                <p class="text-xs text-gray-600 m-0">Executado por: <span class="font-medium">{{ item.atorNome }}</span>
+                </p>
                 @if (item.observacao) {
                   <p class="text-xs italic text-gray-500 mt-1 bg-gray-50 p-2 rounded border border-gray-100">
                     "{{ item.observacao }}"
@@ -75,30 +78,46 @@ import { ChamadoAcaoDialogComponent } from '../chamado-acao-dialog/chamado-acao-
 
       <!-- Ações de Ciclo de Vida -->
       <mat-dialog-actions align="end" class="!px-6 !py-3 bg-gray-50 border-t border-gray-200 gap-2">
-        <!-- Cancelar (Solicitante ou Admin se não finalizado) -->
+        <!-- Cancelar: Validação refinada Solicitante vs. Tramitador -->
         @if (podeCancelar(chamado)) {
-          <button mat-stroked-button color="warn" class="!rounded-3xl" (click)="abrirAcao('CANCELAR')">
+          <button
+            mat-stroked-button color="warn"
+            class="!rounded-3xl"
+            (click)="abrirAcao('CANCELAR')"
+          >
             Cancelar Chamado
           </button>
         }
 
-        <!-- Atribuir Técnico (Almoxarifado / Admin) -->
-        @if (podeAtribuir(chamado)) {
-          <button mat-flat-button class="!rounded-3xl !bg-blue-600 !text-white" (click)="abrirAcao('ATRIBUIR')">
+        <!-- Atribuir Técnico: Almoxarifado + Tramitador -->
+        @if (authStore.canTramitarManutencao() && podeAtribuir(chamado)) {
+          <button
+            mat-flat-button
+            class="!rounded-3xl !bg-blue-600 !text-white"
+            (click)="abrirAcao('ATRIBUIR')"
+          >
             Atribuir Responsável
           </button>
         }
 
-        <!-- Iniciar Atendimento (Técnico / Almoxarifado) -->
-        @if (chamado.estado === 'ATRIBUIDO' && authStore.canEdit()) {
-          <button mat-flat-button class="!rounded-3xl !bg-indigo-600 !text-white" (click)="abrirAcao('INICIAR')">
+        <!-- Iniciar Atendimento: Almoxarifado + Tramitador em ATRIBUIDO -->
+        @if (podeIniciar(chamado)) {
+          <button
+            mat-flat-button
+            class="!rounded-3xl !bg-indigo-600 !text-white"
+            (click)="abrirAcao('INICIAR')"
+          >
             Iniciar Atendimento
           </button>
         }
 
-        <!-- Concluir (Técnico / Almoxarifado) -->
-        @if (chamado.estado === 'EM_ATENDIMENTO' && authStore.canEdit()) {
-          <button mat-flat-button class="!rounded-3xl !bg-emerald-600 !text-white" (click)="abrirAcao('CONCLUIR')">
+        <!-- Concluir: Almoxarifado + Tramitador em EM_ATENDIMENTO -->
+        @if (podeConcluir(chamado)) {
+          <button
+            mat-flat-button
+            class="!rounded-3xl !bg-emerald-600 !text-white"
+            (click)="abrirAcao('CONCLUIR')"
+          >
             Concluir Chamado
           </button>
         }
@@ -116,14 +135,55 @@ export class ChamadoDetalheDialogComponent implements OnInit {
     this.store.loadDetalhes(this.dataId);
   }
 
-  podeCancelar(chamado: any): boolean {
-    return chamado.estado !== EstadoChamado.CONCLUIDO && chamado.estado !== EstadoChamado.CANCELADO;
+  /**
+   * Permissão de Cancelamento:
+   * - ABERTO: Solicitante ou Tramitador
+   * - EM_ATENDIMENTO / ATRIBUIDO: SOMENTE Tramitador
+   * - CONCLUIDO / CANCELADO: Ninguém
+   */
+  podeCancelar(chamado: ChamadoDetalheResponseDTO): boolean {
+    if (chamado.estado === EstadoChamado.CONCLUIDO || chamado.estado === EstadoChamado.CANCELADO) {
+      return false;
+    }
+
+    // const isTramitador = this.authStore.isTramitador() || this.authStore.canManager();
+    const isTramitador = this.authStore.isTramitador();
+    const isSolicitante = this.isUsuarioSolicitante(chamado);
+
+    if (chamado.estado === EstadoChamado.ABERTO) {
+      return isSolicitante || isTramitador;
+    }
+    // Se estiver ATRIBUIDO ou EM_ATENDIMENTO, apenas o tramitador pode cancelar
+    return isTramitador;
   }
 
+  /**
+   * Permissão de Atribuição:
+   * - Requer 'almoxarifado' E 'tramitador'
+   * - Não pode estar finalizado
+   */
   podeAtribuir(chamado: any): boolean {
-    return this.authStore.canEdit()
+    return this.authStore.canTramitarManutencao()
       && chamado.estado !== EstadoChamado.CONCLUIDO
       && chamado.estado !== EstadoChamado.CANCELADO;
+  }
+
+  /**
+   * Iniciar Atendimento:
+   * - Requer 'almoxarifado' E 'tramitador'
+   * - Estado deve ser exatamente ATRIBUIDO
+   */
+  podeIniciar(chamado: ChamadoDetalheResponseDTO): boolean {
+    return this.authStore.canTramitarManutencao() && chamado.estado === EstadoChamado.ATRIBUIDO;
+  }
+
+  /**
+   * Concluir Atendimento:
+   * - Requer 'almoxarifado' E 'tramitador'
+   * - Estado deve ser exatamente EM_ATENDIMENTO
+   */
+  podeConcluir(chamado: ChamadoDetalheResponseDTO): boolean {
+    return this.authStore.canTramitarManutencao() && chamado.estado === EstadoChamado.EM_ATENDIMENTO;
   }
 
   abrirAcao(tipo: 'ATRIBUIR' | 'INICIAR' | 'CONCLUIR' | 'CANCELAR') {
@@ -137,5 +197,22 @@ export class ChamadoDetalheDialogComponent implements OnInit {
         this.store.reloadList();
       }
     });
+  }
+
+  /**
+   * Método Privado que Verifica se o usuário logado é o mesmo que abriu o chamado
+   * @param chamado
+   * @private
+   */
+
+  private isUsuarioSolicitante(chamado: ChamadoDetalheResponseDTO): boolean {
+    // Compara por servidorId ou username conforme o token decodificado
+    const servidorId = this.authStore.idUserLogged();
+
+    if (servidorId && chamado.solicitanteId === servidorId) {
+      return true;
+    }
+
+    return this.authStore.userNameLogged() === chamado.solicitanteNome;
   }
 }

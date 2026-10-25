@@ -36,18 +36,36 @@ export const AuthStore = signalStore(
   withComputed((state) => {
     const userRoles = computed(() => state.currentUser()?.roles ?? []);
     const idUserLogged = computed(() => state.currentUser()?.servidorId ?? null);
+    const userNameLogged = computed(() => state.currentUser()?.sub ?? '');
 
     return {
       isLoggedIn: computed(() => !!state.token),
       isForcedPasswordChanged: computed(() => state.currentUser()?.isForcePasswordChange ?? false),
       userRoles,
       idUserLogged,
+      userNameLogged,
+
       // E-mail reativo do usuário logado
       userEmail: computed(() => state.currentUser()?.email ?? ''),
+
       // Lógicas de negócio centralizadas para identificar perfis de usuários
       canEdit: computed(() => userRoles().includes('admin') || userRoles().includes('rh')),
       canManager: computed(() => userRoles().includes('admin')),
-      canContab: computed(() => userRoles().includes('guest'))
+      canContab: computed(() => userRoles().includes('guest')),
+
+      // NOVAS REGRAS RBAC PARA MANUTENÇÃO
+      isManutencao: computed(() => userRoles().includes('manutencao')),
+      isAlmoxarifado: computed(() => userRoles().includes('almoxarifado')),
+      isTramitador: computed(() => userRoles().includes('tramitador')),
+
+      /** Ações de Tramitação (Atribuir, Iniciar, Concluir): Exige 'almoxarifado' E 'tramitador' */
+      canTramitarManutencao: computed(() =>
+        (userRoles().includes('almoxarifado') && userRoles().includes('tramitador')) || userRoles().includes('admin')
+      ),
+      /** Visualização da Fila Geral: Exige pertencer à equipe de almoxarifado, tramitação ou admin */
+      canAcessarFilaManutencao: computed(() =>
+        userRoles().includes('almoxarifado') || userRoles().includes('tramitador') || userRoles().includes('admin')
+      )
     };
   }),
 

@@ -4,6 +4,7 @@ export interface AndarResponseDTO {
   codigo: AndarCodigo;
   rotulo: string;
 }
+
 export interface SalaResponseDTO {
   id: number;
   numeroIdentificacao: string;
@@ -12,6 +13,26 @@ export interface SalaResponseDTO {
   descricao?: string;
   ativo: boolean;
 }
+
+/**
+ * CATEGORIA MODELO
+ */
+//
+export type CategoriaDemandaModel = Required<Omit<CategoriaDemandaRequestDTO,
+  'ordemExibicao' | 'descricao'>> & {
+  nome: string;
+  descricao: string;
+  ordemExibicao: number;
+  ativo: boolean;
+}
+
+export interface CategoriaDemandaRequestDTO {
+  nome: string;
+  descricao?: string;
+  ordemExibicao?: number;
+  ativo: boolean;
+}
+
 export interface CategoriaDemandaResponseDTO {
   id: number;
   nome: string;
@@ -19,12 +40,15 @@ export interface CategoriaDemandaResponseDTO {
   ativo: boolean;
   ordemExibicao?: number;
 }
-export interface CategoriaDemandaRequestDTO {
+
+export type TipoServicoModel = Required<Omit<TipoServicoRequestDTO,
+  'ordemExibicao' | 'descricao' | 'ativo'>> & {
   nome: string;
-  descricao: string | null;
-  ordemExibicao: number | null;
+  descricao: string;
+  ordemExibicao: number;
   ativo: boolean;
 }
+
 export interface TipoServicoResponseDTO {
   id: number;
   categoriaId: number;
@@ -34,6 +58,7 @@ export interface TipoServicoResponseDTO {
   ativo: boolean;
   ordemExibicao?: number;
 }
+
 export interface TipoServicoRequestDTO {
   categoriaId: number;
   nome: string;

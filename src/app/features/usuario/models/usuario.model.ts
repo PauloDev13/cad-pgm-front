@@ -26,7 +26,6 @@ export interface IUsuarioResponse {
 
 export type TUsuarioDelete = Pick<IUsuarioResponse, 'id' | 'name'>
 
-
 export interface IRoles {
   roles: string[];
 }
@@ -39,8 +38,6 @@ export interface IUserQueryParams {
   email?: string;
 }
 
-// export type TUsuarioUpdate = Omit<IUsuarioRequest, 'confirmPassword' | 'password'>;
-
 export type TUsuarioUpdate = {
   userName: string;
   activated: boolean;
@@ -50,14 +47,10 @@ export type TUsuarioUpdate = {
   systemEmail?: string;
 }
 
-// export type TUsuarioUpdatePut = Omit<IUsuarioRequest, 'password'>;
 export type TUsuarioUpdatePut = TUsuarioUpdate & {
   password?: string;
 }
 
-// export type TRegisterNewUser = Omit<IUsuarioRequest,
-//   'activated' | 'permissions' | 'forcePasswordChange'>;
-
 export const roles: IRoles = {
-  roles: ['admin', 'rh', 'gabinete', 'guest']
+  roles: ['admin', 'rh', 'gabinete', 'almoxarifado', 'manutencao', 'tramitador', 'guest']
 };

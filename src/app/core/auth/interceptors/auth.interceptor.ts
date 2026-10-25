@@ -50,7 +50,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       // O Interceptor SÓ atua se NÃO for uma requisição de login!
       // Quando o backend Python rejeita o JWT, forceLogout também é acionado.
       // =========================================================================
-      if ((error.status === 401 || error.status === 403) && !isLoginRequest) {
+      if (error.status === 401 && !isLoginRequest) {
         // Sai da aplicação
         authStore.forceLogout();
 
@@ -58,6 +58,22 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         notificationService.warning('Sua sessão expirou. Faça login novamente');
 
         return EMPTY;
+      }
+
+      // =========================================================================
+      // 2. ACESSO NEGADO / PERMISSÃO INSUFICIENTE (Status 403)
+      // O usuário está validamente autenticado, mas sua Role não permite a ação.
+      // O usuário NÃO deve ser deslogado!
+      // =========================================================================
+      if (error.status === 403) {
+        notificationService.warning(
+          'Você não tem permissão para realizar esta operação.',
+          'Acesso Negado'
+        );
+
+        Object.defineProperty(error, 'globalHandled', { value: true });
+
+        return throwError(() => error);
       }
 
       if (error.status === 413) {

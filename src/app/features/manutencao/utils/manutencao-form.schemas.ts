@@ -1,4 +1,4 @@
-import { schema, required, maxLength, minLength, validate } from '@angular/forms/signals';
+import { maxLength, minLength, required, schema, validate } from '@angular/forms/signals';
 import { AndarCodigo } from '../models/manutencao-enums.model';
 import {
   AberturaChamadoRequestDTO,
@@ -8,7 +8,9 @@ import {
   IniciarAtendimentoRequestDTO
 } from '../models/manutencao-chamado.model';
 import {
+  CategoriaDemandaModel,
   CategoriaDemandaRequestDTO,
+  TipoServicoModel,
   TipoServicoRequestDTO
 } from '../models/manutencao-catalogo.model';
 import { signal } from '@angular/core';
@@ -60,7 +62,7 @@ export const initialAtribuicaoChamado: AtribuicaoChamadoRequestDTO = {
 };
 
 export const formAtribuicaoModel = signal<AtribuicaoChamadoRequestDTO>({
-  ...initialAtribuicaoChamado,
+  ...initialAtribuicaoChamado
 });
 
 
@@ -90,7 +92,7 @@ export const initialConcluirChamado: ConcluirChamadoRequestDTO = {
   observacao: ''
 };
 
-export  const  formConcluirModel =
+export const formConcluirModel =
   signal<ConcluirChamadoRequestDTO>(initialConcluirChamado);
 
 export const concluirChamadoSchema = schema<ConcluirChamadoRequestDTO>((path) => {
@@ -116,12 +118,16 @@ export const cancelarChamadoSchema = schema<CancelarChamadoRequestDTO>((path) =>
 // ==========================================
 // 6. CATEGORIA DE DEMANDA (ADMIN)
 // ==========================================
-export const initialCategoriaDemanda: CategoriaDemandaRequestDTO = {
+export const initialCategoriaDemanda: CategoriaDemandaModel = {
   nome: '',
   descricao: '',
   ordemExibicao: 1,
   ativo: true
 };
+
+export const formCategoriaDemanda = signal<CategoriaDemandaModel>(
+  initialCategoriaDemanda
+);
 
 export const categoriaDemandaSchema = schema<CategoriaDemandaRequestDTO>((path) => {
   required(path.nome, { message: 'O nome da categoria é obrigatório' });
@@ -132,13 +138,15 @@ export const categoriaDemandaSchema = schema<CategoriaDemandaRequestDTO>((path) 
 // ==========================================
 // 7. TIPO DE SERVIÇO (ADMIN)
 // ==========================================
-export const initialTipoServico: TipoServicoRequestDTO = {
+export const initialTipoServico: TipoServicoModel = {
   categoriaId: 0,
   nome: '',
   descricao: '',
   ordemExibicao: 1,
   ativo: true
 };
+
+export const formTipoServico = signal<TipoServicoModel>(initialTipoServico);
 
 export const tipoServicoSchema = schema<TipoServicoRequestDTO>((path) => {
   required(path.categoriaId, { message: 'A categoria vinculada é obrigatória' });

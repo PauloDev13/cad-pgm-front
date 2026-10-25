@@ -8,8 +8,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { form, FormField, submit } from '@angular/forms/signals';
 import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper/field-wrapper.component';
-import { CategoriaDemandaRequestDTO, CategoriaDemandaResponseDTO } from '../../models/manutencao-catalogo.model';
-import { categoriaDemandaSchema, initialCategoriaDemanda } from '../../utils/manutencao-form.schemas';
+import { CategoriaDemandaModel, CategoriaDemandaResponseDTO } from '../../models/manutencao-catalogo.model';
+import {
+  categoriaDemandaSchema,
+  formCategoriaDemanda,
+  initialCategoriaDemanda
+} from '../../utils/manutencao-form.schemas';
 import { ManutencaoStore } from '../../state/manutencao.store';
 
 @Component({
@@ -46,7 +50,6 @@ import { ManutencaoStore } from '../../state/manutencao.store';
             <mat-label>Nome da Categoria</mat-label>
             <input
               matInput
-              maxlength="100"
               [formField]="categoriaForm.nome"
               placeholder="Ex: Elétrica, Hidráulica, Climatização"
             />
@@ -60,7 +63,6 @@ import { ManutencaoStore } from '../../state/manutencao.store';
             <textarea
               matInput
               rows="3"
-              maxlength="255"
               [formField]="categoriaForm.descricao"
               placeholder="Breve detalhamento sobre o escopo desta categoria">
             </textarea>
@@ -75,7 +77,6 @@ import { ManutencaoStore } from '../../state/manutencao.store';
               <input
                 matInput
                 type="number"
-                min="0"
                 [formField]="categoriaForm.ordemExibicao"
               />
             </mat-form-field>
@@ -110,19 +111,22 @@ export class CategoriaFormDialogComponent implements OnInit {
   private readonly dialogRef = inject(MatDialogRef<CategoriaFormDialogComponent>);
   private readonly data = inject<CategoriaDemandaResponseDTO | null>(MAT_DIALOG_DATA);
 
-  readonly isEdit = !!this.data?.id;
+  readonly isEdit = !!(this.data && this.data?.id);
 
-  readonly categoriaForm = form<CategoriaDemandaRequestDTO>(
-    {
-      nome: this.data?.nome ?? initialCategoriaDemanda.nome,
-      descricao: this.data?.descricao ?? initialCategoriaDemanda.descricao,
-      ordemExibicao: this.data?.ordemExibicao ?? initialCategoriaDemanda.ordemExibicao,
-      ativo: this.data ? this.data.ativo : initialCategoriaDemanda.ativo
-    },
-    categoriaDemandaSchema
+  readonly categoriaForm = form<CategoriaDemandaModel>(
+    formCategoriaDemanda, categoriaDemandaSchema
   );
 
-  ngOnInit() {}
+  ngOnInit() {
+    if (this.data && this.data?.id) {
+      formCategoriaDemanda.set({
+        nome: this.data?.nome,
+        descricao: this.data?.descricao ?? initialCategoriaDemanda.descricao,
+        ordemExibicao: this.data?.ordemExibicao ?? initialCategoriaDemanda.ordemExibicao,
+        ativo: this.data?.ativo
+      });
+    }
+  }
 
   async salvar() {
     await submit(this.categoriaForm, async (formValues) => {

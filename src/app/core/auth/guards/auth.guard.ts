@@ -67,7 +67,7 @@ export const roleGuard: CanActivateFn = (route) => {
   const notificationService = inject(NotificationService);
 
   // Pega qual é a permissão que a rota exige (vamos configurar isso nas rotas no passo 2)
-  const expectedRole = route.data['role'];
+  // const expectedRole = route.data['role'];
 
   // Pega o usuário logado
   const user: IDecodedToken | null = authStore.currentUser();
@@ -77,8 +77,16 @@ export const roleGuard: CanActivateFn = (route) => {
     return router.createUrlTree(['/auth/login']);
   }
 
+  // Suporta 'role' simples ou array 'roles'
+  const expectedRole = route.data['role'];
+  const expectedRoles: string[] = route.data['roles'] || (expectedRole ? [expectedRole] : []);
+
+  const userRoles = user.roles ?? [];
+
+  const hasPermission = expectedRoles.length === 0 || expectedRoles.some((r) => userRoles.includes(r));
+
   // Verifica se dentro do array de permissões do usuário existe a permissão exigida
-  const hasPermission = user.roles?.some((p) => p === expectedRole);
+  // const hasPermission = user.roles?.some((p) => p === expectedRole);
 
   if (hasPermission) {
     return true; // Pode entrar!
