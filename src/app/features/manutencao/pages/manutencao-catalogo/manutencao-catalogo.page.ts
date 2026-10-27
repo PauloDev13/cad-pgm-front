@@ -220,6 +220,7 @@ export default class ManutencaoCatalogoPage implements OnInit {
   constructor() {
     effect(() => {
       const cats = this.store.categorias();
+
       if (cats.length > 0 && !this.categoriaSelecionadaId()) {
         const primeiroId = cats[0].id;
         this.categoriaSelecionadaId.set(primeiroId);

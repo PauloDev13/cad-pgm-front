@@ -118,7 +118,6 @@ export const ManutencaoStore = signalStore(
         currentPage: 0
       });
     },
-
     reloadList() {
       patchState(store, { reloadTrigger: store.reloadTrigger() + 1 });
     },
@@ -207,7 +206,10 @@ export const ManutencaoStore = signalStore(
         )
       )
     ),
-    loadCategorias: rxMethod<void>(
+    /*
+     RETORNA AS CATEGORIAS ATIVAS
+     */
+    loadCategoriasAtivas: rxMethod<void>(
       pipe(
         switchMap(() =>
           catalogoService.listarCategoriasAtivas().pipe(
@@ -219,10 +221,44 @@ export const ManutencaoStore = signalStore(
         )
       )
     ),
+    /*
+     RETORNA TODAS AS CATEGORIAS (ATIVAS E INATIVAS)
+     */
+    loadCategorias: rxMethod<void>(
+      pipe(
+        switchMap(() =>
+          catalogoService.listarCategorias().pipe(
+            tapResponse({
+              next: (categorias) => patchState(store, { categorias }),
+              error: (err) => errorHandler.handle(err, 'Categorias')
+            })
+          )
+        )
+      )
+    ),
+
+    /*
+     RETORNA TODOS OS TIPOS DE SERVIÇOS(ATIVOS E INATIVOS) POR CATEGORIAS
+     */
     loadTiposPorCategoria: rxMethod<number>(
       pipe(
         switchMap((catId) =>
           catalogoService.listarTiposPorCategoria(catId).pipe(
+            tapResponse({
+              next: (tipos) => patchState(store, { tiposPorCategoria: tipos }),
+              error: (err) => errorHandler.handle(err, 'Tipos de Serviço')
+            })
+          )
+        )
+      )
+    ),
+    /*
+     RETORNA OS TIPOS DE SERVIÇO ATIVOS POR CATEGORIAS
+     */
+    loadTiposAtivosPorCategoria: rxMethod<number>(
+      pipe(
+        switchMap((catId) =>
+          catalogoService.listarTiposAtivosPorCategoria(catId).pipe(
             tapResponse({
               next: (tipos) => patchState(store, { tiposPorCategoria: tipos }),
               error: (err) => errorHandler.handle(err, 'Tipos de Serviço')
@@ -362,7 +398,7 @@ export const ManutencaoStore = signalStore(
           return action$.pipe(
             tapResponse({
               next: () => {
-                patchState(store, { isLoading: false });
+                patchState(store, { isLoading: false,  });
                 notificationService.success(
                   `Categoria ${isEdit ? 'atualizada' : 'cadastrada'} com sucesso!`,
                   acaoNome

@@ -17,13 +17,35 @@ export class ManutencaoCatalogoService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/api/v1/manutencao`;
 
-  listarCategoriasAtivas(): Observable<CategoriaDemandaResponseDTO[]> {
+  /*
+    BUSCA TODAS AS CATEGORIAS (ATIVAS E INATIVAS)
+   */
+  listarCategorias(): Observable<CategoriaDemandaResponseDTO[]> {
     return this.http.get<CategoriaDemandaResponseDTO[]>(`${this.baseUrl}/categorias`)
       .pipe(catchError(customHandlerError));
   }
 
+  /*
+    BUSCA AS CATEGORIAS ATIVAS
+   */
+  listarCategoriasAtivas(): Observable<CategoriaDemandaResponseDTO[]> {
+    return this.http.get<CategoriaDemandaResponseDTO[]>(`${this.baseUrl}/categorias-ativas`)
+      .pipe(catchError(customHandlerError));
+  }
+
+  /*
+    BUSCA TODOS OS TIPOS DE SERVIÇOS (ATIVOS E INATIVOS) POR CATEGORIA
+   */
   listarTiposPorCategoria(categoriaId: number): Observable<TipoServicoResponseDTO[]> {
     return this.http.get<TipoServicoResponseDTO[]>(`${this.baseUrl}/categorias/${categoriaId}/tipos-servico`)
+      .pipe(catchError(customHandlerError));
+  }
+
+  /*
+    BUSCA OS TIPOS DE SERVIÇOS ATIVOS E INATIVOS POR CATEGORIA
+   */
+  listarTiposAtivosPorCategoria(categoriaId: number): Observable<TipoServicoResponseDTO[]> {
+    return this.http.get<TipoServicoResponseDTO[]>(`${this.baseUrl}/categorias/${categoriaId}/tipos-servico-ativos`)
       .pipe(catchError(customHandlerError));
   }
 

@@ -10,10 +10,7 @@ import { form, FormField, submit } from '@angular/forms/signals';
 import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper/field-wrapper.component';
 import { ManutencaoStore } from '../../state/manutencao.store';
 import { AndarCodigo } from '../../models/manutencao-enums.model';
-import {
-  aberturaChamadoSchema,
-  formAberturaChamado
-} from '../../utils/manutencao-form.schemas';
+import { aberturaChamadoSchema, formAberturaChamado } from '../../utils/manutencao-form.schemas';
 
 @Component({
   selector: 'app-chamado-form',
@@ -28,18 +25,22 @@ import {
     MatButtonModule,
     MatIconModule,
     FieldWrapperComponent,
-    FormField
+    FormField,
   ],
   template: `
     <div class="flex justify-between items-center px-6 pt-4 pb-1">
-      <h2 mat-dialog-title class="!font-bold !text-xl !text-blue-700 !m-0 !p-0 flex items-center gap-2">
+      <h2
+        mat-dialog-title
+        class="!font-bold !text-xl !text-blue-700 !m-0 !p-0 flex items-center gap-2"
+      >
         <mat-icon>build</mat-icon>
         Abrir Chamado de Manutenção
       </h2>
       <button
         mat-icon-button
         mat-dialog-close
-        class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500 !text-white !rounded-full">
+        class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500 !text-white !rounded-full"
+      >
         <mat-icon class="!scale-90">close</mat-icon>
       </button>
     </div>
@@ -55,7 +56,10 @@ import {
           <app-field-wrapper [field]="chamadoForm.andar()">
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
               <mat-label>Andar</mat-label>
-              <mat-select [formField]="chamadoForm.andar" (selectionChange)="onAndarChange($event.value)">
+              <mat-select
+                [formField]="chamadoForm.andar"
+                (selectionChange)="onAndarChange($event.value)"
+              >
                 @for (andar of store.andares(); track andar.codigo) {
                   <mat-option [value]="andar.codigo">{{ andar.rotulo }}</mat-option>
                 }
@@ -81,7 +85,11 @@ import {
           <app-field-wrapper [field]="chamadoForm.localDescricao()">
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
               <mat-label>Descrição do Local (Ex: Corredor, Copa, Banheiro)</mat-label>
-              <input matInput [formField]="chamadoForm.localDescricao" placeholder="Informe detalhes do local" />
+              <input
+                matInput
+                [formField]="chamadoForm.localDescricao"
+                placeholder="Informe detalhes do local"
+              />
             </mat-form-field>
           </app-field-wrapper>
         }
@@ -95,7 +103,10 @@ import {
           <app-field-wrapper [field]="chamadoForm.categoriaId()">
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
               <mat-label>Categoria da Demanda</mat-label>
-              <mat-select [formField]="chamadoForm.categoriaId" (selectionChange)="onCategoriaChange($event.value)">
+              <mat-select
+                [formField]="chamadoForm.categoriaId"
+                (selectionChange)="onCategoriaChange($event.value)"
+              >
                 @for (cat of store.categorias(); track cat.id) {
                   <mat-option [value]="cat.id">{{ cat.nome }}</mat-option>
                 }
@@ -107,7 +118,7 @@ import {
           <app-field-wrapper [field]="chamadoForm.tipoServicoId()">
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
               <mat-label>Tipo de Serviço</mat-label>
-              <mat-select [formField]="chamadoForm.tipoServicoId" >
+              <mat-select [formField]="chamadoForm.tipoServicoId">
                 @for (tipo of store.tiposPorCategoria(); track tipo.id) {
                   <mat-option [value]="tipo.id">{{ tipo.nome }}</mat-option>
                 }
@@ -127,7 +138,8 @@ import {
               matInput
               rows="4"
               [formField]="chamadoForm.descricao"
-              placeholder="Descreva o problema com o máximo de informações...">
+              placeholder="Descreva o problema com o máximo de informações..."
+            >
             </textarea>
           </mat-form-field>
         </app-field-wrapper>
@@ -140,11 +152,12 @@ import {
         mat-flat-button
         class="!rounded-3xl !bg-blue-600 !text-white"
         [disabled]="store.isLoading()"
-        (click)="salvar()">
+        (click)="salvar()"
+      >
         Abrir Chamado
       </button>
     </mat-dialog-actions>
-  `
+  `,
 })
 export class ChamadoFormComponent implements OnInit {
   protected readonly store = inject(ManutencaoStore);
@@ -154,7 +167,8 @@ export class ChamadoFormComponent implements OnInit {
 
   ngOnInit() {
     this.store.loadAndares();
-    this.store.loadCategorias();
+    this.store.loadCategoriasAtivas();
+    this.store.loadSalasPorAndar(AndarCodigo.TERREO);
   }
 
   onAndarChange(andar: AndarCodigo) {
@@ -165,7 +179,7 @@ export class ChamadoFormComponent implements OnInit {
 
   onCategoriaChange(categoriaId: number) {
     if (categoriaId) {
-      this.store.loadTiposPorCategoria(categoriaId);
+      this.store.loadTiposAtivosPorCategoria(categoriaId);
     }
   }
 
@@ -173,7 +187,19 @@ export class ChamadoFormComponent implements OnInit {
     await submit(this.chamadoForm, async (formValues) => {
       this.store.abrirChamado({
         payload: formValues().value(),
-        onSuccess: () => this.dialogRef.close(true)
+        onSuccess: () => {
+          this.dialogRef.close(true);
+
+          // Limpa os dados do formulário após salvar
+          formAberturaChamado.set({
+            descricao: '',
+            andar: AndarCodigo.TERREO,
+            salaId: null,
+            categoriaId: 0,
+            localDescricao: '',
+            tipoServicoId: 0
+          });
+        },
       });
     });
   }
