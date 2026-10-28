@@ -39,7 +39,8 @@ import { aberturaChamadoSchema, formAberturaChamado } from '../../utils/manutenc
       <button
         mat-icon-button
         mat-dialog-close
-        class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500 !text-white !rounded-full"
+        class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500
+        !text-white !rounded-full"
       >
         <mat-icon class="!scale-90">close</mat-icon>
       </button>
@@ -169,6 +170,16 @@ export class ChamadoFormComponent implements OnInit {
     this.store.loadAndares();
     this.store.loadCategoriasAtivas();
     this.store.loadSalasPorAndar(AndarCodigo.TERREO);
+
+    // Limpa os dados do formulário após salvar
+    formAberturaChamado.set({
+      descricao: '',
+      andar: AndarCodigo.TERREO,
+      salaId: null,
+      categoriaId: 0,
+      localDescricao: '',
+      tipoServicoId: 0
+    });
   }
 
   onAndarChange(andar: AndarCodigo) {
@@ -189,16 +200,6 @@ export class ChamadoFormComponent implements OnInit {
         payload: formValues().value(),
         onSuccess: () => {
           this.dialogRef.close(true);
-
-          // Limpa os dados do formulário após salvar
-          formAberturaChamado.set({
-            descricao: '',
-            andar: AndarCodigo.TERREO,
-            salaId: null,
-            categoriaId: 0,
-            localDescricao: '',
-            tipoServicoId: 0
-          });
         },
       });
     });

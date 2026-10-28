@@ -17,7 +17,6 @@ export interface SalaResponseDTO {
 /**
  * CATEGORIA MODELO
  */
-//
 export type CategoriaDemandaModel = Required<Omit<CategoriaDemandaRequestDTO,
   'ordemExibicao' | 'descricao'>> & {
   nome: string;
@@ -65,4 +64,26 @@ export interface TipoServicoRequestDTO {
   descricao?: string;
   ordemExibicao?: number;
   ativo?: boolean;
+}
+
+/*
+  INTERFACE DE PAGINAÇÃO PARA AS LISTAS DE CATEGORIA E TIPO DE SERVIÇO
+  Suporta tanto a serialização via DTO Spring Data (com sub-objeto 'page')
+  quanto a serialização raiz padrão de PageImpl.
+ */
+export interface SpringPage<T> {
+  content: T[];
+  totalElements?: number;
+  totalPages?: number;
+  size?: number;
+  number?: number;
+  first?: boolean;
+  last?: boolean;
+  empty?: boolean;
+  page?: {
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    number: number;
+  };
 }

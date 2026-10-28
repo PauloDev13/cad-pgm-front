@@ -114,7 +114,7 @@ export class ChamadoFilterComponent {
 
   constructor() {
     this.store.loadAndares();
-    this.store.loadCategorias();
+    this.store.loadCategoriasAtivas();
   }
 
   getEstadoLabel(estado: EstadoChamado): string {
@@ -142,7 +142,7 @@ export class ChamadoFilterComponent {
   onCategoriaChange(categoriaId: number | null) {
     this.store.updateFiltros({ filtroCategoriaId: categoriaId, filtroTipoServicoId: null });
     if (categoriaId) {
-      this.store.loadTiposPorCategoria(categoriaId);
+      this.store.loadTiposAtivosPorCategoria(categoriaId);
     }
     this.store.reloadList();
   }

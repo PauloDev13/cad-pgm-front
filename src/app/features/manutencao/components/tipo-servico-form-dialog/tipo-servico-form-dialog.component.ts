@@ -35,18 +35,25 @@ export interface TipoServicoDialogData {
     FormField
   ],
   template: `
-    <div class="flex justify-between items-center px-6 pt-4 pb-2 border-b">
+    <div class="flex justify-between items-center pr-4 pt-0 pb-2 border-b">
       <h2 mat-dialog-title class="!font-bold !text-xl !text-blue-700 !m-0 flex items-center gap-2">
-        <mat-icon>{{ isEdit ? 'edit' : 'handyman' }}</mat-icon>
+        <div class="flex items-center justify-between">
+        <mat-icon class="!mr-3">{{ isEdit ? 'edit' : 'handyman' }}</mat-icon>
         {{ isEdit ? 'Editar Tipo de Serviço' : 'Novo Tipo de Serviço' }}
+        </div>
       </h2>
-      <button mat-icon-button mat-dialog-close class="!rounded-full">
-        <mat-icon>close</mat-icon>
+      <button
+        mat-icon-button
+        mat-dialog-close
+        class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500
+        !text-white !rounded-full"
+      >
+        <mat-icon class="!scale-90">close</mat-icon>
       </button>
     </div>
 
     <mat-dialog-content class="!p-6">
-      <form autocomplete="off" class="flex flex-col gap-4">
+      <form autocomplete="off" class="flex flex-col gap-0">
         <!-- Categoria Vinculada -->
         <app-field-wrapper [field]="tipoForm.categoriaId()">
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
@@ -96,29 +103,19 @@ export interface TipoServicoDialogData {
               />
             </mat-form-field>
           </app-field-wrapper>
-
-          <!-- Ativo / Inativo -->
-          <div class="flex items-center gap-3 pt-2">
-            <mat-slide-toggle
-              [checked]="tipoForm.ativo().value()"
-              (change)="tipoForm.ativo().value.set($event.checked)">
-              Serviço Ativo
-            </mat-slide-toggle>
-          </div>
+          <mat-dialog-actions align="end" class="!px-6 !py-0 bg-gray-50 border-t border-gray-200">
+            <button mat-button mat-dialog-close class="!rounded-3xl">Cancelar</button>
+            <button
+              mat-flat-button
+              class="!rounded-3xl !bg-blue-600 !text-white"
+              [disabled]="store.isLoading()"
+              (click)="salvar()">
+              {{ isEdit ? 'Salvar Alterações' : 'Cadastrar' }}
+            </button>
+          </mat-dialog-actions>
         </div>
       </form>
     </mat-dialog-content>
-
-    <mat-dialog-actions align="end" class="!px-6 !py-3 bg-gray-50 border-t border-gray-200">
-      <button mat-button mat-dialog-close class="!rounded-3xl">Cancelar</button>
-      <button
-        mat-flat-button
-        class="!rounded-3xl !bg-blue-600 !text-white"
-        [disabled]="store.isLoading()"
-        (click)="salvar()">
-        {{ isEdit ? 'Salvar Alterações' : 'Cadastrar' }}
-      </button>
-    </mat-dialog-actions>
   `
 })
 export class TipoServicoFormDialogComponent implements OnInit {
@@ -133,9 +130,11 @@ export class TipoServicoFormDialogComponent implements OnInit {
   );
 
   ngOnInit() {
-    this.store.loadCategorias();
+    this.store.loadCategoriasAtivas();
 
-    if (this.data && this.data?.tipoServico?.id) {
+    const isEdit = !!(this.data && this.data?.tipoServico?.id);
+
+    if (isEdit) {
       formTipoServico.set({
         categoriaId:
           this.data?.tipoServico?.categoriaId
@@ -146,6 +145,15 @@ export class TipoServicoFormDialogComponent implements OnInit {
         ordemExibicao: this.data?.tipoServico?.ordemExibicao ?? initialTipoServico.ordemExibicao,
         ativo: this.data?.tipoServico ? this.data.tipoServico.ativo : initialTipoServico.ativo
       });
+    } else {
+      formTipoServico.set({
+        categoriaId: 0,
+        ativo: true,
+        descricao: '',
+        nome: '',
+        ordemExibicao: 0
+      })
+
     }
   }
 
@@ -156,7 +164,9 @@ export class TipoServicoFormDialogComponent implements OnInit {
         id: this.data?.tipoServico?.id,
         categoriaId: formValues().value().categoriaId,
         payload: formValues().value(),
-        onSuccess: () => this.dialogRef.close(true)
+        onSuccess: () => {
+          this.dialogRef.close(true);
+        },
       });
     });
   }

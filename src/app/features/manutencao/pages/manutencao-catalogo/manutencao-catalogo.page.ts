@@ -16,6 +16,7 @@ import {
 } from '../../components/tipo-servico-form-dialog/tipo-servico-form-dialog.component';
 import { CategoriaFormDialogComponent } from '../../components/categoria-form-dialog/categoria-form-dialog.component';
 import { ManutencaoStore } from '../../state/manutencao.store';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-manutencao-catalogo',
@@ -32,7 +33,8 @@ import { ManutencaoStore } from '../../state/manutencao.store';
     MatFormFieldModule,
     MatSelectModule,
     MatTooltipModule,
-    MatDialogModule
+    MatDialogModule,
+    MatPaginatorModule
   ],
   template: `
     <div class="bg-gray-50 rounded-2xl p-4 md:p-6 mx-auto max-w-7xl w-full">
@@ -46,7 +48,11 @@ import { ManutencaoStore } from '../../state/manutencao.store';
         </div>
       </div>
 
-      <mat-tab-group animationDuration="200ms" class="bg-white rounded-xl shadow-sm border border-gray-200 p-2">
+      <mat-tab-group
+        [selectedIndex]="store.catalogoTabAtiva()"
+        (selectedIndexChange)="store.setCatalogoTab($event)"
+        animationDuration="200ms"
+        class="bg-white rounded-xl shadow-sm border border-gray-200 p-2">
         <!-- ========================================== -->
         <!-- ABA 1: CATEGORIAS DE DEMANDA               -->
         <!-- ========================================== -->
@@ -68,7 +74,7 @@ import { ManutencaoStore } from '../../state/manutencao.store';
             </div>
 
             <div class="border border-gray-200 rounded-lg overflow-hidden">
-              <table mat-table [dataSource]="store.categorias()" class="w-full">
+              <table mat-table [dataSource]="store.categoriasPaginadas()" class="w-full">
                 <ng-container matColumnDef="id">
                   <th mat-header-cell *matHeaderCellDef class="!w-16 !font-semibold text-gray-700">ID</th>
                   <td mat-cell *matCellDef="let cat" class="font-mono text-gray-600">{{ cat.id }}</td>
@@ -85,17 +91,21 @@ import { ManutencaoStore } from '../../state/manutencao.store';
                 </ng-container>
 
                 <ng-container matColumnDef="ordem">
-                  <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-700 text-center !w-24">Ordem
+                  <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-700 text-center !w-24">
+                    Ordem
                   </th>
                   <td mat-cell *matCellDef="let cat" class="text-center font-mono">{{ cat.ordemExibicao ?? 0 }}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="ativo">
-                  <th mat-header-cell *matHeaderCellDef class="text-center !font-semibold text-gray-700 !w-24">Status
+                  <th mat-header-cell *matHeaderCellDef class="text-center !font-semibold text-gray-700 !w-24">
+                    Status
                   </th>
                   <td mat-cell *matCellDef="let cat" class="text-center">
                     <span
-                      [class]="cat.ativo ? 'text-emerald-700 bg-emerald-100 border-emerald-300' : 'text-gray-600 bg-gray-100 border-gray-300'"
+                      [class]="cat.ativo ?
+                      'text-emerald-700 bg-emerald-100 border-emerald-300' :
+                      'text-gray-600 bg-gray-100 border-gray-300'"
                       class="px-2.5 py-0.5 rounded-full text-xs font-semibold border inline-block">
                       {{ cat.ativo ? 'Ativo' : 'Inativo' }}
                     </span>
@@ -119,6 +129,11 @@ import { ManutencaoStore } from '../../state/manutencao.store';
                 <tr mat-row *matRowDef="let row; columns: ['id', 'nome', 'descricao', 'ordem', 'ativo', 'acoes']"
                     class="hover:bg-blue-50/40"></tr>
               </table>
+              @if(!store.isLoading() && store.categoriasPaginadas().length === 0) {
+                <div class="p-6 text-center text-gray-500 text-sm">
+                  Nenhuma categoria encontrada.
+                </div>
+              }
             </div>
           </div>
         </mat-tab>
@@ -134,8 +149,8 @@ import { ManutencaoStore } from '../../state/manutencao.store';
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
                   <mat-label>Filtrar por Categoria</mat-label>
                   <mat-select
-                    [value]="categoriaSelecionadaId()"
-                    (selectionChange)="selecionarCategoria($event.value)">
+                    [value]="store.catalogoCategoriaSelecionadaId()"
+                    (selectionChange)="store.setCatalogoCategoriaSelecionada($event.value)">
                     @for (cat of store.categorias(); track cat.id) {
                       <mat-option [value]="cat.id">{{ cat.nome }}</mat-option>
                     }
@@ -153,8 +168,9 @@ import { ManutencaoStore } from '../../state/manutencao.store';
               </button>
             </div>
 
+            <!-- Tabela iterando sobre os tipos da Store -->
             <div class="border border-gray-200 rounded-lg overflow-hidden">
-              <table mat-table [dataSource]="store.tiposPorCategoria()" class="w-full">
+              <table mat-table [dataSource]="store.tiposPorCategoriaPaginados()" class="w-full">
                 <ng-container matColumnDef="id">
                   <th mat-header-cell *matHeaderCellDef class="!w-16 !font-semibold text-gray-700">ID</th>
                   <td mat-cell *matCellDef="let tipo" class="font-mono text-gray-600">{{ tipo.id }}</td>
@@ -203,10 +219,29 @@ import { ManutencaoStore } from '../../state/manutencao.store';
                 <tr mat-row *matRowDef="let row; columns: ['id', 'categoria', 'nome', 'descricao', 'status', 'acoes']"
                     class="hover:bg-blue-50/40"></tr>
               </table>
+
+              @if (!store.isLoading() && store.tiposPorCategoriaPaginados().length === 0) {
+                <div class="p-6 text-center text-gray-500 text-sm">
+                  Nenhum tipo de serviço encontrado para a categoria selecionada.
+                </div>
+              }
             </div>
           </div>
         </mat-tab>
       </mat-tab-group>
+      <!-- ======================================================== -->
+      <!-- PAGINATOR ÚNICO INTEGRADO DIRETAMENTE À STORE            -->
+      <!-- ======================================================== -->
+      <mat-paginator
+        [length]="store.catalogoTotalElements()"
+        [pageSize]="store.catalogoPageSize()"
+        [pageIndex]="store.catalogoPageIndex()"
+        [pageSizeOptions]="[5, 10, 20]"
+        (page)="store.changeCatalogoPagination($event.pageIndex, $event.pageSize)"
+        showFirstLastButtons
+        class="border-t border-gray-200"
+        aria-label="Controle de paginação do catálogo">
+      </mat-paginator>
     </div>
   `
 })
@@ -224,19 +259,20 @@ export default class ManutencaoCatalogoPage implements OnInit {
       if (cats.length > 0 && !this.categoriaSelecionadaId()) {
         const primeiroId = cats[0].id;
         this.categoriaSelecionadaId.set(primeiroId);
-        this.store.loadTiposPorCategoria(primeiroId);
+        this.store.loadTiposAtivosPorCategoria(primeiroId);
       }
     });
   }
 
   ngOnInit() {
-    this.store.loadCategorias();
+    // this.store.loadCategorias();
+    this.store.initCatalogo();
   }
 
-  selecionarCategoria(catId: number) {
-    this.categoriaSelecionadaId.set(catId);
-    this.store.loadTiposPorCategoria(catId);
-  }
+  // selecionarCategoria(catId: number) {
+  //   this.categoriaSelecionadaId.set(catId);
+  //   this.store.loadTiposPorCategoria(catId);
+  // }
 
   abrirModalCategoria(categoria?: CategoriaDemandaResponseDTO) {
     const dialogRef = this.dialog.open(CategoriaFormDialogComponent, {
@@ -248,7 +284,7 @@ export default class ManutencaoCatalogoPage implements OnInit {
 
     dialogRef.afterClosed().subscribe((atualizou) => {
       if (atualizou) {
-        this.store.loadCategorias();
+        this.store.loadCategoriasAtivas();
       }
     });
   }
@@ -268,7 +304,7 @@ export default class ManutencaoCatalogoPage implements OnInit {
 
     dialogRef.afterClosed().subscribe((atualizou) => {
       if (atualizou && this.categoriaSelecionadaId()) {
-        this.store.loadTiposPorCategoria(this.categoriaSelecionadaId()!);
+        this.store.loadTiposAtivosPorCategoria(this.categoriaSelecionadaId()!);
       }
     });
   }

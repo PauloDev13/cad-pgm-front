@@ -34,11 +34,18 @@ import { ManutencaoStore } from '../../state/manutencao.store';
   template: `
     <div class="flex justify-between items-center px-6 pt-4 pb-2 border-b">
       <h2 mat-dialog-title class="!font-bold !text-xl !text-blue-700 !m-0 flex items-center gap-2">
-        <mat-icon>{{ isEdit ? 'edit' : 'category' }}</mat-icon>
+        <div class="flex items-center justify-between">
+        <mat-icon class="!mr-3">{{ isEdit ? 'edit' : 'category' }}</mat-icon>
         {{ isEdit ? 'Editar Categoria' : 'Nova Categoria' }}
+        </div>
       </h2>
-      <button mat-icon-button mat-dialog-close class="!rounded-full">
-        <mat-icon>close</mat-icon>
+      <button
+        mat-icon-button
+        mat-dialog-close
+        class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500
+        !text-white !rounded-full"
+      >
+        <mat-icon class="!scale-90">close</mat-icon>
       </button>
     </div>
 

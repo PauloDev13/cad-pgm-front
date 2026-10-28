@@ -50,6 +50,17 @@ type ManutencaoState = {
   categorias: CategoriaDemandaResponseDTO[];
   tiposPorCategoria: TipoServicoResponseDTO[];
 
+  // =========================================================================
+  // NOVO: ESTADO DE CONTROLE E PAGINAÇÃO DO CATÁLOGO DE SERVIÇOS
+  // =========================================================================
+  catalogoTabAtiva: number;              // 0 = Categorias, 1 = Tipos de Serviço
+  catalogoPageIndex: number;             // Página atual do Paginator Único (base 0)
+  catalogoPageSize: number;              // Tamanho da página (padrão 10)
+  catalogoTotalElements: number;         // totalElements da guia ativa
+  catalogoCategoriaSelecionadaId: number | null; // Categoria selecionada na Guia 2
+  categoriasPaginadas: CategoriaDemandaResponseDTO[];
+  tiposPorCategoriaPaginados: TipoServicoResponseDTO[];
+
   reloadTrigger: number;
 };
 
@@ -58,6 +69,8 @@ const initialState: ManutencaoState = {
   chamados: [],
   totalElements: 0,
   chamadoDetalhe: null,
+
+  // Filtros da Fila
   filtroEstado: null,
   filtroCategoriaId: null,
   filtroTipoServicoId: null,
@@ -65,10 +78,22 @@ const initialState: ManutencaoState = {
   filtroSalaId: null,
   currentPage: 0,
   pageSize: 10,
+
+  // Catálogos e Apoio em Memória
   andares: [],
   salasPorAndar: [],
   categorias: [],
   tiposPorCategoria: [],
+
+  // Valores iniciais do Catálogo Paginado
+  catalogoTabAtiva: 0,
+  catalogoPageIndex: 0,
+  catalogoPageSize: 10,
+  catalogoTotalElements: 0,
+  catalogoCategoriaSelecionadaId: null,
+  categoriasPaginadas: [],
+  tiposPorCategoriaPaginados: [],
+
   reloadTrigger: 0
 };
 
@@ -100,6 +125,7 @@ export const ManutencaoStore = signalStore(
     localizacaoService = inject(ManutencaoLocalizacaoService),
     errorHandler = inject(ErrorHandlerService)
   ) => ({
+
     updatePagination(page: number, size: number) {
       patchState(store, { currentPage: page, pageSize: size });
     },
@@ -206,6 +232,59 @@ export const ManutencaoStore = signalStore(
         )
       )
     ),
+
+    /*
+    * DECLARAÇÕES DOS RX METHODS DE BUSCA PAGINADA DO CATÁLOGO
+    */
+
+    // RETORNA TODAS AS CATEGORIAS PAGINADAS
+    loadCategoriasPaginadas: rxMethod<void>(
+      pipe(
+        tap(() => patchState(store, { isLoading: true })),
+        switchMap(() =>
+          catalogoService.listarCategoriasPaginadas(store.catalogoPageIndex(), store.catalogoPageSize()).pipe(
+            tapResponse({
+              next: (res) => patchState(store, {
+                categoriasPaginadas: res.content,
+                catalogoTotalElements: res.page?.totalElements,
+                isLoading: false
+              }),
+              error: (err) => {
+                patchState(store, { isLoading: false, categoriasPaginadas: [], catalogoTotalElements: 0 });
+                errorHandler.handle(err, 'Categorias Paginadas');
+              }
+            })
+          )
+        )
+      )
+    ),
+
+    loadTiposPorCategoriaPaginados: rxMethod<void>(
+      pipe(
+        tap(() => patchState(store, { isLoading: true })),
+        switchMap(() => {
+          const catId = store.catalogoCategoriaSelecionadaId();
+          if (!catId) {
+            patchState(store, { tiposPorCategoriaPaginados: [], catalogoTotalElements: 0, isLoading: false });
+            return [];
+          }
+          return catalogoService.listarTiposPorCategoriaPaginados(
+            catId, store.catalogoPageIndex(), store.catalogoPageSize()).pipe(
+            tapResponse({
+              next: (res) => patchState(store, {
+                tiposPorCategoriaPaginados: res.content,
+                catalogoTotalElements: res.page?.totalElements,
+                isLoading: false
+              }),
+              error: (err) => {
+                patchState(store, { isLoading: false, tiposPorCategoriaPaginados: [], catalogoTotalElements: 0 });
+                errorHandler.handle(err, 'Tipos de Serviço Paginados');
+              }
+            })
+          );
+        })
+      )
+    ),
     /*
      RETORNA AS CATEGORIAS ATIVAS
      */
@@ -224,34 +303,35 @@ export const ManutencaoStore = signalStore(
     /*
      RETORNA TODAS AS CATEGORIAS (ATIVAS E INATIVAS)
      */
-    loadCategorias: rxMethod<void>(
-      pipe(
-        switchMap(() =>
-          catalogoService.listarCategorias().pipe(
-            tapResponse({
-              next: (categorias) => patchState(store, { categorias }),
-              error: (err) => errorHandler.handle(err, 'Categorias')
-            })
-          )
-        )
-      )
-    ),
+    // loadCategorias: rxMethod<void>(
+    //   pipe(
+    //     switchMap(() =>
+    //       catalogoService.listarCategorias().pipe(
+    //         tapResponse({
+    //           next: (categorias) =>
+    //             patchState(store, { categorias }),
+    //           error: (err) => errorHandler.handle(err, 'Categorias')
+    //         })
+    //       )
+    //     )
+    //   )
+    // ),
 
     /*
      RETORNA TODOS OS TIPOS DE SERVIÇOS(ATIVOS E INATIVOS) POR CATEGORIAS
      */
-    loadTiposPorCategoria: rxMethod<number>(
-      pipe(
-        switchMap((catId) =>
-          catalogoService.listarTiposPorCategoria(catId).pipe(
-            tapResponse({
-              next: (tipos) => patchState(store, { tiposPorCategoria: tipos }),
-              error: (err) => errorHandler.handle(err, 'Tipos de Serviço')
-            })
-          )
-        )
-      )
-    ),
+    // loadTiposPorCategoria: rxMethod<number>(
+    //   pipe(
+    //     switchMap((catId) =>
+    //       catalogoService.listarTiposPorCategoria(catId).pipe(
+    //         tapResponse({
+    //           next: (tipos) => patchState(store, { tiposPorCategoria: tipos }),
+    //           error: (err) => errorHandler.handle(err, 'Tipos de Serviço')
+    //         })
+    //       )
+    //     )
+    //   )
+    // ),
     /*
      RETORNA OS TIPOS DE SERVIÇO ATIVOS POR CATEGORIAS
      */
@@ -266,7 +346,7 @@ export const ManutencaoStore = signalStore(
           )
         )
       )
-    )
+    ),
   })),
   // =========================================================================
   // 2º BLOCO WITH METHODS: MUTAÇÕES E AÇÕES (Enxerga todos os métodos do 1º bloco)
@@ -278,6 +358,64 @@ export const ManutencaoStore = signalStore(
     notificationService = inject(NotificationService),
     errorHandler = inject(ErrorHandlerService)
   ) => ({
+
+    /**
+     * Inicializa os dados do catálogo (carrega combo e primeira página de categorias)
+     */
+    initCatalogo() {
+      catalogoService.listarCategoriasAtivas().subscribe({
+        next: (cats) => {
+          patchState(store, {
+            categorias: cats,
+            catalogoCategoriaSelecionadaId: cats.length > 0 ? cats[0].id : null
+          });
+          store.loadCategoriasPaginadas();
+        }
+      });
+    },
+
+    /**
+     * REGRA DE NEGÓCIO: Alternar guia reseta pageIndex para 0 e busca dados da nova guia
+     */
+    setCatalogoTab(tabIndex: number) {
+      patchState(store, {
+        catalogoTabAtiva: tabIndex,
+        catalogoPageIndex: 0 // Reset obrigatório
+      });
+
+      if (tabIndex === 0) {
+        store.loadCategoriasPaginadas();
+      } else {
+        store.loadTiposPorCategoriaPaginados();
+      }
+    },
+
+    /**
+     * REGRA DE NEGÓCIO: Trocar categoria na Guia 2 reseta pageIndex para 0 e busca tipos
+     */
+    setCatalogoCategoriaSelecionada(categoriaId: number) {
+      patchState(store, {
+        catalogoCategoriaSelecionadaId: categoriaId,
+        catalogoPageIndex: 0 // Reset obrigatório
+      });
+      store.loadTiposPorCategoriaPaginados();
+    },
+
+    /**
+     * REGRA DE NEGÓCIO: Evento do Paginator Único atualiza a página/tamanho e busca na guia ativa
+     */
+    changeCatalogoPagination(pageIndex: number, pageSize: number) {
+      patchState(store, {
+        catalogoPageIndex: pageIndex,
+        catalogoPageSize: pageSize
+      });
+
+      if (store.catalogoTabAtiva() === 0) {
+        store.loadCategoriasPaginadas();
+      } else {
+        store.loadTiposPorCategoriaPaginados();
+      }
+    },
     // Ações de Ciclo de Vida de Chamados
     abrirChamado: rxMethod<{ payload: AberturaChamadoRequestDTO; onSuccess: () => void }>(
       pipe(
@@ -379,6 +517,7 @@ export const ManutencaoStore = signalStore(
         )
       )
     ),
+
     // ==========================================
     // MUTAÇÕES DO CATÁLOGO (ADMIN)
     // ==========================================
@@ -404,7 +543,8 @@ export const ManutencaoStore = signalStore(
                   acaoNome
                 );
                 // Funciona perfeitamente: store.loadCategorias() existe no tipo!
-                store.loadCategorias();
+                // store.loadCategorias();
+                store.loadCategoriasPaginadas();
                 onSuccess();
               },
               error: (err) => {
@@ -439,7 +579,7 @@ export const ManutencaoStore = signalStore(
                   acaoNome
                 );
                 // Funciona perfeitamente: store.loadTiposPorCategoria(...) existe no tipo!
-                store.loadTiposPorCategoria(categoriaId);
+                store.loadTiposAtivosPorCategoria(categoriaId);
                 onSuccess();
               },
               error: (err) => {
@@ -462,16 +602,16 @@ export const ManutencaoStore = signalStore(
             tapResponse({
               next: () => {
                 notificationService.success('Status do serviço atualizado!', 'Catálogo');
-                store.loadTiposPorCategoria(categoriaId);
+                store.loadTiposAtivosPorCategoria(categoriaId);
               },
               error: (err) => {
                 errorHandler.handle(err, 'Alteração de Status');
-                store.loadTiposPorCategoria(categoriaId);
+                store.loadTiposAtivosPorCategoria(categoriaId);
               }
             })
           )
         )
       )
-    )
+    ),
   }))
 );
