@@ -32,12 +32,12 @@ import { ManutencaoStore } from '../../state/manutencao.store';
     FormField
   ],
   template: `
-    <div class="flex justify-between items-center px-6 pt-4 pb-2 border-b">
-      <h2 mat-dialog-title class="!font-bold !text-xl !text-blue-700 !m-0 flex items-center gap-2">
-        <div class="flex items-center justify-between">
-        <mat-icon class="!mr-3">{{ isEdit ? 'edit' : 'category' }}</mat-icon>
+    <div class="flex justify-between items-center pr-6 pt-2 pb-2 border-gray-300 border-b">
+      <h2
+        mat-dialog-title
+        class="!font-bold !text-xl !text-blue-700 !m-0 !flex !items-center">
+        <mat-icon class="!mr-1">{{ isEdit ? 'edit' : 'category' }}</mat-icon>
         {{ isEdit ? 'Editar Categoria' : 'Nova Categoria' }}
-        </div>
       </h2>
       <button
         mat-icon-button
@@ -49,7 +49,7 @@ import { ManutencaoStore } from '../../state/manutencao.store';
       </button>
     </div>
 
-    <mat-dialog-content class="!p-6">
+    <mat-dialog-content class="!p-6 !pb-2">
       <form autocomplete="off" class="flex flex-col gap-4">
         <!-- Nome -->
         <app-field-wrapper [field]="categoriaForm.nome()">
@@ -76,7 +76,8 @@ import { ManutencaoStore } from '../../state/manutencao.store';
           </mat-form-field>
         </app-field-wrapper>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center pt-1">
+        <div class="flex justify-between items-center">
+<!--          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center pt-1">-->
           <!-- Ordem de Exibição -->
           <app-field-wrapper [field]="categoriaForm.ordemExibicao()">
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
@@ -90,18 +91,19 @@ import { ManutencaoStore } from '../../state/manutencao.store';
           </app-field-wrapper>
 
           <!-- Ativo / Inativo -->
-          <div class="flex items-center gap-3 pt-2">
+          <div class="flex items-center gap-0 pt-0">
             <mat-slide-toggle
+              class="!pb-5"
               [checked]="categoriaForm.ativo().value()"
               (change)="categoriaForm.ativo().value.set($event.checked)">
-              Categoria Ativa
+              Ativa
             </mat-slide-toggle>
           </div>
         </div>
       </form>
     </mat-dialog-content>
 
-    <mat-dialog-actions align="end" class="!px-6 !py-3 bg-gray-50 border-t border-gray-200">
+    <mat-dialog-actions align="end" class="!px-6 !py-3 bg-gray-50 !border-t !border-gray-300">
       <button mat-button mat-dialog-close class="!rounded-3xl">Cancelar</button>
       <button
         mat-flat-button
@@ -131,6 +133,13 @@ export class CategoriaFormDialogComponent implements OnInit {
         descricao: this.data?.descricao ?? initialCategoriaDemanda.descricao,
         ordemExibicao: this.data?.ordemExibicao ?? initialCategoriaDemanda.ordemExibicao,
         ativo: this.data?.ativo
+      });
+    } else {
+      formCategoriaDemanda.set({
+        nome: '',
+        descricao: '',
+        ordemExibicao: 1,
+        ativo: true
       });
     }
   }

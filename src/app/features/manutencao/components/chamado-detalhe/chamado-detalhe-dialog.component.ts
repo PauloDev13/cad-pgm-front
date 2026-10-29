@@ -16,13 +16,18 @@ import { ChamadoDetalheResponseDTO } from '../../models/manutencao-chamado.model
   imports: [CommonModule, DatePipe, MatDialogModule, MatButtonModule, MatIconModule],
   template: `
     @if (store.chamadoDetalhe(); as chamado) {
-      <div class="flex justify-between items-center px-6 pt-4 pb-2 border-b">
+      <div class="flex justify-between items-center px-6 pt-4 pb-2 border-b border-b-gray-300">
         <div>
-          <span class="text-xs font-mono font-bold text-blue-600 uppercase">{{ chamado.protocolo }}</span>
-          <h2 class="text-xl font-bold text-gray-800 m-0">{{ chamado.tipoServicoNome }}</h2>
+          <span class="text-xs font-mono font-bold text-gray-800 uppercase">PROTOCOLO: {{ chamado.protocolo }}</span>
+          <h2 class="text-xl font-bold text-blue-600 m-0">{{ chamado.tipoServicoNome }}</h2>
         </div>
-        <button mat-icon-button mat-dialog-close class="!rounded-full">
-          <mat-icon>close</mat-icon>
+        <button
+          mat-icon-button
+          mat-dialog-close
+          class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500
+        !text-white !rounded-full"
+        >
+          <mat-icon class="!scale-90">close</mat-icon>
         </button>
       </div>
 
@@ -46,7 +51,7 @@ import { ChamadoDetalheResponseDTO } from '../../models/manutencao-chamado.model
 
         <!-- Descrição -->
         <div>
-          <h4 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-1">Descrição do Problema</h4>
+          <h4 class="text-sm font-bold text-gray-700 uppercase tracking-wider mt-2 mb-1">Descrição do Problema</h4>
           <p class="text-gray-700 bg-white p-3 rounded-lg border border-gray-200 text-sm whitespace-pre-wrap">
             {{ chamado.descricaoProblema }}
           </p>
@@ -54,7 +59,7 @@ import { ChamadoDetalheResponseDTO } from '../../models/manutencao-chamado.model
 
         <!-- Linha do Tempo (Timeline) -->
         <div>
-          <h4 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-3">Histórico de Movimentações</h4>
+          <h4 class="text-sm font-bold text-gray-700 uppercase pt-3 tracking-wider mb-3">Histórico de Movimentações</h4>
           <div class="relative border-l-2 border-blue-300 ml-4 pl-4 flex flex-col gap-4">
             @for (item of chamado.historico; track item.id) {
               <div class="relative group">
@@ -66,7 +71,7 @@ import { ChamadoDetalheResponseDTO } from '../../models/manutencao-chamado.model
                 <p class="text-xs text-gray-600 m-0">Executado por: <span class="font-medium">{{ item.atorNome }}</span>
                 </p>
                 @if (item.observacao) {
-                  <p class="text-xs italic text-gray-500 mt-1 bg-gray-50 p-2 rounded border border-gray-100">
+                  <p class="text-xs italic text-gray-500 mt-1 bg-gray-50 p-1 rounded border border-gray-100">
                     "{{ item.observacao }}"
                   </p>
                 }
@@ -77,7 +82,7 @@ import { ChamadoDetalheResponseDTO } from '../../models/manutencao-chamado.model
       </mat-dialog-content>
 
       <!-- Ações de Ciclo de Vida -->
-      <mat-dialog-actions align="end" class="!px-6 !py-3 bg-gray-50 border-t border-gray-200 gap-2">
+      <mat-dialog-actions align="end" class="!px-6 !py-3 bg-gray-50 !border-t !border-gray-300 gap-2">
         <!-- Cancelar: Validação refinada Solicitante vs. Tramitador -->
         @if (podeCancelar(chamado)) {
           <button

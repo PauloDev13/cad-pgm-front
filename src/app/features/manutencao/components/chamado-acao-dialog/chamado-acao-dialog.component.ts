@@ -21,6 +21,7 @@ import {
 } from '../../utils/manutencao-form.schemas';
 import { ManutencaoChamadoService } from '../../services/manutencao-chamado.service';
 import { ResponsavelComboResponseDTO } from '../../models/manutencao-chamado.model';
+import { FormFluxoChamadoComponent } from '../../utils/form-fluxo-chamado.component';
 
 export type TipoAcaoChamado = 'ATRIBUIR' | 'INICIAR' | 'CONCLUIR' | 'CANCELAR';
 
@@ -43,20 +44,28 @@ export interface DialogAcaoData {
     MatButtonModule,
     MatIconModule,
     FieldWrapperComponent,
-    FormField
+    FormField,
+    FormFluxoChamadoComponent,
   ],
   template: `
-    <div class="flex justify-between items-center px-6 pt-4 pb-2 border-b">
-      <h2 mat-dialog-title class="!font-bold !text-lg !text-gray-800 !m-0 flex items-center gap-2">
+    <div class="flex justify-between items-center px-6 pt-2 pb-0 border-gray-300 border-b">
+      <h2
+        mat-dialog-title
+        class="!font-bold !text-lg !text-blue-700 !m-0 !flex !pl-0 !items-center gap-0">
         <mat-icon [class]="getIconColor()">{{ getIcon() }}</mat-icon>
         {{ getTitulo() }}
       </h2>
-      <button mat-icon-button mat-dialog-close class="!rounded-full">
-        <mat-icon>close</mat-icon>
+      <button
+        mat-icon-button
+        mat-dialog-close
+        class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500
+        !text-white !rounded-full"
+      >
+        <mat-icon class="!scale-90">close</mat-icon>
       </button>
     </div>
 
-    <mat-dialog-content class="!p-6">
+    <mat-dialog-content class="!p-6 !pb-2">
       <!-- 1. ATRIBUIR RESPONSÁVEL -->
       @if (data.tipo === 'ATRIBUIR') {
         <form autocomplete="off" class="flex flex-col gap-4">
@@ -92,66 +101,41 @@ export interface DialogAcaoData {
 
       <!-- 2. INICIAR ATENDIMENTO -->
       @if (data.tipo === 'INICIAR') {
-        <form autocomplete="off" class="flex flex-col gap-4">
-          <p class="text-xs text-gray-600 m-0">
-            Confirma o início dos reparos técnicos para este chamado?
-          </p>
-          <app-field-wrapper [field]="formIniciar.observacao()">
-            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>Observações Iniciais (Opcional)</mat-label>
-              <textarea
-                matInput
-                rows="3"
-                [formField]="formIniciar.observacao"
-                placeholder="Ex: Deslocando-se para o local"
-              ></textarea>
-            </mat-form-field>
-          </app-field-wrapper>
-        </form>
+        <app-form-fluxo-chamado
+        titleMessage="Confirma o início dos reparos técnicos para este chamado?"
+        label="Observações Iniciais (Opcional)"
+        [rowsValue]="3"
+        placeholder="Ex: Deslocando-se para o local"
+        [fieldValue]="formIniciar.observacao()"
+        [formControlField]="formIniciar.observacao"
+        />
       }
 
       <!-- 3. CONCLUIR ATENDIMENTO -->
       @if (data.tipo === 'CONCLUIR') {
-        <form autocomplete="off" class="flex flex-col gap-4">
-          <p class="text-xs text-gray-600 m-0">
-            Descreva os procedimentos executados para a finalização do chamado.
-          </p>
-          <app-field-wrapper [field]="formConcluir.observacao()">
-            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>Laudo/Observação Conclusiva</mat-label>
-              <textarea
-                matInput
-                rows="4"
-                [formField]="formConcluir.observacao!"
-                placeholder="Ex: Peças trocadas, reparo testado e normalizado"
-              ></textarea>
-            </mat-form-field>
-          </app-field-wrapper>
-        </form>
+        <app-form-fluxo-chamado
+          titleMessage="Descreva os procedimentos executados para a finalização do chamado."
+          label="Laudo/Observação Conclusiva"
+          placeholder="Ex: Peças trocadas, reparo testado e normalizado"
+          [fieldValue]="formConcluir.observacao()"
+          [formControlField]="formConcluir.observacao"
+        />
       }
 
       <!-- 4. CANCELAR CHAMADO -->
       @if (data.tipo === 'CANCELAR') {
-        <form autocomplete="off" class="flex flex-col gap-4">
-          <p class="text-xs text-rose-600 font-medium m-0">
-            Atenção: O cancelamento encerra o ciclo deste chamado.
-          </p>
-          <app-field-wrapper [field]="formCancelar.motivo()">
-            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>Motivo do Cancelamento</mat-label>
-              <textarea
-                matInput
-                rows="4"
-                [formField]="formCancelar.motivo"
-                placeholder="Justifique o motivo do cancelamento"
-              ></textarea>
-            </mat-form-field>
-          </app-field-wrapper>
-        </form>
+        <app-form-fluxo-chamado
+          titleMessage="Atenção: O cancelamento encerra o ciclo deste chamado."
+          label="Motivo do Cancelamento"
+          placeholder="Justifique o motivo do cancelamento"
+          classValue="text-xs text-rose-600 font-medium m-0"
+          [fieldValue]="formCancelar.motivo()"
+          [formControlField]="formCancelar.motivo"
+        />
       }
     </mat-dialog-content>
 
-    <mat-dialog-actions align="end" class="!px-6 !py-3 bg-gray-50 border-t border-gray-200">
+    <mat-dialog-actions align="end" class="!px-6 !py-3 bg-gray-50 !border-t !border-gray-300">
       <button mat-button mat-dialog-close class="!rounded-3xl">Fechar</button>
       <button
         mat-flat-button
@@ -162,7 +146,7 @@ export interface DialogAcaoData {
         Confirmar
       </button>
     </mat-dialog-actions>
-  `
+  `,
 })
 export class ChamadoAcaoDialogComponent implements OnInit {
   protected readonly data = inject<DialogAcaoData>(MAT_DIALOG_DATA);
@@ -212,15 +196,16 @@ export class ChamadoAcaoDialogComponent implements OnInit {
   }
 
   getIconColor(): string {
+    const base = '!mr-2 ';
     switch (this.data.tipo) {
       case 'ATRIBUIR':
-        return '!text-blue-600';
+        return base + '!text-blue-600';
       case 'INICIAR':
-        return '!text-indigo-600';
+        return base + '!text-indigo-600';
       case 'CONCLUIR':
-        return '!text-emerald-600';
+        return base + '!text-emerald-600';
       case 'CANCELAR':
-        return '!text-rose-600';
+        return base + '!text-rose-600';
     }
   }
 
@@ -247,7 +232,7 @@ export class ChamadoAcaoDialogComponent implements OnInit {
           this.store.atribuirResponsavel({
             id: chamadoId,
             payload: field().value(),
-            onSuccess: () => this.dialogRef.close(true)
+            onSuccess: () => this.dialogRef.close(true),
           });
         });
         break;
@@ -257,7 +242,7 @@ export class ChamadoAcaoDialogComponent implements OnInit {
           this.store.iniciarAtendimento({
             id: chamadoId,
             payload: field().value(),
-            onSuccess: () => this.dialogRef.close(true)
+            onSuccess: () => this.dialogRef.close(true),
           });
         });
         break;
@@ -267,7 +252,7 @@ export class ChamadoAcaoDialogComponent implements OnInit {
           this.store.concluirAtendimento({
             id: chamadoId,
             payload: field().value(),
-            onSuccess: () => this.dialogRef.close(true)
+            onSuccess: () => this.dialogRef.close(true),
           });
         });
         break;
@@ -277,7 +262,7 @@ export class ChamadoAcaoDialogComponent implements OnInit {
           this.store.cancelarChamado({
             id: chamadoId,
             payload: field().value(),
-            onSuccess: () => this.dialogRef.close(true)
+            onSuccess: () => this.dialogRef.close(true),
           });
         });
         break;
