@@ -78,6 +78,16 @@ export interface ServidorFormDialogData {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    <div class="flex justify-end items-center px-6 pt-4 pb-0">
+      <button
+        mat-icon-button
+        mat-dialog-close
+        class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500
+          !text-white !rounded-full"
+      >
+        <mat-icon class="!scale-90">close</mat-icon>
+      </button>
+    </div>
     <div class="flex flex-col w-full h-[calc(100dvh-120px)] max-h-[calc(100dvh-120px)]
                 sm:h-[750px] sm:max-h-[92vh] overflow-hidden bg-white rounded-xl">
       <div class="flex-1 min-h-0 w-full overflow-hidden">

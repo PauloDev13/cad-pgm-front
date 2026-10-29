@@ -29,13 +29,15 @@ import { aberturaChamadoSchema, formAberturaChamado } from '../../utils/manutenc
   ],
   template: `
     <div class="flex justify-between items-center px-6 pt-4 pb-1">
+
       <h2
         mat-dialog-title
-        class="!font-bold !text-xl !text-blue-700 !m-0 !p-0 flex items-center gap-2"
+        class="!font-bold !text-xl !text-blue-700 !m-0 !p-0 !flex !items-center gap-2"
       >
-        <mat-icon>build</mat-icon>
+        <mat-icon class="!mr-1">build</mat-icon>
         Abrir Chamado de Manutenção
       </h2>
+
       <button
         mat-icon-button
         mat-dialog-close
@@ -96,7 +98,7 @@ import { aberturaChamadoSchema, formAberturaChamado } from '../../utils/manutenc
         }
 
         <!-- Catálogo de Serviço -->
-        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider border-b pb-1 mt-2">
+        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider border-b pb-1 mt-0">
           2. Qual é a demanda?
         </h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -129,7 +131,7 @@ import { aberturaChamadoSchema, formAberturaChamado } from '../../utils/manutenc
         </div>
 
         <!-- Descrição Detalhada -->
-        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider border-b pb-1 mt-2">
+        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider border-b pb-0 mt-0">
           3. Detalhamento
         </h3>
         <app-field-wrapper [field]="chamadoForm.descricao()">
@@ -147,7 +149,7 @@ import { aberturaChamadoSchema, formAberturaChamado } from '../../utils/manutenc
       </form>
     </mat-dialog-content>
 
-    <mat-dialog-actions align="end" class="!px-6 !py-3 bg-gray-50 border-t border-gray-200">
+    <mat-dialog-actions align="end" class="!px-6 !py-3 bg-gray-50 !border-t !border-gray-400">
       <button mat-button mat-dialog-close class="!rounded-3xl">Cancelar</button>
       <button
         mat-flat-button

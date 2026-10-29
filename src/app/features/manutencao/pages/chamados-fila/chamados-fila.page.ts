@@ -25,7 +25,7 @@ import { ChamadoFormComponent } from '../../components/chamado-form/chamado-form
   ],
   providers: [ManutencaoStore],
   template: `
-    <div class="bg-gray-50 rounded-2xl p-4 md:p-6 mx-auto max-w-7xl w-full">
+    <div class="bg-gray-50 rounded-2xl p-4 md:p-6 mx-auto max-w-max w-full">
       <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4">
         <div>
           <h1 class="text-xl md:text-2xl font-bold text-blue-800 leading-tight">

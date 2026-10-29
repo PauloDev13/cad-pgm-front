@@ -233,9 +233,9 @@ export const ManutencaoStore = signalStore(
       )
     ),
 
-    /*
-    * DECLARAÇÕES DOS RX METHODS DE BUSCA PAGINADA DO CATÁLOGO
-    */
+    //=========================================================
+    // DECLARAÇÕES DOS RX METHODS DE BUSCA PAGINADA DO CATÁLOGO
+    // ========================================================
 
     // RETORNA TODAS AS CATEGORIAS PAGINADAS
     loadCategoriasPaginadas: rxMethod<void>(
@@ -259,6 +259,21 @@ export const ManutencaoStore = signalStore(
       )
     ),
 
+    // RETORNA AS CATEGORIAS ATIVAS SEM PAGINAÇÃO
+    loadCategoriasAtivas: rxMethod<void>(
+      pipe(
+        switchMap(() =>
+          catalogoService.listarCategoriasAtivas().pipe(
+            tapResponse({
+              next: (categorias) => patchState(store, { categorias }),
+              error: (err) => errorHandler.handle(err, 'Categorias')
+            })
+          )
+        )
+      )
+    ),
+
+    // RETORNA TODOS OS TIPOS DE SERVIÇOS POR CATEGORIAS PAGINADAS
     loadTiposPorCategoriaPaginados: rxMethod<void>(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
@@ -285,56 +300,7 @@ export const ManutencaoStore = signalStore(
         })
       )
     ),
-    /*
-     RETORNA AS CATEGORIAS ATIVAS
-     */
-    loadCategoriasAtivas: rxMethod<void>(
-      pipe(
-        switchMap(() =>
-          catalogoService.listarCategoriasAtivas().pipe(
-            tapResponse({
-              next: (categorias) => patchState(store, { categorias }),
-              error: (err) => errorHandler.handle(err, 'Categorias')
-            })
-          )
-        )
-      )
-    ),
-    /*
-     RETORNA TODAS AS CATEGORIAS (ATIVAS E INATIVAS)
-     */
-    // loadCategorias: rxMethod<void>(
-    //   pipe(
-    //     switchMap(() =>
-    //       catalogoService.listarCategorias().pipe(
-    //         tapResponse({
-    //           next: (categorias) =>
-    //             patchState(store, { categorias }),
-    //           error: (err) => errorHandler.handle(err, 'Categorias')
-    //         })
-    //       )
-    //     )
-    //   )
-    // ),
-
-    /*
-     RETORNA TODOS OS TIPOS DE SERVIÇOS(ATIVOS E INATIVOS) POR CATEGORIAS
-     */
-    // loadTiposPorCategoria: rxMethod<number>(
-    //   pipe(
-    //     switchMap((catId) =>
-    //       catalogoService.listarTiposPorCategoria(catId).pipe(
-    //         tapResponse({
-    //           next: (tipos) => patchState(store, { tiposPorCategoria: tipos }),
-    //           error: (err) => errorHandler.handle(err, 'Tipos de Serviço')
-    //         })
-    //       )
-    //     )
-    //   )
-    // ),
-    /*
-     RETORNA OS TIPOS DE SERVIÇO ATIVOS POR CATEGORIAS
-     */
+     // RETORNA OS TIPOS DE SERVIÇO ATIVOS POR CATEGORIAS SEM PAGINAÇÃO
     loadTiposAtivosPorCategoria: rxMethod<number>(
       pipe(
         switchMap((catId) =>

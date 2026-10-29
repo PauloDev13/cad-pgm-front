@@ -20,9 +20,19 @@ import { AndarCodigo, EstadoChamado, ESTADO_CHAMADO_LABELS } from '../../models/
   ],
   template: `
     <div class="bg-white md:bg-gray-50 p-4 md:p-5 rounded-2xl border border-gray-200 mb-6 shadow-sm">
-      <div class="flex items-center gap-2 mb-3 text-blue-800 font-semibold text-sm">
-        <mat-icon class="!scale-90">filter_list</mat-icon>
-        Filtros de Pesquisa
+      <div class="flex items-center justify-between pb-4">
+        <div class="flex items-center gap-2 mb-3 text-blue-800 font-semibold text-sm">
+          <mat-icon class="!scale-90">filter_list</mat-icon>
+          Filtros de Pesquisa
+        </div>
+        <!-- Botão Limpar -->
+        <button
+          mat-stroked-button
+          (click)="limparFiltros()"
+          class="!border-blue-600 !text-blue-600 !rounded-3xl hover:!bg-blue-50 transition-colors">
+          <mat-icon>delete_sweep</mat-icon>
+          Limpar Filtros
+        </button>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
@@ -92,17 +102,6 @@ import { AndarCodigo, EstadoChamado, ESTADO_CHAMADO_LABELS } from '../../models/
             }
           </mat-select>
         </mat-form-field>
-      </div>
-
-      <!-- Botão Limpar -->
-      <div class="flex justify-end mt-4">
-        <button
-          mat-stroked-button
-          (click)="limparFiltros()"
-          class="!border-blue-600 !text-blue-600 !rounded-3xl hover:!bg-blue-50 transition-colors">
-          <mat-icon>delete_sweep</mat-icon>
-          Limpar Filtros
-        </button>
       </div>
     </div>
   `

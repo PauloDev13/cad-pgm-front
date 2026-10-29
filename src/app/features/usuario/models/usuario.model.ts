@@ -7,7 +7,7 @@ export interface IUsuarioRequest {
   confirmPassword?: string;
   activated: boolean;
   permissions: string[];
-  forcePasswordChange?: boolean;
+  forcePasswordChange: boolean;
 }
 
 export interface IUsuarioResponse {

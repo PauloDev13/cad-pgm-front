@@ -35,12 +35,10 @@ export interface TipoServicoDialogData {
     FormField
   ],
   template: `
-    <div class="flex justify-between items-center pr-4 pt-0 pb-2 border-b">
-      <h2 mat-dialog-title class="!font-bold !text-xl !text-blue-700 !m-0 flex items-center gap-2">
-        <div class="flex items-center justify-between">
-        <mat-icon class="!mr-3">{{ isEdit ? 'edit' : 'handyman' }}</mat-icon>
+    <div class="flex justify-between items-center pr-6 pt-4 pb-0 border-gray-300 border-b">
+      <h2 mat-dialog-title class="!font-bold !text-xl !text-blue-700 !m-0 !flex !items-center gap-0">
+        <mat-icon class="!mr-1">{{ isEdit ? 'edit' : 'handyman' }}</mat-icon>
         {{ isEdit ? 'Editar Tipo de Serviço' : 'Novo Tipo de Serviço' }}
-        </div>
       </h2>
       <button
         mat-icon-button
@@ -52,8 +50,8 @@ export interface TipoServicoDialogData {
       </button>
     </div>
 
-    <mat-dialog-content class="!p-6">
-      <form autocomplete="off" class="flex flex-col gap-0">
+    <mat-dialog-content class="!p-2 !pb-0">
+      <form autocomplete="off" class="flex flex-col gap-0 p-4">
         <!-- Categoria Vinculada -->
         <app-field-wrapper [field]="tipoForm.categoriaId()">
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
@@ -91,7 +89,7 @@ export interface TipoServicoDialogData {
           </mat-form-field>
         </app-field-wrapper>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center pt-1">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-0 items-center pt-1">
           <!-- Ordem de Exibição -->
           <app-field-wrapper [field]="tipoForm.ordemExibicao()">
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
@@ -103,19 +101,19 @@ export interface TipoServicoDialogData {
               />
             </mat-form-field>
           </app-field-wrapper>
-          <mat-dialog-actions align="end" class="!px-6 !py-0 bg-gray-50 border-t border-gray-200">
-            <button mat-button mat-dialog-close class="!rounded-3xl">Cancelar</button>
-            <button
-              mat-flat-button
-              class="!rounded-3xl !bg-blue-600 !text-white"
-              [disabled]="store.isLoading()"
-              (click)="salvar()">
-              {{ isEdit ? 'Salvar Alterações' : 'Cadastrar' }}
-            </button>
-          </mat-dialog-actions>
         </div>
       </form>
     </mat-dialog-content>
+        <mat-dialog-actions align="end" class="!px-6 !py-3 bg-gray-50 !border-t !border-gray-300">
+          <button mat-button mat-dialog-close class="!rounded-3xl">Cancelar</button>
+          <button
+            mat-flat-button
+            class="!rounded-3xl !bg-blue-600 !text-white"
+            [disabled]="store.isLoading()"
+            (click)="salvar()">
+            {{ isEdit ? 'Salvar Alterações' : 'Cadastrar' }}
+          </button>
+        </mat-dialog-actions>
   `
 })
 export class TipoServicoFormDialogComponent implements OnInit {
@@ -151,7 +149,7 @@ export class TipoServicoFormDialogComponent implements OnInit {
         ativo: true,
         descricao: '',
         nome: '',
-        ordemExibicao: 0
+        ordemExibicao: 1
       })
 
     }

@@ -46,6 +46,26 @@ import { MatPaginatorModule } from '@angular/material/paginator';
           </h1>
           <p class="text-sm text-gray-500 mt-1">Gerencie as categorias e os tipos de serviços disponíveis</p>
         </div>
+          <!-- Botão Nova Categoria -->
+          <button
+            mat-flat-button
+            [hidden]="store.catalogoTabAtiva() === 1"
+            class="!rounded-3xl !bg-blue-600 !text-white hover:scale-105 transition-transform"
+            (click)="abrirModalCategoria()">
+            <mat-icon class="!mr-1">add</mat-icon>
+            Nova Categoria
+          </button>
+
+          <!-- Botão Novo Tipo de Serviço -->
+          <button
+            mat-flat-button
+            [hidden]="store.catalogoTabAtiva() === 0"
+            class="!rounded-3xl !bg-blue-600 !text-white hover:scale-105 transition-transform"
+            [disabled]="!categoriaSelecionadaId()"
+            (click)="abrirModalTipoServico()">
+            <mat-icon class="!mr-1">add</mat-icon>
+            Novo Tipo de Serviço
+          </button>
       </div>
 
       <mat-tab-group
@@ -63,14 +83,6 @@ import { MatPaginatorModule } from '@angular/material/paginator';
                 <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Lista de Categorias</span>
                 <p class="text-xs text-gray-400 m-0">Categorias agrupadoras dos serviços de manutenção predial</p>
               </div>
-
-              <button
-                mat-flat-button
-                class="!rounded-3xl !bg-blue-600 !text-white hover:scale-105 transition-transform"
-                (click)="abrirModalCategoria()">
-                <mat-icon class="!mr-1">add</mat-icon>
-                Nova Categoria
-              </button>
             </div>
 
             <div class="border border-gray-200 rounded-lg overflow-hidden">
@@ -157,15 +169,6 @@ import { MatPaginatorModule } from '@angular/material/paginator';
                   </mat-select>
                 </mat-form-field>
               </div>
-
-              <button
-                mat-flat-button
-                class="!rounded-3xl !bg-blue-600 !text-white hover:scale-105 transition-transform"
-                [disabled]="!categoriaSelecionadaId()"
-                (click)="abrirModalTipoServico()">
-                <mat-icon class="!mr-1">add</mat-icon>
-                Novo Tipo de Serviço
-              </button>
             </div>
 
             <!-- Tabela iterando sobre os tipos da Store -->
@@ -176,10 +179,10 @@ import { MatPaginatorModule } from '@angular/material/paginator';
                   <td mat-cell *matCellDef="let tipo" class="font-mono text-gray-600">{{ tipo.id }}</td>
                 </ng-container>
 
-                <ng-container matColumnDef="categoria">
-                  <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-700">Categoria</th>
-                  <td mat-cell *matCellDef="let tipo" class="font-medium text-blue-800">{{ tipo.categoriaNome }}</td>
-                </ng-container>
+<!--                <ng-container matColumnDef="categoria">-->
+<!--                  <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-700">Categoria</th>-->
+<!--                  <td mat-cell *matCellDef="let tipo" class="font-medium text-blue-800">{{ tipo.categoriaNome }}</td>-->
+<!--                </ng-container>-->
 
                 <ng-container matColumnDef="nome">
                   <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-700">Serviço</th>
@@ -215,8 +218,8 @@ import { MatPaginatorModule } from '@angular/material/paginator';
                   </td>
                 </ng-container>
 
-                <tr mat-header-row *matHeaderRowDef="['id', 'categoria', 'nome', 'descricao', 'status', 'acoes']"></tr>
-                <tr mat-row *matRowDef="let row; columns: ['id', 'categoria', 'nome', 'descricao', 'status', 'acoes']"
+                <tr mat-header-row *matHeaderRowDef="['id', 'nome', 'descricao', 'status', 'acoes']"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['id', 'nome', 'descricao', 'status', 'acoes']"
                     class="hover:bg-blue-50/40"></tr>
               </table>
 
@@ -265,19 +268,14 @@ export default class ManutencaoCatalogoPage implements OnInit {
   }
 
   ngOnInit() {
-    // this.store.loadCategorias();
     this.store.initCatalogo();
   }
-
-  // selecionarCategoria(catId: number) {
-  //   this.categoriaSelecionadaId.set(catId);
-  //   this.store.loadTiposPorCategoria(catId);
-  // }
 
   abrirModalCategoria(categoria?: CategoriaDemandaResponseDTO) {
     const dialogRef = this.dialog.open(CategoriaFormDialogComponent, {
       width: '540px',
       maxWidth: '95vw',
+      disableClose: true,
       data: categoria ?? null,
       injector: this.injector
     });

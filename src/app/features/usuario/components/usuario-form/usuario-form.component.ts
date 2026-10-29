@@ -14,6 +14,7 @@ import { UsersStore } from '../../store/user.store';
 import { AutocompleteComponent } from '../../../../shared/components/autocomplete/autocomplete.component';
 import { UsuarioService } from '../../services/usuario.service';
 import { NotificationService } from '../../../../shared/service/NotificationSnackbar.service';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-usuario-form.component',
@@ -27,7 +28,8 @@ import { NotificationService } from '../../../../shared/service/NotificationSnac
     FieldWrapperComponent,
     MatCheckboxModule,
     FormField,
-    AutocompleteComponent
+    AutocompleteComponent,
+    MatSlideToggle,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,18 +41,19 @@ import { NotificationService } from '../../../../shared/service/NotificationSnac
       <button
         mat-icon-button
         mat-dialog-close
-        aria-label="Fechar"
-        class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500 !transition-colors !duration-300"
+        class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500
+        !text-white !rounded-full"
       >
-        <mat-icon class="!text-white !scale-90 !leading-none !m-0 !p-0">close</mat-icon>
+        <mat-icon class="!scale-90">close</mat-icon>
       </button>
     </div>
 
     <mat-dialog-content class="!px-6 !pb-1 !pt-1">
       <form autocomplete="off" class="flex flex-col gap-6">
-
         @if (!isEdit) {
-          <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider border-b pb-1 mt-0">
+          <h3
+            class="text-sm font-semibold text-gray-500 uppercase tracking-wider border-b pb-1 mt-0"
+          >
             Vínculo Institucional
           </h3>
           <div>
@@ -62,7 +65,9 @@ import { NotificationService } from '../../../../shared/service/NotificationSnac
               (selectedIdChange)="onServidorSelecionado($event)"
             />
             @if (erroServidorNaoSelecionado()) {
-              <span class="text-xs text-red-600 font-medium">É obrigatório selecionar um Servidor.</span>
+              <span class="text-xs text-red-600 font-medium"
+                >É obrigatório selecionar um Servidor.</span
+              >
             }
           </div>
         }
@@ -70,9 +75,8 @@ import { NotificationService } from '../../../../shared/service/NotificationSnac
           <div class="flex flex-col gap-y-3">
             @if (isEdit) {
               <div class="border-1 p-2 rounded-sm border-gray-700">
-              <h2 class="!font-semibold !text-[16px]">Nome: {{selectedServidorNome()}}</h2>
-              <h2 class="!font-semibold !text-[16px]">Email: {{selectedServidorEmail()}}</h2>
-
+                <h2 class="!font-semibold !text-[16px]">Nome: {{ selectedServidorNome() }}</h2>
+                <h2 class="!font-semibold !text-[16px]">Email: {{ selectedServidorEmail() }}</h2>
               </div>
             } @else {
               <app-field-wrapper [field]="usuarioForm.name()">
@@ -89,9 +93,11 @@ import { NotificationService } from '../../../../shared/service/NotificationSnac
               </app-field-wrapper>
             }
 
-          <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 border-b pt-2 pb-1 mt-0">
-            Dados do Login
-          </h3>
+            <h3
+              class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 border-b pt-2 pb-1 mt-0"
+            >
+              Dados do Login
+            </h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-3">
               <app-field-wrapper [field]="usuarioForm.userName()">
                 <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
@@ -104,7 +110,9 @@ import { NotificationService } from '../../../../shared/service/NotificationSnac
                 <mat-label>Grupos</mat-label>
                 <mat-select
                   multiple="true"
-                  placeholder="Adicione permissões" [formField]="$any(usuarioForm.permissions)">
+                  placeholder="Adicione permissões"
+                  [formField]="$any(usuarioForm.permissions)"
+                >
                   @for (role of usersStore.roles(); track role) {
                     <mat-option [value]="role">{{ role }}</mat-option>
                   }
@@ -112,10 +120,23 @@ import { NotificationService } from '../../../../shared/service/NotificationSnac
               </mat-form-field>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-12 gap-x-3 items-center">
-              <div class="sm:col-span-7 pb-0">
-                <mat-checkbox [formField]="usuarioForm.activated">Ativo</mat-checkbox>
-                <mat-checkbox [formField]="usuarioForm.forcePasswordChange!">Trocar Senha</mat-checkbox>
+            <div class="grid grid-cols-1 sm:grid-cols-8 gap-x-3 items-center">
+              <div class="sm:flex">
+                <mat-slide-toggle
+                  class="!pr-5"
+                  color="primary"
+                  [checked]="usuarioForm.activated().value()"
+                  (change)="usuarioForm.activated().value.set($event.checked)"
+                >
+                  Ativo
+                </mat-slide-toggle>
+                <mat-slide-toggle
+                  color="primary"
+                  [checked]="usuarioForm.forcePasswordChange().value()"
+                  (change)="usuarioForm.forcePasswordChange().value.set($event.checked)"
+                >
+                  Trocar Senha
+                </mat-slide-toggle>
               </div>
             </div>
           </div>
@@ -123,7 +144,9 @@ import { NotificationService } from '../../../../shared/service/NotificationSnac
       </form>
     </mat-dialog-content>
 
-    <mat-dialog-actions class="!px-6 !pb-4 !pt-4 flex flex-col sm:flex-row sm:justify-end items-center gap-3">
+    <mat-dialog-actions
+      class="!px-6 !pb-4 !pt-4 flex flex-col sm:flex-row sm:justify-end items-center gap-3"
+    >
       <button
         mat-flat-button
         class="w-full !rounded-3xl sm:w-auto !transition-transform duration-300 hover:!scale-105 !h-12 sm:!h-10"
@@ -134,7 +157,7 @@ import { NotificationService } from '../../../../shared/service/NotificationSnac
         {{ isEdit ? 'Atualizar' : 'Salvar' }}
       </button>
     </mat-dialog-actions>
-  `
+  `,
 })
 export class UsuarioFormComponent implements OnInit {
   // Injeções de dependência
@@ -142,8 +165,7 @@ export class UsuarioFormComponent implements OnInit {
   private readonly usuarioService = inject(UsuarioService);
   private readonly notificationService = inject(NotificationService);
   private readonly dialogRef = inject(MatDialogRef<UsuarioFormComponent>);
-  protected readonly data =
-    inject<IUsuarioResponse>(MAT_DIALOG_DATA, { optional: true });
+  protected readonly data = inject<IUsuarioResponse>(MAT_DIALOG_DATA, { optional: true });
 
   // isEdit: boolean = false;
   readonly isEdit: boolean = !!this.data?.id;
@@ -165,25 +187,24 @@ export class UsuarioFormComponent implements OnInit {
         activated: this.data.activated,
         permissions: this.data.permissions,
         forcePasswordChange: this.data.forcePasswordChange,
-        password: ''
-
+        password: '',
       });
       // Feedback preventivo na abertura para informar por que o checkbox 'Ativo' está travado
       if (this.data.servidorExcluded) {
         this.notificationService.warning(
           'Servidor com status "Excluído". O perfil encontra-se inativo e não ' +
-          'pode ser reativado.',
+            'pode ser reativado.',
           'Servidor Desligado',
           {
-            duration: 5000
-          }
+            duration: 5000,
+          },
         );
       }
     } else {
       this.usuarioService.getServidoresDisponiveis().subscribe({
         next: (servidores) => {
           this.servidoresDisponiveis.set(servidores);
-        }
+        },
       });
     }
   }
@@ -193,7 +214,7 @@ export class UsuarioFormComponent implements OnInit {
 
     const id = this.usuarioFormModel().servidorId;
 
-    const serv = this.servidoresDisponiveis().find(s => s.id === id);
+    const serv = this.servidoresDisponiveis().find((s) => s.id === id);
 
     return serv ? serv.nome : 'Selecione um servidor acima';
   });
@@ -204,7 +225,7 @@ export class UsuarioFormComponent implements OnInit {
   });
 
   onServidorSelecionado(id: number | null) {
-    this.usuarioFormModel.update(m => ({ ...m, servidorId: id }));
+    this.usuarioFormModel.update((m) => ({ ...m, servidorId: id }));
     this.erroServidorNaoSelecionado.set(false);
   }
 
@@ -220,7 +241,7 @@ export class UsuarioFormComponent implements OnInit {
         isEdit: this.isEdit,
         userId: this.data?.id,
         rawPayload: this.usuarioFormModel(),
-        onSuccess: () => this.dialogRef.close(true)
+        onSuccess: () => this.dialogRef.close(true),
       });
     });
   }
