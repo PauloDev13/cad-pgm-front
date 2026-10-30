@@ -22,17 +22,20 @@ import { FieldWrapperComponent } from '../../layout/component/field-wrapper/fiel
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex justify-between items-center px-6 pt-4 pb-2">
-      <h2 mat-dialog-title class="!font-bold !text-lg sm:!text-xl !text-blue-700 !m-0 !p-0">
+    <div class="flex justify-between items-center px-6 pt-4 pb-1 border-gray-300 border-b">
+      <h2
+        mat-dialog-title
+        class="!font-bold !text-xl sm:!text-xl !text-blue-700 !m-0 !p-0 !flex !items-center">
+        <mat-icon class="!mr-1">{{ isEdit() ? 'edit' : 'note_add' }}</mat-icon>
         {{ isEdit() ? 'Editar' : 'Novo' }} {{ data.title }}
       </h2>
       <button
         mat-icon-button
         mat-dialog-close
-        aria-label="Fechar"
-        class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500 !transition-colors !duration-300"
+        class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500
+        !text-white !rounded-full"
       >
-        <mat-icon class="!text-white !scale-90 !leading-none !m-0 !p-0">close</mat-icon>
+        <mat-icon class="!scale-90">close</mat-icon>
       </button>
     </div>
 
@@ -47,7 +50,8 @@ import { FieldWrapperComponent } from '../../layout/component/field-wrapper/fiel
       </div>
     </mat-dialog-content>
 
-    <mat-dialog-actions class="!px-6 !pb-6 !pt-4 flex flex-col sm:flex-row sm:justify-end gap-3">
+    <mat-dialog-actions
+      class="!px-6 !pb-6 !pt-4 !flex !flex-col sm:!flex-row sm:!justify-end !gap-3 !border-t !border-gray-300">
       <button
         mat-stroked-button
         class="w-full !rounded-3xl sm:w-auto !transition-transform duration-300 !ease-in-out hover:!scale-105

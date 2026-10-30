@@ -78,7 +78,19 @@ export interface ServidorFormDialogData {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex justify-end items-center px-6 pt-4 pb-0">
+    <div class="flex justify-between items-center pr-6 pt-0 pb-0 border-gray-300 border-b">
+      <h2
+        mat-dialog-title
+        class="!font-bold !text-xl !text-blue-700 !pl-8 !m-0 !flex !items-center">
+        <mat-icon class="!mr-1">{{ isEdit ? 'edit' : 'person_add' }}</mat-icon>
+        @if (isReactivate) {
+          Readmitir:<span class="pl-4 text-gray-600 font-medium">{{ payload?.nome }}</span>
+        } @else if (isEdit) {
+          Editar Servidor
+        } @else {
+          Novo Servidor
+        }
+      </h2>
       <button
         mat-icon-button
         mat-dialog-close
@@ -89,7 +101,7 @@ export interface ServidorFormDialogData {
       </button>
     </div>
     <div class="flex flex-col w-full h-[calc(100dvh-120px)] max-h-[calc(100dvh-120px)]
-                sm:h-[750px] sm:max-h-[92vh] overflow-hidden bg-white rounded-xl">
+                sm:h-[700px] sm:max-h-[92vh] overflow-hidden bg-white rounded-xl">
       <div class="flex-1 min-h-0 w-full overflow-hidden">
         <mat-tab-group
           [selectedIndex]="activeTabIndex()"
@@ -97,26 +109,12 @@ export interface ServidorFormDialogData {
           animationDuration="0ms"
           class="w-full h-full min-h-0 p-2 custom-folder-tabs">
           <mat-tab label="Dados Pessoais e Funcionais">
-
-            <div class="flex justify-between items-center px-6 pt-1 pb-0">
-              <h2 mat-dialog-title class="!font-bold !text-xl !text-blue-700 !m-0 !p-0">
-                @if (isReactivate) {
-                  Readmitir: <span class="text-gray-600 font-medium">{{ payload?.nome }}</span>
-                } @else if (isEdit) {
-                  Editar Servidor
-                } @else {
-                  Novo Servidor
-                }
-              </h2>
-            </div>
-
-            <mat-dialog-content class="!px-6 !pb-1 !pt-1">
+            <mat-dialog-content class="!px-6 !pb-1 !pt-1 !mt-2">
               <form autocomplete="off" class="flex flex-col gap-4">
-
                 <div>
                   <h3
                     class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2 border-b
-                  pb-1 mt-0">
+                           pb-1 mt-2">
                     Dados Pessoais
                   </h3>
 
@@ -444,8 +442,11 @@ export interface ServidorFormDialogData {
           </mat-tab>
         </mat-tab-group>
       </div>
-      <div class="shrink-0 gap-2 flex flex-col sm:flex-row justify-end items-center p-4 bg-white z-20 relative">
 
+      <mat-dialog-actions
+        align="end"
+        class="!px-6 !py-3 bg-gray-50 !border-t !gap-2 !border-gray-300"
+      >
         <!-- Não EXIBE o botão de salvar/atualizar na aba Documentos-->
         @if (showSaveButton()) {
           <button
@@ -468,7 +469,7 @@ export interface ServidorFormDialogData {
           <mat-icon class="!mr-1">exit_to_app</mat-icon>
           Fechar
         </button>
-      </div>
+      </mat-dialog-actions>
     </div>
   `,
   styles: [`
@@ -927,7 +928,7 @@ export class ServidorFormComponent implements OnInit {
           this.errorHandlerService.handle(err, 'Upload de Foto');
           // Se der erro, volta para a foto original/padrão
           // this.loadPhotoServidor(id);
-          await this.servidorService.loadPhotoServidor(id)
+          await this.servidorService.loadPhotoServidor(id);
         }
       });
   }

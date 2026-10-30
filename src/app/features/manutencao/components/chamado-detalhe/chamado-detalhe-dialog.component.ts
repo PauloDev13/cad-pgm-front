@@ -151,7 +151,6 @@ export class ChamadoDetalheDialogComponent implements OnInit {
       return false;
     }
 
-    // const isTramitador = this.authStore.isTramitador() || this.authStore.canManager();
     const isTramitador = this.authStore.isTramitador();
     const isSolicitante = this.isUsuarioSolicitante(chamado);
 

@@ -29,13 +29,14 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
     MatCheckboxModule,
     FormField,
     AutocompleteComponent,
-    MatSlideToggle,
+    MatSlideToggle
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex justify-between items-center px-6 pt-4 pb-1">
-      <h2 mat-dialog-title class="!font-bold !text-xl !text-blue-700 !m-0 !p-0">
+    <div class="flex justify-between items-center px-6 pt-4 pb-3 border-b border-gray-300">
+      <h2 mat-dialog-title class="!font-bold !text-xl sm:!text-blue-700 !m-0 !p-0 !flex !items-center">
+        <mat-icon class="!mr-1">{{ isEdit ? 'edit' : 'person_add' }}</mat-icon>
         {{ isEdit ? 'Editar Usuário' : 'Novo Usuário' }}
       </h2>
       <button
@@ -48,8 +49,8 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
       </button>
     </div>
 
-    <mat-dialog-content class="!px-6 !pb-1 !pt-1">
-      <form autocomplete="off" class="flex flex-col gap-6">
+    <mat-dialog-content class="!px-6 !py-1 !mt-4 !max-h-none !overflow-y-hidden">
+      <form autocomplete="off" class="flex flex-col gap-3.5">
         @if (!isEdit) {
           <h3
             class="text-sm font-semibold text-gray-500 uppercase tracking-wider border-b pb-1 mt-0"
@@ -66,13 +67,13 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
             />
             @if (erroServidorNaoSelecionado()) {
               <span class="text-xs text-red-600 font-medium"
-                >É obrigatório selecionar um Servidor.</span
+              >É obrigatório selecionar um Servidor.</span
               >
             }
           </div>
         }
         <div>
-          <div class="flex flex-col gap-y-3">
+          <div class="flex flex-col gap-y-2.5">
             @if (isEdit) {
               <div class="border-1 p-2 rounded-sm border-gray-700">
                 <h2 class="!font-semibold !text-[16px]">Nome: {{ selectedServidorNome() }}</h2>
@@ -120,8 +121,8 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
               </mat-form-field>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-8 gap-x-3 items-center">
-              <div class="sm:flex">
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-x-3 items-center  pt-1">
+              <div class="sm:col-span-7 pb-0">
                 <mat-slide-toggle
                   class="!pr-5"
                   color="primary"
@@ -145,7 +146,7 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
     </mat-dialog-content>
 
     <mat-dialog-actions
-      class="!px-6 !pb-4 !pt-4 flex flex-col sm:flex-row sm:justify-end items-center gap-3"
+      class="!px-6 !pb-4 !pt-4 !mt-4 flex flex-col sm:flex-row sm:justify-end items-center gap-3 !border-gray-300"
     >
       <button
         mat-flat-button
@@ -157,7 +158,7 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
         {{ isEdit ? 'Atualizar' : 'Salvar' }}
       </button>
     </mat-dialog-actions>
-  `,
+  `
 })
 export class UsuarioFormComponent implements OnInit {
   // Injeções de dependência
@@ -187,24 +188,24 @@ export class UsuarioFormComponent implements OnInit {
         activated: this.data.activated,
         permissions: this.data.permissions,
         forcePasswordChange: this.data.forcePasswordChange,
-        password: '',
+        password: ''
       });
       // Feedback preventivo na abertura para informar por que o checkbox 'Ativo' está travado
       if (this.data.servidorExcluded) {
         this.notificationService.warning(
           'Servidor com status "Excluído". O perfil encontra-se inativo e não ' +
-            'pode ser reativado.',
+          'pode ser reativado.',
           'Servidor Desligado',
           {
-            duration: 5000,
-          },
+            duration: 5000
+          }
         );
       }
     } else {
       this.usuarioService.getServidoresDisponiveis().subscribe({
         next: (servidores) => {
           this.servidoresDisponiveis.set(servidores);
-        },
+        }
       });
     }
   }
@@ -241,7 +242,7 @@ export class UsuarioFormComponent implements OnInit {
         isEdit: this.isEdit,
         userId: this.data?.id,
         rawPayload: this.usuarioFormModel(),
-        onSuccess: () => this.dialogRef.close(true),
+        onSuccess: () => this.dialogRef.close(true)
       });
     });
   }

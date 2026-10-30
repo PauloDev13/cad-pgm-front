@@ -132,6 +132,7 @@ export const formCategoriaDemanda = signal<CategoriaDemandaModel>(
 export const categoriaDemandaSchema = schema<CategoriaDemandaRequestDTO>((path) => {
   required(path.nome, { message: 'O nome da categoria é obrigatório' });
   maxLength(path.nome, 100, { message: 'O nome deve ter no máximo 100 caracteres' });
+  minLength(path.nome, 3, { message: 'O nome deve ter no mínimo 3 caracteres' });
   maxLength(path.descricao!, 255, { message: 'A descrição deve ter no máximo 255 caracteres' });
 });
 
@@ -149,8 +150,14 @@ export const initialTipoServico: TipoServicoModel = {
 export const formTipoServico = signal<TipoServicoModel>(initialTipoServico);
 
 export const tipoServicoSchema = schema<TipoServicoRequestDTO>((path) => {
-  required(path.categoriaId, { message: 'A categoria vinculada é obrigatória' });
+  validate(path.categoriaId, ({ value }) => {
+    if (value() === 0) {
+      return { kind: 'idInvalid', message: 'A categoria vinculada é obrigatória' };
+    }
+    return null;
+  });
   required(path.nome, { message: 'O nome do tipo de serviço é obrigatório' });
+  minLength(path.nome, 3, { message: 'O nome deve ter no mínimo 3 caracteres' });
   maxLength(path.nome, 150, { message: 'O nome deve ter no máximo 150 caracteres' });
   maxLength(path.descricao!, 255, { message: 'A descrição deve ter no máximo 255 caracteres' });
 });

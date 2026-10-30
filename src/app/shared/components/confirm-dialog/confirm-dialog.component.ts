@@ -10,11 +10,22 @@ import { MatIconModule } from '@angular/material/icon';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div mat-dialog-title class="!flex !justify-between !items-center !px-6 !pt-4 !pb-2 !m-0">
-      <h2 mat-dialog-title
-          class="!font-bold !text-lg sm:!text-xl !text-blue-800 !m-0 !p-0 !text-left flex-1">
+    <div class="flex justify-between items-center px-6 pt-4 pb-2 border-gray-300 border-b">
+      <h2
+        mat-dialog-title
+        class="!font-bold !text-lg sm:!text-xl !text-blue-800 !m-0 !p-0 !text-left
+              !flex !items-center gap-0">
+        <mat-icon class="!text-red-500 !mr-1">delete</mat-icon>
         {{ data.title }}
       </h2>
+      <button
+        mat-icon-button
+        mat-dialog-close
+        class="!w-7 !h-7 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500
+        !text-white !rounded-full"
+      >
+        <mat-icon class="!scale-70">close</mat-icon>
+      </button>
     </div>
 
     <mat-dialog-content class="!px-6 !pb-2 !pt-2">
@@ -23,7 +34,7 @@ import { MatIconModule } from '@angular/material/icon';
       </div>
     </mat-dialog-content>
 
-    <mat-dialog-actions class="!px-6 !pb-6 !pt-4 flex flex-col sm:flex-row sm:justify-end gap-3">
+    <mat-dialog-actions class="!px-6 !pb-6 !pt-4 flex flex-col sm:flex-row sm:justify-end gap-3 !border-gray-300">
       <button
         mat-flat-button
         type="button"

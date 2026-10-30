@@ -49,10 +49,13 @@ import { ManutencaoStore } from '../../state/manutencao.store';
       </button>
     </div>
 
-    <mat-dialog-content class="!p-6 !pb-2">
-      <form autocomplete="off" class="flex flex-col gap-4">
+    <mat-dialog-content class="!pt-4 !flex !flex-col gap-0">
+      <form autocomplete="off" class="flex flex-col gap-0">
         <!-- Nome -->
         <app-field-wrapper [field]="categoriaForm.nome()">
+          <p class="mb-2 text-base text-gray-600">
+            Categoria
+          </p>
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
             <mat-label>Nome da Categoria</mat-label>
             <input
@@ -65,8 +68,11 @@ import { ManutencaoStore } from '../../state/manutencao.store';
 
         <!-- Descrição -->
         <app-field-wrapper [field]="categoriaForm.descricao()">
+          <p class="mb-2 text-base text-gray-600">
+            Descrição
+          </p>
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-            <mat-label>Descrição (Opcional)</mat-label>
+            <mat-label>Descrição da Categoria (Opcional)</mat-label>
             <textarea
               matInput
               rows="3"
@@ -77,9 +83,12 @@ import { ManutencaoStore } from '../../state/manutencao.store';
         </app-field-wrapper>
 
         <div class="flex justify-between items-center">
-<!--          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center pt-1">-->
+          <!--          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center pt-1">-->
           <!-- Ordem de Exibição -->
           <app-field-wrapper [field]="categoriaForm.ordemExibicao()">
+            <p class="mb-2 text-base text-gray-600">
+              Prioridade
+            </p>
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
               <mat-label>Ordem de Exibição</mat-label>
               <input
@@ -93,7 +102,8 @@ import { ManutencaoStore } from '../../state/manutencao.store';
           <!-- Ativo / Inativo -->
           <div class="flex items-center gap-0 pt-0">
             <mat-slide-toggle
-              class="!pb-5"
+              labelPosition="before"
+              class="!pb-0"
               [checked]="categoriaForm.ativo().value()"
               (change)="categoriaForm.ativo().value.set($event.checked)">
               Ativa
@@ -107,8 +117,8 @@ import { ManutencaoStore } from '../../state/manutencao.store';
       <button mat-button mat-dialog-close class="!rounded-3xl">Cancelar</button>
       <button
         mat-flat-button
-        class="!rounded-3xl !bg-blue-600 !text-white"
-        [disabled]="store.isLoading()"
+        class="disabled:!bg-gray-200 disabled:!text-gray-400 !rounded-3xl !bg-blue-600 !text-white"
+        [disabled]="categoriaForm().invalid()"
         (click)="salvar()">
         {{ isEdit ? 'Salvar Alterações' : 'Cadastrar' }}
       </button>

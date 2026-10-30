@@ -40,21 +40,24 @@ import { FieldWrapperComponent } from '../../../../shared/layout/component/field
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex justify-between items-center px-6 pt-4 pb-1">
-      <h2 mat-dialog-title class="!font-bold !text-xl !text-blue-700 !m-0 !p-0 flex items-center gap-2">
+    <div class="flex justify-between items-center px-6 pt-4 pb-2 border-gray-300 border-b">
+      <h2
+        mat-dialog-title
+        class="!font-bold !text-xl !text-blue-700 !m-0 !p-0 !flex !items-center gap-0">
+        <mat-icon class="!mr-1">{{ isEdit ? 'edit' : 'note_add' }}</mat-icon>
         {{ isEdit ? 'Editar Certificado' : 'Novo Certificado' }}
       </h2>
       <button
         mat-icon-button
         mat-dialog-close
-        aria-label="Fechar"
-        class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500 !transition-colors !duration-300"
+        class="!w-8 !h-8 !flex !items-center !justify-center !bg-blue-600 hover:!bg-blue-500
+        !text-white !rounded-full"
       >
-        <mat-icon class="!text-white !scale-90 !leading-none !m-0 !p-0">close</mat-icon>
+        <mat-icon class="!scale-90">close</mat-icon>
       </button>
     </div>
 
-    <mat-dialog-content class="!px-6 !pb-2 !pt-2">
+    <mat-dialog-content class="!px-6 !pb-2 !pt-4">
       <form autocomplete="off" class="flex flex-col gap-4">
         <div>
           <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 border-b pb-1 mt-0">
@@ -136,7 +139,8 @@ import { FieldWrapperComponent } from '../../../../shared/layout/component/field
       </form>
     </mat-dialog-content>
 
-    <mat-dialog-actions class="!px-6 !pb-4 !pt-3 flex flex-col sm:flex-row sm:justify-end items-center gap-3">
+    <mat-dialog-actions class="!px-6 !pb-4 !pt-3 flex flex-col sm:flex-row sm:justify-end
+    !items-center gap-3 !border-gray-300">
       <button
         mat-stroked-button
         class="w-full !rounded-3xl sm:w-auto !transition-transform duration-300 hover:!scale-105 !h-12 sm:!h-10 order-2 sm:order-1"

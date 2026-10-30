@@ -50,13 +50,17 @@ export interface TipoServicoDialogData {
       </button>
     </div>
 
-    <mat-dialog-content class="!p-2 !pb-0">
-      <form autocomplete="off" class="flex flex-col gap-0 p-4">
+    <mat-dialog-content class="!p-4 !flex !flex-col gap-0">
+      <form autocomplete="off" class="flex flex-col gap-0">
         <!-- Categoria Vinculada -->
         <app-field-wrapper [field]="tipoForm.categoriaId()">
+          <p class="mb-2 text-base text-gray-600">
+            Selecione um Categoria
+          </p>
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
             <mat-label>Categoria da Demanda</mat-label>
             <mat-select [formField]="tipoForm.categoriaId">
+              <mat-option class="!text-blue-700" [value]="0">Selecione uma categoria</mat-option>
               @for (cat of store.categorias(); track cat.id) {
                 <mat-option [value]="cat.id">{{ cat.nome }}</mat-option>
               }
@@ -66,7 +70,13 @@ export interface TipoServicoDialogData {
 
         <!-- Nome do Serviço -->
         <app-field-wrapper [field]="tipoForm.nome()">
-          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+          <p class="mb-2 text-base text-gray-600">
+            Serviço
+          </p>
+          <mat-form-field
+            appearance="outline"
+            class="w-full"
+            subscriptSizing="dynamic">
             <mat-label>Nome do Serviço</mat-label>
             <input
               matInput
@@ -78,8 +88,14 @@ export interface TipoServicoDialogData {
 
         <!-- Descrição -->
         <app-field-wrapper [field]="tipoForm.descricao()">
-          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-            <mat-label>Descrição (Opcional)</mat-label>
+          <p class="mb-2 text-base text-gray-600">
+            Descrição
+          </p>
+          <mat-form-field
+            appearance="outline"
+            class="w-full"
+            subscriptSizing="dynamic">
+            <mat-label>Descrição do Serviço (Opcional)</mat-label>
             <textarea
               matInput
               rows="3"
@@ -89,9 +105,12 @@ export interface TipoServicoDialogData {
           </mat-form-field>
         </app-field-wrapper>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-0 items-center pt-1">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-0 items-center pt-0">
           <!-- Ordem de Exibição -->
           <app-field-wrapper [field]="tipoForm.ordemExibicao()">
+            <p class="mb-2 text-base text-gray-600">
+              Prioridade
+            </p>
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
               <mat-label>Ordem de Exibição</mat-label>
               <input
@@ -104,16 +123,16 @@ export interface TipoServicoDialogData {
         </div>
       </form>
     </mat-dialog-content>
-        <mat-dialog-actions align="end" class="!px-6 !py-3 bg-gray-50 !border-t !border-gray-300">
-          <button mat-button mat-dialog-close class="!rounded-3xl">Cancelar</button>
-          <button
-            mat-flat-button
-            class="!rounded-3xl !bg-blue-600 !text-white"
-            [disabled]="store.isLoading()"
-            (click)="salvar()">
-            {{ isEdit ? 'Salvar Alterações' : 'Cadastrar' }}
-          </button>
-        </mat-dialog-actions>
+    <mat-dialog-actions align="end" class="!px-6 !py-3 bg-gray-50 !border-t !border-gray-300">
+      <button mat-button mat-dialog-close class="!rounded-3xl">Cancelar</button>
+      <button
+        mat-flat-button
+        class="disabled:!bg-gray-200 disabled:!text-gray-400 !rounded-3xl !bg-blue-600 !text-white"
+        [disabled]="tipoForm().invalid()"
+        (click)="salvar()">
+        {{ isEdit ? 'Salvar Alterações' : 'Cadastrar' }}
+      </button>
+    </mat-dialog-actions>
   `
 })
 export class TipoServicoFormDialogComponent implements OnInit {
@@ -150,7 +169,7 @@ export class TipoServicoFormDialogComponent implements OnInit {
         descricao: '',
         nome: '',
         ordemExibicao: 1
-      })
+      });
 
     }
   }
@@ -162,9 +181,7 @@ export class TipoServicoFormDialogComponent implements OnInit {
         id: this.data?.tipoServico?.id,
         categoriaId: formValues().value().categoriaId,
         payload: formValues().value(),
-        onSuccess: () => {
-          this.dialogRef.close(true);
-        },
+        onSuccess: () => this.dialogRef.close(true)
       });
     });
   }

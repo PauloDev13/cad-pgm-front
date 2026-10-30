@@ -266,7 +266,6 @@ import {
               label="Auditoria"
               icon="change_history"
             />
-            <!--          }-->
 
             @if (authStore.canEdit()) {
               <app-link-sidebar

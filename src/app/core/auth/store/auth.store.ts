@@ -60,11 +60,10 @@ export const AuthStore = signalStore(
 
       /** Ações de Tramitação (Atribuir, Iniciar, Concluir): Exige 'almoxarifado' E 'tramitador' */
       canTramitarManutencao: computed(() =>
-        (userRoles().includes('almoxarifado') && userRoles().includes('tramitador')) || userRoles().includes('admin')
-      ),
-      /** Visualização da Fila Geral: Exige pertencer à equipe de almoxarifado, tramitação ou admin */
+        (userRoles().includes('almoxarifado') && userRoles().includes('tramitador'))),
+      /** Visualização da Fila Geral: Exige pertencer à equipe de almoxarifado ou tramitação */
       canAcessarFilaManutencao: computed(() =>
-        userRoles().includes('almoxarifado') || userRoles().includes('tramitador') || userRoles().includes('admin')
+        userRoles().includes('almoxarifado') || userRoles().includes('tramitador')
       )
     };
   }),

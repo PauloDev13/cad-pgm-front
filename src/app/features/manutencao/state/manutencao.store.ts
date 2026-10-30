@@ -3,14 +3,13 @@ import { patchState, signalStore, withComputed, withMethods, withState } from '@
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { tapResponse } from '@ngrx/operators';
 import { pipe, switchMap, tap } from 'rxjs';
+import { AndarCodigo, EstadoChamado } from '../models/manutencao-enums.model';
 import {
-  AndarCodigo,
-  EstadoChamado
-} from '../models/manutencao-enums.model';
-import {
-  AndarResponseDTO, CategoriaDemandaRequestDTO,
+  AndarResponseDTO,
+  CategoriaDemandaRequestDTO,
   CategoriaDemandaResponseDTO,
-  SalaResponseDTO, TipoServicoRequestDTO,
+  SalaResponseDTO,
+  TipoServicoRequestDTO,
   TipoServicoResponseDTO
 } from '../models/manutencao-catalogo.model';
 import {
@@ -300,7 +299,7 @@ export const ManutencaoStore = signalStore(
         })
       )
     ),
-     // RETORNA OS TIPOS DE SERVIÇO ATIVOS POR CATEGORIAS SEM PAGINAÇÃO
+    // RETORNA OS TIPOS DE SERVIÇO ATIVOS POR CATEGORIAS SEM PAGINAÇÃO
     loadTiposAtivosPorCategoria: rxMethod<number>(
       pipe(
         switchMap((catId) =>
@@ -312,7 +311,7 @@ export const ManutencaoStore = signalStore(
           )
         )
       )
-    ),
+    )
   })),
   // =========================================================================
   // 2º BLOCO WITH METHODS: MUTAÇÕES E AÇÕES (Enxerga todos os métodos do 1º bloco)
@@ -503,13 +502,11 @@ export const ManutencaoStore = signalStore(
           return action$.pipe(
             tapResponse({
               next: () => {
-                patchState(store, { isLoading: false,  });
+                patchState(store, { isLoading: false });
                 notificationService.success(
                   `Categoria ${isEdit ? 'atualizada' : 'cadastrada'} com sucesso!`,
                   acaoNome
                 );
-                // Funciona perfeitamente: store.loadCategorias() existe no tipo!
-                // store.loadCategorias();
                 store.loadCategoriasPaginadas();
                 onSuccess();
               },
@@ -544,8 +541,7 @@ export const ManutencaoStore = signalStore(
                   `Tipo de serviço ${isEdit ? 'atualizado' : 'cadastrado'} com sucesso!`,
                   acaoNome
                 );
-                // Funciona perfeitamente: store.loadTiposPorCategoria(...) existe no tipo!
-                store.loadTiposAtivosPorCategoria(categoriaId);
+                store.loadTiposPorCategoriaPaginados();
                 onSuccess();
               },
               error: (err) => {
@@ -578,6 +574,6 @@ export const ManutencaoStore = signalStore(
           )
         )
       )
-    ),
+    )
   }))
 );
