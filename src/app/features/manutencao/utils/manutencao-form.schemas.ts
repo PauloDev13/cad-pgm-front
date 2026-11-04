@@ -1,5 +1,4 @@
-import { maxLength, minLength, required, schema, validate } from '@angular/forms/signals';
-import { AndarCodigo } from '../models/manutencao-enums.model';
+import { disabled, maxLength, minLength, required, schema, validate } from '@angular/forms/signals';
 import {
   AberturaChamadoRequestDTO,
   AtribuicaoChamadoRequestDTO,
@@ -19,20 +18,28 @@ import { signal } from '@angular/core';
 // 1. ABERTURA DE CHAMADO
 // ==========================================
 export const initialAberturaChamado: AberturaChamadoRequestDTO = {
-  andar: AndarCodigo.TERREO,
+  andar: null,
   salaId: null,
   localDescricao: '',
-  categoriaId: 0,
-  tipoServicoId: 0,
+  categoriaId: null,
+  tipoServicoId: null,
   descricao: ''
 };
 
 export const formAberturaChamado = signal(initialAberturaChamado);
 
 export const aberturaChamadoSchema = schema<AberturaChamadoRequestDTO>((path) => {
-  required(path.andar, { message: 'O andar é obrigatório' });
-  required(path.categoriaId, { message: 'A categoria do serviço é obrigatória' });
-  required(path.tipoServicoId, { message: 'O tipo de serviço é obrigatório' });
+
+  required(path.andar, { message: 'Selecione o ANDAR' });
+  // Desabilita o select "Tipo de Serviço" se nenhuma categoria for selecionada no select "Categoria
+  disabled(path.salaId, ({ valueOf }) => !valueOf(path.andar));
+
+  required(path.salaId, { message: 'Selecione a SALA' });
+  required(path.categoriaId, { message: 'Selecione a CATEGORIA' });
+  required(path.tipoServicoId, { message: 'Selecione o TIPO DE SERVIÇO' });
+
+  // Desabilita o select "Tipo de Serviço" se nenhuma categoria for selecionada no select "Categoria
+  disabled(path.tipoServicoId, ({ valueOf }) => !valueOf(path.categoriaId));
 
   required(path.descricao, { message: 'A descrição do problema é obrigatória' });
   minLength(path.descricao, 10, { message: 'Descreva a demanda com ao menos 10 caracteres' });

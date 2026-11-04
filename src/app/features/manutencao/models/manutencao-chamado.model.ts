@@ -1,11 +1,11 @@
 import { AndarCodigo, EstadoChamado, EventoHistoricoChamado } from './manutencao-enums.model';
 
 export interface AberturaChamadoRequestDTO {
-  andar: AndarCodigo;
+  andar: AndarCodigo | null;
   salaId: number | null;
   localDescricao: string;
-  categoriaId: number;
-  tipoServicoId: number;
+  categoriaId: number | null;
+  tipoServicoId: number | null;
   descricao: string;
 }
 

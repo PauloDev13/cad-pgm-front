@@ -58,13 +58,14 @@ import { aberturaChamadoSchema, formAberturaChamado } from '../../utils/manutenc
           <!-- Andar -->
           <app-field-wrapper [field]="chamadoForm.andar()">
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>Andar</mat-label>
               <mat-select
                 [formField]="chamadoForm.andar"
                 (selectionChange)="onAndarChange($event.value)"
+                placeholder="Selecione o Andar"
               >
+                <mat-option class="!text-red-700" [value]="null">Selecione o Andar</mat-option>
                 @for (andar of store.andares(); track andar.codigo) {
-                  <mat-option [value]="andar.codigo">{{ andar.rotulo }}</mat-option>
+                  <mat-option class="!text-blue-800" [value]="andar.codigo">{{ andar.rotulo }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
@@ -73,18 +74,21 @@ import { aberturaChamadoSchema, formAberturaChamado } from '../../utils/manutenc
           <!-- Sala -->
           <app-field-wrapper [field]="chamadoForm.salaId()">
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>Sala</mat-label>
-              <mat-select [formField]="chamadoForm.salaId!">
+              <mat-select
+                [formField]="chamadoForm.salaId!"
+                placeholder="Selecione a Sala"
+              >
+              <mat-option class="!text-red-700" [value]="null">Selecione a sala</mat-option>
                 @for (sala of store.salasPorAndar(); track sala.id) {
-                  <mat-option [value]="sala.id">{{ sala.numeroIdentificacao }}</mat-option>
+                  <mat-option class="!text-blue-800" [value]="sala.id">{{ sala.numeroIdentificacao }}</mat-option>
                 }
-                <mat-option [value]="null">Outro local</mat-option>
+                <mat-option [value]="30">Outro local</mat-option>
               </mat-select>
             </mat-form-field>
           </app-field-wrapper>
         </div>
 
-        @if (chamadoForm.salaId().value === null) {
+        @if (chamadoForm.salaId().value() === 30) {
           <app-field-wrapper [field]="chamadoForm.localDescricao()">
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
               <mat-label>Descrição do Local (Ex: Corredor, Copa, Banheiro)</mat-label>
@@ -105,13 +109,14 @@ import { aberturaChamadoSchema, formAberturaChamado } from '../../utils/manutenc
           <!-- Categoria -->
           <app-field-wrapper [field]="chamadoForm.categoriaId()">
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>Categoria da Demanda</mat-label>
               <mat-select
                 [formField]="chamadoForm.categoriaId"
                 (selectionChange)="onCategoriaChange($event.value)"
+                placeholder="Selecione a Categoria"
               >
+                <mat-option class="!text-red-700" [value]="null">Selecione uma Categoria</mat-option>
                 @for (cat of store.categorias(); track cat.id) {
-                  <mat-option [value]="cat.id">{{ cat.nome }}</mat-option>
+                  <mat-option class="!text-blue-800" [value]="cat.id">{{ cat.nome }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
@@ -120,10 +125,13 @@ import { aberturaChamadoSchema, formAberturaChamado } from '../../utils/manutenc
           <!-- Tipo de Serviço -->
           <app-field-wrapper [field]="chamadoForm.tipoServicoId()">
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>Tipo de Serviço</mat-label>
-              <mat-select [formField]="chamadoForm.tipoServicoId">
+              <mat-select
+                [formField]="chamadoForm.tipoServicoId"
+                placeholder="Selecione o Tipo de Serviço"
+              >
+                <mat-option class="!text-red-700" [value]="null">Selecione o Tipo de Serviço</mat-option>
                 @for (tipo of store.tiposPorCategoria(); track tipo.id) {
-                  <mat-option [value]="tipo.id">{{ tipo.nome }}</mat-option>
+                  <mat-option class="!text-blue-800" [value]="tipo.id">{{ tipo.nome }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
@@ -153,8 +161,8 @@ import { aberturaChamadoSchema, formAberturaChamado } from '../../utils/manutenc
       <button mat-button mat-dialog-close class="!rounded-3xl">Cancelar</button>
       <button
         mat-flat-button
-        class="!rounded-3xl !bg-blue-600 !text-white"
-        [disabled]="store.isLoading()"
+        class="disabled:!bg-gray-200 disabled:!text-gray-400 !rounded-3xl !bg-blue-600 !text-white"
+        [disabled]="chamadoForm().invalid()"
         (click)="salvar()"
       >
         Abrir Chamado
@@ -176,11 +184,11 @@ export class ChamadoFormComponent implements OnInit {
     // Limpa os dados do formulário após salvar
     formAberturaChamado.set({
       descricao: '',
-      andar: AndarCodigo.TERREO,
+      andar: null,
       salaId: null,
-      categoriaId: 0,
+      categoriaId: null,
       localDescricao: '',
-      tipoServicoId: 0
+      tipoServicoId: null
     });
   }
 
@@ -206,4 +214,6 @@ export class ChamadoFormComponent implements OnInit {
       });
     });
   }
+
+  protected readonly formAberturaChamado = formAberturaChamado;
 }
