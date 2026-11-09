@@ -5,7 +5,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ManutencaoStore } from '../../state/manutencao.store';
-import { AndarCodigo, EstadoChamado, ESTADO_CHAMADO_LABELS } from '../../models/manutencao-enums.model';
+import { AndarCodigo, ESTADO_CHAMADO_LABELS, EstadoChamado } from '../../models/manutencao-enums.model';
 
 @Component({
   selector: 'app-chamado-filter',
@@ -138,10 +138,10 @@ export class ChamadoFilterComponent {
     this.store.reloadList();
   }
 
-  onCategoriaChange(categoriaId: number | null) {
-    this.store.updateFiltros({ filtroCategoriaId: categoriaId, filtroTipoServicoId: null });
-    if (categoriaId) {
-      this.store.loadTiposAtivosPorCategoria(categoriaId);
+  onCategoriaChange(subCategoriaId: number | null) {
+    this.store.updateFiltros({ filtroCategoriaId: subCategoriaId, filtroTipoServicoId: null });
+    if (subCategoriaId) {
+      this.store.loadTiposAtivosPorSubCategoria(subCategoriaId);
     }
     this.store.reloadList();
   }

@@ -53,7 +53,7 @@ import { ManutencaoStore } from '../../state/manutencao.store';
       <form autocomplete="off" class="flex flex-col gap-0">
         <!-- Nome -->
         <app-field-wrapper [field]="categoriaForm.nome()">
-          <p class="mb-2 text-base text-gray-600">
+          <p class="mb-2 text-sm text-gray-600">
             Categoria
           </p>
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
@@ -68,7 +68,7 @@ import { ManutencaoStore } from '../../state/manutencao.store';
 
         <!-- Descrição -->
         <app-field-wrapper [field]="categoriaForm.descricao()">
-          <p class="mb-2 text-base text-gray-600">
+          <p class="mb-2 text-sm text-gray-600">
             Descrição
           </p>
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
@@ -86,7 +86,7 @@ import { ManutencaoStore } from '../../state/manutencao.store';
           <!--          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center pt-1">-->
           <!-- Ordem de Exibição -->
           <app-field-wrapper [field]="categoriaForm.ordemExibicao()">
-            <p class="mb-2 text-base text-gray-600">
+            <p class="mb-2 text-sm text-gray-600">
               Prioridade
             </p>
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">

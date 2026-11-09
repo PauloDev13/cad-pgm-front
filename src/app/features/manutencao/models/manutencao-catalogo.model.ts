@@ -1,10 +1,16 @@
 import { AndarCodigo } from './manutencao-enums.model';
 
+/**
+ * ANDAR MODELO
+ */
 export interface AndarResponseDTO {
   codigo: AndarCodigo;
   rotulo: string;
 }
 
+/**
+ * SALA MODELO
+ */
 export interface SalaResponseDTO {
   id: number;
   numeroIdentificacao: string;
@@ -40,17 +46,64 @@ export interface CategoriaDemandaResponseDTO {
   ordemExibicao?: number;
 }
 
-export type TipoServicoModel = Required<Omit<TipoServicoRequestDTO,
-  'ordemExibicao' | 'descricao' | 'ativo'>> & {
+/**
+ * SUBCATEGORIA MODELO
+ */
+
+export interface SubcategoriaResponseDTO {
+  id: number;
+  categoriaId: number;
+  categoriaNome: string;
   nome: string;
+  descricao?: string;
+  ativo: boolean;
+  ordemExibicao?: number;
+  prazoEstimadoDias?: number;
+  requerTombamento: boolean;
+}
+
+export interface SubcategoriaRequestDTO {
+  categoriaId: number;
+  nome: string;
+  descricao?: string;
+  ordemExibicao?: number;
+  ativo?: boolean;
+  prazoEstimadoDias?: number;
+  requerTombamento?: boolean;
+}
+
+export type SubcategoriaModel = Required<Omit<
+  SubcategoriaRequestDTO, 'descricao' | 'ordemExibicao' | 'prazoEstimadoDias'>
+> & {
   descricao: string;
   ordemExibicao: number;
+  prazoEstimadoDias: number;
   ativo: boolean;
+  requerTombamento: boolean;
+};
+
+export interface SubcategoriaDialogData {
+  subcategoria?: SubcategoriaResponseDTO;
+  categoriaIdSelecionada?: number;
 }
+
+/**
+ * Parâmetros de consulta para Subcategorias Paginadas
+ */
+export interface SubcategoriaFiltroParams {
+  categoriaId?: number | null;
+  ativo?: boolean | null;
+  page: number;
+  size: number;
+}
+
+/**
+ * TIPOS SERVIÇO MODELO
+ */
 
 export interface TipoServicoResponseDTO {
   id: number;
-  categoriaId: number;
+  subcategoriaId: number;
   categoriaNome: string;
   nome: string;
   descricao?: string;
@@ -59,11 +112,36 @@ export interface TipoServicoResponseDTO {
 }
 
 export interface TipoServicoRequestDTO {
-  categoriaId: number;
+  subcategoriaId: number;
   nome: string;
   descricao?: string;
   ordemExibicao?: number;
   ativo?: boolean;
+}
+
+export type TipoServicoModel = Required<Omit<TipoServicoRequestDTO,
+  'ordemExibicao' | 'descricao' | 'ativo'>> & {
+  nome: string;
+  descricao: string;
+  ordemExibicao: number;
+  ativo: boolean;
+}
+
+
+export interface TipoServicoDialogData {
+  tipoServico?: TipoServicoResponseDTO;
+  subcategoriaIdSelecionada?: number;
+}
+
+/**
+ * Parâmetros de consulta para Tipos de Serviço Paginados
+ */
+export interface TipoServicoFiltroParams {
+  subcategoriaId?: number | null;
+  categoriaId?: number | null;
+  ativo?: boolean | null;
+  page: number;
+  size: number;
 }
 
 /*
@@ -87,3 +165,4 @@ export interface SpringPage<T> {
     number: number;
   };
 }
+

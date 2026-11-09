@@ -33,9 +33,16 @@ export enum EventoHistoricoChamado {
   CANCELAMENTO = 'CANCELAMENTO'
 }
 
-export enum ManutencaoRole {
-  MANUTENCAO = 'manutencao',
-  ALMOXARIFADO = 'almoxarifado',
-  TRAMITADOR = 'tramitador',
-  ADMIN = 'admin'
+export enum PrioridadeChamado {
+  BAIXA = 'BAIXA',
+  MEDIA = 'MEDIA',
+  ALTA = 'ALTA',
+  URGENTE = 'URGENTE'
 }
+
+export const PRIORIDADE_CHAMADO_LABELS: Record<PrioridadeChamado, string> = {
+  [PrioridadeChamado.BAIXA]: 'Baixa',
+  [PrioridadeChamado.MEDIA]: 'Média',
+  [PrioridadeChamado.ALTA]: 'Alta',
+  [PrioridadeChamado.URGENTE]: 'Urgente'
+};

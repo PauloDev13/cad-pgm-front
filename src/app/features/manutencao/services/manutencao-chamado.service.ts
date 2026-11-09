@@ -7,6 +7,7 @@ import { customHandlerError } from '../../../shared/utils/custom-handler-error';
 import {
   AberturaChamadoRequestDTO,
   AtribuicaoChamadoRequestDTO,
+  AtualizarDadosAdministrativosRequestDTO,
   CancelarChamadoRequestDTO,
   ChamadoDetalheResponseDTO,
   ChamadoFilaQueryParams,
@@ -26,6 +27,15 @@ export class ManutencaoChamadoService {
   abrirChamado(payload: AberturaChamadoRequestDTO): Observable<ChamadoDetalheResponseDTO> {
     return this.http.post<ChamadoDetalheResponseDTO>(this.baseUrl, payload)
       .pipe(catchError(customHandlerError));
+  }
+
+  atualizarDadosAdministrativos(
+    id: number,
+    payload: AtualizarDadosAdministrativosRequestDTO
+  ): Observable<ChamadoDetalheResponseDTO> {
+    return this.http.patch<ChamadoDetalheResponseDTO>(
+      `${this.baseUrl}/${id}/dados-administrativos`, payload
+    ).pipe(catchError(customHandlerError));
   }
 
   listarMeusChamados(page = 0, size = 10): Observable<PageResponse<ChamadoResumoResponseDTO>> {

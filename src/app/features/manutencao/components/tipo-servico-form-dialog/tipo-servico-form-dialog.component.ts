@@ -9,14 +9,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { form, FormField, submit } from '@angular/forms/signals';
 import { FieldWrapperComponent } from '../../../../shared/layout/component/field-wrapper/field-wrapper.component';
-import { TipoServicoModel, TipoServicoResponseDTO } from '../../models/manutencao-catalogo.model';
+import { TipoServicoDialogData, TipoServicoModel } from '../../models/manutencao-catalogo.model';
 import { formTipoServico, initialTipoServico, tipoServicoSchema } from '../../utils/manutencao-form.schemas';
 import { ManutencaoStore } from '../../state/manutencao.store';
 
-export interface TipoServicoDialogData {
-  tipoServico?: TipoServicoResponseDTO;
-  categoriaIdSelecionada?: number;
-}
+// export interface TipoServicoDialogData {
+//   tipoServico?: TipoServicoResponseDTO;
+//   subcategoriaIdSelecionada?: number;
+// }
 
 @Component({
   selector: 'app-tipo-servico-form-dialog',
@@ -53,16 +53,16 @@ export interface TipoServicoDialogData {
     <mat-dialog-content class="!p-4 !flex !flex-col gap-0">
       <form autocomplete="off" class="flex flex-col gap-0">
         <!-- Categoria Vinculada -->
-        <app-field-wrapper [field]="tipoForm.categoriaId()">
-          <p class="mb-2 text-base text-gray-600">
-            Selecione um Categoria
+        <app-field-wrapper [field]="tipoForm.subcategoriaId()">
+          <p class="mb-2 text-sm text-gray-600">
+            Selecione uma Subcategoria
           </p>
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-            <mat-label>Categoria da Demanda</mat-label>
-            <mat-select [formField]="tipoForm.categoriaId">
-              <mat-option class="!text-blue-700" [value]="0">Selecione uma categoria</mat-option>
-              @for (cat of store.categorias(); track cat.id) {
-                <mat-option [value]="cat.id">{{ cat.nome }}</mat-option>
+            <mat-label>Subcategoria</mat-label>
+            <mat-select [formField]="tipoForm.subcategoriaId">
+              <mat-option class="!text-blue-700" [value]="0">Selecione uma subcategoria</mat-option>
+              @for (sub of store.subcategoriasAtivasDropdown(); track sub.id) {
+                <mat-option [value]="sub.id">{{ sub.nome }}</mat-option>
               }
             </mat-select>
           </mat-form-field>
@@ -70,7 +70,7 @@ export interface TipoServicoDialogData {
 
         <!-- Nome do Serviço -->
         <app-field-wrapper [field]="tipoForm.nome()">
-          <p class="mb-2 text-base text-gray-600">
+          <p class="mb-2 text-sm text-gray-600">
             Serviço
           </p>
           <mat-form-field
@@ -88,7 +88,7 @@ export interface TipoServicoDialogData {
 
         <!-- Descrição -->
         <app-field-wrapper [field]="tipoForm.descricao()">
-          <p class="mb-2 text-base text-gray-600">
+          <p class="mb-2 text-sm text-gray-600">
             Descrição
           </p>
           <mat-form-field
@@ -108,7 +108,7 @@ export interface TipoServicoDialogData {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-0 items-center pt-0">
           <!-- Ordem de Exibição -->
           <app-field-wrapper [field]="tipoForm.ordemExibicao()">
-            <p class="mb-2 text-base text-gray-600">
+            <p class="mb-2 text-sm text-gray-600">
               Prioridade
             </p>
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
@@ -147,29 +147,23 @@ export class TipoServicoFormDialogComponent implements OnInit {
   );
 
   ngOnInit() {
-    this.store.loadCategoriasAtivas();
+    this.store.subcategoriasAtivasDropdown();
 
     const isEdit = !!(this.data && this.data?.tipoServico?.id);
 
     if (isEdit) {
       formTipoServico.set({
-        categoriaId:
-          this.data?.tipoServico?.categoriaId
-          ?? this.data?.categoriaIdSelecionada
-          ?? initialTipoServico.categoriaId,
+        subcategoriaId:
+          this.data?.tipoServico?.subcategoriaId
+          ?? this.data?.subcategoriaIdSelecionada
+          ?? initialTipoServico.subcategoriaId,
         nome: this.data?.tipoServico?.nome ?? initialTipoServico.nome,
         descricao: this.data?.tipoServico?.descricao ?? initialTipoServico.descricao,
         ordemExibicao: this.data?.tipoServico?.ordemExibicao ?? initialTipoServico.ordemExibicao,
         ativo: this.data?.tipoServico ? this.data.tipoServico.ativo : initialTipoServico.ativo
       });
     } else {
-      formTipoServico.set({
-        categoriaId: 0,
-        ativo: true,
-        descricao: '',
-        nome: '',
-        ordemExibicao: 1
-      });
+      formTipoServico.set({ ...initialTipoServico });
 
     }
   }
@@ -179,7 +173,7 @@ export class TipoServicoFormDialogComponent implements OnInit {
       this.store.salvarTipoServico({
         isEdit: this.isEdit,
         id: this.data?.tipoServico?.id,
-        categoriaId: formValues().value().categoriaId,
+        categoriaId: formValues().value().subcategoriaId,
         payload: formValues().value(),
         onSuccess: () => this.dialogRef.close(true)
       });
