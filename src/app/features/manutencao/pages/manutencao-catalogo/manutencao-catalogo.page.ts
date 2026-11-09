@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, Injector, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, Injector, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
@@ -49,6 +49,11 @@ import {
     MatPaginatorModule
   ],
   template: `
+    <!--   Atribui as variáveis 'nomeSubcategoria' e 'nomeCategoria' os valores retornados pelos 'computeds'
+    nomeSubcategoriaSelecionada nomeCategoriaSelecionada respectivamente -->
+    @let nomeSubcategoria = nomeSubcategoriaSelecionada();
+    @let nomeCategoria = nomeCategoriaSelecionada();
+
     <div class="bg-gray-50 rounded-2xl p-4 md:p-6 mx-auto max-w-7xl w-full h-full flex flex-col min-h-0">
       <!-- Cabeçalho -->
       <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4 shrink-0">
@@ -66,7 +71,7 @@ import {
             class="!rounded-3xl !bg-blue-600 !text-white hover:scale-105 transition-transform"
             (click)="abrirModalCategoria()">
             <mat-icon class="!mr-1">add</mat-icon>
-            Nova Categoria
+            Novo Grupo
           </button>
           <!-- Botão Nova Subcategoria -->
           <button
@@ -75,7 +80,7 @@ import {
             class="!rounded-3xl !bg-blue-600 !text-white hover:scale-105 transition-transform"
             (click)="abrirModalSubcategoria()">
             <mat-icon class="!mr-1">add</mat-icon>
-            Nova Subcategoria
+            Nova Categoria
           </button>
 
           <!-- Botão Novo Tipo de Serviço -->
@@ -85,7 +90,7 @@ import {
             class="!rounded-3xl !bg-blue-600 !text-white hover:scale-105 transition-transform"
             (click)="abrirModalTipoServico()">
             <mat-icon class="!mr-1">add</mat-icon>
-            Novo Tipo de Serviço
+            Nova Subcategoria
           </button>
         </div>
       </div>
@@ -96,9 +101,9 @@ import {
         animationDuration="200ms"
         class="bg-white rounded-xl shadow-sm border border-gray-200 p-2 flex-1 flex flex-col min-h-0">
         <!-- ========================================== -->
-        <!-- ABA 1: CATEGORIAS DE DEMANDA               -->
+        <!-- ABA 1: GRUPO DE DEMANDA               -->
         <!-- ========================================== -->
-        <mat-tab label="CATEGORIAS">
+        <mat-tab label="GRUPO DE DEMANDA">
           <div class="p-4 flex flex-col flex-1 min-h-0 h-full">
             <div class="flex justify-between items-center mb-3 shrink-0">
               <div>
@@ -143,20 +148,6 @@ import {
                       </mat-slide-toggle>
                     </td>
                   </ng-container>
-                  <!--                  <ng-container matColumnDef="ativo">-->
-                  <!--                    <th mat-header-cell *matHeaderCellDef class="text-center !font-semibold text-gray-700 !w-24">-->
-                  <!--                      Status-->
-                  <!--                    </th>-->
-                  <!--                    <td mat-cell *matCellDef="let cat" class="text-center">-->
-                  <!--                    <span-->
-                  <!--                      [class]="cat.ativo ?-->
-                  <!--                      'text-emerald-700 bg-emerald-100 border-emerald-300' :-->
-                  <!--                      'text-gray-600 bg-gray-100 border-gray-300'"-->
-                  <!--                      class="px-2.5 py-0.5 rounded-full text-xs font-semibold border inline-block">-->
-                  <!--                      {{ cat.ativo ? 'Ativo' : 'Inativo' }}-->
-                  <!--                    </span>-->
-                  <!--                    </td>-->
-                  <!--                  </ng-container>-->
 
                   <ng-container matColumnDef="acoes">
                     <th mat-header-cell *matHeaderCellDef class="text-right !font-semibold text-gray-700 !w-24">Ações
@@ -178,7 +169,7 @@ import {
                 </table>
                 @if (!store.isLoading() && store.categoriasPaginadas().length === 0) {
                   <div class="p-6 text-center text-gray-500 text-sm">
-                    Nenhuma categoria encontrada.
+                    Nenhum Grupo encontrado.
                   </div>
                 }
               </div>
@@ -187,15 +178,14 @@ import {
         </mat-tab>
 
         <!-- ======================================================== -->
-        <!--  ABA 2: SUBCATEGORIAS (FILTRO + RESET + TABELA)   -->
+        <!--  ABA 2: CATEGORIAS (FILTRO + RESET + TABELA)   -->
         <!-- ======================================================== -->
-        <mat-tab label="SUBCATEGORIAS">
+        <mat-tab label="CATEGORIAS">
           <div class="p-4 flex flex-col flex-1 min-h-0 h-full">
             <!-- Filtro de Categoria Pai -->
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-3 shrink-0">
-              <div class="flex items-center gap-2 w-full sm:w-auto">
+              <div class="flex items-center gap-2 w-full sm:w-1/2">
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                  <!--                  <mat-label>Filtrar por Categoria</mat-label>-->
                   <mat-select
                     [value]="store.filtroSubcategoriaCategoriaId()"
                     (selectionChange)="store.onCategoriaFilterChange($event.value)"
@@ -217,15 +207,23 @@ import {
                   [disabled]="store.filtroSubcategoriaCategoriaId() === null"
                   (click)="store.resetFiltroSubcategoria()"
                   class="!rounded-full hover:bg-red-50 transition-colors">
-                  <mat-icon>filter_alt_off</mat-icon>
+                  <mat-icon class="!text-red-700" >filter_alt_off</mat-icon>
                 </button>
               </div>
 
-              <div class="text-xs text-gray-500">
-                Selecione uma categoria para visualizar suas subcategorias vinculadas
+              <div
+                [hidden]="store.filtroSubcategoriaCategoriaId() !== null"
+                class="text-xs text-gray-500">
+                Exibindo todas as Categorias
+              </div>
+              <div
+                [hidden]="store.filtroSubcategoriaCategoriaId() === null"
+                class="text-xs text-gray-500">
+                Categorias para o Grupo
+                <span class="text-blue-800 font-bold"> {{ nomeCategoria?.nome?.toUpperCase() }}</span>
               </div>
             </div>
-            <!-- Tabela de Subcategorias -->
+            <!-- Tabela de Categorias -->
             <div class="border border-gray-200 rounded-lg flex flex-col flex-1 min-h-0 overflow-hidden bg-white">
               <div class="overflow-y-auto overflow-x-auto flex-1 min-h-0 custom-scrollbar">
                 <table mat-table [dataSource]="store.subcategoriasPaginadas()" class="w-full">
@@ -308,7 +306,7 @@ import {
                 </table>
                 @if (!store.isLoading() && store.subcategoriasPaginadas().length === 0) {
                   <div class="p-6 text-center text-gray-500 text-sm">
-                    Nenhuma subcategoria encontrada para a categoria selecionada.
+                    Nenhuma Categoria encontrada para o grupo {{ nomeCategoria?.nome }}.
                   </div>
                 }
               </div>
@@ -316,23 +314,21 @@ import {
           </div>
         </mat-tab>
 
-
         <!-- ======================================================= -->
-        <!-- ABA 3: TIPOS DE SERVIÇO (FILTRO + RESET + TABELA) -->
+        <!-- ABA 3: SUBCATEGORIAS (FILTRO + RESET + TABELA) -->
         <!-- ======================================================= -->
-        <mat-tab label="TIPOS DE SERVIÇO">
+        <mat-tab label="SUBCATEGORIAS">
           <div class="p-4 flex flex-col flex-1 min-h-0 h-full">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-3 shrink-0">
               <!-- Filtro de Subcategoria -->
-              <div class="flex items-center gap-2 w-full sm:w-auto">
+              <div class="flex items-center gap-2 w-full sm:w-1/2">
                 <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-                  <!--                  <mat-label>Filtrar por Categoria</mat-label>-->
                   <mat-select
                     [value]="store.filtroTipoServicoSubcategoriaId()"
                     (selectionChange)="store.onSubcategoriaFilterChange($event.value)"
                     placeholder="Selecione uma Subcategoria"
                   >
-                    <mat-option [value]="null">Selecione uma Subcategoria</mat-option>
+                    <mat-option [value]="null">Selecione uma Categoria</mat-option>
                     @for (sub of store.subcategoriasAtivasDropdown(); track sub.id) {
                       <mat-option [value]="sub.id">{{ sub.nome }}</mat-option>
                     }
@@ -348,15 +344,23 @@ import {
                   [disabled]="store.filtroTipoServicoSubcategoriaId() === null"
                   (click)="store.resetFiltroTipoServico()"
                   class="!rounded-full hover:bg-red-50 transition-colors">
-                  <mat-icon>filter_alt_off</mat-icon>
+                  <mat-icon class="!text-red-600">filter_alt_off</mat-icon>
                 </button>
               </div>
-              <div class="text-xs text-gray-500">
-                Exibindo todos os tipos de serviço ou filtrando apenas os ativos por subcategoria selecionada.
+                <div
+                  [hidden]="store.filtroTipoServicoSubcategoriaId() !== null"
+                  class="text-xs text-gray-500">
+                  Exibindo todas as Subcategorias.
+                </div>
+              <div
+                [hidden]="store.filtroTipoServicoSubcategoriaId() === null"
+                class="text-xs text-gray-500">
+                Subcategorias para a Categoria
+                <span class="text-blue-700 font-bold"> {{ nomeSubcategoria?.nome?.toUpperCase() }}</span>
               </div>
             </div>
 
-            <!-- Tabela iterando sobre os tipos da Store -->
+            <!-- Tabela Subcategoria -->
             <div class="border border-gray-200 rounded-lg flex flex-col flex-1 min-h-0 overflow-hidden bg-white">
               <div class="overflow-y-auto overflow-x-auto flex-1 min-h-0 custom-scrollbar">
                 <table mat-table [dataSource]="store.tiposServicoPaginados()" class="w-full">
@@ -412,7 +416,7 @@ import {
 
                 @if (!store.isLoading() && store.tiposServicoPaginados().length === 0) {
                   <div class="p-6 text-center text-gray-500 text-sm">
-                    Nenhum tipo de serviço encontrado para a categoria selecionada.
+                    Nenhuma subcategoria encontrada para a categoria {{ nomeSubcategoria?.nome }}.
                   </div>
                 }
               </div>
@@ -442,6 +446,16 @@ export default class ManutencaoCatalogoPage implements OnInit {
   private readonly injector = inject(Injector);
 
   readonly categoriaSelecionadaId = signal<number | null>(null);
+
+  readonly nomeSubcategoriaSelecionada = computed(() => {
+    const id = this.store.filtroTipoServicoSubcategoriaId();
+    return this.store.subcategoriasAtivasDropdown().find(sub => sub.id === id) ?? null;
+  });
+
+  readonly nomeCategoriaSelecionada = computed(() => {
+    const id = this.store.filtroSubcategoriaCategoriaId();
+    return this.store.categoriasAtivasDropdown().find(cat => cat.id === id) ?? null;
+  });
 
   ngOnInit() {
     this.store.initCatalogo();

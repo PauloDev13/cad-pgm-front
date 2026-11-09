@@ -42,7 +42,7 @@ export class ErrorHandlerService {
     }
 
     // Dispara o Toast/Snackbar centralizado
-    this.notificationService.error(messageDefault, title);
+    this.notificationService.error(messageDefault, title, { duration: 4000 });
   }
 }
 

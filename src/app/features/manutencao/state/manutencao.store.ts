@@ -766,12 +766,14 @@ export const ManutencaoStore = signalStore(
     }>(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
-        switchMap(({ isEdit, id, categoriaId, payload, onSuccess }) => {
+        switchMap(({ isEdit, id, payload, onSuccess }) => {
           const action$ = isEdit
             ? catalogoService.atualizarSubcategoria(id!, payload)
             : catalogoService.criarSubcategoria(payload);
 
-          const acaoNome = isEdit ? 'Atualização de Subcategoria' : 'Cadastro de Subcategoria';
+          const acaoNome = isEdit
+            ? 'Atualização de Subcategoria'
+            : 'Cadastro de Subcategoria';
 
           return action$.pipe(
             tapResponse({
@@ -806,7 +808,7 @@ export const ManutencaoStore = signalStore(
     }>(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
-        switchMap(({ isEdit, id, categoriaId, payload, onSuccess }) => {
+        switchMap(({ isEdit, id, payload, onSuccess }) => {
           const action$ = isEdit
             ? catalogoService.atualizarTipoServico(id!, payload)
             : catalogoService.criarTipoServico(payload);
@@ -858,7 +860,7 @@ export const ManutencaoStore = signalStore(
                 if (store.catalogoTabAtiva() === 1) {
                   store.loadSubcategoriasPaginadas();
                 }
-                // Invalida e força recarga dos dropdowns em cascata
+                // Força recarga dos dropdowns em cascata
                 store.invalidarCachesDropdowns();
                 store.ensureCategoriasAtivasDropdown();
                 store.ensureSubcategoriasAtivasDropdown();

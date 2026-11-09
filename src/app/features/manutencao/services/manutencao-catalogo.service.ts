@@ -54,9 +54,9 @@ export class ManutencaoCatalogoService {
       params = params.set('categoriaId', filtro.categoriaId.toString());
     }
 
-    if (filtro.ativo !== undefined && filtro.ativo !== null) {
-      params = params.set('ativo', filtro.ativo.toString());
-    }
+    // if (filtro.ativo !== undefined && filtro.ativo !== null) {
+    //   params = params.set('ativo', filtro.ativo.toString());
+    // }
 
     return this.http.get<SpringPage<SubcategoriaResponseDTO>>(
       `${this.baseUrl}/subcategorias/paginadas`, { params }
@@ -226,7 +226,7 @@ export class ManutencaoCatalogoService {
   // =================================
 
   /*
-  [NOVO MÉTODO] ALTERAR STATUS DE UMA CATEGORIA COM EFEITO CASCATA
+  ALTERAR STATUS DE UMA CATEGORIA COM EFEITO CASCATA
 */
   alterarStatusCategoria(
     id: number,

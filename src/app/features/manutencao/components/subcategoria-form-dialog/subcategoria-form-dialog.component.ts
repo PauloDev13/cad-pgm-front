@@ -200,13 +200,8 @@ export class SubcategoriaFormDialogComponent implements OnInit {
       });
     } else {
       formSubcategoria.set({
+        ...initialSubcategoria,
         categoriaId: this.data?.categoriaIdSelecionada ?? 0,
-        nome: '',
-        descricao: '',
-        ordemExibicao: 1,
-        prazoEstimadoDias: 3,
-        requerTombamento: false,
-        ativo: true
       });
     }
   }
