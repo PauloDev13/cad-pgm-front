@@ -850,10 +850,15 @@ export const ManutencaoStore = signalStore(
           catalogoService.alterarStatusCategoria(id, ativo).pipe(
             tapResponse({
               next: () => {
-                notificationService.success(
-                  `Categoria ${ativo ? 'ativada' : 'desativada'} com sucesso!`,
-                  'Catálogo'
-                );
+                ativo
+                  ? notificationService.success(
+                    `Grupo 'ATIVADO' com sucesso!`,
+                    'Catálogo'
+                  )
+                  : notificationService.warning(
+                    `Grupo 'DESATIVADO' com sucesso!`,
+                    'Catálogo');
+
                 // Recarrega lista paginada de categorias
                 store.loadCategoriasPaginadas();
                 // Se a subcategoria estiver aberta, recarrega para refletir novo status
@@ -887,7 +892,14 @@ export const ManutencaoStore = signalStore(
           catalogoService.alterarStatusSubcategoria(id, ativo).pipe(
             tapResponse({
               next: () => {
-                notificationService.success('Status da subcategoria atualizado!', 'Catálogo');
+                ativo
+                  ? notificationService.success(
+                    `Categoria 'ATIVADA' com sucesso!`,
+                    'Catálogo'
+                  )
+                  : notificationService.warning(
+                    `Subcategoria 'DESATIVADA' com sucesso!`,
+                    'Catálogo');
                 // Recarrega a listagem paginada da guia e a lista de ativas
                 store.loadSubcategoriasPaginadas();
 
@@ -921,7 +933,14 @@ export const ManutencaoStore = signalStore(
           catalogoService.alterarStatusTipoServico(id, ativo).pipe(
             tapResponse({
               next: () => {
-                notificationService.success('Status do serviço atualizado!', 'Catálogo');
+                ativo
+                  ? notificationService.success(
+                    `Subcategoria 'ATIVADA' com sucesso!`,
+                    'Catálogo'
+                  )
+                  : notificationService.warning(
+                    `Subcategoria 'DESATIVADA' com sucesso!`,
+                    'Catálogo');
                 store.loadTiposServicoPaginados();
                 store.ensureSubcategoriasAtivasDropdown();
               },
