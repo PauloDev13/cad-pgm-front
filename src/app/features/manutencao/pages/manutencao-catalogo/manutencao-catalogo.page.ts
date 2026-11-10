@@ -193,7 +193,12 @@ import {
                   >
                     <mat-option [value]="null">Selecione uma Categoria</mat-option>
                     @for (cat of store.categoriasAtivasDropdown(); track cat.id) {
-                      <mat-option [value]="cat.id">{{ cat.nome }}</mat-option>
+                      <mat-option
+                        [class]="cat.ativo
+                        ? '!font-semibold !text-blue-700'
+                        : '!font-semibold !text-red-700'"
+                        [value]="cat.id"> {{ cat.ativo ? cat.nome : cat.nome + ' (Inativa)' }}
+                      </mat-option>
                     }
                   </mat-select>
                 </mat-form-field>
@@ -234,13 +239,13 @@ import {
                   </ng-container>
                   <!-- Nome -->
                   <ng-container matColumnDef="nome">
-                    <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-700">Subcategoria</th>
+                    <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-700">Categoria</th>
                     <td mat-cell *matCellDef="let sub" class="font-semibold text-gray-800">{{ sub.nome }}</td>
                   </ng-container>
                   <!-- Descrição -->
                   <ng-container matColumnDef="descricao">
-                    <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-700">Descrição</th>
-                    <td mat-cell *matCellDef="let sub" class="text-gray-600">{{ sub.descricao || '-' }}</td>
+                    <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-700">Grupo de Demanda</th>
+                    <td mat-cell *matCellDef="let sub" class="font-medium text-blue-800">{{ sub.categoriaNome || '-' }}</td>
                   </ng-container>
                   <!-- Exige Tombamento -->
                   <ng-container matColumnDef="requerTombamento">
@@ -330,7 +335,12 @@ import {
                   >
                     <mat-option [value]="null">Selecione uma Categoria</mat-option>
                     @for (sub of store.subcategoriasAtivasDropdown(); track sub.id) {
-                      <mat-option [value]="sub.id">{{ sub.nome }}</mat-option>
+                      <mat-option
+                        [class]="sub.ativo
+                        ? '!font-semibold !text-blue-700'
+                        : '!font-semibold !text-red-700'"
+                        [value]="sub.id"> {{ sub.ativo ? sub.nome : sub.nome + ' (Inativa)' }}
+                      </mat-option>
                     }
                   </mat-select>
                 </mat-form-field>
@@ -369,10 +379,10 @@ import {
                     <td mat-cell *matCellDef="let tipo" class="font-mono text-gray-600">{{ tipo.id }}</td>
                   </ng-container>
 
-                  <!--                <ng-container matColumnDef="categoria">-->
-                  <!--                  <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-700">Categoria</th>-->
-                  <!--                  <td mat-cell *matCellDef="let tipo" class="font-medium text-blue-800">{{ tipo.categoriaNome }}</td>-->
-                  <!--                </ng-container>-->
+                  <ng-container matColumnDef="categoria">
+                    <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-700">Grupo de Demanda</th>
+                    <td mat-cell *matCellDef="let tipo" class="font-medium text-blue-800">{{ tipo.categoriaNome }}</td>
+                  </ng-container>
 
                   <ng-container matColumnDef="nome">
                     <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-700">Serviço</th>
@@ -380,8 +390,10 @@ import {
                   </ng-container>
 
                   <ng-container matColumnDef="descricao">
-                    <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-700">Descrição</th>
-                    <td mat-cell *matCellDef="let tipo" class="text-gray-600">{{ tipo.descricao || '-' }}</td>
+                    <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-700">Categoria</th>
+                    <td mat-cell *matCellDef="let tipo" class="font-medium text-blue-800">
+                      {{ tipo.subcategoriaNome || '-' }}
+                    </td>
                   </ng-container>
 
                   <ng-container matColumnDef="status">
@@ -409,8 +421,8 @@ import {
                     </td>
                   </ng-container>
 
-                  <tr mat-header-row *matHeaderRowDef="['id', 'nome', 'descricao', 'status', 'acoes']"></tr>
-                  <tr mat-row *matRowDef="let row; columns: ['id', 'nome', 'descricao', 'status', 'acoes']"
+                  <tr mat-header-row *matHeaderRowDef="['id', 'nome', 'categoria', 'descricao', 'status', 'acoes']"></tr>
+                  <tr mat-row *matRowDef="let row; columns: ['id', 'nome','categoria', 'descricao', 'status', 'acoes']"
                       class="hover:bg-blue-50/40"></tr>
                 </table>
 

@@ -34,7 +34,7 @@ import { formSubcategoria, initialSubcategoria, subcategoriaSchema } from '../..
     <div class="flex justify-between items-center pr-6 pt-4 pb-0 border-gray-300 border-b">
       <h2 mat-dialog-title class="!font-bold !text-xl !text-blue-700 !m-0 !flex !items-center gap-0">
         <mat-icon class="!mr-1">{{ isEdit ? 'edit' : 'account_tree' }}</mat-icon>
-        {{ isEdit ? 'Editar Subcategoria' : 'Nova Subcategoria' }}
+        {{ isEdit ? 'Editar Categoria' : 'Nova Categoria' }}
       </h2>
       <button
         mat-icon-button
@@ -51,17 +51,23 @@ import { formSubcategoria, initialSubcategoria, subcategoriaSchema } from '../..
         <!-- 1. Categoria Pai Vinculada -->
         <app-field-wrapper [field]="subcategoriaForm.categoriaId()">
           <p class="mb-2 text-sm text-gray-600">
-            Categoria
+            Grupo de Demanda
           </p>
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-            <!--            <mat-label>Categoria da Demanda</mat-label>-->
+            <mat-label>Categoria</mat-label>
             <mat-select
               [formField]="subcategoriaForm.categoriaId"
               placeholder="Selecione uma categoria"
             >
-              <mat-option class="!text-red-800" [value]="0">Selecione uma categoria</mat-option>
+              <mat-option [value]="0">Selecione um Grupo de Demanda</mat-option>
               @for (cat of store.categorias(); track cat.id) {
-                <mat-option class="!text-blue-700" [value]="cat.id">{{ cat.nome }}</mat-option>
+                <mat-option
+                  [class]="cat.ativo ? '!font-semibold !text-blue-700' : '!font-semibold !text-red-700'"
+                  [value]="cat.id"
+                  [hidden]="!cat.ativo"
+                >
+                  {{ cat.ativo ? cat.nome : cat.nome + ' (Inativa)' }}
+                </mat-option>
               }
             </mat-select>
           </mat-form-field>
@@ -69,10 +75,10 @@ import { formSubcategoria, initialSubcategoria, subcategoriaSchema } from '../..
         <!-- 2. Nome da Subcategoria -->
         <app-field-wrapper [field]="subcategoriaForm.nome()">
           <p class="mb-2 text-sm text-gray-600">
-            Subcategoria
+            Categoria
           </p>
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-            <mat-label>Nome da Subcategoria</mat-label>
+            <mat-label>Nome da Categoria</mat-label>
             <input
               matInput
               [formField]="subcategoriaForm.nome"
@@ -86,7 +92,7 @@ import { formSubcategoria, initialSubcategoria, subcategoriaSchema } from '../..
             Descrição
           </p>
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-            <mat-label>Descrição da Subcategoria (Opcional)</mat-label>
+            <mat-label>Descrição da Categoria (Opcional)</mat-label>
             <textarea
               matInput
               rows="3"
@@ -149,7 +155,7 @@ import { formSubcategoria, initialSubcategoria, subcategoriaSchema } from '../..
               [checked]="subcategoriaForm.ativo().value()"
               (change)="subcategoriaForm.ativo().value.set($event.checked)"
             >
-              <span class="text-sm font-medium text-gray-700">Subcategoria Ativa</span>
+              <span class="text-sm font-medium text-gray-700">Categoria Ativa</span>
             </mat-slide-toggle>
           </div>
         </div>

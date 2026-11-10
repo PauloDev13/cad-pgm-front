@@ -38,7 +38,7 @@ import { ManutencaoStore } from '../../state/manutencao.store';
     <div class="flex justify-between items-center pr-6 pt-4 pb-0 border-gray-300 border-b">
       <h2 mat-dialog-title class="!font-bold !text-xl !text-blue-700 !m-0 !flex !items-center gap-0">
         <mat-icon class="!mr-1">{{ isEdit ? 'edit' : 'handyman' }}</mat-icon>
-        {{ isEdit ? 'Editar Tipo de Serviço' : 'Novo Tipo de Serviço' }}
+        {{ isEdit ? 'Editar Subcategoria' : 'Nova Subcategoria' }}
       </h2>
       <button
         mat-icon-button
@@ -55,14 +55,20 @@ import { ManutencaoStore } from '../../state/manutencao.store';
         <!-- Categoria Vinculada -->
         <app-field-wrapper [field]="tipoForm.subcategoriaId()">
           <p class="mb-2 text-sm text-gray-600">
-            Selecione uma Subcategoria
+            Selecione uma Categoria
           </p>
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-            <mat-label>Subcategoria</mat-label>
+            <mat-label>Categoria</mat-label>
             <mat-select [formField]="tipoForm.subcategoriaId">
-              <mat-option class="!text-blue-700" [value]="0">Selecione uma subcategoria</mat-option>
+              <mat-option class="!text-gray-700" [value]="0">Selecione uma Categoria</mat-option>
               @for (sub of store.subcategoriasAtivasDropdown(); track sub.id) {
-                <mat-option [value]="sub.id">{{ sub.nome }}</mat-option>
+                <mat-option
+                  [class]="sub.ativo ? '!font-semibold !text-blue-700' : '!font-semibold !text-red-700'"
+                  [value]="sub.id"
+                  [hidden]="!sub.ativo"
+                >
+                  {{ sub.ativo ? sub.nome : sub.nome + ' (Inativa)' }}
+                </mat-option>
               }
             </mat-select>
           </mat-form-field>
@@ -71,13 +77,13 @@ import { ManutencaoStore } from '../../state/manutencao.store';
         <!-- Nome do Serviço -->
         <app-field-wrapper [field]="tipoForm.nome()">
           <p class="mb-2 text-sm text-gray-600">
-            Serviço
+            Subcategoria
           </p>
           <mat-form-field
             appearance="outline"
             class="w-full"
             subscriptSizing="dynamic">
-            <mat-label>Nome do Serviço</mat-label>
+            <mat-label>Nome da Subcategoria</mat-label>
             <input
               matInput
               [formField]="tipoForm.nome"
@@ -95,12 +101,12 @@ import { ManutencaoStore } from '../../state/manutencao.store';
             appearance="outline"
             class="w-full"
             subscriptSizing="dynamic">
-            <mat-label>Descrição do Serviço (Opcional)</mat-label>
+            <mat-label>Descrição da Subcategoria (Opcional)</mat-label>
             <textarea
               matInput
               rows="3"
               [formField]="tipoForm.descricao"
-              placeholder="Instruções ou escopo padrão deste serviço">
+              placeholder="Instruções ou escopo padrão desta subcategoria">
             </textarea>
           </mat-form-field>
         </app-field-wrapper>
@@ -109,10 +115,10 @@ import { ManutencaoStore } from '../../state/manutencao.store';
           <!-- Ordem de Exibição -->
           <app-field-wrapper [field]="tipoForm.ordemExibicao()">
             <p class="mb-2 text-sm text-gray-600">
-              Prioridade
+              Ordem de Exibição
             </p>
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>Ordem de Exibição</mat-label>
+              <mat-label>Posição no Catálogo</mat-label>
               <input
                 matInput
                 type="number"
@@ -163,7 +169,13 @@ export class TipoServicoFormDialogComponent implements OnInit {
         ativo: this.data?.tipoServico ? this.data.tipoServico.ativo : initialTipoServico.ativo
       });
     } else {
-      formTipoServico.set({ ...initialTipoServico });
+      formTipoServico.set({
+        ...initialTipoServico,
+        subcategoriaId:
+          this.data?.tipoServico?.subcategoriaId
+          ?? this.data?.subcategoriaIdSelecionada
+          ?? initialTipoServico.subcategoriaId,
+      });
 
     }
   }

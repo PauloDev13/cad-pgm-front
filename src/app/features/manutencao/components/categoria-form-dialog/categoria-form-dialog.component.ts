@@ -37,7 +37,7 @@ import { ManutencaoStore } from '../../state/manutencao.store';
         mat-dialog-title
         class="!font-bold !text-xl !text-blue-700 !m-0 !flex !items-center">
         <mat-icon class="!mr-1">{{ isEdit ? 'edit' : 'category' }}</mat-icon>
-        {{ isEdit ? 'Editar Categoria' : 'Nova Categoria' }}
+        {{ isEdit ? 'Editar Grupo de Demanda' : 'Novo Grupo de Demanda' }}
       </h2>
       <button
         mat-icon-button
@@ -54,10 +54,10 @@ import { ManutencaoStore } from '../../state/manutencao.store';
         <!-- Nome -->
         <app-field-wrapper [field]="categoriaForm.nome()">
           <p class="mb-2 text-sm text-gray-600">
-            Categoria
+            Grupo de Demanda
           </p>
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-            <mat-label>Nome da Categoria</mat-label>
+            <mat-label>Nome do Grupo</mat-label>
             <input
               matInput
               [formField]="categoriaForm.nome"
@@ -72,12 +72,12 @@ import { ManutencaoStore } from '../../state/manutencao.store';
             Descrição
           </p>
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-            <mat-label>Descrição da Categoria (Opcional)</mat-label>
+            <mat-label>Descrição do Grupo de Demanda (Opcional)</mat-label>
             <textarea
               matInput
               rows="3"
               [formField]="categoriaForm.descricao"
-              placeholder="Breve detalhamento sobre o escopo desta categoria">
+              placeholder="Breve detalhamento sobre o escopo desta do grupo">
             </textarea>
           </mat-form-field>
         </app-field-wrapper>
@@ -87,10 +87,10 @@ import { ManutencaoStore } from '../../state/manutencao.store';
           <!-- Ordem de Exibição -->
           <app-field-wrapper [field]="categoriaForm.ordemExibicao()">
             <p class="mb-2 text-sm text-gray-600">
-              Prioridade
+              Ordem de Exibição
             </p>
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>Ordem de Exibição</mat-label>
+              <mat-label>Posição no Catálogo</mat-label>
               <input
                 matInput
                 type="number"
@@ -102,11 +102,11 @@ import { ManutencaoStore } from '../../state/manutencao.store';
           <!-- Ativo / Inativo -->
           <div class="flex items-center gap-0 pt-0">
             <mat-slide-toggle
-              labelPosition="before"
+              labelPosition="after"
               class="!pb-0"
               [checked]="categoriaForm.ativo().value()"
               (change)="categoriaForm.ativo().value.set($event.checked)">
-              Ativa
+              Grupo Ativo
             </mat-slide-toggle>
           </div>
         </div>
