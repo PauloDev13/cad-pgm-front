@@ -15,6 +15,9 @@ import {
   formAberturaChamado,
   initialAberturaChamado
 } from '../../utils/manutencao-form.schemas';
+import {
+  CustomAutocompleteComponent
+} from '../../../../shared/components/custom-autocomplete/custom-autocomplete.component';
 
 @Component({
   selector: 'app-chamado-form',
@@ -29,7 +32,8 @@ import {
     MatButtonModule,
     MatIconModule,
     FieldWrapperComponent,
-    FormField
+    FormField,
+    CustomAutocompleteComponent
   ],
   template: `
     <!-- Cabeçalho do Diálogo -->
@@ -63,38 +67,62 @@ import {
           1. Onde está o problema?
         </h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <!-- Andar -->
+          <!-- 1. Andar -->
           <app-field-wrapper [field]="chamadoForm.andar()">
-            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-select
-                [formField]="chamadoForm.andar!"
-                (selectionChange)="onAndarChange($event.value)"
-                placeholder="Selecione o Andar"
-              >
-                <mat-option class="!text-red-700" [value]="null">Selecione o Andar</mat-option>
-                @for (andar of store.andares(); track andar.codigo) {
-                  <mat-option class="!text-blue-800" [value]="andar.codigo">{{ andar.rotulo }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <app-custom-autocomplete
+              [formField]="chamadoForm.andar!"
+              [options]="store.andares()"
+              valueKey="codigo"
+              displayKey="rotulo"
+              placeholder="Selecione o Andar"
+              (selectionChange)="onAndarChange($event)"
+              [clearable]="true"
+            />
           </app-field-wrapper>
 
-          <!-- Sala -->
+          <!-- 2. Sala -->
           <app-field-wrapper [field]="chamadoForm.salaId()">
-            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-select
-                [formField]="chamadoForm.salaId!"
-                placeholder="Selecione a Sala"
-              >
-                <mat-option class="!text-red-700" [value]="null">Selecione a sala</mat-option>
-                @for (sala of store.salasPorAndar(); track sala.id) {
-                  <mat-option class="!text-blue-800" [value]="sala.id">{{ sala.numeroIdentificacao }}</mat-option>
-                }
-                <mat-option [value]="30">Outro local</mat-option>
-              </mat-select>
-            </mat-form-field>
+            <app-custom-autocomplete
+              [formField]="chamadoForm.salaId!"
+              [options]="salasComOpcaoOutro()"
+              valueKey="id"
+              displayKey="numeroIdentificacao"
+              placeholder="Selecione a Sala"
+              [clearable]="true"
+            />
           </app-field-wrapper>
         </div>
+        <!--          <app-field-wrapper [field]="chamadoForm.andar()">-->
+        <!--            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">-->
+        <!--              <mat-select-->
+        <!--                [formField]="chamadoForm.andar!"-->
+        <!--                (selectionChange)="onAndarChange($event.value)"-->
+        <!--                placeholder="Selecione o Andar"-->
+        <!--              >-->
+        <!--                <mat-option class="!text-red-700" [value]="null">Selecione o Andar</mat-option>-->
+        <!--                @for (andar of store.andares(); track andar.codigo) {-->
+        <!--                  <mat-option class="!text-blue-800" [value]="andar.codigo">{{ andar.rotulo }}</mat-option>-->
+        <!--                }-->
+        <!--              </mat-select>-->
+        <!--            </mat-form-field>-->
+        <!--          </app-field-wrapper>-->
+
+        <!--          &lt;!&ndash; Sala &ndash;&gt;-->
+        <!--          <app-field-wrapper [field]="chamadoForm.salaId()">-->
+        <!--            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">-->
+        <!--              <mat-select-->
+        <!--                [formField]="chamadoForm.salaId!"-->
+        <!--                placeholder="Selecione a Sala"-->
+        <!--              >-->
+        <!--                <mat-option class="!text-red-700" [value]="null">Selecione a sala</mat-option>-->
+        <!--                @for (sala of store.salasPorAndar(); track sala.id) {-->
+        <!--                  <mat-option class="!text-blue-800" [value]="sala.id">{{ sala.numeroIdentificacao }}</mat-option>-->
+        <!--                }-->
+        <!--                <mat-option [value]="30">Outro local</mat-option>-->
+        <!--              </mat-select>-->
+        <!--            </mat-form-field>-->
+        <!--          </app-field-wrapper>-->
+        <!--        </div>-->
 
         <!-- Descrição textual se "Outro local" -->
         @if (chamadoForm.salaId().value() === 30) {
@@ -119,50 +147,82 @@ import {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <!-- 1º Nível: Categoria -->
           <app-field-wrapper [field]="chamadoForm.categoriaId()">
-            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-select
-                [formField]="chamadoForm.categoriaId"
-                (selectionChange)="onCategoriaChange($event.value)"
-                placeholder="Selecione a Categoria"
-              >
-                <mat-option class="!text-red-700" [value]="null">Selecione uma Categoria</mat-option>
-                @for (cat of store.categorias(); track cat.id) {
-                  <mat-option class="!text-blue-800" [value]="cat.id">{{ cat.nome }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <app-custom-autocomplete
+              [formField]="chamadoForm.categoriaId"
+              [options]="store.categorias()"
+              valueKey="id"
+              displayKey="nome"
+              placeholder="Selecione a Categoria"
+              (selectionChange)="onCategoriaChange($event)"
+              [clearable]="true"
+            />
           </app-field-wrapper>
+          <!--          <app-field-wrapper [field]="chamadoForm.categoriaId()">-->
+          <!--            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">-->
+          <!--              <mat-select-->
+          <!--                [formField]="chamadoForm.categoriaId"-->
+          <!--                (selectionChange)="onCategoriaChange($event.value)"-->
+          <!--                placeholder="Selecione a Categoria"-->
+          <!--              >-->
+          <!--                <mat-option class="!text-red-700" [value]="null">Selecione uma Categoria</mat-option>-->
+          <!--                @for (cat of store.categorias(); track cat.id) {-->
+          <!--                  <mat-option class="!text-blue-800" [value]="cat.id">{{ cat.nome }}</mat-option>-->
+          <!--                }-->
+          <!--              </mat-select>-->
+          <!--            </mat-form-field>-->
+          <!--          </app-field-wrapper>-->
 
           <!-- 2º Nível: Subcategoria -->
           <app-field-wrapper [field]="chamadoForm.subcategoriaId()">
-            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-select
-                [formField]="chamadoForm.subcategoriaId"
-                (selectionChange)="onSubcategoriaChange($event.value)"
-                placeholder="Selecione a Subcategoria"
-              >
-                <mat-option class="!text-red-700" [value]="null">Selecione a Subcategoria</mat-option>
-                @for (sub of store.subcategoriasAtivas(); track sub.id) {
-                  <mat-option class="!text-blue-800" [value]="sub.id">{{ sub.nome }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <app-custom-autocomplete
+              [formField]="chamadoForm.subcategoriaId"
+              [options]="store.subcategoriasAtivas()"
+              valueKey="id"
+              displayKey="nome"
+              placeholder="Selecione a Subcategoria"
+              (selectionChange)="onSubcategoriaChange($event)"
+              [clearable]="true"
+            />
           </app-field-wrapper>
+          <!--          <app-field-wrapper [field]="chamadoForm.subcategoriaId()">-->
+          <!--            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">-->
+          <!--              <mat-select-->
+          <!--                [formField]="chamadoForm.subcategoriaId"-->
+          <!--                (selectionChange)="onSubcategoriaChange($event.value)"-->
+          <!--                placeholder="Selecione a Subcategoria"-->
+          <!--              >-->
+          <!--                <mat-option class="!text-red-700" [value]="null">Selecione a Subcategoria</mat-option>-->
+          <!--                @for (sub of store.subcategoriasAtivas(); track sub.id) {-->
+          <!--                  <mat-option class="!text-blue-800" [value]="sub.id">{{ sub.nome }}</mat-option>-->
+          <!--                }-->
+          <!--              </mat-select>-->
+          <!--            </mat-form-field>-->
+          <!--          </app-field-wrapper>-->
 
           <!-- 3º Nível: Tipo de Serviço -->
           <app-field-wrapper [field]="chamadoForm.tipoServicoId()">
-            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-select
-                [formField]="chamadoForm.tipoServicoId"
-                placeholder="Selecione o Tipo de Serviço"
-              >
-                <mat-option class="!text-red-700" [value]="null">Selecione o Tipo de Serviço</mat-option>
-                @for (tipo of store.tiposPorCategoria(); track tipo.id) {
-                  <mat-option class="!text-blue-800" [value]="tipo.id">{{ tipo.nome }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <app-custom-autocomplete
+              [formField]="chamadoForm.tipoServicoId"
+              [options]="store.tiposPorCategoria()"
+              valueKey="id"
+              displayKey="nome"
+              placeholder="Selecione o Tipo de Serviço"
+              [clearable]="true"
+            />
           </app-field-wrapper>
+          <!--          <app-field-wrapper [field]="chamadoForm.tipoServicoId()">-->
+          <!--            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">-->
+          <!--              <mat-select-->
+          <!--                [formField]="chamadoForm.tipoServicoId"-->
+          <!--                placeholder="Selecione o Tipo de Serviço"-->
+          <!--              >-->
+          <!--                <mat-option class="!text-red-700" [value]="null">Selecione o Tipo de Serviço</mat-option>-->
+          <!--                @for (tipo of store.tiposPorCategoria(); track tipo.id) {-->
+          <!--                  <mat-option class="!text-blue-800" [value]="tipo.id">{{ tipo.nome }}</mat-option>-->
+          <!--                }-->
+          <!--              </mat-select>-->
+          <!--            </mat-form-field>-->
+          <!--          </app-field-wrapper>-->
         </div>
 
         <!-- ========================================== -->
@@ -288,6 +348,15 @@ export class ChamadoFormComponent implements OnInit {
 
   readonly requerTombamento = computed(() => {
     return this.subcategoriaSelecionada()?.requerTombamento ?? false;
+  });
+
+  // Computed que adiciona o item fixo "Outro local" à lista de salas da Store:
+  readonly salasComOpcaoOutro = computed(() => {
+    const salas = this.store.salasPorAndar();
+    return [
+      ...salas,
+      { id: 30, numeroIdentificacao: 'Outro local', andar: null, rotuloAndar: '', ativo: true }
+    ];
   });
 
   ngOnInit() {

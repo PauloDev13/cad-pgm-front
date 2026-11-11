@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+// import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -12,6 +12,9 @@ import { form, FormField, submit } from '@angular/forms/signals';
 import { ManutencaoStore } from '../../state/manutencao.store';
 import { SubcategoriaDialogData, SubcategoriaModel } from '../../models/manutencao-catalogo.model';
 import { formSubcategoria, initialSubcategoria, subcategoriaSchema } from '../../utils/manutencao-form.schemas';
+import {
+  CustomAutocompleteComponent
+} from '../../../../shared/components/custom-autocomplete/custom-autocomplete.component';
 
 @Component({
   selector: 'app-subcategoria-form-dialog',
@@ -20,12 +23,13 @@ import { formSubcategoria, initialSubcategoria, subcategoriaSchema } from '../..
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
+    // MatSelectModule,
     MatButtonModule,
     MatIconModule,
     MatSlideToggleModule,
     FieldWrapperComponent,
-    FormField
+    FormField,
+    CustomAutocompleteComponent
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -53,24 +57,33 @@ import { formSubcategoria, initialSubcategoria, subcategoriaSchema } from '../..
           <p class="mb-2 text-sm text-gray-600">
             Grupo de Demanda
           </p>
-          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-            <mat-label>Categoria</mat-label>
-            <mat-select
-              [formField]="subcategoriaForm.categoriaId"
-              placeholder="Selecione uma categoria"
-            >
-              <mat-option [value]="0">Selecione um Grupo de Demanda</mat-option>
-              @for (cat of store.categorias(); track cat.id) {
-                <mat-option
-                  [class]="cat.ativo ? '!font-semibold !text-blue-700' : '!font-semibold !text-red-700'"
-                  [value]="cat.id"
-                  [hidden]="!cat.ativo"
-                >
-                  {{ cat.ativo ? cat.nome : cat.nome + ' (Inativa)' }}
-                </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
+
+          <app-custom-autocomplete
+            [formField]="subcategoriaForm.categoriaId"
+            [options]="store.categorias()"
+            valueKey="id"
+            displayKey="nome"
+            placeholder="Pesquise ou selecione um Grupo"
+            [clearable]="false"
+          />
+          <!--          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">-->
+          <!--            <mat-label>Categoria</mat-label>-->
+          <!--            <mat-select-->
+          <!--              [formField]="subcategoriaForm.categoriaId"-->
+          <!--              placeholder="Selecione uma categoria"-->
+          <!--            >-->
+          <!--              <mat-option [value]="0">Selecione um Grupo de Demanda</mat-option>-->
+          <!--              @for (cat of store.categorias(); track cat.id) {-->
+          <!--                <mat-option-->
+          <!--                  [class]="cat.ativo ? '!font-semibold !text-blue-700' : '!font-semibold !text-red-700'"-->
+          <!--                  [value]="cat.id"-->
+          <!--                  [hidden]="!cat.ativo"-->
+          <!--                >-->
+          <!--                  {{ cat.ativo ? cat.nome : cat.nome + ' (Inativa)' }}-->
+          <!--                </mat-option>-->
+          <!--              }-->
+          <!--            </mat-select>-->
+          <!--          </mat-form-field>-->
         </app-field-wrapper>
         <!-- 2. Nome da Subcategoria -->
         <app-field-wrapper [field]="subcategoriaForm.nome()">
@@ -207,7 +220,7 @@ export class SubcategoriaFormDialogComponent implements OnInit {
     } else {
       formSubcategoria.set({
         ...initialSubcategoria,
-        categoriaId: this.data?.categoriaIdSelecionada ?? 0,
+        categoriaId: this.data?.categoriaIdSelecionada ?? 0
       });
     }
   }

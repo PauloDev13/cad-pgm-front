@@ -12,11 +12,9 @@ import { FieldWrapperComponent } from '../../../../shared/layout/component/field
 import { TipoServicoDialogData, TipoServicoModel } from '../../models/manutencao-catalogo.model';
 import { formTipoServico, initialTipoServico, tipoServicoSchema } from '../../utils/manutencao-form.schemas';
 import { ManutencaoStore } from '../../state/manutencao.store';
-
-// export interface TipoServicoDialogData {
-//   tipoServico?: TipoServicoResponseDTO;
-//   subcategoriaIdSelecionada?: number;
-// }
+import {
+  CustomAutocompleteComponent
+} from '../../../../shared/components/custom-autocomplete/custom-autocomplete.component';
 
 @Component({
   selector: 'app-tipo-servico-form-dialog',
@@ -32,7 +30,8 @@ import { ManutencaoStore } from '../../state/manutencao.store';
     MatIconModule,
     MatSlideToggleModule,
     FieldWrapperComponent,
-    FormField
+    FormField,
+    CustomAutocompleteComponent
   ],
   template: `
     <div class="flex justify-between items-center pr-6 pt-4 pb-0 border-gray-300 border-b">
@@ -54,25 +53,38 @@ import { ManutencaoStore } from '../../state/manutencao.store';
       <form autocomplete="off" class="flex flex-col gap-0">
         <!-- Categoria Vinculada -->
         <app-field-wrapper [field]="tipoForm.subcategoriaId()">
-          <p class="mb-2 text-sm text-gray-600">
-            Selecione uma Categoria
-          </p>
-          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-            <mat-label>Categoria</mat-label>
-            <mat-select [formField]="tipoForm.subcategoriaId">
-              <mat-option class="!text-gray-700" [value]="0">Selecione uma Categoria</mat-option>
-              @for (sub of store.subcategoriasAtivasDropdown(); track sub.id) {
-                <mat-option
-                  [class]="sub.ativo ? '!font-semibold !text-blue-700' : '!font-semibold !text-red-700'"
-                  [value]="sub.id"
-                  [hidden]="!sub.ativo"
-                >
-                  {{ sub.ativo ? sub.nome : sub.nome + ' (Inativa)' }}
-                </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
+          <p class="mb-2 text-sm text-gray-600">Selecione uma Categoria</p>
+
+          <app-custom-autocomplete
+            [formField]="tipoForm.subcategoriaId"
+            [options]="store.subcategoriasAtivasDropdown()"
+            valueKey="id"
+            displayKey="nome"
+            placeholder="Pesquise ou selecione a Categoria"
+            [clearable]="false"
+          />
         </app-field-wrapper>
+
+        <!--        <app-field-wrapper [field]="tipoForm.subcategoriaId()">-->
+        <!--          <p class="mb-2 text-sm text-gray-600">-->
+        <!--            Selecione uma Categoria-->
+        <!--          </p>-->
+        <!--          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">-->
+        <!--            <mat-label>Categoria</mat-label>-->
+        <!--            <mat-select [formField]="tipoForm.subcategoriaId">-->
+        <!--              <mat-option class="!text-gray-700" [value]="0">Selecione uma Categoria</mat-option>-->
+        <!--              @for (sub of store.subcategoriasAtivasDropdown(); track sub.id) {-->
+        <!--                <mat-option-->
+        <!--                  [class]="sub.ativo ? '!font-semibold !text-blue-700' : '!font-semibold !text-red-700'"-->
+        <!--                  [value]="sub.id"-->
+        <!--                  [hidden]="!sub.ativo"-->
+        <!--                >-->
+        <!--                  {{ sub.ativo ? sub.nome : sub.nome + ' (Inativa)' }}-->
+        <!--                </mat-option>-->
+        <!--              }-->
+        <!--            </mat-select>-->
+        <!--          </mat-form-field>-->
+        <!--        </app-field-wrapper>-->
 
         <!-- Nome do Serviço -->
         <app-field-wrapper [field]="tipoForm.nome()">
@@ -174,7 +186,7 @@ export class TipoServicoFormDialogComponent implements OnInit {
         subcategoriaId:
           this.data?.tipoServico?.subcategoriaId
           ?? this.data?.subcategoriaIdSelecionada
-          ?? initialTipoServico.subcategoriaId,
+          ?? initialTipoServico.subcategoriaId
       });
 
     }

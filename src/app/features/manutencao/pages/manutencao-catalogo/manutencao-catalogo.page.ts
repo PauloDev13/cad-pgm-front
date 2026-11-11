@@ -107,8 +107,8 @@ import {
           <div class="p-4 flex flex-col flex-1 min-h-0 h-full">
             <div class="flex justify-between items-center mb-3 shrink-0">
               <div>
-                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Lista de Categorias</span>
-                <p class="text-xs text-gray-400 m-0">Categorias agrupadoras dos serviços de manutenção predial</p>
+                <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Lista de Grupos</span>
+                <p class="text-xs text-gray-400 m-0">Grupos dos serviços de manutenção predial</p>
               </div>
             </div>
             <!-- Tabela de Categorias -->
@@ -197,7 +197,10 @@ import {
                         [class]="cat.ativo
                         ? '!font-semibold !text-blue-700'
                         : '!font-semibold !text-red-700'"
-                        [value]="cat.id"> {{ cat.ativo ? cat.nome : cat.nome + ' (Inativa)' }}
+                        [value]="cat.id"
+                        [hidden]="!cat.ativo"
+                      >
+                        {{ cat.ativo ? cat.nome : cat.nome + ' (Inativa)' }}
                       </mat-option>
                     }
                   </mat-select>
@@ -212,7 +215,7 @@ import {
                   [disabled]="store.filtroSubcategoriaCategoriaId() === null"
                   (click)="store.resetFiltroSubcategoria()"
                   class="!rounded-full hover:bg-red-50 transition-colors">
-                  <mat-icon class="!text-red-700" >filter_alt_off</mat-icon>
+                  <mat-icon class="!text-red-700">filter_alt_off</mat-icon>
                 </button>
               </div>
 
@@ -245,7 +248,9 @@ import {
                   <!-- Descrição -->
                   <ng-container matColumnDef="descricao">
                     <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-700">Grupo de Demanda</th>
-                    <td mat-cell *matCellDef="let sub" class="font-medium text-blue-800">{{ sub.categoriaNome || '-' }}</td>
+                    <td mat-cell *matCellDef="let sub"
+                        class="font-medium text-blue-800">{{ sub.categoriaNome || '-' }}
+                    </td>
                   </ng-container>
                   <!-- Exige Tombamento -->
                   <ng-container matColumnDef="requerTombamento">
@@ -339,7 +344,10 @@ import {
                         [class]="sub.ativo
                         ? '!font-semibold !text-blue-700'
                         : '!font-semibold !text-red-700'"
-                        [value]="sub.id"> {{ sub.ativo ? sub.nome : sub.nome + ' (Inativa)' }}
+                        [value]="sub.id"
+                        [hidden]="!sub.ativo"
+                      >
+                        {{ sub.ativo ? sub.nome : sub.nome + ' (Inativa)' }}
                       </mat-option>
                     }
                   </mat-select>
@@ -357,11 +365,11 @@ import {
                   <mat-icon class="!text-red-600">filter_alt_off</mat-icon>
                 </button>
               </div>
-                <div
-                  [hidden]="store.filtroTipoServicoSubcategoriaId() !== null"
-                  class="text-xs text-gray-500">
-                  Exibindo todas as Subcategorias.
-                </div>
+              <div
+                [hidden]="store.filtroTipoServicoSubcategoriaId() !== null"
+                class="text-xs text-gray-500">
+                Exibindo todas as Subcategorias.
+              </div>
               <div
                 [hidden]="store.filtroTipoServicoSubcategoriaId() === null"
                 class="text-xs text-gray-500">
@@ -421,7 +429,8 @@ import {
                     </td>
                   </ng-container>
 
-                  <tr mat-header-row *matHeaderRowDef="['id', 'nome', 'categoria', 'descricao', 'status', 'acoes']"></tr>
+                  <tr mat-header-row
+                      *matHeaderRowDef="['id', 'nome', 'categoria', 'descricao', 'status', 'acoes']"></tr>
                   <tr mat-row *matRowDef="let row; columns: ['id', 'nome','categoria', 'descricao', 'status', 'acoes']"
                       class="hover:bg-blue-50/40"></tr>
                 </table>
