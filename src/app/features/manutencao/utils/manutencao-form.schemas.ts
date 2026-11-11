@@ -40,11 +40,10 @@ export const formAberturaChamado = signal(initialAberturaChamado);
 export const aberturaChamadoSchema = schema<AberturaChamadoRequestDTO>((path) => {
 
   required(path.andar, { message: 'Selecione o ANDAR' });
-  // Desabilita o select "Tipo de Serviço" se nenhuma categoria for selecionada no select "Categoria
+
+  // Desabilita o autocomplete "Sala" se nenhum 'Andar' for selecionado
   disabled(path.salaId, ({ valueOf }) => !valueOf(path.andar));
-
   required(path.salaId, { message: 'Selecione a SALA' });
-
   // Validação condicional do local se sala for "Outro local" (salaId === 30)
   validate(path.localDescricao!, ({ value, valueOf }) => {
     const salaId = valueOf(path.salaId!);
@@ -58,27 +57,49 @@ export const aberturaChamadoSchema = schema<AberturaChamadoRequestDTO>((path) =>
     return null;
   });
 
-  required(path.categoriaId, { message: 'Selecione a CATEGORIA' });
+  // Desabilita o autocomplete "Grupo de demanda" se nenhuma 'Sala' for selecionado
+  disabled(path.categoriaId, ({ valueOf }) =>
+    !valueOf(path.salaId) || !valueOf(path.andar));
+  required(path.categoriaId, { message: 'Selecione o Grupo de demanda' });
 
-  // Desabilita o select "Tipo de Serviço" se nenhuma categoria for selecionada no select "Categoria
-  disabled(path.subcategoriaId, ({ valueOf }) => !valueOf(path.categoriaId));
-  required(path.subcategoriaId, { message: 'Selecione a SUBCATEGORIA' });
-  // Desabilita o select "Tipo de Serviço" se nenhuma categoria for selecionada no select "Categoria
-  disabled(path.tipoServicoId, ({ valueOf }) => !valueOf(path.subcategoriaId));
-  required(path.tipoServicoId, { message: 'Selecione o TIPO DE SERVIÇO' });
+  // Desabilita o autocomplete "Categoria" se nenhum 'Grupo de Demanda' for selecionado
+  disabled(path.subcategoriaId, ({ valueOf }) =>
+    !valueOf(path.categoriaId) || !valueOf(path.andar));
+  required(path.subcategoriaId, { message: 'Selecione a Categoria' });
 
-  // 3. Parâmetros do Chamado
-  required(path.prioridade!, { message: 'Selecione a PRIORIDADE' });
+  // Desabilita o autocomplete "Subcategoria" se nenhum 'Categoria' for selecionado
+  disabled(path.tipoServicoId, ({ valueOf }) =>
+    !valueOf(path.subcategoriaId) || !valueOf(path.andar));
+  required(path.tipoServicoId, { message: 'Selecione a Subcategoria' });
+
+  required(path.prioridade!, { message: 'Selecione a Prioridade' });
 
   // Validação de Prazo: Não retroativo à data de abertura
   validate(path.prazoConclusao!, ({ value }) => {
+
     const prazo = value();
 
     if (prazo) {
+      // 1. Conversão Segura: Delega o parsing para o JS nativo
+      const dataPrazo = new Date(prazo);
+
+      // 2. Proteção contra entradas inválidas
+      if (isNaN(dataPrazo.getTime())) {
+        return {
+          kind: 'dataInvalida',
+          message: 'A data informada é inválida'
+        };
+      }
+
+      // 3. Normalização: Zera horas, minutos, segundos e milissegundos
+      // Isso garante que a data do prazo seja avaliada no início do dia local do usuário
+      dataPrazo.setHours(0, 0, 0, 0);
+
+      // 4. Hoje: Zera o relógio de hoje para comparar apenas os dias
       const hoje = new Date();
       hoje.setHours(0, 0, 0, 0);
-      const dataPrazo = new Date(prazo + 'T00:00:00');
 
+      // 5. Comparação justa "Dia a Dia"
       if (dataPrazo < hoje) {
         return {
           kind: 'prazoRetroativo',
@@ -199,8 +220,9 @@ export const initialSubcategoria: SubcategoriaModel = {
 export const formSubcategoria = signal<SubcategoriaModel>(initialSubcategoria);
 
 export const subcategoriaSchema = schema<SubcategoriaRequestDTO>((path) => {
-  validate(path.categoriaId, ({ value }) => {
+  required(path.categoriaId, { message: 'A categoria vinculada é obrigatória' });
 
+  validate(path.categoriaId, ({ value }) => {
     if (value() === 0 || value() === null || value() === undefined) {
       return { kind: 'idInvalid', message: 'A categoria vinculada é obrigatória' };
     }
@@ -229,11 +251,12 @@ export const formTipoServico = signal<TipoServicoModel>(initialTipoServico);
 
 export const tipoServicoSchema = schema<TipoServicoRequestDTO>((path) => {
   validate(path.subcategoriaId, ({ value }) => {
-    if (value() === 0) {
+    if (value() === 0 || value() === null || value() === undefined) {
       return { kind: 'idInvalid', message: 'A categoria vinculada é obrigatória' };
     }
     return null;
   });
+
   required(path.nome, { message: 'O nome do tipo de serviço é obrigatório' });
   minLength(path.nome, 3, { message: 'O nome deve ter no mínimo 3 caracteres' });
   maxLength(path.nome, 150, { message: 'O nome deve ter no máximo 150 caracteres' });

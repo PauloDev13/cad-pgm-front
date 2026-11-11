@@ -52,50 +52,27 @@ import {
     <mat-dialog-content class="!p-4 !flex !flex-col gap-0">
       <form autocomplete="off" class="flex flex-col gap-0">
         <!-- Categoria Vinculada -->
-        <app-field-wrapper [field]="tipoForm.subcategoriaId()">
-          <p class="mb-2 text-sm text-gray-600">Selecione uma Categoria</p>
-
+        <app-field-wrapper class="mb-3" [field]="tipoForm.subcategoriaId()">
+          <p class="mb-2 text-sm text-gray-600">Lista de Categorias</p>
           <app-custom-autocomplete
             [formField]="tipoForm.subcategoriaId"
             [options]="store.subcategoriasAtivasDropdown()"
             valueKey="id"
             displayKey="nome"
+            label="Pesquise ou selecione a Categoria"
             placeholder="Pesquise ou selecione a Categoria"
-            [clearable]="false"
+            [clearable]="true"
           />
         </app-field-wrapper>
 
-        <!--        <app-field-wrapper [field]="tipoForm.subcategoriaId()">-->
-        <!--          <p class="mb-2 text-sm text-gray-600">-->
-        <!--            Selecione uma Categoria-->
-        <!--          </p>-->
-        <!--          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">-->
-        <!--            <mat-label>Categoria</mat-label>-->
-        <!--            <mat-select [formField]="tipoForm.subcategoriaId">-->
-        <!--              <mat-option class="!text-gray-700" [value]="0">Selecione uma Categoria</mat-option>-->
-        <!--              @for (sub of store.subcategoriasAtivasDropdown(); track sub.id) {-->
-        <!--                <mat-option-->
-        <!--                  [class]="sub.ativo ? '!font-semibold !text-blue-700' : '!font-semibold !text-red-700'"-->
-        <!--                  [value]="sub.id"-->
-        <!--                  [hidden]="!sub.ativo"-->
-        <!--                >-->
-        <!--                  {{ sub.ativo ? sub.nome : sub.nome + ' (Inativa)' }}-->
-        <!--                </mat-option>-->
-        <!--              }-->
-        <!--            </mat-select>-->
-        <!--          </mat-form-field>-->
-        <!--        </app-field-wrapper>-->
-
         <!-- Nome do Serviço -->
-        <app-field-wrapper [field]="tipoForm.nome()">
-          <p class="mb-2 text-sm text-gray-600">
-            Subcategoria
-          </p>
+        <app-field-wrapper class="mb-3" [field]="tipoForm.nome()">
+          <p class="mb-2 text-sm text-gray-600">Nome da Subcategoria</p>
           <mat-form-field
             appearance="outline"
             class="w-full"
             subscriptSizing="dynamic">
-            <mat-label>Nome da Subcategoria</mat-label>
+            <!--            <mat-label>Nome</mat-label>-->
             <input
               matInput
               [formField]="tipoForm.nome"
@@ -106,19 +83,17 @@ import {
 
         <!-- Descrição -->
         <app-field-wrapper [field]="tipoForm.descricao()">
-          <p class="mb-2 text-sm text-gray-600">
-            Descrição
-          </p>
+          <p class="mb-2 text-sm text-gray-600">Descrição</p>
           <mat-form-field
             appearance="outline"
             class="w-full"
             subscriptSizing="dynamic">
-            <mat-label>Descrição da Subcategoria (Opcional)</mat-label>
+            <!--            <mat-label>Descrição da Subcategoria (Opcional)</mat-label>-->
             <textarea
               matInput
               rows="3"
               [formField]="tipoForm.descricao"
-              placeholder="Instruções ou escopo padrão desta subcategoria">
+              placeholder="Descrição da Subcategoria (Opcional)">
             </textarea>
           </mat-form-field>
         </app-field-wrapper>
@@ -126,11 +101,9 @@ import {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-0 items-center pt-0">
           <!-- Ordem de Exibição -->
           <app-field-wrapper [field]="tipoForm.ordemExibicao()">
-            <p class="mb-2 text-sm text-gray-600">
-              Ordem de Exibição
-            </p>
+            <p class="mb-2 text-sm text-gray-600">Posição no Catálogo</p>
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>Posição no Catálogo</mat-label>
+              <!--              <mat-label>Posição no Catálogo</mat-label>-->
               <input
                 matInput
                 type="number"
@@ -154,15 +127,13 @@ import {
   `
 })
 export class TipoServicoFormDialogComponent implements OnInit {
-  protected readonly store = inject(ManutencaoStore);
-  private readonly dialogRef = inject(MatDialogRef<TipoServicoFormDialogComponent>);
-  private readonly data = inject<TipoServicoDialogData | null>(MAT_DIALOG_DATA);
-
-  readonly isEdit = !!(this.data && this.data?.tipoServico?.id);
-
   readonly tipoForm = form<TipoServicoModel>(
     formTipoServico, tipoServicoSchema
   );
+  protected readonly store = inject(ManutencaoStore);
+  private readonly dialogRef = inject(MatDialogRef<TipoServicoFormDialogComponent>);
+  private readonly data = inject<TipoServicoDialogData | null>(MAT_DIALOG_DATA);
+  readonly isEdit = !!(this.data && this.data?.tipoServico?.id);
 
   ngOnInit() {
     this.store.subcategoriasAtivasDropdown();

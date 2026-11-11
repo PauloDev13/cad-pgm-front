@@ -3,7 +3,6 @@ import {
   Component,
   computed,
   effect,
-  forwardRef,
   input,
   model,
   output,
@@ -11,10 +10,11 @@ import {
   viewChild
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInput, MatInputModule } from '@angular/material/input';
 import {
+  MatAutocomplete,
   MatAutocompleteModule,
   MatAutocompleteSelectedEvent,
   MatAutocompleteTrigger
@@ -22,6 +22,8 @@ import {
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { FormValueControl } from '@angular/forms/signals';
+import { ErrorStateMatcher } from '@angular/material/core';
 
 @Component({
   selector: 'app-custom-autocomplete',
@@ -35,32 +37,22 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatButtonModule,
     MatTooltipModule
   ],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => CustomAutocompleteComponent),
-      multi: true
-    }
-  ],
   standalone: true,
   styles: `
+    :host {
+      display: block;
+      width: 100%;
+      min-width: 0;
+    }
+
     .custom-autocomplete-container {
       display: flex;
       position: relative;
       width: 100%;
+      min-width: 0;
 
       .custom-autocomplete-field {
         width: 100%;
-
-        ::ng-deep .mat-mdc-form-field-infix {
-          padding-top: 10px !important;
-          padding-bottom: 10px !important;
-          /*min-height: 45px;*/
-        }
-
-        ::ng-deep .mat-mdc-text-field-wrapper {
-          background-color: transparent !important;
-        }
 
         &.is-disabled {
           opacity: 0.7;
@@ -74,18 +66,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
       border: 1px solid #e2e8f0;
       max-height: 280px !important;
-
-      .mat-mdc-option {
-        min-height: 40px !important;
-        font-size: 0.875rem !important;
-
-        &.mat-mdc-option-active {
-          background-color: #eff6ff !important;
-          color: #1d4ed8 !important;
-        }
-      }
     }
   `,
+
   template: `
     <div class="custom-autocomplete-container w-full flex flex-col">
       <mat-form-field
@@ -103,9 +86,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
           #inputElement
           type="text"
           matInput
+          [errorStateMatcher]="errorStateMatcher"
+          [matAutocomplete]="autoPanel"
+          [attr.aria-invalid]="invalid()"
           [disabled]="isDisabled()"
           [placeholder]="placeholder()"
-          [matAutocomplete]="autoPanel"
           [value]="displayValue()"
           (input)="onInputChange($event)"
           (blur)="onBlur()"
@@ -127,7 +112,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
               (click)="clearSelection($event)"
               class="!w-7 !h-7 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors"
             >
-              <mat-icon class="!text-lg !leading-none">close</mat-icon>
+              <mat-icon class="!text-lg !font-bold !text-red-700 !leading-none">close</mat-icon>
             </button>
           }
 
@@ -154,7 +139,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
         >
           <!-- Opção Nula / Desfazer Filtro (se configurado) -->
           @if (emptyOptionLabel()) {
-            <mat-option [value]="null" class="text-gray-400 italic font-normal">
+            <mat-option [value]="null" class="!text-red-700 italic font-normal">
               {{ emptyOptionLabel() }}
             </mat-option>
           }
@@ -165,7 +150,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
               [value]="getItemValue(item)"
               [class.!bg-blue-50]="getItemValue(item) === value()"
               [class.!font-semibold]="getItemValue(item) === value()"
-              class="hover:!bg-blue-50/50 transition-colors text-sm"
+              class="hover:!bg-blue-50/50 transition-colors !font-semibold !text-blue-700 text-sm"
             >
               {{ getItemDisplayText(item) }}
             </mat-option>
@@ -183,7 +168,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CustomAutocompleteComponent<T = any> implements ControlValueAccessor {
+
+export class CustomAutocompleteComponent<T = any> implements FormValueControl<any> {
   /** Lista completa de itens para exibição e filtragem */
   options = input.required<T[]>();
 
@@ -199,6 +185,8 @@ export class CustomAutocompleteComponent<T = any> implements ControlValueAccesso
   /** Nome do atributo cujo valor será emitido / armazenado (ex: 'id', 'codigo') */
   valueKey = input<string>('id');
 
+  enabledKey = input<string>('ativo');
+
   /** Função customizada de formatação de exibição (opcional, sobrepõe displayKey) */
   displayFnCustom = input<((item: T) => string) | null>(null);
 
@@ -213,6 +201,7 @@ export class CustomAutocompleteComponent<T = any> implements ControlValueAccesso
 
   /** Two-way binding reativo para o valor selecionado (usado diretamente em filtros) */
   value = model<any>(null);
+
   /** Evento emitido na seleção ou limpeza de um valor */
   selectionChange = output<any>();
 
@@ -223,28 +212,40 @@ export class CustomAutocompleteComponent<T = any> implements ControlValueAccesso
   /** Termo de pesquisa digitado pelo usuário */
   searchTerm = signal<string>('');
 
-  /** Sinal que indica se o campo foi tocado (interação do usuário) */
-  touched = signal<boolean>(false);
+  /** Estado de validação recebido automaticamente do Signal Forms */
+  invalid = input<boolean>(false);
 
-  /** Desabilitação gerenciada via ControlValueAccessor */
-  cvaDisabled = signal<boolean>(false);
+  /** Sinal que indica se o campo foi tocado (interação do usuário) */
+  touched = model<boolean>(false);
 
   /** Referência ao elemento de input Material */
   matInputRef = viewChild(MatInput);
   autocompleteTrigger = viewChild(MatAutocompleteTrigger);
-
-  /** Timeout de controle para resolução do blur */
-  private blurTimeout: any = null;
+  matAutocomplete = viewChild(MatAutocomplete);
+  // =========================================================================
+  /** Indica se o componente está desabilitado por qualquer origem */
+  isDisabled = computed(() => this.disabled());
 
   // =========================================================================
   // LÓGICA COMPUTADA
   // =========================================================================
-  /** Indica se o componente está desabilitado por qualquer origem */
-  isDisabled = computed(() => this.disabled() || this.cvaDisabled());
+
+  /**
+   * Lista de registros habilitados para exibição.
+   * Elimina todos os registros cujo atributo booleano seja diferente de true.
+   */
+  availableOptions = computed<T[]>(() => {
+    return (this.options() || []).filter(item => this.isItemEnabled(item));
+  });
+
+
+  readonly errorStateMatcher: ErrorStateMatcher = {
+    isErrorState: () => this.invalid() && this.touched()
+  };
 
   /** Lista filtrada em tempo real com base no termo de busca e normalização de acentos */
   filteredOptions = computed(() => {
-    const list = this.options() || [];
+    const list = this.availableOptions() || [];
     const term = this.normalizeText(this.searchTerm().trim());
 
     if (!term) {
@@ -262,7 +263,7 @@ export class CustomAutocompleteComponent<T = any> implements ControlValueAccesso
     const currentVal = this.value();
 
     if (currentVal !== null && currentVal !== undefined && currentVal !== '') {
-      const found = (this.options() || []).find(
+      const found = (this.availableOptions() || []).find(
         (item) => this.getItemValue(item) === currentVal
       );
       if (found) {
@@ -271,12 +272,14 @@ export class CustomAutocompleteComponent<T = any> implements ControlValueAccesso
     }
     return this.searchTerm();
   });
+  /** Timeout de controle para resolução do blur */
+  private blurTimeout: any = null;
 
   constructor() {
     // Sincroniza o texto do input sempre que o valor externo ou a lista de opções mudar
     effect(() => {
       const currentVal = this.value();
-      const opts = this.options();
+      const opts = this.availableOptions();
 
       if (currentVal === null || currentVal === undefined || currentVal === '') {
         this.searchTerm.set('');
@@ -287,11 +290,34 @@ export class CustomAutocompleteComponent<T = any> implements ControlValueAccesso
         }
       }
     });
+
+    // Efeito para sincronizar o estado de erro com o Angular Material
+    effect(() => {
+      // Registramos as dependências ativamente
+      const isInvalid = this.invalid();
+      const isTouched = this.touched();
+
+      // Quando qualquer um desses signals mudar, forçamos o matInput a reavaliar o ErrorStateMatcher
+      const inputRef = this.matInputRef();
+      if (inputRef) {
+        inputRef.updateErrorState();
+      }
+    });
   }
+
+  /**
+   * Função fornecida ao [displayWith] do mat-autocomplete
+   */
+  /**formatDisplayFn = (val: any): string => {
+   if (val === null || val === undefined || val === '') return '';
+   const found = (this.availableOptions() || []).find((item) => this.getItemValue(item) === val);
+   return found ? this.getItemDisplayText(found) : '';
+   };*/
 
   // =========================================================================
   // MÉTODOS AUXILIARES
   // =========================================================================
+
   getItemDisplayText(item: T): string {
     if (!item) return '';
 
@@ -305,26 +331,6 @@ export class CustomAutocompleteComponent<T = any> implements ControlValueAccesso
     if (!item) return null;
     return (item as any)[this.valueKey()] ?? null;
   }
-
-  /**
-   * Função fornecida ao [displayWith] do mat-autocomplete
-   */
-  formatDisplayFn = (val: any): string => {
-    if (val === null || val === undefined || val === '') return '';
-    const found = (this.options() || []).find((item) => this.getItemValue(item) === val);
-    return found ? this.getItemDisplayText(found) : '';
-  };
-
-  private normalizeText(text: string): string {
-    return text
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-  }
-
-  // =========================================================================
-  // MANIPULAÇÃO DE EVENTOS
-  // =========================================================================
 
   /**
    * Alterna a abertura e fechamento do painel utilizando a API oficial do Angular Material
@@ -341,7 +347,8 @@ export class CustomAutocompleteComponent<T = any> implements ControlValueAccesso
   onInputChange(event: Event) {
     const text = (event.target as HTMLInputElement).value;
     this.searchTerm.set(text);
-    // Se o usuário apagar todo o texto manualmente, limpa o valor
+
+    // Se o usuário apagar completamente o texto manualmente, limpa o valor
     if (text.trim() === '' && this.value() !== null) {
       this.updateValue(null);
     }
@@ -363,12 +370,17 @@ export class CustomAutocompleteComponent<T = any> implements ControlValueAccesso
     this.markAsTouched();
   }
 
+  // =========================================================================
+  // MANIPULAÇÃO DE EVENTOS
+  // =========================================================================
+
   /**
    * Manipula a perda de foco do input de forma assíncrona,
    * permitindo que o evento de clique na opção aconteça sem concorrência
    */
   onBlur() {
-    this.markAsTouched();
+    // this.markAsTouched();
+    this.touched.set(true);
 
     // Cancela execução anterior se houver
     if (this.blurTimeout) {
@@ -378,10 +390,12 @@ export class CustomAutocompleteComponent<T = any> implements ControlValueAccesso
     // Aguarda o término do ciclo de eventos de clique/seleção
     this.blurTimeout = setTimeout(() => {
       const currentVal = this.value();
+
       if (currentVal !== null && currentVal !== undefined && currentVal !== '') {
-        const found = (this.options() || []).find(
+        const found = (this.availableOptions() || []).find(
           (item) => this.getItemValue(item) === currentVal
         );
+
         if (found) {
           this.searchTerm.set('');
           return;
@@ -390,7 +404,7 @@ export class CustomAutocompleteComponent<T = any> implements ControlValueAccesso
       // Se não há valor válido selecionado, descarta o texto digitado solto
       this.searchTerm.set('');
       this.blurTimeout = null;
-    }, 150);
+    }, 500);
   }
 
   clearSelection(event?: MouseEvent) {
@@ -398,6 +412,7 @@ export class CustomAutocompleteComponent<T = any> implements ControlValueAccesso
       event.stopPropagation();
     }
     this.updateValue(null);
+    this.clearMaterialSelection();
     this.searchTerm.set('');
     this.markAsTouched();
     this.matInputRef()?.focus();
@@ -409,42 +424,47 @@ export class CustomAutocompleteComponent<T = any> implements ControlValueAccesso
     }
   }
 
-  private updateValue(newVal: any) {
-    this.value.set(newVal);
-    this.onChange(newVal);
-    this.selectionChange.emit(newVal);
-  }
-
-  private markAsTouched() {
-    if (!this.touched()) {
-      this.touched.set(true);
-      this.onTouched();
+  private isItemEnabled(item: T): boolean {
+    if (item === null || item === undefined || typeof item !== 'object') {
+      return false;
     }
+
+    const record = item as unknown as Record<string, unknown>;
+
+    return record[this.enabledKey()] === true;
   }
 
   // =========================================================================
   // CONTROL VALUE ACCESSOR (CVA)
   // =========================================================================
 
-  private onChange: (value: any) => void = () => {
-  };
-  private onTouched: () => void = () => {
-  };
-
-  writeValue(val: any): void {
-    this.value.set(val);
-    this.searchTerm.set('');
+  /**
+   * Remove o estado interno de seleção de todas as opções
+   * do Angular Material.
+   */
+  private clearMaterialSelection(): void {
+    this.matAutocomplete()?.options.forEach(option => {
+      if (option.selected) {
+        option.deselect(false);
+      }
+    });
   }
 
-  registerOnChange(fn: any): void {
-    this.onChange = fn;
+  private normalizeText(text: string): string {
+    return text
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
   }
 
-  registerOnTouched(fn: any): void {
-    this.onTouched = fn;
+  private updateValue(newVal: any) {
+    this.value.set(newVal);
+    this.selectionChange.emit(newVal);
   }
 
-  setDisabledState?(isDisabled: boolean): void {
-    this.cvaDisabled.set(isDisabled);
+  private markAsTouched() {
+    if (!this.touched()) {
+      this.touched.set(true);
+    }
   }
 }

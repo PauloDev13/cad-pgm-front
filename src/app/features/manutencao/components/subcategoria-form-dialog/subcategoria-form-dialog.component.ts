@@ -53,7 +53,7 @@ import {
     <mat-dialog-content class="!p-4 !flex !flex-col gap-0">
       <form autocomplete="off" class="flex flex-col gap-0">
         <!-- 1. Categoria Pai Vinculada -->
-        <app-field-wrapper [field]="subcategoriaForm.categoriaId()">
+        <app-field-wrapper class="mb-3" [field]="subcategoriaForm.categoriaId()">
           <p class="mb-2 text-sm text-gray-600">
             Grupo de Demanda
           </p>
@@ -63,35 +63,18 @@ import {
             [options]="store.categorias()"
             valueKey="id"
             displayKey="nome"
+            label="Grupo de Demanda"
             placeholder="Pesquise ou selecione um Grupo"
-            [clearable]="false"
+            [clearable]="true"
           />
-          <!--          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">-->
-          <!--            <mat-label>Categoria</mat-label>-->
-          <!--            <mat-select-->
-          <!--              [formField]="subcategoriaForm.categoriaId"-->
-          <!--              placeholder="Selecione uma categoria"-->
-          <!--            >-->
-          <!--              <mat-option [value]="0">Selecione um Grupo de Demanda</mat-option>-->
-          <!--              @for (cat of store.categorias(); track cat.id) {-->
-          <!--                <mat-option-->
-          <!--                  [class]="cat.ativo ? '!font-semibold !text-blue-700' : '!font-semibold !text-red-700'"-->
-          <!--                  [value]="cat.id"-->
-          <!--                  [hidden]="!cat.ativo"-->
-          <!--                >-->
-          <!--                  {{ cat.ativo ? cat.nome : cat.nome + ' (Inativa)' }}-->
-          <!--                </mat-option>-->
-          <!--              }-->
-          <!--            </mat-select>-->
-          <!--          </mat-form-field>-->
         </app-field-wrapper>
         <!-- 2. Nome da Subcategoria -->
-        <app-field-wrapper [field]="subcategoriaForm.nome()">
+        <app-field-wrapper class="mb-3" [field]="subcategoriaForm.nome()">
           <p class="mb-2 text-sm text-gray-600">
-            Categoria
+            Nome da Categoria
           </p>
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-            <mat-label>Nome da Categoria</mat-label>
+            <!--            <mat-label>Nome da Categoria</mat-label>-->
             <input
               matInput
               [formField]="subcategoriaForm.nome"
@@ -100,12 +83,12 @@ import {
           </mat-form-field>
         </app-field-wrapper>
         <!-- 3. Descrição Detalhada -->
-        <app-field-wrapper [field]="subcategoriaForm.descricao()">
+        <app-field-wrapper class="mb-3" [field]="subcategoriaForm.descricao()">
           <p class="mb-2 text-sm text-gray-600">
-            Descrição
+            Descrição da Categoria (Opcional)
           </p>
           <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-            <mat-label>Descrição da Categoria (Opcional)</mat-label>
+            <!--            <mat-label>Descrição da Categoria (Opcional)</mat-label>-->
             <textarea
               matInput
               rows="3"
@@ -117,12 +100,12 @@ import {
         <!-- 4. Grade: Prazo Estimado e Ordem de Exibição -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center pt-1">
           <!-- Prazo Estimado em Dias -->
-          <app-field-wrapper [field]="subcategoriaForm.prazoEstimadoDias()">
+          <app-field-wrapper class="mb-3" [field]="subcategoriaForm.prazoEstimadoDias()">
             <p class="mb-2 text-sm text-gray-600">
               Prazo Estimado (Dias Úteis)
             </p>
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>Dias para conclusão</mat-label>
+              <!--              <mat-label>Dias para conclusão</mat-label>-->
               <input
                 matInput
                 type="number"
@@ -134,10 +117,10 @@ import {
           <!-- Ordem de Exibição -->
           <app-field-wrapper [field]="subcategoriaForm.ordemExibicao()">
             <p class="mb-2 text-sm text-gray-600">
-              Ordem de Exibição
+              Posição no Catálogo
             </p>
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>Posição no Catálogo</mat-label>
+              <!--              <mat-label>Posição no Catálogo</mat-label>-->
               <input
                 matInput
                 type="number"
@@ -189,15 +172,14 @@ import {
   `
 })
 export class SubcategoriaFormDialogComponent implements OnInit {
-  protected readonly store = inject(ManutencaoStore);
-  private readonly dialogRef = inject(MatDialogRef<SubcategoriaFormDialogComponent>);
-  private readonly data = inject<SubcategoriaDialogData | null>(MAT_DIALOG_DATA);
-  readonly isEdit = !!(this.data && this.data.subcategoria?.id);
-
   readonly subcategoriaForm = form<SubcategoriaModel>(
     formSubcategoria,
     subcategoriaSchema
   );
+  protected readonly store = inject(ManutencaoStore);
+  private readonly dialogRef = inject(MatDialogRef<SubcategoriaFormDialogComponent>);
+  private readonly data = inject<SubcategoriaDialogData | null>(MAT_DIALOG_DATA);
+  readonly isEdit = !!(this.data && this.data.subcategoria?.id);
 
   ngOnInit() {
     this.store.loadCategoriasAtivas();
