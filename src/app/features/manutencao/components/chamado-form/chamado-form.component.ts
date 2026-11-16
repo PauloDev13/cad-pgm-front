@@ -58,7 +58,7 @@ import {
     </div>
 
     <!-- Conteúdo do Formulário -->
-    <mat-dialog-content class="!px-6 !py-4 custom-scrollbar max-h-[78vh]">
+    <mat-dialog-content class="!px-6 !py-4 !custom-scrollbar !max-h-[78vh]">
       <form autocomplete="off" class="flex flex-col gap-4">
         <!-- ========================================== -->
         <!-- SEÇÃO 1: LOCALIZAÇÃO                       -->
@@ -201,30 +201,31 @@ import {
           <app-field-wrapper [field]="chamadoForm.movelRelacionado!()">
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
               <mat-label>
-                {{ requerTombamento() ? 'Nº do Tombo / Patrimônio (Obrigatório)' : 'Nº do Tombo / Patrimônio (Opcional)' }}
+                Nº do Tombo / Patrimônio
+                <!--                  {{ requerTombamento() ? 'Nº do Tombo / Patrimônio (Obrigatório)' : 'Nº do Tombo / Patrimônio (Opcional)' }}-->
               </mat-label>
               <input
                 matInput
                 [formField]="chamadoForm.movelRelacionado"
                 placeholder="Ex: 15131104 ou TOMBO-2024"
               />
-              @if (requerTombamento()) {
-                <span matSuffix class="text-xs font-bold text-amber-600 mr-2">*Exigido</span>
-              }
+              <!--                @if (requerTombamento()) {-->
+              <!--                  <span matSuffix class="text-xs font-bold text-amber-600 mr-2">*Exigido</span>-->
+              <!--                }-->
             </mat-form-field>
           </app-field-wrapper>
 
           <!-- Número da Requisição e-Cidade -->
-          <app-field-wrapper [field]="chamadoForm.numeroRequisicaoEcidade!()">
-            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-              <mat-label>Nº Protocolo e-Cidade (Opcional)</mat-label>
-              <input
-                matInput
-                [formField]="chamadoForm.numeroRequisicaoEcidade"
-                placeholder="Ex: 002359/2026"
-              />
-            </mat-form-field>
-          </app-field-wrapper>
+          <!--          <app-field-wrapper [field]="chamadoForm.numeroRequisicaoEcidade!()">-->
+          <!--            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">-->
+          <!--              <mat-label>Nº Protocolo e-Cidade (Opcional)</mat-label>-->
+          <!--              <input-->
+          <!--                matInput-->
+          <!--                [formField]="chamadoForm.numeroRequisicaoEcidade"-->
+          <!--                placeholder="Ex: 002359/2026"-->
+          <!--              />-->
+          <!--            </mat-form-field>-->
+          <!--          </app-field-wrapper>-->
         </div>
 
         <!-- ========================================== -->
@@ -267,11 +268,11 @@ export class ChamadoFormComponent implements OnInit {
   readonly listaPrioridades: PrioridadeChamado[] = Object.values(PrioridadeChamado) as PrioridadeChamado[];
   readonly rotulosPrioridade = PRIORIDADE_CHAMADO_LABELS;
   // Data mínima para o seletor HTML date: "YYYY-MM-DD" atual
-  readonly minDataHoje = new Date().toISOString().split('T')[0];
   readonly requerTombamento = computed(() => {
     return this.subcategoriaSelecionada()?.requerTombamento ?? false;
   });
   protected readonly store = inject(ManutencaoStore);
+  // readonly minDataHoje = new Date().toISOString().split('T')[0];
   /**
    * Identifica se a subcategoria atualmente selecionada exige tombo/patrimônio
    */

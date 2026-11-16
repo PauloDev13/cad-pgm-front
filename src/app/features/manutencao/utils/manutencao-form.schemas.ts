@@ -15,8 +15,9 @@ import {
   TipoServicoModel,
   TipoServicoRequestDTO
 } from '../models/manutencao-catalogo.model';
-import { signal } from '@angular/core';
+import { inject, signal } from '@angular/core';
 import { PrioridadeChamado } from '../models/manutencao-enums.model';
+import { ManutencaoStore } from '../state/manutencao.store';
 
 // ==========================================
 // ABERTURA DE CHAMADO
@@ -37,7 +38,10 @@ export const initialAberturaChamado: AberturaChamadoModel = {
 
 export const formAberturaChamado = signal(initialAberturaChamado);
 
+
 export const aberturaChamadoSchema = schema<AberturaChamadoRequestDTO>((path) => {
+
+  const store = inject(ManutencaoStore);
 
   required(path.andar, { message: 'Selecione o ANDAR' });
 
@@ -64,12 +68,16 @@ export const aberturaChamadoSchema = schema<AberturaChamadoRequestDTO>((path) =>
 
   // Desabilita o autocomplete "Categoria" se nenhum 'Grupo de Demanda' for selecionado
   disabled(path.subcategoriaId, ({ valueOf }) =>
-    !valueOf(path.categoriaId) || !valueOf(path.andar));
+    !valueOf(path.categoriaId) || !valueOf(path.andar) || !valueOf(path.salaId));
   required(path.subcategoriaId, { message: 'Selecione a Categoria' });
 
   // Desabilita o autocomplete "Subcategoria" se nenhum 'Categoria' for selecionado
   disabled(path.tipoServicoId, ({ valueOf }) =>
-    !valueOf(path.subcategoriaId) || !valueOf(path.andar));
+    !valueOf(path.subcategoriaId) ||
+    !valueOf(path.andar) ||
+    !valueOf(path.salaId) ||
+    !valueOf(path.categoriaId)
+  );
   required(path.tipoServicoId, { message: 'Selecione a Subcategoria' });
 
   required(path.prioridade!, { message: 'Selecione a Prioridade' });
@@ -110,8 +118,21 @@ export const aberturaChamadoSchema = schema<AberturaChamadoRequestDTO>((path) =>
     return null;
   });
 
+  // Desabilita o input 'móvel relacionado' se a subcategoria não exigir número do tombo/patrimônio
+  disabled(path.movelRelacionado!, () => {
+    const sub = store.subcategoriasAtivas().find(sub =>
+      sub.categoriaId === formAberturaChamado().categoriaId
+    );
+
+    if (!sub) return true;
+
+    return sub.requerTombamento === false;
+
+  });
+  required(path.movelRelacionado!, { message: 'O número do tombo/patrimônio é obrigatório' });
   maxLength(path.movelRelacionado!, 100,
     { message: 'O número do tombo/patrimônio deve ter no máximo 100 caracteres' });
+
   maxLength(path.numeroRequisicaoEcidade!, 50,
     { message: 'O número da requisição no e-Cidade deve ter no máximo 50 caracteres' });
 
