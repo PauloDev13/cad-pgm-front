@@ -54,6 +54,7 @@ export interface IniciarAtendimentoRequestDTO {
 
 export interface ConcluirChamadoRequestDTO {
   observacao: string;
+  numeroRequisicaoEcidade: string;
 }
 
 export interface CancelarChamadoRequestDTO {

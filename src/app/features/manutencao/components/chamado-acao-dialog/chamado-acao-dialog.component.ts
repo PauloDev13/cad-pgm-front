@@ -45,7 +45,7 @@ export interface DialogAcaoData {
     MatIconModule,
     FieldWrapperComponent,
     FormField,
-    FormFluxoChamadoComponent,
+    FormFluxoChamadoComponent
   ],
   template: `
     <div class="flex justify-between items-center px-6 pt-2 pb-0 border-gray-300 border-b">
@@ -102,12 +102,12 @@ export interface DialogAcaoData {
       <!-- 2. INICIAR ATENDIMENTO -->
       @if (data.tipo === 'INICIAR') {
         <app-form-fluxo-chamado
-        titleMessage="Confirma o início dos reparos técnicos para este chamado?"
-        label="Observações Iniciais (Opcional)"
-        [rowsValue]="3"
-        placeholder="Ex: Deslocando-se para o local"
-        [fieldValue]="formIniciar.observacao()"
-        [formControlField]="formIniciar.observacao"
+          titleMessage="Confirma o início dos reparos técnicos para este chamado?"
+          label="Observações Iniciais (Opcional)"
+          [rowsValue]="3"
+          placeholder="Ex: Deslocando-se para o local"
+          [fieldValue]="formIniciar.observacao()"
+          [formControlField]="formIniciar.observacao"
         />
       }
 
@@ -116,9 +116,14 @@ export interface DialogAcaoData {
         <app-form-fluxo-chamado
           titleMessage="Descreva os procedimentos executados para a finalização do chamado."
           label="Laudo/Observação Conclusiva"
+          labelNumReq="Nº do protocolo eCidade"
+          [isConcluirChamado]="true"
           placeholder="Ex: Peças trocadas, reparo testado e normalizado"
           [fieldValue]="formConcluir.observacao()"
           [formControlField]="formConcluir.observacao"
+          [fieldValueNumReq]="formConcluir.numeroRequisicaoEcidade()"
+          [formControlFieldNumReq]="formConcluir.numeroRequisicaoEcidade"
+          placeholderNumReq="Número do protocolo de requisição de material"
         />
       }
 
@@ -146,20 +151,18 @@ export interface DialogAcaoData {
         Confirmar
       </button>
     </mat-dialog-actions>
-  `,
+  `
 })
 export class ChamadoAcaoDialogComponent implements OnInit {
-  protected readonly data = inject<DialogAcaoData>(MAT_DIALOG_DATA);
-  protected readonly store = inject(ManutencaoStore);
-  private readonly chamadoService = inject(ManutencaoChamadoService);
-  private readonly dialogRef = inject(MatDialogRef<ChamadoAcaoDialogComponent>);
-
   readonly servidoresDisponiveis = signal<ResponsavelComboResponseDTO[]>([]);
-
   readonly formAtribuicao = form(formAtribuicaoModel, atribuicaoChamadoSchema);
   readonly formIniciar = form(formIniciarModel, iniciarAtendimentoSchema);
   readonly formConcluir = form(formConcluirModel, concluirChamadoSchema);
   readonly formCancelar = form(formCancelarModel, cancelarChamadoSchema);
+  protected readonly data = inject<DialogAcaoData>(MAT_DIALOG_DATA);
+  protected readonly store = inject(ManutencaoStore);
+  private readonly chamadoService = inject(ManutencaoChamadoService);
+  private readonly dialogRef = inject(MatDialogRef<ChamadoAcaoDialogComponent>);
 
   ngOnInit() {
     if (this.data.tipo === 'ATRIBUIR') {
@@ -232,7 +235,7 @@ export class ChamadoAcaoDialogComponent implements OnInit {
           this.store.atribuirResponsavel({
             id: chamadoId,
             payload: field().value(),
-            onSuccess: () => this.dialogRef.close(true),
+            onSuccess: () => this.dialogRef.close(true)
           });
         });
         break;
@@ -242,7 +245,7 @@ export class ChamadoAcaoDialogComponent implements OnInit {
           this.store.iniciarAtendimento({
             id: chamadoId,
             payload: field().value(),
-            onSuccess: () => this.dialogRef.close(true),
+            onSuccess: () => this.dialogRef.close(true)
           });
         });
         break;
@@ -252,7 +255,7 @@ export class ChamadoAcaoDialogComponent implements OnInit {
           this.store.concluirAtendimento({
             id: chamadoId,
             payload: field().value(),
-            onSuccess: () => this.dialogRef.close(true),
+            onSuccess: () => this.dialogRef.close(true)
           });
         });
         break;
@@ -262,7 +265,7 @@ export class ChamadoAcaoDialogComponent implements OnInit {
           this.store.cancelarChamado({
             id: chamadoId,
             payload: field().value(),
-            onSuccess: () => this.dialogRef.close(true),
+            onSuccess: () => this.dialogRef.close(true)
           });
         });
         break;

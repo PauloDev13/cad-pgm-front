@@ -23,24 +23,49 @@ import { FieldWrapperComponent } from '../../../shared/layout/component/field-wr
           <mat-label>{{ label() }}</mat-label>
           <textarea
             matInput
-            rows="3"
+            [rows]="rowsValue()"
             [formField]="formControlField()"
             [placeholder]="placeholder()"
           ></textarea>
         </mat-form-field>
       </app-field-wrapper>
+
+      <!--  input só é exibo quando é chamada o dialog 'Concluir' atendimento-->
+      @if (isConcluirChamado()) {
+        <app-field-wrapper [field]="fieldValueNumReq()">
+          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+            <mat-label>{{ labelNumReq() }}</mat-label>
+            <input
+              matInput
+              [formField]="formControlFieldNumReq()!"
+              [placeholder]="placeholderNumReq()"
+            />
+          </mat-form-field>
+        </app-field-wrapper>
+
+      }
     </form>
-  `,
+  `
 })
 export class FormFluxoChamadoComponent {
   // Textos
   titleMessage = input.required<string>();
+  classValue = input<string>();
+
+  isConcluirChamado = input<boolean>(false);
+
+  // Input observação
   label = input.required<string>();
   placeholder = input<string>(''); // Opcional, valor default vazio
   rowsValue = input<number>(4);
-  classValue = input<string>();
-
   // Controles de Formulário tipados
   fieldValue = input.required<any | unknown>();
   formControlField = input.required<Field<any, string | number>>();
+
+  // Input número requisição eCidade
+  labelNumReq = input<string>();
+  placeholderNumReq = input<string>(''); // Opcional, valor default vazio
+  // Controles de Formulário tipados
+  fieldValueNumReq = input<any | unknown>();
+  formControlFieldNumReq = input<Field<any, string | number>>();
 }

@@ -38,10 +38,13 @@ export const initialAberturaChamado: AberturaChamadoModel = {
 
 export const formAberturaChamado = signal(initialAberturaChamado);
 
-
 export const aberturaChamadoSchema = schema<AberturaChamadoRequestDTO>((path) => {
 
   const store = inject(ManutencaoStore);
+
+  const sub = store.subcategoriasAtivas().find(sub =>
+    sub.categoriaId === formAberturaChamado().categoriaId
+  );
 
   required(path.andar, { message: 'Selecione o ANDAR' });
 
@@ -120,10 +123,6 @@ export const aberturaChamadoSchema = schema<AberturaChamadoRequestDTO>((path) =>
 
   // Desabilita o input 'móvel relacionado' se a subcategoria não exigir número do tombo/patrimônio
   disabled(path.movelRelacionado!, () => {
-    const sub = store.subcategoriasAtivas().find(sub =>
-      sub.categoriaId === formAberturaChamado().categoriaId
-    );
-
     if (!sub) return true;
 
     return sub.requerTombamento === false;
@@ -178,14 +177,22 @@ export const iniciarAtendimentoSchema = schema<IniciarAtendimentoRequestDTO>((pa
 // CONCLUSÃO DE CHAMADO
 // ==========================================
 export const initialConcluirChamado: ConcluirChamadoRequestDTO = {
-  observacao: ''
+  observacao: '',
+  numeroRequisicaoEcidade: ''
 };
 
 export const formConcluirModel =
   signal<ConcluirChamadoRequestDTO>(initialConcluirChamado);
 
 export const concluirChamadoSchema = schema<ConcluirChamadoRequestDTO>((path) => {
+
   maxLength(path.observacao!, 1000, { message: 'A observação deve ter no máximo 1000 caracteres' });
+
+  required(path.numeroRequisicaoEcidade, { message: 'O número da requisição no e-Cidade' });
+
+  maxLength(path.numeroRequisicaoEcidade, 50, {
+    message: 'O número da requisição no e-Cidade deve ter no máximo 50 caracteres'
+  });
 });
 
 // ==========================================
