@@ -42,10 +42,6 @@ export const aberturaChamadoSchema = schema<AberturaChamadoRequestDTO>((path) =>
 
   const store = inject(ManutencaoStore);
 
-  const sub = store.subcategoriasAtivas().find(sub =>
-    sub.categoriaId === formAberturaChamado().categoriaId
-  );
-
   required(path.andar, { message: 'Selecione o ANDAR' });
 
   // Desabilita o autocomplete "Sala" se nenhum 'Andar' for selecionado
@@ -122,10 +118,16 @@ export const aberturaChamadoSchema = schema<AberturaChamadoRequestDTO>((path) =>
   });
 
   // Desabilita o input 'móvel relacionado' se a subcategoria não exigir número do tombo/patrimônio
-  disabled(path.movelRelacionado!, () => {
-    if (!sub) return true;
+  disabled(path.movelRelacionado!, ({ valueOf }) => {
+    const subcategoriaId = valueOf(path.subcategoriaId);
 
-    return sub.requerTombamento === false;
+    if (subcategoriaId === null) return true;
+
+    const subcategoriaSelecionada = store.subcategoriasAtivas()
+      .find(sub => sub.id === subcategoriaId
+      );
+
+    return subcategoriaSelecionada?.requerTombamento !== true;
 
   });
   required(path.movelRelacionado!, { message: 'O número do tombo/patrimônio é obrigatório' });

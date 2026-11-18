@@ -193,6 +193,7 @@ export class ChamadoDetalheDialogComponent implements OnInit {
   abrirAcao(tipo: 'ATRIBUIR' | 'INICIAR' | 'CONCLUIR' | 'CANCELAR') {
     const dialogRef = this.dialog.open(ChamadoAcaoDialogComponent, {
       width: '500px',
+      panelClass: 'custom-dialog',
       data: { tipo, chamadoId: this.dataId }
     });
     dialogRef.afterClosed().subscribe((sucesso) => {

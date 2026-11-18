@@ -89,6 +89,7 @@ export default class ChamadosMeusPage implements OnInit {
       width: '720px',
       maxWidth: '95vw',
       disableClose: true,
+      panelClass: 'custom-dialog',
       injector: this.injector
     });
 

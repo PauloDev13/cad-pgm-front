@@ -228,7 +228,7 @@
 @layer components {
   .custom-dialog {
     .mat-mdc-dialog-surface {
-      @apply !rounded-3xl !overflow-hidden;
+      @apply !rounded-4xl !overflow-hidden;
     }
   }
 }

@@ -38,7 +38,6 @@ import {
   template: `
     <!-- Cabeçalho do Diálogo -->
     <div class="flex justify-between items-center px-6 pt-4 pb-1 border-b border-gray-200">
-
       <h2
         mat-dialog-title
         class="!font-bold !text-xl !text-blue-700 !m-0 !p-0 !flex !items-center gap-2"
@@ -196,13 +195,11 @@ import {
           </app-field-wrapper>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
           <!-- Móvel / Tombamento Patrimonial -->
           <app-field-wrapper [field]="chamadoForm.movelRelacionado!()">
             <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
               <mat-label>
                 Nº do Tombo / Patrimônio
-                <!--                  {{ requerTombamento() ? 'Nº do Tombo / Patrimônio (Obrigatório)' : 'Nº do Tombo / Patrimônio (Opcional)' }}-->
               </mat-label>
               <input
                 matInput
@@ -240,7 +237,7 @@ import {
       <button
         mat-flat-button
         class="disabled:!bg-gray-200 disabled:!text-gray-400 !rounded-3xl !bg-blue-600 !text-white"
-        [disabled]="isFormularioInvalido()"
+        [disabled]="chamadoForm().invalid()"
         (click)="salvar()"
       >
         Abrir Chamado
@@ -253,21 +250,7 @@ export class ChamadoFormComponent implements OnInit {
   readonly listaPrioridades: PrioridadeChamado[] = Object.values(PrioridadeChamado) as PrioridadeChamado[];
   readonly rotulosPrioridade = PRIORIDADE_CHAMADO_LABELS;
   protected readonly store = inject(ManutencaoStore);
-  // readonly minDataHoje = new Date().toISOString().split('T')[0];
-  /**
-   * Identifica se a subcategoria atualmente selecionada exige tombo/patrimônio
-   */
-  readonly subcategoriaSelecionada = computed(() => {
-    const subId = this.chamadoForm.subcategoriaId().value();
 
-    if (!subId) return null;
-
-    return this.store.subcategoriasAtivas().find((s) => s.id === subId) ?? null;
-  });
-  // Data mínima para o seletor HTML date: "YYYY-MM-DD" atual
-  readonly requerTombamento = computed(() => {
-    return this.subcategoriaSelecionada()?.requerTombamento ?? false;
-  });
   // Computed que adiciona o item fixo "Outro local" à lista de salas da Store:
   readonly salasComOpcaoOutro = computed(() => {
     const salas = this.store.salasPorAndar();
@@ -276,6 +259,7 @@ export class ChamadoFormComponent implements OnInit {
       { id: 30, numeroIdentificacao: 'Outro local', andar: null, rotuloAndar: '', ativo: true }
     ];
   });
+
   private readonly dialogRef = inject(MatDialogRef<ChamadoFormComponent>);
 
   ngOnInit() {
@@ -316,24 +300,6 @@ export class ChamadoFormComponent implements OnInit {
     if (subcategoriaId) {
       this.store.loadTiposAtivosPorSubCategoria(subcategoriaId);
     }
-  }
-
-  /**
-   * Valida se o formulário está apto para submissão (incluindo regra de tombamento dinâmico)
-   */
-  isFormularioInvalido(): boolean {
-    if (this.chamadoForm().invalid()) {
-      return true;
-    }
-    // Se a subcategoria exigir tombo, valida se foi informado
-    if (this.requerTombamento()) {
-      const tombo = this.chamadoForm.movelRelacionado?.().value();
-
-      if (!tombo || tombo.trim().length === 0) {
-        return true;
-      }
-    }
-    return false;
   }
 
   getPrioridadeClass(prioridade: PrioridadeChamado): string {

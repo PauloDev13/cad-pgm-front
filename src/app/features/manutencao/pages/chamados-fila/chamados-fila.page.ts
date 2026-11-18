@@ -21,7 +21,7 @@ import { ChamadoFormComponent } from '../../components/chamado-form/chamado-form
     ChamadoFilterComponent,
     ChamadoTableComponent,
     ChamadoFilterComponent,
-    ChamadoTableComponent,
+    ChamadoTableComponent
   ],
   providers: [ManutencaoStore],
   template: `
@@ -58,7 +58,7 @@ import { ChamadoFormComponent } from '../../components/chamado-form/chamado-form
         (pageChange)="onPageChange($event)"
       />
     </div>
-  `,
+  `
 })
 export default class ChamadosFilaPage implements OnInit {
   protected readonly store = inject(ManutencaoStore);
@@ -86,7 +86,8 @@ export default class ChamadosFilaPage implements OnInit {
       width: '720px',
       maxWidth: '95vw',
       disableClose: true,
-      injector: this.injector,
+      panelClass: 'custom-dialog',
+      injector: this.injector
     });
 
     dialogRef.afterClosed().subscribe((sucesso) => {
@@ -100,8 +101,9 @@ export default class ChamadosFilaPage implements OnInit {
     const dialogRef = this.dialog.open(ChamadoDetalheDialogComponent, {
       width: '850px',
       maxWidth: '95vw',
+      panelClass: 'custom-dialog',
       data: chamadoId,
-      injector: this.injector,
+      injector: this.injector
     });
 
     dialogRef.afterClosed().subscribe(() => {

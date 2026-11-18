@@ -652,6 +652,7 @@ export default class ManutencaoCatalogoPage implements OnInit {
       width: '540px',
       maxWidth: '95vw',
       disableClose: true,
+      panelClass: 'custom-dialog',
       data: categoria ?? null,
       injector: this.injector
     });
@@ -675,6 +676,7 @@ export default class ManutencaoCatalogoPage implements OnInit {
       width: '560px',
       maxWidth: '95vw',
       disableClose: true,
+      panelClass: 'custom-dialog',
       data,
       injector: this.injector
     });
@@ -698,6 +700,7 @@ export default class ManutencaoCatalogoPage implements OnInit {
     const dialogRef = this.dialog.open(TipoServicoFormDialogComponent, {
       width: '560px',
       maxWidth: '95vw',
+      panelClass: 'custom-dialog',
       data,
       injector: this.injector
     });
