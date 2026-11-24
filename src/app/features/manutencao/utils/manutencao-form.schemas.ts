@@ -4,8 +4,7 @@ import {
   AberturaChamadoRequestDTO,
   AtribuicaoChamadoRequestDTO,
   CancelarChamadoRequestDTO,
-  ConcluirChamadoRequestDTO,
-  IniciarAtendimentoRequestDTO
+  ConcluirChamadoRequestDTO
 } from '../models/manutencao-chamado.model';
 import {
   CategoriaDemandaModel,
@@ -16,7 +15,7 @@ import {
   TipoServicoRequestDTO
 } from '../models/manutencao-catalogo.model';
 import { inject, signal } from '@angular/core';
-import { PrioridadeChamado } from '../models/manutencao-enums.model';
+import { PrioridadeChamado, TipoExecutorChamado } from '../models/manutencao-enums.model';
 import { ManutencaoStore } from '../state/manutencao.store';
 
 // ==========================================
@@ -32,7 +31,6 @@ export const initialAberturaChamado: AberturaChamadoModel = {
   prioridade: PrioridadeChamado.MEDIA,
   prazoConclusao: null,
   movelRelacionado: '',
-  numeroRequisicaoEcidade: '',
   descricao: ''
 };
 
@@ -134,9 +132,6 @@ export const aberturaChamadoSchema = schema<AberturaChamadoRequestDTO>((path) =>
   maxLength(path.movelRelacionado!, 100,
     { message: 'O número do tombo/patrimônio deve ter no máximo 100 caracteres' });
 
-  maxLength(path.numeroRequisicaoEcidade!, 50,
-    { message: 'O número da requisição no e-Cidade deve ter no máximo 50 caracteres' });
-
   required(path.descricao, { message: 'A descrição do problema é obrigatória' });
   minLength(path.descricao, 10, { message: 'Descreva a demanda com ao menos 10 caracteres' });
   maxLength(path.descricao, 2000, { message: 'A descrição não pode exceder 2000 caracteres' });
@@ -164,37 +159,60 @@ export const atribuicaoChamadoSchema = schema<AtribuicaoChamadoRequestDTO>((path
 // ==========================================
 // INÍCIO DO ATENDIMENTO
 // ==========================================
-export const initialIniciarAtendimento: IniciarAtendimentoRequestDTO = {
+
+export interface IniciarAtendimentoModel {
+  tipoExecutor: TipoExecutorChamado | null;
+  outroExecutor: string;
+  observacao: string;
+}
+
+export const initialIniciarAtendimento: IniciarAtendimentoModel = {
+  tipoExecutor: null,
+  outroExecutor: '',
   observacao: ''
 };
 
 export const formIniciarModel =
-  signal<IniciarAtendimentoRequestDTO>(initialIniciarAtendimento);
+  signal<IniciarAtendimentoModel>(initialIniciarAtendimento);
 
-export const iniciarAtendimentoSchema = schema<IniciarAtendimentoRequestDTO>((path) => {
+export const iniciarAtendimentoSchema = schema<IniciarAtendimentoModel>((path) => {
+  required(path.tipoExecutor, { message: 'Selecione quem executará o serviço' });
+
+  validate(path.outroExecutor, ({ value, valueOf }) => {
+    const tipo = valueOf(path.tipoExecutor);
+    const outro = value();
+
+    if (tipo === TipoExecutorChamado.OUTROS && (!outro || outro.trim().length === 0)) {
+      return {
+        kind: 'requiredOutroExecutor',
+        message: 'Informe quem será o executor da demanda'
+      };
+    }
+    return null;
+  });
+
+  maxLength(path.outroExecutor, 255, { message: 'A descrição deve ter no máximo 255 caracteres' });
+
   maxLength(path.observacao, 1000, { message: 'A observação deve ter no máximo 1000 caracteres' });
 });
 
 // ==========================================
 // CONCLUSÃO DE CHAMADO
 // ==========================================
-export const initialConcluirChamado: ConcluirChamadoRequestDTO = {
-  observacao: '',
-  numeroRequisicaoEcidade: ''
+
+export interface ConcluirChamadoModel {
+  observacao: string;
+}
+
+export const initialConcluirChamado: ConcluirChamadoModel = {
+  observacao: ''
 };
 
 export const formConcluirModel =
   signal<ConcluirChamadoRequestDTO>(initialConcluirChamado);
 
 export const concluirChamadoSchema = schema<ConcluirChamadoRequestDTO>((path) => {
-
   maxLength(path.observacao!, 1000, { message: 'A observação deve ter no máximo 1000 caracteres' });
-
-  required(path.numeroRequisicaoEcidade, { message: 'O número da requisição no e-Cidade' });
-
-  maxLength(path.numeroRequisicaoEcidade, 50, {
-    message: 'O número da requisição no e-Cidade deve ter no máximo 50 caracteres'
-  });
 });
 
 // ==========================================

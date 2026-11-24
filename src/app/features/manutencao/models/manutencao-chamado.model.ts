@@ -1,4 +1,10 @@
-import { AndarCodigo, EstadoChamado, EventoHistoricoChamado, PrioridadeChamado } from './manutencao-enums.model';
+import {
+  AndarCodigo,
+  EstadoChamado,
+  EventoHistoricoChamado,
+  PrioridadeChamado,
+  TipoExecutorChamado
+} from './manutencao-enums.model';
 
 export interface AberturaChamadoRequestDTO {
   andar: AndarCodigo | null;
@@ -10,7 +16,6 @@ export interface AberturaChamadoRequestDTO {
   prioridade: PrioridadeChamado;
   prazoConclusao?: string | null;
   movelRelacionado?: string;
-  numeroRequisicaoEcidade?: string;
   descricao: string;
 }
 
@@ -18,7 +23,7 @@ export interface AtualizarDadosAdministrativosRequestDTO {
   prioridade?: PrioridadeChamado;
   prazoConclusao?: string | null;
   movelRelacionado?: string | null;
-  numeroRequisicaoEcidade?: string | null;
+  numerosRequisicaoEcidade?: string[];
 }
 
 /**
@@ -27,10 +32,9 @@ export interface AtualizarDadosAdministrativosRequestDTO {
  * eliminando 'undefined' e evitando a geração de 'MaybeFieldTree'.
  */
 export type AberturaChamadoModel = Required<Omit<AberturaChamadoRequestDTO,
-  'prazoConclusao' | 'movelRelacionado' | 'numeroRequisicaoEcidade'>> & {
+  'prazoConclusao' | 'movelRelacionado'>> & {
   prazoConclusao: string | null;
   movelRelacionado: string;
-  numeroRequisicaoEcidade: string;
 };
 
 /**
@@ -49,12 +53,14 @@ export interface AtribuicaoChamadoRequestDTO {
 }
 
 export interface IniciarAtendimentoRequestDTO {
+  tipoExecutor: TipoExecutorChamado;
+  outroExecutor?: string | null;
   observacao: string;
 }
 
 export interface ConcluirChamadoRequestDTO {
   observacao: string;
-  numeroRequisicaoEcidade: string;
+  numerosRequisicaoEcidade?: string[];
 }
 
 export interface CancelarChamadoRequestDTO {
@@ -113,11 +119,14 @@ export interface ChamadoDetalheResponseDTO {
   rotuloPrioridade?: string;
   prazoConclusao?: string;
   movelRelacionado?: string;
-  numeroRequisicaoEcidade?: string;
+  requisicoesEcidade: RequisicaoEcidade[];
   solicitanteId: number;
   solicitanteNome: string;
   responsavelId?: number;
   responsavelNome?: string;
+  tipoExecutor?: TipoExecutorChamado;
+  rotuloTipoExecutor?: string;
+  outroExecutor?: string;
   criadoEm: string;
   atribuidoEm?: string;
   iniciadoEm?: string;
@@ -136,4 +145,10 @@ export interface ChamadoFilaQueryParams {
   andar?: AndarCodigo;
   salaId?: number;
   responsavelId?: number;
+}
+
+export interface RequisicaoEcidade {
+  id: number;
+  numeroRequisicao: string;
+  criadoEm: string;
 }

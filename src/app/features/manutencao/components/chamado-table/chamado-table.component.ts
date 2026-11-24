@@ -24,7 +24,7 @@ import { EstadoChamado } from '../../models/manutencao-enums.model';
     LoadingComponent
   ],
   template: `
-    <div class="flex flex-col w-full border border-gray-300 rounded-lg overflow-hidden relative min-h-[350px]">
+    <div class="flex flex-col w-full flex-1 min-h-0 border border-gray-300 rounded-lg overflow-hidden relative">
       <div
         class="absolute inset-0 z-50 bg-white/60 flex justify-center items-center backdrop-blur-sm transition-opacity duration-300"
         [class.opacity-0]="!isLoading()"
@@ -33,19 +33,33 @@ import { EstadoChamado } from '../../models/manutencao-enums.model';
         <app-loading [isLoading]="true" />
       </div>
 
-      <div class="overflow-x-auto w-full flex-1">
+      <div class="overflow-x-auto overflow-y-auto w-full flex-1 min-h-0 custom-scrollbar">
         <table mat-table [dataSource]="data()" class="w-full">
+
           <!-- Protocolo -->
           <ng-container matColumnDef="protocolo">
-            <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-800 !text-sm !px-3">Protocolo</th>
-            <td mat-cell *matCellDef="let c" class="!text-sm !px-3 font-mono font-semibold text-blue-700">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!font-semibold text-gray-800 !text-sm !px-3">
+              Protocolo
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let c"
+              class="!text-sm !px-3 font-mono font-semibold text-blue-700">
               {{ c.protocolo }}
             </td>
           </ng-container>
 
           <!-- Local -->
           <ng-container matColumnDef="local">
-            <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-800 !text-sm !px-3">Localização</th>
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!font-semibold text-gray-800 !text-sm !px-3">
+              Localização
+            </th>
             <td mat-cell *matCellDef="let c" class="!text-sm !px-3">
               <span class="font-medium text-gray-800">{{ c.rotuloAndar }}</span>
               <span class="text-xs text-gray-500 block">{{ c.localExibicao }}</span>
@@ -54,7 +68,12 @@ import { EstadoChamado } from '../../models/manutencao-enums.model';
 
           <!-- Serviço -->
           <ng-container matColumnDef="servico">
-            <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-800 !text-sm !px-3">Demanda</th>
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!font-semibold text-gray-800 !text-sm !px-3">
+              Demanda
+            </th>
             <td mat-cell *matCellDef="let c" class="!text-sm !px-3">
               <span class="font-medium text-gray-800">{{ c.tipoServicoNome }}</span>
               <span class="text-xs text-gray-500 block">{{ c.categoriaNome }}</span>
@@ -63,23 +82,52 @@ import { EstadoChamado } from '../../models/manutencao-enums.model';
 
           <!-- Solicitante -->
           <ng-container matColumnDef="solicitante">
-            <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-800 !text-sm !px-3">Solicitante</th>
-            <td mat-cell *matCellDef="let c" class="!text-sm !px-3 text-gray-700">{{ c.solicitanteNome }}</td>
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!font-semibold text-gray-800 !text-sm !px-3">
+              Solicitante
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let c"
+              class="!text-sm !px-3 text-gray-700">
+              {{ c.solicitanteNome }}
+            </td>
           </ng-container>
 
           <!-- Responsável -->
           <ng-container matColumnDef="responsavel">
-            <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-800 !text-sm !px-3">Responsável</th>
-            <td mat-cell *matCellDef="let c" class="!text-sm !px-3 text-gray-600">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!font-semibold text-gray-800 !text-sm !px-3">
+              Responsável
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let c"
+              class="!text-sm !px-3 text-gray-600">
               {{ c.responsavelNome || 'Não atribuído' }}
             </td>
           </ng-container>
 
           <!-- Estado / Status Badge -->
           <ng-container matColumnDef="estado">
-            <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-800 !text-sm !px-3 text-center">Status</th>
-            <td mat-cell *matCellDef="let c" class="!text-sm !px-3 text-center">
-              <span [ngClass]="getStatusBadgeClass(c.estado)" class="px-2.5 py-1 rounded-full text-xs font-semibold inline-block">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!font-semibold text-gray-800 !text-sm !px-3 text-center">
+              Status
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let c"
+              class="!text-sm !px-3 text-center">
+              <span
+                [ngClass]="getStatusBadgeClass(c.estado)"
+                class="px-2.5 py-1 rounded-full text-xs font-semibold inline-block"
+              >
                 {{ c.rotuloEstado }}
               </span>
             </td>
@@ -87,15 +135,28 @@ import { EstadoChamado } from '../../models/manutencao-enums.model';
 
           <!-- Data de Criação -->
           <ng-container matColumnDef="criadoEm">
-            <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-800 !text-sm !px-3">Aberto em</th>
-            <td mat-cell *matCellDef="let c" class="!text-sm !px-3 text-gray-600">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!font-semibold text-gray-800 !text-sm !px-3">
+              Aberto em
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let c"
+              class="!text-sm !px-3 text-gray-600">
               {{ c.criadoEm | date:'dd/MM/yyyy HH:mm' }}
             </td>
           </ng-container>
 
           <!-- Ações -->
           <ng-container matColumnDef="acoes">
-            <th mat-header-cell *matHeaderCellDef class="!font-semibold text-gray-800 !text-sm !px-3 text-right">Ações</th>
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!font-semibold text-gray-800 !text-sm !px-3 text-right">
+              Ações
+            </th>
             <td mat-cell *matCellDef="let c" class="!text-sm !px-3 text-right">
               <button
                 mat-icon-button
@@ -107,7 +168,11 @@ import { EstadoChamado } from '../../models/manutencao-enums.model';
             </td>
           </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr
+            mat-header-row
+            *matHeaderRowDef="displayedColumns; sticky: true"
+            class="!min-h-[40px] !h-[40px] !bg-gray-100 border-b border-gray-300 sticky top-0 z-10">
+          </tr>
           <tr
             mat-row *matRowDef="let row;
              columns: displayedColumns;"

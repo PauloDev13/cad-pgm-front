@@ -46,3 +46,15 @@ export const PRIORIDADE_CHAMADO_LABELS: Record<PrioridadeChamado, string> = {
   [PrioridadeChamado.ALTA]: 'Alta',
   [PrioridadeChamado.URGENTE]: 'Urgente'
 };
+
+export enum TipoExecutorChamado {
+  EQUIPE_PROPRIA = 'EQUIPE_PROPRIA',
+  EQUIPE_CONTRATADA = 'EQUIPE_CONTRATADA',
+  OUTROS = 'OUTROS'
+}
+
+export const TIPO_EXECUTOR_CHAMADO_LABELS: Record<TipoExecutorChamado, string> = {
+  [TipoExecutorChamado.EQUIPE_PROPRIA]: 'Equipe própria',
+  [TipoExecutorChamado.EQUIPE_CONTRATADA]: 'Equipe contratada',
+  [TipoExecutorChamado.OUTROS]: 'Outros'
+};

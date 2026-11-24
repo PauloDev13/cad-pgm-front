@@ -17,11 +17,15 @@ import {
   formCancelarModel,
   formConcluirModel,
   formIniciarModel,
-  iniciarAtendimentoSchema
+  iniciarAtendimentoSchema,
+  initialCancelarChamado,
+  initialConcluirChamado,
+  initialIniciarAtendimento
 } from '../../utils/manutencao-form.schemas';
 import { ManutencaoChamadoService } from '../../services/manutencao-chamado.service';
 import { ResponsavelComboResponseDTO } from '../../models/manutencao-chamado.model';
 import { FormFluxoChamadoComponent } from '../../utils/form-fluxo-chamado.component';
+import { TipoExecutorChamado } from '../../models/manutencao-enums.model';
 
 export type TipoAcaoChamado = 'ATRIBUIR' | 'INICIAR' | 'CONCLUIR' | 'CANCELAR';
 
@@ -101,14 +105,55 @@ export interface DialogAcaoData {
 
       <!-- 2. INICIAR ATENDIMENTO -->
       @if (data.tipo === 'INICIAR') {
-        <app-form-fluxo-chamado
-          titleMessage="Confirma o início dos reparos técnicos para este chamado?"
-          label="Observações Iniciais (Opcional)"
-          [rowsValue]="3"
-          placeholder="Ex: Deslocando-se para o local"
-          [fieldValue]="formIniciar.observacao()"
-          [formControlField]="formIniciar.observacao"
-        />
+        <!--        <app-form-fluxo-chamado-->
+          <!--          titleMessage="Confirma o início dos reparos técnicos para este chamado?"-->
+          <!--          label="Observações Iniciais (Opcional)"-->
+          <!--          [rowsValue]="3"-->
+          <!--          placeholder="Ex: Deslocando-se para o local"-->
+          <!--          [fieldValue]="formIniciar.observacao()"-->
+          <!--          [formControlField]="formIniciar.observacao"-->
+          <!--        />-->
+        <form autocomplete="off" class="flex flex-col gap-4">
+          <p class="text-xs text-gray-600 font-medium m-0">
+            Selecione quem será o responsável por executar o serviço solicitado neste chamado.
+          </p>
+          <!-- Dropdown Tipo de Executor (Obrigatório) -->
+          <app-field-wrapper [field]="formIniciar.tipoExecutor()">
+            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+              <mat-label>Executor do Serviço</mat-label>
+              <mat-select [formField]="formIniciar.tipoExecutor" placeholder="Selecione o executor">
+                @for (opcao of opcoesTipoExecutor; track opcao.value) {
+                  <mat-option [value]="opcao.value">{{ opcao.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </app-field-wrapper>
+          <!-- Input dinâmico para Outros (Exibido e obrigatório apenas se 'OUTROS') -->
+          @if (formIniciar.tipoExecutor().value() === TipoExecutorChamado.OUTROS) {
+            <app-field-wrapper [field]="formIniciar.outroExecutor()">
+              <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+                <mat-label>Identificação do Executor</mat-label>
+                <input
+                  matInput
+                  [formField]="formIniciar.outroExecutor"
+                  placeholder="Ex: Empresa terceirizada XYZ, técnico externo..."
+                />
+              </mat-form-field>
+            </app-field-wrapper>
+          }
+          <!-- Observações Iniciais (Opcional) -->
+          <app-field-wrapper [field]="formIniciar.observacao()">
+            <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
+              <mat-label>Observações Iniciais (Opcional)</mat-label>
+              <textarea
+                matInput
+                rows="3"
+                [formField]="formIniciar.observacao"
+                placeholder="Ex: Deslocando-se para o local / Início da triagem técnica"
+              ></textarea>
+            </mat-form-field>
+          </app-field-wrapper>
+        </form>
       }
 
       <!-- 3. CONCLUIR ATENDIMENTO -->
@@ -116,14 +161,11 @@ export interface DialogAcaoData {
         <app-form-fluxo-chamado
           titleMessage="Descreva os procedimentos executados para a finalização do chamado."
           label="Laudo/Observação Conclusiva"
-          labelNumReq="Nº do protocolo eCidade"
           [isConcluirChamado]="true"
           placeholder="Ex: Peças trocadas, reparo testado e normalizado"
           [fieldValue]="formConcluir.observacao()"
           [formControlField]="formConcluir.observacao"
-          [fieldValueNumReq]="formConcluir.numeroRequisicaoEcidade()"
-          [formControlFieldNumReq]="formConcluir.numeroRequisicaoEcidade"
-          placeholderNumReq="Número do protocolo de requisição de material"
+          [(numerosRequisicao)]="numerosRequisicao"
         />
       }
 
@@ -154,22 +196,49 @@ export interface DialogAcaoData {
   `
 })
 export class ChamadoAcaoDialogComponent implements OnInit {
-  readonly servidoresDisponiveis = signal<ResponsavelComboResponseDTO[]>([]);
+  // Declaração de formulários
   readonly formAtribuicao = form(formAtribuicaoModel, atribuicaoChamadoSchema);
   readonly formIniciar = form(formIniciarModel, iniciarAtendimentoSchema);
   readonly formConcluir = form(formConcluirModel, concluirChamadoSchema);
   readonly formCancelar = form(formCancelarModel, cancelarChamadoSchema);
+
+  // Signals
+  readonly servidoresDisponiveis = signal<ResponsavelComboResponseDTO[]>([]);
+  readonly numerosRequisicao = signal<string[]>([]);
+
+  // Variáveis
+  readonly TipoExecutorChamado = TipoExecutorChamado;
+  readonly opcoesTipoExecutor = [
+    { value: TipoExecutorChamado.EQUIPE_PROPRIA, label: 'Equipe própria' },
+    { value: TipoExecutorChamado.EQUIPE_CONTRATADA, label: 'Equipe contratada' },
+    { value: TipoExecutorChamado.OUTROS, label: 'Outros' }
+  ];
+
+  // Injeção de dependências
   protected readonly data = inject<DialogAcaoData>(MAT_DIALOG_DATA);
   protected readonly store = inject(ManutencaoStore);
   private readonly chamadoService = inject(ManutencaoChamadoService);
   private readonly dialogRef = inject(MatDialogRef<ChamadoAcaoDialogComponent>);
 
   ngOnInit() {
+    if (this.data.tipo === 'INICIAR') {
+      formIniciarModel.set({ ...initialIniciarAtendimento });
+    }
+
     if (this.data.tipo === 'ATRIBUIR') {
       this.chamadoService.listarResponsaveisDisponiveis().subscribe((res) => {
         this.servidoresDisponiveis.set(res);
       });
     }
+
+    if (this.data.tipo === 'CONCLUIR') {
+      formConcluirModel.set({ ...initialConcluirChamado });
+    }
+
+    if (this.data.tipo === 'CANCELAR') {
+      formCancelarModel.set({ ...initialCancelarChamado });
+    }
+
   }
 
   getTitulo(): string {
@@ -242,9 +311,15 @@ export class ChamadoAcaoDialogComponent implements OnInit {
 
       case 'INICIAR':
         await submit(this.formIniciar, async (field) => {
+          const formValues = field().value();
           this.store.iniciarAtendimento({
             id: chamadoId,
-            payload: field().value(),
+            payload: {
+              tipoExecutor: formValues.tipoExecutor!,
+              outroExecutor: formValues.tipoExecutor === TipoExecutorChamado.OUTROS
+                ? formValues.outroExecutor.trim() : null,
+              observacao: formValues.observacao
+            },
             onSuccess: () => this.dialogRef.close(true)
           });
         });
@@ -252,9 +327,14 @@ export class ChamadoAcaoDialogComponent implements OnInit {
 
       case 'CONCLUIR':
         await submit(this.formConcluir, async (field) => {
+          const formValues = field().value();
           this.store.concluirAtendimento({
             id: chamadoId,
-            payload: field().value(),
+            // payload: field().value(),
+            payload: {
+              observacao: formValues.observacao,
+              numerosRequisicaoEcidade: this.numerosRequisicao()
+            },
             onSuccess: () => this.dialogRef.close(true)
           });
         });

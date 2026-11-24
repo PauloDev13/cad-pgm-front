@@ -1,12 +1,15 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, model } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { Field, FormField } from '@angular/forms/signals';
 import { MatInputModule } from '@angular/material/input';
 import { FieldWrapperComponent } from '../../../shared/layout/component/field-wrapper/field-wrapper.component';
+import {
+  RequisicaoEcidadeInputComponent
+} from '../components/requisicao-ecidade-input/requisicao-ecidade-input.component';
 
 @Component({
   selector: 'app-form-fluxo-chamado',
-  imports: [MatFormFieldModule, FormField, MatInputModule, FieldWrapperComponent],
+  imports: [MatFormFieldModule, FormField, MatInputModule, FieldWrapperComponent, RequisicaoEcidadeInputComponent],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -32,17 +35,7 @@ import { FieldWrapperComponent } from '../../../shared/layout/component/field-wr
 
       <!--  input só é exibo quando é chamada o dialog 'Concluir' atendimento-->
       @if (isConcluirChamado()) {
-        <app-field-wrapper [field]="fieldValueNumReq()">
-          <mat-form-field appearance="outline" class="w-full" subscriptSizing="dynamic">
-            <mat-label>{{ labelNumReq() }}</mat-label>
-            <input
-              matInput
-              [formField]="formControlFieldNumReq()!"
-              [placeholder]="placeholderNumReq()"
-            />
-          </mat-form-field>
-        </app-field-wrapper>
-
+        <app-requisicao-ecidade-input [(numeros)]="numerosRequisicao" />
       }
     </form>
   `
@@ -51,7 +44,6 @@ export class FormFluxoChamadoComponent {
   // Textos
   titleMessage = input.required<string>();
   classValue = input<string>();
-
   isConcluirChamado = input<boolean>(false);
 
   // Input observação
@@ -63,9 +55,10 @@ export class FormFluxoChamadoComponent {
   formControlField = input.required<Field<any, string | number>>();
 
   // Input número requisição eCidade
-  labelNumReq = input<string>();
-  placeholderNumReq = input<string>(''); // Opcional, valor default vazio
-  // Controles de Formulário tipados
-  fieldValueNumReq = input<any | unknown>();
-  formControlFieldNumReq = input<Field<any, string | number>>();
+  // labelNumReq = input<string>();
+  // placeholderNumReq = input<string>(''); // Opcional, valor default vazio
+  // // Controles de Formulário tipados
+  // fieldValueNumReq = input<any | unknown>();
+  // formControlFieldNumReq = input<Field<any, string | number>>();
+  numerosRequisicao = model<string[]>([]);
 }

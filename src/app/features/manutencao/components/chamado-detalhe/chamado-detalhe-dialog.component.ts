@@ -33,7 +33,7 @@ import { ChamadoDetalheResponseDTO } from '../../models/manutencao-chamado.model
 
       <mat-dialog-content class="!p-6 flex flex-col gap-6 max-h-[80vh]">
         <!-- Painel Superior: Dados Gerais -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 bg-gray-50 p-4 rounded-xl border border-gray-200">
           <div>
             <span class="text-xs text-gray-500 font-medium">Localização</span>
             <p class="font-semibold text-gray-800 m-0">{{ chamado.rotuloAndar }}
@@ -49,9 +49,61 @@ import { ChamadoDetalheResponseDTO } from '../../models/manutencao-chamado.model
           </div>
         </div>
 
+        <div [class]="chamado.rotuloTipoExecutor ? 'my-0' : 'my-4'">
+          @if (chamado.rotuloTipoExecutor) {
+            <!--  Definição do Executor do Serviço -->
+            <h4 class="text-xs font-bold  text-blue-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <mat-icon class="!text-base !w-4 !h-4 !text-blue-600">inventory_2</mat-icon>
+              Executor do Serviço
+            </h4>
+            <div class="bg-gray-50 p-3 rounded-xl border border-gray-200">
+              @if (chamado.rotuloTipoExecutor) {
+
+                {{ chamado.rotuloTipoExecutor }}
+
+                @if (chamado.outroExecutor) {
+                  <span class="text-xs text-gray-500 font-normal block truncate" [title]="chamado.outroExecutor">
+                    ({{ chamado.outroExecutor }})
+                  </span>
+                }
+              }
+            </div>
+          }
+
+          <!-- Requisições de Material e-Cidade (1:N) -->
+          @if (chamado.requisicoesEcidade && chamado.requisicoesEcidade.length > 0) {
+            <!--          <div class="pb-4">-->
+            <h4 class="text-xs font-bold text-blue-600 uppercase tracking-wider mt-2 mb-2 flex items-center gap-1.5">
+              <mat-icon class="!text-base !w-4 !h-4 !text-blue-600">inventory_2</mat-icon>
+              Requisições de Material (e-Cidade)
+            </h4>
+            <div class="bg-gray-50 p-3 rounded-xl border border-gray-200">
+              @if (chamado.requisicoesEcidade && chamado.requisicoesEcidade.length > 0) {
+                <div class="flex flex-wrap gap-2">
+                  @for (req of chamado.requisicoesEcidade; track req.id) {
+                    <div
+                      class="flex items-center gap-2 px-3 py-1.5 bg-white border border-blue-200 rounded-lg shadow-xs hover:border-blue-400 transition-colors"
+                    >
+                      <mat-icon class="!text-base !w-4 !h-4 text-blue-600">receipt_long</mat-icon>
+                      <div class="flex flex-col">
+              <span class="font-mono font-bold text-xs text-blue-900 leading-tight">
+                {{ req.numeroRequisicao }}
+              </span>
+                        <span class="text-[10px] text-gray-400 leading-tight">
+                Registrado em {{ req.criadoEm | date:'dd/MM/yyyy HH:mm' }}
+              </span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+
         <!-- Descrição -->
         <div>
-          <h4 class="text-sm font-bold text-gray-700 uppercase tracking-wider mt-2 mb-1">Descrição do Problema</h4>
+          <h4 class="text-xs font-bold text-blue-600 uppercase tracking-wider mt-2 mb-1">Descrição do Problema</h4>
           <p class="text-gray-700 bg-white p-3 rounded-lg border border-gray-200 text-sm whitespace-pre-wrap">
             {{ chamado.descricaoProblema }}
           </p>
@@ -59,7 +111,7 @@ import { ChamadoDetalheResponseDTO } from '../../models/manutencao-chamado.model
 
         <!-- Linha do Tempo (Timeline) -->
         <div>
-          <h4 class="text-sm font-bold text-gray-700 uppercase pt-3 tracking-wider mb-3">Histórico de Movimentações</h4>
+          <h4 class="text-xs font-bold text-blue-600 uppercase pt-3 tracking-wider mb-3">Histórico de Movimentações</h4>
           <div class="relative border-l-2 border-blue-300 ml-4 pl-4 flex flex-col gap-4">
             @for (item of chamado.historico; track item.id) {
               <div class="relative group">

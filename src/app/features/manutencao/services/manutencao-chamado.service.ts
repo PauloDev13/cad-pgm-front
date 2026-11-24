@@ -14,6 +14,7 @@ import {
   ChamadoResumoResponseDTO,
   ConcluirChamadoRequestDTO,
   IniciarAtendimentoRequestDTO,
+  RequisicaoEcidade,
   ResponsavelComboResponseDTO
 } from '../models/manutencao-chamado.model';
 
@@ -97,5 +98,16 @@ export class ManutencaoChamadoService {
   cancelarChamado(id: number, payload: CancelarChamadoRequestDTO): Observable<ChamadoDetalheResponseDTO> {
     return this.http.post<ChamadoDetalheResponseDTO>(`${this.baseUrl}/${id}/cancelar`, payload)
       .pipe(catchError(customHandlerError));
+  }
+
+  listarRequisicoesEcidade(chamadoId: number): Observable<RequisicaoEcidade[]> {
+    return this.http.get<RequisicaoEcidade[]>(`${this.baseUrl}/${chamadoId}/requisicoes-ecidade`)
+      .pipe(catchError(customHandlerError));
+  }
+
+  adicionarRequisicoesEcidade(chamadoId: number, numerosRequisicao: string[]): Observable<RequisicaoEcidade[]> {
+    return this.http.post<RequisicaoEcidade[]>(`${this.baseUrl}/${chamadoId}/requisicoes-ecidade`, {
+      numerosRequisicao
+    }).pipe(catchError(customHandlerError));
   }
 }

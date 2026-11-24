@@ -14,6 +14,9 @@ import { ChamadoFormComponent } from '../../components/chamado-form/chamado-form
   selector: 'app-chamados-fila',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: 'flex flex-col flex-1 min-h-0 w-full'
+  },
   imports: [
     CommonModule,
     MatButtonModule,
@@ -25,8 +28,8 @@ import { ChamadoFormComponent } from '../../components/chamado-form/chamado-form
   ],
   providers: [ManutencaoStore],
   template: `
-    <div class="bg-gray-50 rounded-2xl p-4 md:p-6 mx-auto max-w-max w-full">
-      <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4">
+    <div class="bg-gray-50 rounded-2xl p-4 md:p-6 mx-auto w-full flex flex-col flex-1 min-h-0">
+      <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4 shrink-0">
         <div>
           <h1 class="text-xl md:text-2xl font-bold text-blue-800 leading-tight">
             Fila Geral de Manutenção
@@ -36,7 +39,8 @@ import { ChamadoFormComponent } from '../../components/chamado-form/chamado-form
 
         <button
           mat-flat-button
-          class="!rounded-3xl !bg-blue-600 !text-white w-full sm:w-auto hover:!scale-105 transition-transform flex items-center justify-center !h-10"
+          class="!rounded-3xl !bg-blue-600 !text-white w-full sm:w-auto hover:!scale-105 transition-transform
+                 flex items-center justify-center !h-10"
           (click)="abrirNovoChamado()"
         >
           <mat-icon class="!mr-1">add</mat-icon>
@@ -45,10 +49,11 @@ import { ChamadoFormComponent } from '../../components/chamado-form/chamado-form
       </div>
 
       <!-- Filtros Dinâmicos -->
-      <app-chamado-filter />
+      <app-chamado-filter class="shrink-0 block" />
 
       <!-- Tabela com Resultados -->
       <app-chamado-table
+        class="flex-1 min-h-0 flex flex-col"
         [data]="store.chamados()"
         [isLoading]="store.isLoading()"
         [totalElements]="store.totalElements()"
