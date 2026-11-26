@@ -3,17 +3,24 @@ import { inject } from '@angular/core';
 import { IDecodedToken } from '../models/auth.model';
 import { AuthStore } from '../store/auth.store';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
+import { isTokenExpired } from '../utils/token.utils';
 
 // Protege as rotas privadas (Exige estar logado)
 export const authGuard: CanActivateFn = (route, state) => {
   const authStore = inject(AuthStore);
+  const notificationService = inject(NotificationService);
   const router = inject(Router);
 
   // Pega o usuário logado no signal
   const user: IDecodedToken | null = authStore.currentUser();
 
-  // Se houve usuário logado
+  // Se houver usuário logado, valida se o token não está expirado
   if (user) {
+    if (isTokenExpired(authStore.token(), 0)) {
+      authStore.forceLogout();
+      notificationService.warning('Sua sessão expirou. Faça login novamente', 'Sessão Expirada');
+      return router.createUrlTree(['/auth/login']);
+    }
     // e precisa trocar a senha e tentar ir para qualquer lugar
     // que não seja a tela de troca, é bloqueado.
     if (user.isForcePasswordChange && !state.url.includes('/auth/troca-obrigatoria')) {

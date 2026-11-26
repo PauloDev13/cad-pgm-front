@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { catchError, EMPTY, throwError } from 'rxjs';
 import { NotificationService } from '../../../shared/service/NotificationSnackbar.service';
 import { AuthStore } from '../store/auth.store';
+import { isTokenExpired } from '../utils/token.utils';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // Injeções de dependência
@@ -11,13 +12,28 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   // Pega o usuário logado
   const token: string | null = authStore.token();
+  const isLoginRequest = req.url.includes('/auth/login');
+  const isPublicAuthRequest =
+    req.url.includes('/auth/forgot-password') ||
+    req.url.includes('/auth/reset-password') ||
+    req.url.includes('/auth/validate-reset-token');
 
-  // Cria uma variável que recebe uma cópia requisição (Req e imutável)
+  // =========================================================================
+  // 1. VERIFICAÇÃO PROATIVA (PRÉ-REQUISIÇÃO)
+  // Se existe token, mas ele já expirou, aborta a requisição antes de ir à rede.
+  // Evita tráfego desnecessário e contorna o erro de CORS do backend (status 0).
+  // =========================================================================
+  if (token && !isLoginRequest && !isPublicAuthRequest) {
+    if (isTokenExpired(token)) {
+      authStore.forceLogout();
+      notificationService.warning('Sua sessão expirou. Faça login novamente', 'Sessão Expirada');
+      return EMPTY;
+    }
+  }
+
+  // Clona a requisição anexando o cabeçalho Authorization
   let authReq = req;
-
-  // Se houver token, anexa em TODAS as requisições (Java + Python)
   if (token) {
-    // Faz um clone da requisição e passar o token no cabeçalho com o prefixo "Bearer"
     authReq = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`
@@ -25,45 +41,61 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     });
   }
 
-  const isLoginRequest = req.url.includes('/auth/login');
+  // Cria uma variável que recebe uma cópia requisição (Req e imutável)
+  // let authReq = req;
+
+  // Se houver token, anexa em TODAS as requisições (Java + Python)
+  // if (token) {
+  //   // Faz um clone da requisição e passar o token no cabeçalho com o prefixo "Bearer"
+  //   authReq = req.clone({
+  //     setHeaders: {
+  //       Authorization: `Bearer ${token}`
+  //     }
+  //   });
+  // }
+
+  // const isLoginRequest = req.url.includes('/auth/login');
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
 
-      // let msg = 'Ocorreu um erro inesperado';
-
       if (error.error instanceof Blob) {
         try {
           error.error.text().then((text: string) => {
-            notificationService.warning('Servidor sem foto cadastrada');
-            // const body = JSON.parse(text);
-            // msg = body.message ?? msg;
-            // notificationService.warning(msg);
+            notificationService.warning('Servidor sem foto cadastrada ' + text);
           });
         } catch {
           notificationService.warning('Ocorreu um erro inesperado');
         }
         notificationService.warning('Servidor sem foto cadastrada');
       }
+
       // =========================================================================
-      // 1. SESSÃO EXPIRADA (Status 401 e 403)
-      // O Interceptor SÓ atua se NÃO for uma requisição de login!
-      // Quando o backend Python rejeita o JWT, forceLogout também é acionado.
+      // 2. SESSÃO EXPIRADA NO BACKEND (Status 401)
+      // Ocorre quando o backend invalida o token ou expira no relógio do servidor
       // =========================================================================
       if (error.status === 401 && !isLoginRequest) {
         // Sai da aplicação
         authStore.forceLogout();
-
         // Exibe mensagem na tela
-        notificationService.warning('Sua sessão expirou. Faça login novamente');
+        notificationService.warning('Sua sessão expirou. Faça login novamente', 'Sessão Expirada');
 
         return EMPTY;
       }
 
       // =========================================================================
-      // 2. ACESSO NEGADO / PERMISSÃO INSUFICIENTE (Status 403)
-      // O usuário está validamente autenticado, mas sua Role não permite a ação.
-      // O usuário NÃO deve ser deslogado!
+      // 3. FALHA DE REDE / CORS (Status 0)
+      // Se status === 0 e o token do usuário expirou (ou foi invalidado),
+      // significa que o backend rejeitou a requisição e o navegador omitiu o 401.
+      // =========================================================================
+      if (error.status === 0 && token && isTokenExpired(token, 0)) {
+        authStore.forceLogout();
+        notificationService.warning('Sua sessão expirou. Faça login novamente', 'Sessão Expirada');
+        return EMPTY;
+      }
+
+      // =========================================================================
+      // 4. ACESSO NEGADO / PERMISSÃO INSUFICIENTE (Status 403)
       // =========================================================================
       if (error.status === 403) {
         notificationService.warning(
@@ -76,6 +108,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => error);
       }
 
+      // =========================================================================
+      // 5. LIMITE DE PAYLOAD (Status 413)
+      // =========================================================================
       if (error.status === 413) {
         notificationService.warning(
           'Os arquivos enviados excedem o limite máximo permitido de 20 MB',
@@ -85,6 +120,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         Object.defineProperty(error, 'globalHandled', { value: true });
       }
 
+      // =========================================================================
+      // 6. FALHA GENÉRICA DE CONEXÃO / GATEWAY (Status 0 ou 502 legítimos)
+      // =========================================================================
       if (error.status === 0 || error.status === 502) {
         notificationService.warning(
           'Não foi possível conectar ao servidor. Verifique sua ' +
@@ -94,6 +132,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         Object.defineProperty(error, 'globalHandled', { value: true });
       }
 
+      // =========================================================================
+      // 7. ERRO INTERNO DO SERVIDOR (Status 500)
+      // =========================================================================
       if (error.status === 500) {
         notificationService.warning(
           'Erro interno no servidor. Contate o administrador' +

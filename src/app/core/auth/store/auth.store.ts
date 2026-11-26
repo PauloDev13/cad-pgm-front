@@ -10,6 +10,7 @@ import { IAuthRequest, IDecodedToken, IDecodedTokenUsername } from '../models/au
 import { jwtDecode } from 'jwt-decode';
 import { ErrorHandlerService } from '../../../shared/service/error-handler.service';
 import { isPlatformBrowser } from '@angular/common';
+import { isTokenExpired } from '../utils/token.utils';
 
 type AuthState = {
   isLoading: boolean;
@@ -288,22 +289,32 @@ export const AuthStore = signalStore(
         const token = localStorage.getItem('jwt-token');
         if (token) {
           try {
-            const decoded = jwtDecode<IDecodedToken>(token);
-            const expirationTime = (decoded.exp || 0) * 1000;
-            const currentTime = new Date().getTime();
-
-            // Se expirou, destrói e manda para o login
-            if (currentTime >= expirationTime) {
+            if (isTokenExpired(token, 0)) {
               localStorage.removeItem('jwt-token');
-              // O store.logout() (se definido nos métodos) garante a rota e limpeza
               patchState(store, initialState);
             } else {
-              // Se é válido, hidrata a Store (O App acorda logado!)
+              const decoded = jwtDecode<IDecodedToken>(token);
               patchState(store, {
                 token: token,
                 currentUser: decoded
               });
             }
+            // const decoded = jwtDecode<IDecodedToken>(token);
+            // const expirationTime = (decoded.exp || 0) * 1000;
+            // const currentTime = new Date().getTime();
+
+            // Se expirou, destrói e manda para o login
+            // if (currentTime >= expirationTime) {
+            //   localStorage.removeItem('jwt-token');
+            //   // O store.logout() (se definido nos métodos) garante a rota e limpeza
+            //   patchState(store, initialState);
+            // } else {
+            //   // Se é válido, hidrata a Store (O App acorda logado!)
+            //   patchState(store, {
+            //     token: token,
+            //     currentUser: decoded
+            //   });
+            // }
           } catch (err) {
             localStorage.removeItem('jwt-token');
             patchState(store, initialState);
